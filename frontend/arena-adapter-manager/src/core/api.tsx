@@ -176,6 +176,7 @@ export type MrApiTask =
   | "sync-navansatte"
   | "sync-utdanning"
   | "generate-utbetaling"
+  | "regenerer-utbetaling"
   | "beregn-utbetaling"
   | "sync-arrangorer"
   | "send-tilsagnsbrev"

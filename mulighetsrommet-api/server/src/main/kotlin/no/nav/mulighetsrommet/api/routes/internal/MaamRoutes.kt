@@ -13,6 +13,7 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.admin.arrangor.SyncArrangor
 import no.nav.mulighetsrommet.admin.arrangor.SyncArrangorUseCase
 import no.nav.mulighetsrommet.api.ApiDatabase
+import no.nav.mulighetsrommet.api.arrangorflate.service.ArrangorflateUtbetalingService
 import no.nav.mulighetsrommet.api.brukerutbetaling.BrukerUtbetalingService
 import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadGjennomforinger
 import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateGjennomforingAvtaleFreeTextSearch
@@ -47,6 +48,7 @@ fun Route.maamRoutes() {
     val arrangor: SyncArrangorUseCase by inject()
     val tilsagnService: TilsagnService by inject()
     val utbetalingService: UtbetalingService by inject()
+    val arrangorflateUtbetalingService: ArrangorflateUtbetalingService by inject()
 
     val initialLoadGjennomforinger: InitialLoadGjennomforinger by inject()
     val initialLoadTiltakstyper: InitialLoadTiltakstyper by inject()
@@ -163,6 +165,23 @@ fun Route.maamRoutes() {
                 call.respond(HttpStatusCode.OK, response)
             }
 
+            post("regenerer-utbetaling") {
+                val request = call.receive<RegenererUtbetalingRequest>()
+                val utbetaling = arrangorflateUtbetalingService.getOrError(request.utbetalingId)
+
+                arrangorflateUtbetalingService.regenererUtbetaling(utbetaling)
+                    .onLeft { errors ->
+                        val message = errors.joinToString(prefix = "Utbetalingen kan ikke regenereres: ") { it.detail }
+                        call.respond(HttpStatusCode.BadRequest, ExecutedTaskResponse(message))
+                    }
+                    .onRight {
+                        val response = ExecutedTaskResponse(
+                            "Regenererte utbetaling med id=${request.utbetalingId} på vegne av arrangør",
+                        )
+                        call.respond(HttpStatusCode.OK, response)
+                    }
+            }
+
             post("beregn-utbetaling") {
                 val request = call.receive<BeregnUtbetalingRequest>()
                 val periode = Periode.forMonthOf(request.date)
@@ -243,6 +262,12 @@ fun Route.maamRoutes() {
 data class GenerateUtbetalingRequest(
     @Serializable(with = LocalDateSerializer::class)
     val date: LocalDate,
+)
+
+@Serializable
+data class RegenererUtbetalingRequest(
+    @Serializable(with = UUIDSerializer::class)
+    val utbetalingId: UUID,
 )
 
 @Serializable
