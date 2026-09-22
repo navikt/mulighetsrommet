@@ -6,12 +6,8 @@ import { Definisjonsliste } from "@mr/frontend-common/components/definisjonslist
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { formaterDato, formaterPeriode } from "@mr/frontend-common/utils/date";
 import { formaterValutaBelop } from "@mr/frontend-common/utils/utils";
-import { BodyShort, Button, ExpansionCard, Heading, VStack } from "@navikt/ds-react";
-import {
-  TilskuddHandling,
-  TilskuddVedtak,
-  VedtakResultat,
-} from "@tiltaksadministrasjon/api-client";
+import { BodyShort, Button, ExpansionCard, Heading, HStack, VStack } from "@navikt/ds-react";
+import { TilskuddHandling, TilskuddVedtak } from "@tiltaksadministrasjon/api-client";
 import { tilskuddMottakerToString } from "@/utils/Utils";
 import { useOpphorBrukerUtbetaling } from "@/api/tilskudd-behandling/mutations";
 import { useNavigate } from "react-router";
@@ -88,8 +84,15 @@ export function TilskuddDetaljerPage() {
                       { key: "Intern kommentar", value: vedtak.kommentarIntern ?? "-" },
                     ]}
                   />
-                  {tilskudd.handlinger.includes(TilskuddHandling.OPPHOR) &&
-                    vedtak.vedtakResultat.type === VedtakResultat.INNVILGELSE && (
+                  <Separator />
+                  <HStack justify="space-between">
+                    <Lenke
+                      to={`/gjennomforinger/${gjennomforingId}/tilskudd-behandling/${vedtak.behandlingId}`}
+                    >
+                      Gå til tilskuddsbehandling
+                    </Lenke>
+
+                    {tilskudd.handlinger.includes(TilskuddHandling.OPPHOR) && index === 0 && (
                       <Button
                         type="button"
                         variant="tertiary"
@@ -99,12 +102,7 @@ export function TilskuddDetaljerPage() {
                         Opphør
                       </Button>
                     )}
-                  <Separator />
-                  <Lenke
-                    to={`/gjennomforinger/${gjennomforingId}/tilskudd-behandling/${vedtak.behandlingId}`}
-                  >
-                    Gå til tilskuddsbehandling
-                  </Lenke>
+                  </HStack>
                 </VStack>
               </ExpansionCard.Content>
             </ExpansionCard>

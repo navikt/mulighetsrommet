@@ -13,6 +13,7 @@ import {
   TilskuddBehandlingStatusAarsak,
   ValidationError,
   Valuta,
+  VedtakResultat,
 } from "@tiltaksadministrasjon/api-client";
 import { Alert, BodyShort, Box, Button, HStack, List, VStack } from "@navikt/ds-react";
 import { useState } from "react";
