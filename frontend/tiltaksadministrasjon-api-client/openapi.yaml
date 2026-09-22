@@ -6454,7 +6454,9 @@ components:
         agent:
           type: string
         navn:
-          type: string
+          type:
+          - "null"
+          - string
       required:
       - agent
       - navn
@@ -9342,7 +9344,10 @@ components:
           $ref: "#/components/schemas/TilskuddBehandlingType"
         samletVedtakResultat:
           $ref: "#/components/schemas/SamletVedtakResultat"
+        behandlendeEnhet:
+          type: string
       required:
+      - behandlendeEnhet
       - gjennomforingId
       - id
       - samletVedtakResultat

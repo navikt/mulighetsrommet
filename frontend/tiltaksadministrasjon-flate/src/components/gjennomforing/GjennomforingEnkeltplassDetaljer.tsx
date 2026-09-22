@@ -251,8 +251,8 @@ function PrisendringTilGodkjenning({
       <InfoCard.Content>
         <VStack gap="space-8">
           <BodyShort>
-            {totrinnskontroll.behandletAv.navn} sendte en prisendring til godkjenning den{" "}
-            {formaterDato(totrinnskontroll.behandletTidspunkt)}.
+            {totrinnskontroll.behandletAv.navn || totrinnskontroll.behandletAv.agent} sendte en
+            prisendring til godkjenning den {formaterDato(totrinnskontroll.behandletTidspunkt)}.
           </BodyShort>
           <Betalingsbetingelser prismodell={prismodell} />
         </VStack>

@@ -10,11 +10,20 @@ interface BehandlerInformasjonProps {
 export function BehandlerInformasjon({ opprettelse }: BehandlerInformasjonProps) {
   return (
     <HStack gap="space-16">
-      <MetadataVStack label="Behandlet av" value={opprettelse.behandletAv.navn} />
+      <MetadataVStack
+        label="Behandlet av"
+        value={opprettelse.behandletAv.navn || opprettelse.behandletAv.agent}
+      />
       {erReturnert(opprettelse) ? (
-        <MetadataVStack label="Returnert av" value={opprettelse.besluttetAv.navn} />
+        <MetadataVStack
+          label="Returnert av"
+          value={opprettelse.besluttetAv.navn || opprettelse.behandletAv.agent}
+        />
       ) : erGodkjent(opprettelse) ? (
-        <MetadataVStack label="Attestert av" value={opprettelse.besluttetAv.navn} />
+        <MetadataVStack
+          label="Attestert av"
+          value={opprettelse.besluttetAv.navn || opprettelse.behandletAv.agent}
+        />
       ) : null}
     </HStack>
   );

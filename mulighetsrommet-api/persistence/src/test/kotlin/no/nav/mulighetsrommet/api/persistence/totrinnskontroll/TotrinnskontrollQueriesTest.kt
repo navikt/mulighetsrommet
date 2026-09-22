@@ -213,30 +213,4 @@ class TotrinnskontrollQueriesTest : FunSpec({
             }
         }
     }
-
-    test("getDto returnerer NavIdent som fallback-navn når nav_ansatt ikke finnes") {
-        database.runAndRollback {
-            val entityId = UUID.randomUUID()
-
-            queries.totrinnskontroll.upsert(
-                Totrinnskontroll(
-                    id = UUID.randomUUID(),
-                    entityId = entityId,
-                    type = TotrinnskontrollType.TILSAGN_OPPRETTELSE,
-                    behandletAv = NavIdent("B123456"),
-                    behandletTidspunkt = Instant.now(),
-                    status = TotrinnskontrollStatus.TIL_BEHANDLING,
-                    besluttetAv = null,
-                    besluttetTidspunkt = null,
-                    aarsaker = emptyList(),
-                    forklaring = null,
-                ),
-            )
-
-            val dto = queries.totrinnskontroll.getDtoOrError(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE)
-            dto.shouldBeTypeOf<TotrinnskontrollDto.TilBeslutning>().should {
-                it.behandletAv.navn shouldBe "B123456"
-            }
-        }
-    }
 })
