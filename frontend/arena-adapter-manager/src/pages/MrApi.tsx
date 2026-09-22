@@ -98,6 +98,23 @@ export function MrApi() {
 
       <RunTask
         base={ApiBase.MR_API}
+        task={"regenerer-utbetaling"}
+        form={(props) => (
+          <TextInputForm
+            {...props}
+            label="Utbetaling-id som skal regenereres"
+            name="utbetalingId"
+          />
+        )}
+      >
+        <BodyShort>
+          Regenererer en utbetaling på vegne av arrangør. Utbetalingen må være av en type som kan
+          regenereres, og det kan ikke finnes en nyere ikke-avbrutt utbetaling for samme periode.
+        </BodyShort>
+      </RunTask>
+
+      <RunTask
+        base={ApiBase.MR_API}
         task={"beregn-utbetaling"}
         form={(props) => (
           <DatePickerForm

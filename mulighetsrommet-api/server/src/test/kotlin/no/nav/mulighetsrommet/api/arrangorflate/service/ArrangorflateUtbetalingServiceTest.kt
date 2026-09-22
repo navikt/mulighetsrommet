@@ -968,14 +968,6 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
             }
         }
 
-        test("kan ikke regenerere utbetaling uten innsending") {
-            val service = createUtbetalingService()
-
-            service.regenererUtbetaling(avbruttArrangorflateUtbetaling.copy(innsending = null)) shouldBeLeft listOf(
-                FieldError.of("Utbetalingen kan ikke regenereres"),
-            )
-        }
-
         test("kan ikke regenerere utbetaling med beregningstype som ikke støttes") {
             val service = createUtbetalingService()
 
