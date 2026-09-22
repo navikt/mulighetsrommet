@@ -1,5 +1,6 @@
 import { PortableText as PortableTextLib, PortableTextReactComponents } from "@portabletext/react";
 import { Alert, BodyLong, Box, GuidePanel, Link, List } from "@navikt/ds-react";
+import { AlertVariant, utledAlertVariant } from "./alertVariant";
 
 interface ImageProp {
   value: { asset: { url: string }; altText: string };
@@ -10,7 +11,7 @@ interface TipsProps {
 }
 
 interface AlertMessageProps {
-  value: { variant: "info" | "warning" | "error"; innhold: Record<any, any> };
+  value: { variant: AlertVariant | AlertVariant[]; innhold: Record<any, any> };
 }
 
 const portableTextComponent: Partial<PortableTextReactComponents> = {
@@ -67,7 +68,7 @@ const portableTextComponent: Partial<PortableTextReactComponents> = {
     },
     alertMessage: ({ value }: AlertMessageProps) => {
       return (
-        <Alert style={{ margin: "1rem 0" }} variant={value.variant}>
+        <Alert style={{ margin: "1rem 0" }} variant={utledAlertVariant(value.variant)}>
           <PortableTextLib value={value.innhold} components={portableTextComponent} />
         </Alert>
       );
