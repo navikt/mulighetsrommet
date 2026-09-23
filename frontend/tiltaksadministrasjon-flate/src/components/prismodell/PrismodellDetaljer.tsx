@@ -96,28 +96,22 @@ function BetalingsbetingelserTilskudd({ prismodell }: PrismodellDetaljerProps) {
       <Heading level="4" size="xsmall">
         Tilskudd til en tilgjengelig studie- eller skoleplass
       </Heading>
-      <BodyShort textColor="subtle">Utbetales basert på dokumenterte utgifter</BodyShort>
+      <BodyShort>Utbetales basert på dokumenterte utgifter</BodyShort>
       <Heading level="4" size="xsmall">
         Aktuelle tilskuddstyper
       </Heading>
-      <BodyShort textColor="subtle" spacing={true}>
-        Ved flere semester er den estimerte totalsummen oppgitt
-      </BodyShort>
+      <BodyShort spacing={true}>Ved flere semester er den estimerte totalsummen oppgitt</BodyShort>
       <List size="small" as="ul">
         {prismodell.tilskudd.map((t) => (
           <List.Item key={t.type}>
             <HStack justify="space-between">
-              <BodyShort textColor="subtle" size="small">
-                {opplaeringTilskuddToString(t.type)}
-              </BodyShort>
-              <BodyShort textColor="subtle" size="small">
-                {formaterValutaBelop(t.belop)}
-              </BodyShort>
+              <BodyShort size="small">{opplaeringTilskuddToString(t.type)}</BodyShort>
+              <BodyShort size="small">{formaterValutaBelop(t.belop)}</BodyShort>
             </HStack>
           </List.Item>
         ))}
       </List>
-      <Separator />
+      <hr style={{ color: "var(--ax-border-neutral)" }} className="w-xs self-end" />
       <BodyShort size="small" weight="semibold" className="ml-auto">
         {`Estimert totalsum: ${formaterValutaBelop(totalt)}`}
       </BodyShort>
@@ -127,7 +121,7 @@ function BetalingsbetingelserTilskudd({ prismodell }: PrismodellDetaljerProps) {
           <Heading level="4" size="xsmall">
             Tilleggsopplysninger om kostnader
           </Heading>
-          <BodyShort textColor="subtle">{prismodell.prisbetingelser}</BodyShort>
+          <BodyShort>{prismodell.prisbetingelser}</BodyShort>
         </>
       )}
     </VStack>
@@ -140,15 +134,13 @@ function BetalingsbetingelserIngenKostnader({ prismodell }: PrismodellDetaljerPr
       <Heading level="4" size="xsmall">
         Ingen kostnader
       </Heading>
-      <BodyShort textColor="subtle">Ikke aktuelt med betaling eller refusjon fra Nav</BodyShort>
+      <BodyShort>Ikke aktuelt med betaling eller refusjon fra Nav</BodyShort>
       {prismodell.aarsak && (
         <>
           <Heading level="4" size="xsmall">
             Årsaken til at det ikke er aktuelt med betaling eller refusjon fra Nav
           </Heading>
-          <BodyShort textColor="subtle">
-            {ingenKostnaderAarsakToString(prismodell.aarsak)}
-          </BodyShort>
+          <BodyShort>{ingenKostnaderAarsakToString(prismodell.aarsak)}</BodyShort>
         </>
       )}
       {prismodell.prisbetingelser && (
@@ -156,7 +148,7 @@ function BetalingsbetingelserIngenKostnader({ prismodell }: PrismodellDetaljerPr
           <Heading level="4" size="xsmall">
             Tilleggsopplysninger om egenfinansieringen
           </Heading>
-          <BodyShort textColor="subtle">{prismodell.prisbetingelser}</BodyShort>
+          <BodyShort>{prismodell.prisbetingelser}</BodyShort>
         </>
       )}
     </VStack>

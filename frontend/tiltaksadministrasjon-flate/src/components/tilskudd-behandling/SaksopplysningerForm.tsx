@@ -4,7 +4,6 @@ import { Path, useFieldArray, useFormContext } from "react-hook-form";
 import { FormDateInput } from "@/components/skjema/FormDateInput";
 import { FormSelect } from "@/components/skjema/FormSelect";
 import { FormTextField } from "@/components/skjema/FormTextField";
-import { FormGroup } from "@/layouts/FormGroup";
 import {
   OpplaeringtilskuddKode,
   TilskuddBehandlingRequest,
@@ -14,13 +13,13 @@ import {
   ValutaBelop,
 } from "@tiltaksadministrasjon/api-client";
 import { VelgKostnadssted } from "../tilsagn/form/VelgKostnadssted";
-import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
 import { ControlledRadioGroup } from "../skjema/ControlledRadioGroup";
 import { useKostnadssteder } from "@/api/enhet/useKostnadssteder";
 import { BetalingsinformasjonFields } from "../utbetaling/form/BetalingsinformasjonFields";
 import { opplaeringTilskuddToString, tilskuddMottakerToString } from "@/utils/Utils";
 import { defaultTilskuddRequest } from "./defaultTilskuddRequest";
 import { TotaltBelopBox } from "./TotaltBelopBox";
+import { NyFormGroup } from "@/layouts/NyFormGroup";
 
 interface Props {
   arrangorId: string;
@@ -51,103 +50,103 @@ export function SaksopplysningerForm({ arrangorId }: Props) {
 
   return (
     <>
-      <Heading size="small" level="3" spacing>
-        Informasjon fra søknad
+      <Heading size="medium" level="3" spacing>
+        Saksopplysninger
       </Heading>
-      <VStack gap="space-20" align="start">
+      <VStack gap="space-20">
         {fields.map((field, index) => (
-          <FormGroup key={field.id}>
-            <HStack align="center" justify="space-between" wrap={false}>
-              <VStack gap="space-8">
-                <FormTextField
-                  label="Journalpost-ID i Gosys"
-                  name={`tilskudd.${index}.soknadJournalpostId`}
+          <NyFormGroup key={field.id}>
+            <Heading size="small" level="4" spacing>
+              Tilskudd
+            </Heading>
+            <VStack gap="space-20" align="start">
+              <FormTextField
+                label="Journalpost-ID i Gosys"
+                name={`tilskudd.${index}.soknadJournalpostId`}
+                required
+              />
+              <FormDateInput name={`tilskudd.${index}.soknadDato`} label="Søknadsdato" required />
+              <HStack gap="space-16">
+                <FormDateInput
+                  name={`tilskudd.${index}.periodeStart`}
+                  label="Periodestart"
                   required
                 />
-                <FormDateInput name={`tilskudd.${index}.soknadDato`} label="Søknadsdato" required />
-                <HStack gap="space-8">
-                  <FormDateInput
-                    name={`tilskudd.${index}.periodeStart`}
-                    label="Periodestart"
-                    required
-                  />
-                  <FormDateInput
-                    name={`tilskudd.${index}.periodeSlutt`}
-                    label="Periodeslutt"
-                    required
-                  />
-                </HStack>
-                <VelgKostnadssted
-                  name={`tilskudd.${index}.kostnadssted`}
-                  kostnadssteder={kostnadssteder.flatMap((r) => r.kostnadssteder.map((k) => k))}
+                <FormDateInput
+                  name={`tilskudd.${index}.periodeSlutt`}
+                  label="Periodeslutt"
+                  required
                 />
-                <HStack gap="space-24" align="start">
-                  <FormSelect
-                    label="Tilskuddstype"
-                    name={`tilskudd.${index}.tilskuddOpplaeringType`}
-                    required
-                  >
-                    <option value="">-- Velg tilskuddstype --</option>
-                    {(Object.keys(OpplaeringtilskuddKode) as OpplaeringtilskuddKode[]).map(
-                      (tilskudd) => (
-                        <option key={tilskudd} value={tilskudd}>
-                          {opplaeringTilskuddToString(tilskudd)}
-                        </option>
-                      ),
-                    )}
-                  </FormSelect>
-                  <TextField
-                    size="small"
-                    type="text"
-                    label="Beløp fra søknad"
-                    error={errors.tilskudd?.[index]?.soknadBelop?.belop?.message}
-                    {...register(`tilskudd.${index}.soknadBelop.belop`, {
-                      setValueAs: (t: string) => (t === "" ? null : Number(t)),
-                      validate: (value: number | null) => {
-                        if (!Number.isInteger(value)) return "Beløp må være et heltall";
-                        return true;
-                      },
-                    })}
-                  />
-                  <FormSelect
-                    size="small"
-                    label="Valuta"
-                    name={`tilskudd.${index}.soknadBelop.valuta`}
-                    required
-                    readOnly
-                  >
-                    <option value={Valuta.NOK}>NOK</option>
-                    <option value={Valuta.SEK}>SEK</option>
-                  </FormSelect>
-                  <Spacer />
-                </HStack>
-                <Separator />
-                <ControlledRadioGroup
-                  size="small"
-                  name={`tilskudd.${index}.utbetalingMottaker`}
-                  legend="Hvem skal motta utbetalingen?"
-                  horisontal
+              </HStack>
+              <HStack gap="space-16" align="start">
+                <FormSelect
+                  label="Tilskuddstype"
+                  name={`tilskudd.${index}.tilskuddOpplaeringType`}
+                  required
                 >
-                  <Radio value={TilskuddMottaker.BRUKER}>
-                    {tilskuddMottakerToString(TilskuddMottaker.BRUKER)}
-                  </Radio>
-                  <Radio value={TilskuddMottaker.ARRANGOR}>
-                    {tilskuddMottakerToString(TilskuddMottaker.ARRANGOR)}
-                  </Radio>
-                </ControlledRadioGroup>
-                {watch("tilskudd")[index].utbetalingMottaker === TilskuddMottaker.ARRANGOR && (
-                  <BetalingsinformasjonFields<TilskuddBehandlingRequestTilskuddRequest>
-                    arrangorId={arrangorId}
-                    kidNummerName={
-                      `tilskudd.${index}.kidNummer` as Path<TilskuddBehandlingRequestTilskuddRequest>
-                    }
-                  />
-                )}
-              </VStack>
+                  <option value="">-- Velg tilskuddstype --</option>
+                  {(Object.keys(OpplaeringtilskuddKode) as OpplaeringtilskuddKode[]).map(
+                    (tilskudd) => (
+                      <option key={tilskudd} value={tilskudd}>
+                        {opplaeringTilskuddToString(tilskudd)}
+                      </option>
+                    ),
+                  )}
+                </FormSelect>
+                <TextField
+                  size="small"
+                  type="text"
+                  label="Beløp fra søknad"
+                  error={errors.tilskudd?.[index]?.soknadBelop?.belop?.message}
+                  {...register(`tilskudd.${index}.soknadBelop.belop`, {
+                    setValueAs: (t: string) => (t === "" ? null : Number(t)),
+                    validate: (value: number | null) => {
+                      if (!Number.isInteger(value)) return "Beløp må være et heltall";
+                      return true;
+                    },
+                  })}
+                />
+                <FormSelect
+                  size="small"
+                  label="Valuta"
+                  name={`tilskudd.${index}.soknadBelop.valuta`}
+                  required
+                  readOnly
+                >
+                  <option value={Valuta.NOK}>NOK</option>
+                </FormSelect>
+                <Spacer />
+              </HStack>
+              <VelgKostnadssted
+                name={`tilskudd.${index}.kostnadssted`}
+                kostnadssteder={kostnadssteder.flatMap((r) => r.kostnadssteder.map((k) => k))}
+              />
+              <ControlledRadioGroup
+                size="small"
+                name={`tilskudd.${index}.utbetalingMottaker`}
+                legend="Hvem skal motta utbetalingen?"
+                horisontal
+              >
+                <Radio value={TilskuddMottaker.BRUKER}>
+                  {tilskuddMottakerToString(TilskuddMottaker.BRUKER)}
+                </Radio>
+                <Radio value={TilskuddMottaker.ARRANGOR}>
+                  {tilskuddMottakerToString(TilskuddMottaker.ARRANGOR)}
+                </Radio>
+              </ControlledRadioGroup>
+              {watch("tilskudd")[index].utbetalingMottaker === TilskuddMottaker.ARRANGOR && (
+                <BetalingsinformasjonFields<TilskuddBehandlingRequestTilskuddRequest>
+                  arrangorId={arrangorId}
+                  kidNummerName={
+                    `tilskudd.${index}.kidNummer` as Path<TilskuddBehandlingRequestTilskuddRequest>
+                  }
+                />
+              )}
               {fields.length > 1 && (
                 <Button
+                  className="self-end"
                   size="small"
-                  variant="tertiary"
+                  variant="secondary"
                   data-color="neutral"
                   icon={<TrashIcon aria-hidden />}
                   onClick={() => remove(index)}
@@ -155,18 +154,20 @@ export function SaksopplysningerForm({ arrangorId }: Props) {
                   Fjern
                 </Button>
               )}
-            </HStack>
-          </FormGroup>
+            </VStack>
+          </NyFormGroup>
         ))}
-        <Button
-          size="small"
-          type="button"
-          variant="secondary"
-          icon={<PlusIcon aria-hidden />}
-          onClick={() => append(defaultTilskuddRequest())}
-        >
-          Legg til tilskudd
-        </Button>
+        <HStack align="start">
+          <Button
+            size="small"
+            type="button"
+            variant="secondary"
+            icon={<PlusIcon aria-hidden />}
+            onClick={() => append(defaultTilskuddRequest())}
+          >
+            Legg til tilskudd
+          </Button>
+        </HStack>
         <TotaltBelopBox label="Totalt beløp fra søknad" belop={totaltBelop()} />
       </VStack>
     </>
