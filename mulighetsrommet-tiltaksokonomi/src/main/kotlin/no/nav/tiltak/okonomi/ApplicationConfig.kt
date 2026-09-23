@@ -42,7 +42,7 @@ data class KafkaClients(
     ),
     val ekspertbistandBestillingConsumer: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
         id = "bestilling-ekspertbistand",
-        topic = "team-mulighetsrommet.tiltaksokonomi.ekspertbistand-bestillinger-v1",
+        topic = "fager.ekspertbistand.bestillinger-v1",
         consumerProperties = KafkaPropertiesPreset.aivenDefaultConsumerProperties("tiltaksokonomi.bestilling.ekspertbistand.v1"),
     ),
 )
