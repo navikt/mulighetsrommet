@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.api.utbetaling.api
 
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollDto
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.Totrinnskontroll
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
@@ -14,10 +13,6 @@ data class UtbetalingStatusDto(
     val status: DataElement.Status,
 ) {
     companion object {
-        fun fromUtbetalingStatus(utbetalingStatus: UtbetalingStatusType, blokkeringer: Set<Utbetaling.Blokkering>, avbrytelse: TotrinnskontrollDto?): UtbetalingStatusDto {
-            return fromUtbetalingStatus(utbetalingStatus, blokkeringer) { utledAvbruttStatus(avbrytelse) }
-        }
-
         fun fromUtbetalingStatus(utbetalingStatus: UtbetalingStatusType, blokkeringer: Set<Utbetaling.Blokkering>, avbrytelse: Totrinnskontroll?): UtbetalingStatusDto {
             return fromUtbetalingStatus(utbetalingStatus, blokkeringer) { utledAvbruttStatus(avbrytelse) }
         }
@@ -48,17 +43,6 @@ data class UtbetalingStatusDto(
             }
             val status = DataElement.Status(type.beskrivelse, type.variant)
             return UtbetalingStatusDto(type, status)
-        }
-
-        private fun utledAvbruttStatus(avbrytelse: TotrinnskontrollDto?): Type {
-            if (avbrytelse == null) {
-                return Type.AVBRUTT_AV_ARRANGOR
-            }
-            return if (avbrytelse is TotrinnskontrollDto.Besluttet && avbrytelse.beslutning == TotrinnskontrollDto.Beslutning.GODKJENT) {
-                Type.AVBRUTT_AV_NAV
-            } else {
-                Type.AVBRUTT_AV_ARRANGOR
-            }
         }
 
         private fun utledAvbruttStatus(avbrytelse: Totrinnskontroll?): Type {
