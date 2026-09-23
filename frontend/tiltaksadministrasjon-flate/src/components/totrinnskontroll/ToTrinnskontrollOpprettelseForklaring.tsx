@@ -24,10 +24,10 @@ export function ToTrinnsOpprettelseForklaring({ heading, opprettelse }: Props) {
       tekster={[
         `${opprettelse.besluttetAv.navn} returnerte den ${formaterDato(opprettelse.besluttetTidspunkt)}.`,
       ]}
-      aarsaker={opprettelse.aarsaker.map((aarsak) =>
+      aarsaker={opprettelse.besluttetAarsaker.map((aarsak) =>
         aarsakTilTekst(aarsak as TilsagnStatusAarsak | TilskuddBehandlingStatusAarsak),
       )}
-      forklaring={opprettelse.forklaring}
+      forklaring={opprettelse.besluttetBegrunnelse}
     />
   );
 }

@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.totrinnskontroll.kafka
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromJsonElement
 import no.nav.mulighetsrommet.api.contracts.totrinnskontroll.TotrinnskontrollHendelse
+import no.nav.mulighetsrommet.api.contracts.totrinnskontroll.TotrinnskontrollHendelseLegacy
 import no.nav.mulighetsrommet.api.contracts.totrinnskontroll.TotrinnskontrollHendelseOld
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import org.apache.kafka.common.serialization.Deserializer
@@ -19,7 +20,11 @@ class TotrinnskontrollHendelseDeserializer : Deserializer<TotrinnskontrollHendel
         return try {
             JsonIgnoreUnknownKeys.decodeFromJsonElement<TotrinnskontrollHendelse>(json)
         } catch (_: Throwable) {
-            JsonIgnoreUnknownKeys.decodeFromJsonElement<TotrinnskontrollHendelseOld>(json).toNew()
+            try {
+                JsonIgnoreUnknownKeys.decodeFromJsonElement<TotrinnskontrollHendelseLegacy>(json).toNew()
+            } catch (_: Throwable) {
+                JsonIgnoreUnknownKeys.decodeFromJsonElement<TotrinnskontrollHendelseOld>(json).toNew()
+            }
         }
     }
 }

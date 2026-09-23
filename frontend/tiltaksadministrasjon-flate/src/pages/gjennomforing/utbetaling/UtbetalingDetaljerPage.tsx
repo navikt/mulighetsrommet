@@ -284,10 +284,10 @@ export function UtbetalingDetaljerPage() {
                   <Separator />
                   <TotrinnsBegrunnelse
                     title="Begrunnelse for avbrytelse"
-                    aarsaker={utbetaling.avbrytelse.aarsaker.map((arsak) =>
+                    aarsaker={utbetaling.avbrytelse.behandletAarsaker.map((arsak) =>
                       aarsakTilTekst(arsak as UtbetalingStatusAarsak),
                     )}
-                    forklaring={utbetaling.avbrytelse.forklaring}
+                    forklaring={utbetaling.avbrytelse.behandletBegrunnelse}
                   />
                 </>
               )}

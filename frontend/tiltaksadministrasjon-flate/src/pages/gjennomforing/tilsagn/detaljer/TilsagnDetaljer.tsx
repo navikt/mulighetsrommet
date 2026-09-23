@@ -85,10 +85,10 @@ export function TilsagnDetaljer() {
               annullering.behandletTidspunkt,
             )}.`,
           ]}
-          aarsaker={annullering.aarsaker.map((aarsak) =>
+          aarsaker={annullering.behandletAarsaker.map((aarsak) =>
             aarsakTilTekst(aarsak as TilsagnStatusAarsak),
           )}
-          forklaring={annullering.forklaring}
+          forklaring={annullering.behandletBegrunnelse}
         />
       )}
       {erReturnert(annullering) && !tilOppgjor && (
@@ -99,10 +99,10 @@ export function TilsagnDetaljer() {
               annullering.behandletTidspunkt,
             )}.`,
           ]}
-          aarsaker={annullering.aarsaker.map((aarsak) =>
+          aarsaker={annullering.besluttetAarsaker.map((aarsak) =>
             aarsakTilTekst(aarsak as TilsagnStatusAarsak),
           )}
-          forklaring={annullering.forklaring}
+          forklaring={annullering.besluttetBegrunnelse}
         />
       )}
       {erTilBeslutning(tilOppgjor) && (
@@ -114,10 +114,10 @@ export function TilsagnDetaljer() {
               tilOppgjor.behandletTidspunkt,
             )}.`,
           ]}
-          aarsaker={tilOppgjor.aarsaker.map((aarsak) =>
+          aarsaker={tilOppgjor.behandletAarsaker.map((aarsak) =>
             aarsakTilTekst(aarsak as TilsagnStatusAarsak),
           )}
-          forklaring={tilOppgjor.forklaring}
+          forklaring={tilOppgjor.behandletBegrunnelse}
         />
       )}
       {erReturnert(tilOppgjor) && (
@@ -128,10 +128,10 @@ export function TilsagnDetaljer() {
               tilOppgjor.behandletTidspunkt,
             )}.`,
           ]}
-          aarsaker={tilOppgjor.aarsaker.map((aarsak) =>
+          aarsaker={tilOppgjor.besluttetAarsaker.map((aarsak) =>
             aarsakTilTekst(aarsak as TilsagnStatusAarsak),
           )}
-          forklaring={tilOppgjor.forklaring}
+          forklaring={tilOppgjor.besluttetBegrunnelse}
         />
       )}
       <VStack gap="space-24" padding="space-16" className="rounded-lg border-ax-neutral-400 border">
@@ -240,10 +240,10 @@ export function TilsagnDetaljer() {
                 <Separator />
                 <TotrinnsBegrunnelse
                   title="Begrunnelse for annullering"
-                  aarsaker={(annullering?.aarsaker ?? []).map((arsak) =>
+                  aarsaker={(annullering?.behandletAarsaker ?? []).map((arsak) =>
                     aarsakTilTekst(arsak as TilsagnStatusAarsak),
                   )}
-                  forklaring={annullering?.forklaring}
+                  forklaring={annullering?.behandletBegrunnelse}
                 />
               </>
             )}
@@ -252,10 +252,10 @@ export function TilsagnDetaljer() {
                 <Separator />
                 <TotrinnsBegrunnelse
                   title="Begrunnelse for oppgjør"
-                  aarsaker={(tilOppgjor?.aarsaker ?? []).map((arsak) =>
+                  aarsaker={(tilOppgjor?.behandletAarsaker ?? []).map((arsak) =>
                     aarsakTilTekst(arsak as TilsagnStatusAarsak),
                   )}
-                  forklaring={tilOppgjor?.forklaring}
+                  forklaring={tilOppgjor?.behandletBegrunnelse}
                 />
               </>
             )}

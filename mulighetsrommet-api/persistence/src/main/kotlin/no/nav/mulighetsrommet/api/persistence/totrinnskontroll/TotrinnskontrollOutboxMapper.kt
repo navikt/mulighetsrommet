@@ -22,10 +22,12 @@ fun Totrinnskontroll.toTotrinnskontrollHendelse(): TotrinnskontrollHendelse = To
     },
     behandletAv = behandletAv.toAgentHendelse(),
     behandletTidspunkt = behandletTidspunkt,
+    behandletBegrunnelse = behandletBegrunnelse,
+    behandletAarsaker = behandletAarsaker,
     besluttetAv = besluttetAv?.toAgentHendelse(),
     besluttetTidspunkt = besluttetTidspunkt,
-    aarsaker = aarsaker,
-    forklaring = forklaring,
+    besluttetBegrunnelse = besluttetBegrunnelse,
+    besluttetAarsaker = besluttetAarsaker,
 )
 
 private fun Agent.toAgentHendelse(): TotrinnskontrollAgent = when (this) {

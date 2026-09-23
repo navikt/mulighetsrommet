@@ -25,11 +25,13 @@ data class TotrinnskontrollHendelse(
     val behandletAv: TotrinnskontrollAgent,
     @Serializable(with = InstantSerializer::class)
     val behandletTidspunkt: Instant,
+    val behandletBegrunnelse: String?,
+    val behandletAarsaker: List<String>,
     val besluttetAv: TotrinnskontrollAgent?,
     @Serializable(with = InstantSerializer::class)
     val besluttetTidspunkt: Instant?,
-    val aarsaker: List<String>,
-    val forklaring: String?,
+    val besluttetBegrunnelse: String?,
+    val besluttetAarsaker: List<String>,
 ) {
     enum class Status {
         TIL_BEHANDLING,
@@ -68,10 +70,12 @@ data class TotrinnskontrollHendelseOld(
         entityId = entityId,
         type = type,
         behandletTidspunkt = behandletTidspunkt,
+        behandletBegrunnelse = forklaring.takeIf { besluttelse == null || besluttelse == Besluttelse.GODKJENT },
+        behandletAarsaker = aarsaker.takeIf { besluttelse == null || besluttelse == Besluttelse.GODKJENT }.orEmpty(),
         besluttetAv = besluttetAv,
         besluttetTidspunkt = besluttetTidspunkt,
-        aarsaker = aarsaker,
-        forklaring = forklaring,
+        besluttetBegrunnelse = forklaring.takeIf { besluttelse == Besluttelse.AVVIST },
+        besluttetAarsaker = aarsaker.takeIf { besluttelse == Besluttelse.AVVIST }.orEmpty(),
         behandletAv = behandletAv,
         status = when (besluttelse) {
             Besluttelse.GODKJENT -> Status.GODKJENT

@@ -25,10 +25,10 @@ export function ToTrinnsAvbrytelseForklaring({ avbrytelse }: Props) {
             tekster={[
               `${avbrytelse.besluttetAv.navn} avslo avbrytelsen ${formaterDato(avbrytelse.besluttetTidspunkt)}.`,
             ]}
-            aarsaker={avbrytelse.aarsaker.map((aarsak) =>
+            aarsaker={avbrytelse.besluttetAarsaker.map((aarsak) =>
               aarsakTilTekst(aarsak as UtbetalingStatusAarsak),
             )}
-            forklaring={avbrytelse.forklaring}
+            forklaring={avbrytelse.besluttetBegrunnelse}
           />
         );
       case TotrinnskontrollDtoBeslutning.GODKJENT:
@@ -39,10 +39,10 @@ export function ToTrinnsAvbrytelseForklaring({ avbrytelse }: Props) {
               `${avbrytelse.behandletAv.navn || avbrytelse.behandletAv.agent} sendte kravet til avbrytelse den ${formaterDato(avbrytelse.behandletTidspunkt)}.`,
               `Godkjent av ${avbrytelse.besluttetAv.navn} `,
             ]}
-            aarsaker={avbrytelse.aarsaker.map((aarsak) =>
+            aarsaker={avbrytelse.behandletAarsaker.map((aarsak) =>
               aarsakTilTekst(aarsak as UtbetalingStatusAarsak),
             )}
-            forklaring={avbrytelse.forklaring}
+            forklaring={avbrytelse.behandletBegrunnelse}
           />
         );
       case TotrinnskontrollDtoBeslutning.SATT_PA_VENT:
@@ -55,10 +55,10 @@ export function ToTrinnsAvbrytelseForklaring({ avbrytelse }: Props) {
       tekster={[
         `${avbrytelse.behandletAv.navn || avbrytelse.behandletAv.agent} sendte kravet til avbrytelse den ${formaterDato(avbrytelse.behandletTidspunkt)}.`,
       ]}
-      aarsaker={avbrytelse.aarsaker.map((aarsak) =>
+      aarsaker={avbrytelse.behandletAarsaker.map((aarsak) =>
         aarsakTilTekst(aarsak as UtbetalingStatusAarsak),
       )}
-      forklaring={avbrytelse.forklaring}
+      forklaring={avbrytelse.behandletBegrunnelse}
     />
   );
 }

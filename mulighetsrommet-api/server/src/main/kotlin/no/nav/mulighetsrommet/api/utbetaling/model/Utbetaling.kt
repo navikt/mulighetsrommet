@@ -83,8 +83,8 @@ data class Utbetaling(
                     entityId = id,
                     type = TotrinnskontrollType.UTBETALING_AVBRYTELSE,
                     behandletAv = agent,
-                    aarsaker = aarsaker,
-                    forklaring = forklaring,
+                    behandletBegrunnelse = forklaring,
+                    behandletAarsaker = aarsaker,
                 ),
                 returnert = status,
             ),
@@ -112,7 +112,9 @@ data class Utbetaling(
                 .nel()
                 .left()
         }
-        return avbrytelse!!.totrinnskontroll.returner(besluttetAv, aarsaker, forklaring).mapLeft { it.toFieldErrors() }
+        return avbrytelse!!.totrinnskontroll
+            .returner(besluttetAv, forklaring, aarsaker)
+            .mapLeft { it.toFieldErrors() }
             .map { retunert ->
                 copy(avbrytelse = avbrytelse.copy(totrinnskontroll = retunert), status = avbrytelse.returnert)
             }

@@ -228,7 +228,7 @@ class AdminUtbetalingService(
             id = id,
             agent = navIdent,
             aarsaker = request.aarsaker.map { it.name },
-            forklaring = request.forklaring,
+            begrunnelse = request.forklaring,
         )
     }
 
@@ -245,7 +245,7 @@ class AdminUtbetalingService(
             id = id,
             besluttetAv = navIdent,
             aarsaker = request.aarsaker.map { it.name },
-            forklaring = request.forklaring,
+            begrunnelse = request.forklaring,
         )
     }
 

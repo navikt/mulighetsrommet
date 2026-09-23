@@ -86,8 +86,8 @@ const tilBeslutning: TotrinnskontrollDto = {
     navn: "Per Haraldsen",
   },
   behandletTidspunkt: "2024-01-01T22:00:00",
-  aarsaker: [],
-  forklaring: null,
+  behandletBegrunnelse: null,
+  behandletAarsaker: [],
 };
 
 const beregning: TilsagnBeregningDto = {
