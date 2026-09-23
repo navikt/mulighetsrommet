@@ -9,6 +9,7 @@ base {
 
 dependencies {
     implementation(projects.mulighetsrommetApi.domain)
+    implementation(projects.mulighetsrommetApi.contracts)
 
     implementation(projects.common.domain)
     implementation(projects.common.logging)

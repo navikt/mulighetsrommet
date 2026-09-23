@@ -250,6 +250,10 @@ val ApplicationConfigTest = AppConfig(
         url = "http://localhost/kontoregister",
         scope = "default",
     ),
+    helvedSimuleringConfig = AuthenticatedHttpClientConfig(
+        url = "http://localhost/helved-simulering",
+        scope = "default",
+    ),
     clamav = HttpClientConfig(
         url = "http://localhost",
     ),

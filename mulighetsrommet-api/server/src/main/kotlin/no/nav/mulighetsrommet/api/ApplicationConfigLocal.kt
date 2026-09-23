@@ -597,6 +597,10 @@ val ApplicationConfigLocal = AppConfig(
         url = "http://localhost:8090",
         scope = "default",
     ),
+    helvedSimuleringConfig = AuthenticatedHttpClientConfig(
+        url = "http://localhost:8090",
+        scope = "default",
+    ),
     clamav = HttpClientConfig(
         url = "http://localhost:8090",
     ),

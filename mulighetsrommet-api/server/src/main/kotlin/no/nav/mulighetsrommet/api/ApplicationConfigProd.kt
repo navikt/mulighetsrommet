@@ -428,6 +428,10 @@ val ApplicationConfigProd = AppConfig(
         url = "https://sokos-kontoregister.prod-fss-pub.nais.io",
         scope = "api://prod-fss.okonomi.sokos-kontoregister/.default",
     ),
+    helvedSimuleringConfig = AuthenticatedHttpClientConfig(
+        url = "http://simulering.helved",
+        scope = "api://prod-gcp.helved.simulering/.default",
+    ),
     tasks = TaskConfig(
         synchronizeNorgEnheter = SynchronizeNorgEnheter.Config(
             delayOfMinutes = 360,
