@@ -6,14 +6,14 @@ import {
 import { AarsakerOgForklaring } from "@/components/totrinnskontroll/AarsakerOgForklaring";
 import { aarsakTilTekst } from "@/utils/Utils";
 import { formaterDato } from "@mr/frontend-common/utils/date";
-import { erReturnert, erBesluttet } from "@/utils/totrinnskontroll";
+import { erBesluttet, erReturnert } from "@/utils/totrinnskontroll";
 
 type Props = {
   heading: string;
   opprettelse: TotrinnskontrollDto;
 };
 
-export function ToTrinnsOpprettelseForklaring({ heading, opprettelse }: Props) {
+export function TotrinnskontrollReturnert({ heading, opprettelse }: Props) {
   if (!erBesluttet(opprettelse) || !erReturnert(opprettelse)) {
     return null;
   }

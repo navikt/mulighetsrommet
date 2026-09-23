@@ -11,7 +11,7 @@ import { Box, Button, Heading, HGrid, HStack, Show, Spacer, VStack } from "@navi
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import { AarsakerOgForklaring } from "@/components/totrinnskontroll/AarsakerOgForklaring";
-import { ToTrinnsOpprettelseForklaring } from "@/components/totrinnskontroll/ToTrinnskontrollOpprettelseForklaring";
+import { TotrinnskontrollReturnert } from "@/components/totrinnskontroll/TotrinnskontrollReturnert";
 import { formaterDato, formaterPeriode } from "@mr/frontend-common/utils/date";
 import { useTilsagn } from "./tilsagnDetaljerLoader";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
@@ -76,7 +76,7 @@ export function TilsagnDetaljer() {
 
   return (
     <>
-      <ToTrinnsOpprettelseForklaring heading="Tilsagnet ble returnert" opprettelse={opprettelse} />
+      <TotrinnskontrollReturnert heading="Tilsagnet ble returnert" opprettelse={opprettelse} />
       {erTilBeslutning(annullering) && (
         <AarsakerOgForklaring
           heading="Tilsagnet annulleres"
