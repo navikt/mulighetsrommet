@@ -25,11 +25,14 @@ class NavAnsattService(
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    suspend fun getOrSynchronizeNavAnsatt(navIdent: NavIdent, accessType: AccessType): NavAnsatt = db.suspendTransaction {
-        repository.navAnsatt.get(navIdent) ?: run {
-            logger.info("Fant ikke NavAnsatt for navIdent=$navIdent i databasen, forsøker Azure AD i stedet")
+    suspend fun getOrSynchronizeNavAnsatt(navIdent: NavIdent, accessType: AccessType): NavAnsatt {
+        db.session { repository.navAnsatt.get(navIdent) }?.let { return it }
 
-            val ansatt = getNavAnsattFromAzure(navIdent, accessType)
+        logger.info("Fant ikke NavAnsatt for navIdent=$navIdent i databasen, forsøker Azure AD i stedet")
+
+        // Ekstern kall mot Azure AD utenfor transaksjonen, slik at vi ikke holder en db-connection under nettverkskallet
+        val ansatt = getNavAnsattFromAzure(navIdent, accessType)
+        return db.transaction {
             repository.navAnsatt.save(ansatt)
             repository.navAnsatt.getOrError(navIdent)
         }
@@ -43,18 +46,19 @@ class NavAnsattService(
         repository.navAnsatt.get(navIdent)
     }
 
-    suspend fun addUserToKontaktpersoner(navIdent: NavIdent): Unit = db.suspendTransaction {
+    suspend fun addUserToKontaktpersoner(navIdent: NavIdent) {
         val kontaktPersonGruppeId = roles.find { it.rolle == Rolle.KONTAKTPERSON }?.entraGroupId
         requireNotNull(kontaktPersonGruppeId)
 
         val ansatt = getOrSynchronizeNavAnsatt(navIdent, AccessType.M2M)
         if (ansatt.hasGenerellRolle(Rolle.KONTAKTPERSON)) {
-            return@suspendTransaction
+            return
         }
 
         val roller = ansatt.roller + NavAnsattRolle.generell(Rolle.KONTAKTPERSON)
-        repository.navAnsatt.save(ansatt.medRoller(roller))
+        db.transaction { repository.navAnsatt.save(ansatt.medRoller(roller)) }
 
+        // Ekstern kall mot Azure AD utenfor transaksjonen, slik at vi ikke holder en db-connection under nettverkskallet
         microsoftGraphClient.addToGroup(ansatt.entraObjectId, kontaktPersonGruppeId)
     }
 

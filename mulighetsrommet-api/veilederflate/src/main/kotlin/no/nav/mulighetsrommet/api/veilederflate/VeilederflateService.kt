@@ -160,7 +160,7 @@ class VeilederflateService(
         apentForPamelding: List<ApentForPamelding>?,
         search: String?,
         erSykmeldtMedArbeidsgiver: Boolean,
-    ): List<VeilederflateTiltak> = db.suspendSession {
+    ): List<VeilederflateTiltak> = db.session {
         queries.veilederTiltak
             .getAll(
                 search = search,
@@ -180,8 +180,8 @@ class VeilederflateService(
                 },
                 erSykmeldtMedArbeidsgiver = erSykmeldtMedArbeidsgiver,
             )
-            .map { toVeilederflateTiltak(it) }
     }
+        .map { toVeilederflateTiltak(it) }
 
     private suspend fun toVeilederflateTiltak(tiltakDokument: VeilederflateTiltakDokument): VeilederflateTiltak {
         val tiltakstype = getAllTiltakstyper().singleOrNull { it.tiltakskode == tiltakDokument.tiltakskode }
