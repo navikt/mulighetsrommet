@@ -63,26 +63,30 @@ export function SaksopplysningerForm({ arrangorId }: Props) {
               <FormTextField
                 label="Journalpost-ID i Gosys"
                 name={`tilskudd.${index}.soknadJournalpostId`}
-                required
+                rules={{ required: "Journalpost-ID må fylles ut" }}
               />
-              <FormDateInput name={`tilskudd.${index}.soknadDato`} label="Søknadsdato" required />
+              <FormDateInput
+                name={`tilskudd.${index}.soknadDato`}
+                label="Søknadsdato"
+                rules={{ required: "Søknadsdato må fylles ut" }}
+              />
               <HStack gap="space-16">
                 <FormDateInput
                   name={`tilskudd.${index}.periodeStart`}
                   label="Periodestart"
-                  required
+                  rules={{ required: "Periodestart må fylles ut" }}
                 />
                 <FormDateInput
                   name={`tilskudd.${index}.periodeSlutt`}
                   label="Periodeslutt"
-                  required
+                  rules={{ required: "Periodeslutt må fylles ut" }}
                 />
               </HStack>
               <HStack gap="space-16" align="start">
                 <FormSelect
                   label="Tilskuddstype"
                   name={`tilskudd.${index}.tilskuddOpplaeringType`}
-                  required
+                  rules={{ required: "Tilskuddstype må fylles ut" }}
                 >
                   <option value="">-- Velg tilskuddstype --</option>
                   {(Object.keys(OpplaeringtilskuddKode) as OpplaeringtilskuddKode[]).map(
@@ -110,7 +114,6 @@ export function SaksopplysningerForm({ arrangorId }: Props) {
                   size="small"
                   label="Valuta"
                   name={`tilskudd.${index}.soknadBelop.valuta`}
-                  required
                   readOnly
                 >
                   <option value={Valuta.NOK}>NOK</option>

@@ -95,6 +95,14 @@ export function VedtakForm() {
               <FormTextarea
                 label="Kommentar til deltaker (vil vises i vedtaksbrev)"
                 name={`tilskudd.${index}.kommentarVedtaksbrev`}
+                rules={{
+                  validate: (value: string | null) => {
+                    if (t.vedtakResultat === VedtakResultat.AVSLAG && !value?.trim()) {
+                      return "Kommentar til deltaker må fylles ut ved avslag";
+                    }
+                    return true;
+                  },
+                }}
               />
               <FormTextarea
                 label="Kommentar (internt i Nav)"
