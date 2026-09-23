@@ -426,7 +426,7 @@ val ApplicationConfigDev = AppConfig(
         scope = "api://dev-fss.okonomi.sokos-kontoregister-q2/.default",
     ),
     helvedSimuleringConfig = AuthenticatedHttpClientConfig(
-        url = "http://simulering",
+        url = "http://simulering.helved",
         scope = "api://dev-gcp.helved.simulering/.default",
     ),
     tasks = TaskConfig(
