@@ -11,7 +11,7 @@ import { formaterNavEnhet } from "@/utils/nav-enhet";
 import { opplaeringTilskuddToString, tilskuddMottakerToString } from "@/utils/Utils";
 import { formaterValuta } from "@mr/frontend-common/utils/utils";
 
-interface SaksOpplysningerProps {
+interface SaksopplysningerProps {
   journalpostId: string | null;
   soknadsdato: string | null;
   periode: Periode | null;
@@ -21,7 +21,7 @@ interface SaksOpplysningerProps {
   belop: number | null;
 }
 
-export function SaksOpplysninger({
+export function Saksopplysninger({
   journalpostId,
   soknadsdato,
   periode,
@@ -29,7 +29,7 @@ export function SaksOpplysninger({
   tilskuddOpplaeringType,
   utbetalingMottaker,
   belop,
-}: SaksOpplysningerProps) {
+}: SaksopplysningerProps) {
   return (
     <Definisjonsliste
       title="Saksopplysninger"

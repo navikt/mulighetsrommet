@@ -44,7 +44,7 @@ import { FilePdfIcon, PencilFillIcon } from "@navikt/aksel-icons";
 import { Betalingsbetingelser } from "@/components/gjennomforing/Betalingsbetingelser";
 import { VedtaksbrevPdfModal } from "@/components/tilskudd-behandling/VedtaksbrevPdfModal";
 import { useVedtaksbrevPdfBlob } from "@/api/tilskudd-behandling/useVedtaksbrevPdfBlob";
-import { SaksOpplysninger } from "@/components/tilskudd-behandling/Saksopplysninger";
+import { Saksopplysninger } from "@/components/tilskudd-behandling/Saksopplysninger";
 
 export function TilskuddBehandlingDetaljerPage() {
   const { gjennomforingId, behandlingId } = useRequiredParams(["gjennomforingId", "behandlingId"]);
@@ -161,7 +161,7 @@ export function TilskuddBehandlingDetaljerPage() {
                     padding="space-8"
                     key={t.id}
                   >
-                    <SaksOpplysninger
+                    <Saksopplysninger
                       journalpostId={t.soknadJournalpostId}
                       soknadsdato={t.soknadDato}
                       periode={t.periode}

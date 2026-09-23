@@ -10,8 +10,8 @@ import {
 import { addDuration, yyyyMMddSafeFormatting } from "@mr/frontend-common/utils/date";
 import { TotaltBelopBox } from "./TotaltBelopBox";
 import { useKostnadssteder } from "@/api/enhet/useKostnadssteder";
-import { NyFormGroup } from "@/layouts/NyFormGroup";
-import { SaksOpplysninger } from "./Saksopplysninger";
+import { TilskuddFormGroup } from "@/layouts/TilskuddFormGroup";
+import { Saksopplysninger } from "./Saksopplysninger";
 import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
 
 export function VedtakForm() {
@@ -45,8 +45,8 @@ export function VedtakForm() {
       </Heading>
       <VStack gap="space-32">
         {tilskudd.map((t, index) => (
-          <NyFormGroup key={index}>
-            <SaksOpplysninger
+          <TilskuddFormGroup key={index}>
+            <Saksopplysninger
               journalpostId={t.soknadJournalpostId}
               soknadsdato={t.soknadDato}
               periode={valgtPeriode(t.periodeStart, t.periodeSlutt)}
@@ -109,7 +109,7 @@ export function VedtakForm() {
                 name={`tilskudd.${index}.kommentarIntern`}
               />
             </VStack>
-          </NyFormGroup>
+          </TilskuddFormGroup>
         ))}
         <TotaltBelopBox
           label="Totalt beløp fra søknad"

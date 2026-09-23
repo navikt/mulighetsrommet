@@ -1,7 +1,7 @@
 import { PropsWithChildren } from "react";
 import { Box, VStack } from "@navikt/ds-react";
 
-export function NyFormGroup({ children }: PropsWithChildren) {
+export function TilskuddFormGroup({ children }: PropsWithChildren) {
   return (
     <Box
       asChild

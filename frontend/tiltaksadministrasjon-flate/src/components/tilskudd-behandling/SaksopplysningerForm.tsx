@@ -19,7 +19,7 @@ import { BetalingsinformasjonFields } from "../utbetaling/form/Betalingsinformas
 import { opplaeringTilskuddToString, tilskuddMottakerToString } from "@/utils/Utils";
 import { defaultTilskuddRequest } from "./defaultTilskuddRequest";
 import { TotaltBelopBox } from "./TotaltBelopBox";
-import { NyFormGroup } from "@/layouts/NyFormGroup";
+import { TilskuddFormGroup } from "@/layouts/TilskuddFormGroup";
 
 interface Props {
   arrangorId: string;
@@ -55,7 +55,7 @@ export function SaksopplysningerForm({ arrangorId }: Props) {
       </Heading>
       <VStack gap="space-20">
         {fields.map((field, index) => (
-          <NyFormGroup key={field.id}>
+          <TilskuddFormGroup key={field.id}>
             <Heading size="small" level="4" spacing>
               Tilskudd
             </Heading>
@@ -158,7 +158,7 @@ export function SaksopplysningerForm({ arrangorId }: Props) {
                 </Button>
               )}
             </VStack>
-          </NyFormGroup>
+          </TilskuddFormGroup>
         ))}
         <HStack align="start">
           <Button
