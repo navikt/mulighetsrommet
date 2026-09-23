@@ -90,7 +90,8 @@ data class KafkaTopics(
     val arenaMigreringGjennomforingTopic: String = "team-mulighetsrommet.arena-migrering-tiltaksgjennomforinger-v1",
     val datavarehusTiltakTopic: String = "team-mulighetsrommet.datavarehus-tiltak-v1",
     val helvedUtbetalingTopic: String = "team-mulighetsrommet.tilskudd.utbetaling-v1",
-    val totrinnskontrollTopic: String = "team-mulighetsrommet.totrinnskontroll-v1",
+    val totrinnskontrollV1Topic: String = "team-mulighetsrommet.totrinnskontroll-v1",
+    val totrinnskontrollV2Topic: String = "team-mulighetsrommet.totrinnskontroll-v2",
 )
 
 class KafkaClients(
@@ -119,8 +120,8 @@ class KafkaClients(
     )
     val sendTilsagnsbrev: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
         id = "send-tilsagnsbrev",
-        topic = "team-mulighetsrommet.totrinnskontroll-v1",
-        consumerProperties = getConsumerProperties("mulighetsrommet-api.send-tilsagnsbrev.v1"),
+        topic = "team-mulighetsrommet.totrinnskontroll-v2",
+        consumerProperties = getConsumerProperties("mulighetsrommet-api.send-tilsagnsbrev.v2"),
     )
     var handterGjennomforingRequest: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
         id = "handter-gjennomforing-request",
@@ -129,13 +130,13 @@ class KafkaClients(
     )
     var tilskuddArrangorUtbetaling: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
         id = "tilskudd-arrangor-utbetaling",
-        topic = "team-mulighetsrommet.totrinnskontroll-v1",
-        consumerProperties = getConsumerProperties("mulighetsrommet-api.tilskudd-arrangor-utbetaling.v1"),
+        topic = "team-mulighetsrommet.totrinnskontroll-v2",
+        consumerProperties = getConsumerProperties("mulighetsrommet-api.tilskudd-arrangor-utbetaling.v2"),
     )
     var tilskuddBrukerUtbetaling: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
         id = "tilskudd-bruker-utbetaling",
-        topic = "team-mulighetsrommet.totrinnskontroll-v1",
-        consumerProperties = getConsumerProperties("mulighetsrommet-api.tilskudd-bruker-utbetaling.v1"),
+        topic = "team-mulighetsrommet.totrinnskontroll-v2",
+        consumerProperties = getConsumerProperties("mulighetsrommet-api.tilskudd-bruker-utbetaling.v2"),
     )
     var utbetalingAvbruttNotifier: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
         id = "utbetaling-avbrutt-notifier",

@@ -3,8 +3,9 @@ package no.nav.mulighetsrommet.api.utbetaling.kafka
 import no.nav.common.kafka.consumer.util.deserializer.Deserializers.stringDeserializer
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.contracts.totrinnskontroll.TotrinnskontrollHendelse
+import no.nav.mulighetsrommet.api.contracts.totrinnskontroll.TotrinnskontrollHendelseV1
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
-import no.nav.mulighetsrommet.api.totrinnskontroll.kafka.TotrinnskontrollHendelseDeserializer
+import no.nav.mulighetsrommet.api.totrinnskontroll.kafka.TotrinnskontrollHendelseV1Deserializer
 import no.nav.mulighetsrommet.api.utbetaling.service.GenererUtbetalingService
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import org.slf4j.LoggerFactory
@@ -13,13 +14,13 @@ import java.util.UUID
 class OppdaterUtbetalingBlokkeringerFraBesluttetTilsagnConsumer(
     private val db: ApiDatabase,
     private val genererUtbetalingService: GenererUtbetalingService,
-) : KafkaTopicConsumer<String, TotrinnskontrollHendelse>(
+) : KafkaTopicConsumer<String, TotrinnskontrollHendelseV1>(
     stringDeserializer(),
-    TotrinnskontrollHendelseDeserializer(),
+    TotrinnskontrollHendelseV1Deserializer(),
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    override suspend fun consume(key: String, message: TotrinnskontrollHendelse) {
+    override suspend fun consume(key: String, message: TotrinnskontrollHendelseV1) {
         val relevant = when (message.type) {
             TotrinnskontrollType.TILSAGN_OPPRETTELSE,
             TotrinnskontrollType.TILSAGN_ANNULLERING,
