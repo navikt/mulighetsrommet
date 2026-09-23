@@ -23,8 +23,9 @@ data class TilsagnBeregningAvtaltPrisPerBenyttetPlassPerUke(
         val antallPlasser: Int,
         val prisbetingelser: String?,
         val stengt: Set<StengtPeriode>,
-        override val prismodell: PrismodellType,
-    ) : TilsagnBeregningInput()
+    ) : TilsagnBeregningInput() {
+        override val prismodell: PrismodellType = PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_UKE
+    }
 
     @Serializable
     @SerialName("PRIS_PER_UKESVERK")

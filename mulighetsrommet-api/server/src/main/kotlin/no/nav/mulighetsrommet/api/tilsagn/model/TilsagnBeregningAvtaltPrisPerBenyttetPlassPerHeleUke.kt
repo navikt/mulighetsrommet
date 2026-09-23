@@ -16,18 +16,19 @@ data class TilsagnBeregningAvtaltPrisPerBenyttetPlassPerHeleUke(
 ) : TilsagnBeregning() {
 
     @Serializable
-    @SerialName("PRIS_PER_UKESVERK")
+    @SerialName("PRIS_PER_HELE_UKESVERK")
     data class Input(
         val periode: Periode,
         val sats: ValutaBelop,
         val antallPlasser: Int,
         val prisbetingelser: String?,
         val stengt: Set<StengtPeriode>,
-        override val prismodell: PrismodellType,
-    ) : TilsagnBeregningInput()
+    ) : TilsagnBeregningInput() {
+        override val prismodell: PrismodellType = PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_HELE_UKE
+    }
 
     @Serializable
-    @SerialName("PRIS_PER_UKESVERK")
+    @SerialName("PRIS_PER_HELE_UKESVERK")
     data class Output(
         override val pris: ValutaBelop,
     ) : TilsagnBeregningOutput()

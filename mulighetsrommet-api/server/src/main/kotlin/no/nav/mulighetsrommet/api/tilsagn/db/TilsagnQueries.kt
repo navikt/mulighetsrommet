@@ -534,7 +534,6 @@ class TilsagnQueries(private val session: Session) {
                     input = Input(
                         linjer = getTilsagnBeregningAnnenAvtaltPrisLinjer(id),
                         prisbetingelser = stringOrNull("beregning_prisbetingelser"),
-                        prismodell = prismodell,
                     ),
                     output = Output(
                         pris = int("belop_beregnet").withValuta(valuta),
@@ -574,7 +573,6 @@ class TilsagnQueries(private val session: Session) {
                     antallPlasser = int("beregning_antall_plasser"),
                     prisbetingelser = stringOrNull("beregning_prisbetingelser"),
                     stengt = Json.decodeFromString(string("beregning_stengte_perioder")),
-                    prismodell = prismodell,
                 ),
                 output = TilsagnBeregningAvtaltPrisPerBenyttetPlassPerManed.Output(
                     pris = int("belop_beregnet").withValuta(valuta),
@@ -588,7 +586,6 @@ class TilsagnQueries(private val session: Session) {
                     antallPlasser = int("beregning_antall_plasser"),
                     prisbetingelser = stringOrNull("beregning_prisbetingelser"),
                     stengt = Json.decodeFromString(string("beregning_stengte_perioder")),
-                    prismodell = prismodell,
                 ),
                 output = TilsagnBeregningAvtaltPrisPerBenyttetPlassPerUke.Output(
                     pris = int("belop_beregnet").withValuta(valuta),
@@ -602,7 +599,6 @@ class TilsagnQueries(private val session: Session) {
                     antallPlasser = int("beregning_antall_plasser"),
                     prisbetingelser = stringOrNull("beregning_prisbetingelser"),
                     stengt = Json.decodeFromString(string("beregning_stengte_perioder")),
-                    prismodell = prismodell,
                 ),
                 output = TilsagnBeregningAvtaltPrisPerBenyttetPlassPerHeleUke.Output(
                     pris = int("belop_beregnet").withValuta(valuta),
@@ -616,7 +612,6 @@ class TilsagnQueries(private val session: Session) {
                     antallPlasser = int("beregning_antall_plasser"),
                     antallTimerOppfolgingPerDeltaker = int("beregning_antall_timer_oppfolging_per_deltaker"),
                     prisbetingelser = stringOrNull("beregning_prisbetingelser"),
-                    prismodell = prismodell,
                 ),
                 output = TilsagnBeregningAvtaltPrisPerTimeOppfolgingPerDeltaker.Output(
                     pris = int("belop_beregnet").withValuta(valuta),

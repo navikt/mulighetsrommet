@@ -3,7 +3,6 @@ package no.nav.mulighetsrommet.api.fixtures
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavAnsattFixture
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavEnhetFixtures
-import no.nav.mulighetsrommet.api.domain.tiltak.PrismodellType
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAnnenAvtaltPris
@@ -52,7 +51,6 @@ object TilsagnFixtures {
                     ),
                 ),
                 prisbetingelser = null,
-                prismodell = PrismodellType.ANNEN_AVTALT_PRIS,
             ),
             output = TilsagnBeregningAnnenAvtaltPris.Output(
                 pris = (pris.belop * antall).NOK,

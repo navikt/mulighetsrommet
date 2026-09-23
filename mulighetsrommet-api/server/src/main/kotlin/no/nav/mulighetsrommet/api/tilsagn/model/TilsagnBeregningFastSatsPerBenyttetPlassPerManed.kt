@@ -23,7 +23,16 @@ data class TilsagnBeregningFastSatsPerBenyttetPlassPerManed(
         val antallPlasser: Int,
         val stengt: Set<StengtPeriode>,
         override val prismodell: PrismodellType,
-    ) : TilsagnBeregningInput()
+    ) : TilsagnBeregningInput() {
+        init {
+            require(
+                prismodell in setOf(
+                    PrismodellType.FAST_SATS_PER_AVTALT_PLASS_PER_MANED,
+                    PrismodellType.FAST_SATS_PER_BENYTTET_PLASS_PER_MANED,
+                ),
+            )
+        }
+    }
 
     @Serializable
     @SerialName("FAST_SATS_PER_TILTAKSPLASS_PER_MANED")

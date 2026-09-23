@@ -2,7 +2,6 @@ package no.nav.mulighetsrommet.api.utbetaling.model
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-import no.nav.mulighetsrommet.api.domain.tiltak.PrismodellType
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAvtaltPrisPerBenyttetPlassPerManed
 import no.nav.mulighetsrommet.api.utbetaling.model.BeregningTestHelpers.createDeltaker
 import no.nav.mulighetsrommet.api.utbetaling.model.BeregningTestHelpers.createGjennomforingForForhandsgodkjentPris
@@ -409,7 +408,6 @@ class UtbetalingBeregningFastSatsPerBenyttetPlassPerManedTest : FunSpec({
                         antallPlasser = 1,
                         prisbetingelser = null,
                         stengt = setOf(),
-                        prismodell = PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_MANED,
                     ),
                 )
 

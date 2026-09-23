@@ -2,7 +2,6 @@ package no.nav.mulighetsrommet.api.tilsagn.model
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
-import no.nav.mulighetsrommet.api.domain.tiltak.PrismodellType
 import no.nav.mulighetsrommet.model.NOK
 import java.util.UUID
 
@@ -19,7 +18,6 @@ class TilsagnBeregningAnnenAvtaltPrisTest : FunSpec({
                         antall = 999_999_999,
                     ),
                 ),
-                prismodell = PrismodellType.ANNEN_AVTALT_PRIS,
             )
 
             TilsagnBeregningAnnenAvtaltPris.beregn(input)

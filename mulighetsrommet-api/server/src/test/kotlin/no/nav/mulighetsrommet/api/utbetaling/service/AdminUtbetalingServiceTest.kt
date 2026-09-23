@@ -1844,19 +1844,6 @@ private fun QueryContext.setRoller(ansatt: NavAnsatt, roller: Set<NavAnsattRolle
     queries.ansatt.save(ansatt.medRoller(roller))
 }
 
-fun getTilsagnBeregning(pris: ValutaBelop) = TilsagnBeregningAnnenAvtaltPris(
-    input = TilsagnBeregningAnnenAvtaltPris.Input(
-        linjer = listOf(
-            TilsagnBeregningAnnenAvtaltPris.InputLinje(
-                id = UUID.randomUUID(),
-                beskrivelse = "Beskrivelse",
-                pris = pris,
-                antall = 1,
-            ),
-        ),
-        prisbetingelser = null,
-
-        prismodell = PrismodellType.ANNEN_AVTALT_PRIS,
-    ),
-    output = TilsagnBeregningAnnenAvtaltPris.Output(pris),
+fun getTilsagnBeregning(pris: ValutaBelop) = TilsagnBeregningFri.beregn(
+    TilsagnBeregningFri.Input(pris, PrismodellType.ANNEN_AVTALT_PRIS),
 )

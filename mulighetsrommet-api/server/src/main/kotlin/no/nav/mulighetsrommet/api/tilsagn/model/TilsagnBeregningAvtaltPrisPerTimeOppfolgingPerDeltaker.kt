@@ -24,8 +24,9 @@ data class TilsagnBeregningAvtaltPrisPerTimeOppfolgingPerDeltaker(
         val antallPlasser: Int,
         val antallTimerOppfolgingPerDeltaker: Int,
         val prisbetingelser: String?,
-        override val prismodell: PrismodellType,
-    ) : TilsagnBeregningInput()
+    ) : TilsagnBeregningInput() {
+        override val prismodell: PrismodellType = PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER
+    }
 
     @Serializable
     @SerialName("PRIS_PER_TIME_OPPFOLGING")

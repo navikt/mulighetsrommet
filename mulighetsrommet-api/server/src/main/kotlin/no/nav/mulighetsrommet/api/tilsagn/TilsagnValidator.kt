@@ -199,7 +199,6 @@ object TilsagnValidator {
                         antallPlasser = antallPlasser,
                         prisbetingelser = request.prisbetingelser,
                         stengt = stengt,
-                        prismodell = prismodell.type,
                     ),
                 )
 
@@ -211,7 +210,6 @@ object TilsagnValidator {
                         antallPlasser = antallPlasser,
                         prisbetingelser = request.prisbetingelser,
                         stengt = stengt,
-                        prismodell = prismodell.type,
                     ),
                 )
 
@@ -223,7 +221,6 @@ object TilsagnValidator {
                         antallPlasser = antallPlasser,
                         prisbetingelser = request.prisbetingelser,
                         stengt = stengt,
-                        prismodell = prismodell.type,
                     ),
                 )
 
@@ -238,7 +235,6 @@ object TilsagnValidator {
                             request.type,
                             request.antallTimerOppfolgingPerDeltaker,
                         ),
-                        prismodell = prismodell.type,
                     ),
                 )
         }
@@ -367,7 +363,6 @@ object TilsagnValidator {
                     )
                 },
                 prisbetingelser = request.prisbetingelser,
-                prismodell = prismodell.type,
             ),
         )
     }

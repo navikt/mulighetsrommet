@@ -19,7 +19,6 @@ import no.nav.mulighetsrommet.api.domain.testing.fixture.AvtaleFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavAnsattFixture
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.TiltakstypeFixtures
-import no.nav.mulighetsrommet.api.domain.tiltak.PrismodellType
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.setTilsagnStatus
@@ -96,7 +95,6 @@ object ArrangorflateTestUtils {
                     ),
                 ),
                 prisbetingelser = null,
-                prismodell = PrismodellType.ANNEN_AVTALT_PRIS,
             ),
             output = TilsagnBeregningAnnenAvtaltPris.Output(
                 pris = 1000.NOK,

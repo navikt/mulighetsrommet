@@ -78,7 +78,6 @@ class TilsagnQueriesTest : FunSpec({
                     ),
                 ),
                 prisbetingelser = "Prisbetingelser fra avtale",
-                prismodell = PrismodellType.ANNEN_AVTALT_PRIS,
             ),
             TilsagnBeregningAnnenAvtaltPris.Output(
                 pris = 123.NOK,
@@ -134,7 +133,6 @@ class TilsagnQueriesTest : FunSpec({
                         TilsagnBeregningAnnenAvtaltPris.Input(
                             linjer = (tilsagn.beregning as TilsagnBeregningAnnenAvtaltPris).input.linjer,
                             prisbetingelser = "Prisbetingelser fra avtale",
-                            prismodell = PrismodellType.ANNEN_AVTALT_PRIS,
                         ),
                         TilsagnBeregningAnnenAvtaltPris.Output(
                             pris = 123.NOK,
@@ -173,7 +171,6 @@ class TilsagnQueriesTest : FunSpec({
                                 antall = 1,
                             ),
                         ),
-                        prismodell = PrismodellType.ANNEN_AVTALT_PRIS,
                     ),
                     output = TilsagnBeregningAnnenAvtaltPris.Output(
                         pris = 1100.NOK,
@@ -228,7 +225,6 @@ class TilsagnQueriesTest : FunSpec({
                                 "Juleferie",
                             ),
                         ),
-                        prismodell = PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_MANED,
                     ),
                     output = TilsagnBeregningAvtaltPrisPerBenyttetPlassPerManed.Output(
                         pris = 1000.NOK,
@@ -256,7 +252,6 @@ class TilsagnQueriesTest : FunSpec({
                                 "Juleferie",
                             ),
                         ),
-                        prismodell = PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_UKE,
                     ),
                     output = TilsagnBeregningAvtaltPrisPerBenyttetPlassPerUke.Output(
                         pris = 1000.NOK,
@@ -284,7 +279,6 @@ class TilsagnQueriesTest : FunSpec({
                                 "Juleferie",
                             ),
                         ),
-                        prismodell = PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_HELE_UKE,
                     ),
                     output = TilsagnBeregningAvtaltPrisPerBenyttetPlassPerHeleUke.Output(
                         1000.NOK,
@@ -307,7 +301,6 @@ class TilsagnQueriesTest : FunSpec({
                         antallPlasser = 10,
                         antallTimerOppfolgingPerDeltaker = 5,
                         prisbetingelser = "Betingelser",
-                        prismodell = PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
                     ),
                     output = TilsagnBeregningAvtaltPrisPerTimeOppfolgingPerDeltaker.Output(
                         pris = 5000.NOK,

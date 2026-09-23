@@ -21,8 +21,9 @@ data class TilsagnBeregningAnnenAvtaltPris(
     data class Input(
         val linjer: List<InputLinje>,
         val prisbetingelser: String?,
-        override val prismodell: PrismodellType,
-    ) : TilsagnBeregningInput()
+    ) : TilsagnBeregningInput() {
+        override val prismodell: PrismodellType = PrismodellType.ANNEN_AVTALT_PRIS
+    }
 
     @Serializable
     data class InputLinje(

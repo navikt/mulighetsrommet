@@ -203,7 +203,6 @@ class TilsagnService(
                                 )
                             },
                             prisbetingelser = request.beregning.prisbetingelser,
-                            prismodell = prismodell,
                         ),
                     )
 
@@ -237,7 +236,6 @@ class TilsagnService(
                                 antallPlasser = fallback.antallPlasser,
                                 prisbetingelser = fallback.prisbetingelser,
                                 stengt = fallback.stengt,
-                                prismodell = prismodell,
                             ),
                         )
                     }
@@ -251,7 +249,6 @@ class TilsagnService(
                                 antallPlasser = fallback.antallPlasser,
                                 prisbetingelser = fallback.prisbetingelser,
                                 stengt = fallback.stengt,
-                                prismodell = prismodell,
                             ),
                         )
                     }
@@ -265,7 +262,6 @@ class TilsagnService(
                                 antallPlasser = fallback.antallPlasser,
                                 prisbetingelser = fallback.prisbetingelser,
                                 stengt = fallback.stengt,
-                                prismodell = prismodell,
                             ),
                         )
                     }
@@ -279,7 +275,6 @@ class TilsagnService(
                                 antallPlasser = fallback.antallPlasser,
                                 prisbetingelser = fallback.prisbetingelser,
                                 antallTimerOppfolgingPerDeltaker = fallback.antallTimerOppfolgingPerDeltaker,
-                                prismodell = prismodell,
                             ),
                         )
                     }
