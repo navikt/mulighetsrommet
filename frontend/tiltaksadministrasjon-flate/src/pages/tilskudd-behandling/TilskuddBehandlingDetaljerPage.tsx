@@ -145,13 +145,12 @@ export function TilskuddBehandlingDetaljerPage() {
         </HStack>
         <TwoColumnGrid separator>
           <>
-            <Definisjonsliste
-              definitions={[
-                { key: "Status", value: <DataElementStatusTag {...behandling.status.status} /> },
-              ]}
-            />
-            <Separator />
             <VStack gap="space-16">
+              <Definisjonsliste
+                definitions={[
+                  { key: "Status", value: <DataElementStatusTag {...behandling.status.status} /> },
+                ]}
+              />
               <VStack gap="space-20" align="start">
                 {behandling.tilskudd.map((t) => (
                   <Box
@@ -172,22 +171,6 @@ export function TilskuddBehandlingDetaljerPage() {
                       utbetalingMottaker={t.utbetalingMottaker}
                     />
                     <VStack gap="space-8">
-                      <Definisjonsliste
-                        definitions={[
-                          {
-                            key: "Tilskuddstype",
-                            value: opplaeringTilskuddToString(t.tilskuddOpplaeringType),
-                          },
-                          {
-                            key: "Hvem skal motta utbetalingen?",
-                            value: tilskuddMottakerToString(t.utbetalingMottaker),
-                          },
-                          {
-                            key: "Beløp fra søknad",
-                            value: formaterValutaBelop(t.soknadBelop),
-                          },
-                        ]}
-                      />
                       <Separator />
                       <Definisjonsliste
                         columns={1}
