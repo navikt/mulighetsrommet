@@ -60,6 +60,7 @@ data class AppConfig(
     val dokark: AuthenticatedHttpClientConfig,
     val dokdistfordeling: AuthenticatedHttpClientConfig,
     val kontoregisterOrganisasjon: AuthenticatedHttpClientConfig,
+    val helvedSimuleringConfig: AuthenticatedHttpClientConfig,
     val clamav: HttpClientConfig,
 )
 

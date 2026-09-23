@@ -57,6 +57,7 @@ import no.nav.mulighetsrommet.api.bruker.BrukerService
 import no.nav.mulighetsrommet.api.brukerutbetaling.BrukerUtbetalingService
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
 import no.nav.mulighetsrommet.api.clients.dialog.VeilarbdialogClient
+import no.nav.mulighetsrommet.api.clients.helved.HelVedSimuleringClient
 import no.nav.mulighetsrommet.api.clients.isoppfolgingstilfelle.IsoppfolgingstilfelleClient
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
 import no.nav.mulighetsrommet.api.clients.msgraph.MsGraphClient
@@ -465,6 +466,13 @@ private fun services(appConfig: AppConfig) = module {
             clientEngine = appConfig.kontoregisterOrganisasjon.engine ?: appConfig.engine,
             baseUrl = appConfig.kontoregisterOrganisasjon.url,
             tokenProvider = azureAdTokenProvider.withScope(appConfig.kontoregisterOrganisasjon.scope),
+        )
+    }
+    single {
+        HelVedSimuleringClient(
+            baseUrl = appConfig.helvedSimuleringConfig.url,
+            clientEngine = appConfig.engine,
+            tokenProvider = azureAdTokenProvider.withScope(appConfig.helvedSimuleringConfig.scope),
         )
     }
     single {
