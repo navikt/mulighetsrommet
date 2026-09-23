@@ -1,20 +1,18 @@
-import { MetadataVStack, Separator } from "@mr/frontend-common/components/datadriven/Metadata";
-import { Box, HStack, Radio, Select, TextField, VStack } from "@navikt/ds-react";
+import { Heading, HStack, Radio, Select, TextField, VStack } from "@navikt/ds-react";
 import { useFormContext } from "react-hook-form";
 import { FormTextarea } from "@/components/skjema/FormTextarea";
 import { ControlledRadioGroup } from "@/components/skjema/ControlledRadioGroup";
-import { FormGroup } from "@/layouts/FormGroup";
 import {
   TilskuddBehandlingRequest,
   Valuta,
   VedtakResultat,
 } from "@tiltaksadministrasjon/api-client";
-import { opplaeringTilskuddToString, tilskuddMottakerToString } from "@/utils/Utils";
-import { formaterValuta } from "@mr/frontend-common/utils/utils";
 import { addDuration, yyyyMMddSafeFormatting } from "@mr/frontend-common/utils/date";
 import { TotaltBelopBox } from "./TotaltBelopBox";
 import { useKostnadssteder } from "@/api/enhet/useKostnadssteder";
-import { InformasjonFraSoknad } from "@/components/tilskudd-behandling/InformasjonFraSoknad";
+import { TilskuddFormGroup } from "@/layouts/TilskuddFormGroup";
+import { Saksopplysninger } from "./Saksopplysninger";
+import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
 
 export function VedtakForm() {
   const {
@@ -42,38 +40,26 @@ export function VedtakForm() {
       .find((k) => k.enhetsnummer === kostnadsted) || null;
   return (
     <>
-      <VStack gap="space-20">
+      <Heading size="medium" level="3" spacing>
+        Vedtak og beregning
+      </Heading>
+      <VStack gap="space-32">
         {tilskudd.map((t, index) => (
-          <FormGroup key={index}>
-            <InformasjonFraSoknad
+          <TilskuddFormGroup key={index}>
+            <Saksopplysninger
               journalpostId={t.soknadJournalpostId}
               soknadsdato={t.soknadDato}
               periode={valgtPeriode(t.periodeStart, t.periodeSlutt)}
               kostnadssted={valgtKostnadsted(t.kostnadssted)}
+              belop={t.soknadBelop?.belop ?? 0}
+              utbetalingMottaker={t.utbetalingMottaker}
+              tilskuddOpplaeringType={t.tilskuddOpplaeringType}
             />
-            <VStack gap="space-4">
-              <MetadataVStack
-                label="Tilskuddstype"
-                value={
-                  t.tilskuddOpplaeringType
-                    ? opplaeringTilskuddToString(t.tilskuddOpplaeringType)
-                    : "-"
-                }
-              />
-              <MetadataVStack
-                label="Hvem skal motta utbetalingen?"
-                value={t.utbetalingMottaker ? tilskuddMottakerToString(t.utbetalingMottaker) : "-"}
-              />
-              <MetadataVStack
-                label="Beløp fra søknad"
-                value={formaterValuta(
-                  t.soknadBelop?.belop ?? 0,
-                  t.soknadBelop?.valuta ?? Valuta.NOK,
-                )}
-              />
-            </VStack>
             <Separator />
-            <VStack gap="space-8">
+            <Heading size="small" level="3" spacing>
+              Vedtak
+            </Heading>
+            <VStack gap="space-20">
               <HStack gap="space-24" align="start" justify="space-between">
                 <ControlledRadioGroup
                   size="small"
@@ -88,7 +74,7 @@ export function VedtakForm() {
               {watch("tilskudd")[index].vedtakResultat === VedtakResultat.INNVILGELSE && (
                 <HStack align="start" gap="space-8">
                   <TextField
-                    className="w-[10rem]"
+                    className="w-40"
                     size="small"
                     type="text"
                     label="Beløp til utbetaling"
@@ -103,23 +89,27 @@ export function VedtakForm() {
                   />
                   <Select size="small" readOnly value={Valuta.NOK} label="Valuta">
                     <option value={Valuta.NOK}>NOK</option>
-                    <option value={Valuta.SEK}>SEK</option>
                   </Select>
                 </HStack>
               )}
-            </VStack>
-            <Box width="100%">
               <FormTextarea
                 label="Kommentar til deltaker (vil vises i vedtaksbrev)"
                 name={`tilskudd.${index}.kommentarVedtaksbrev`}
+                rules={{
+                  validate: (value: string | null) => {
+                    if (t.vedtakResultat === VedtakResultat.AVSLAG && !value?.trim()) {
+                      return "Kommentar til deltaker må fylles ut ved avslag";
+                    }
+                    return true;
+                  },
+                }}
               />
               <FormTextarea
-                className="w-full"
                 label="Kommentar (internt i Nav)"
                 name={`tilskudd.${index}.kommentarIntern`}
               />
-            </Box>
-          </FormGroup>
+            </VStack>
+          </TilskuddFormGroup>
         ))}
         <TotaltBelopBox
           label="Totalt beløp fra søknad"

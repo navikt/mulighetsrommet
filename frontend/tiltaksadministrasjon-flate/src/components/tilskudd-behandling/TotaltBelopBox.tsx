@@ -10,19 +10,13 @@ interface Props {
 
 export function TotaltBelopBox({ label, belop }: Props) {
   return (
-    <Box
-      className="w-full"
-      borderWidth="2"
-      borderRadius="8"
-      borderColor="neutral-subtle"
-      padding="space-8"
-    >
+    <Box asChild borderWidth="1" borderRadius="8" borderColor="neutral" padding="space-8">
       <HStack justify="space-between">
         <HStack align="center" gap="space-8">
           <PadlockLockedIcon fontSize="1.5rem" />
-          <BodyShort size="medium">{label}</BodyShort>
+          <BodyShort>{label}</BodyShort>
         </HStack>
-        <BodyShort size="large">{formaterValutaBelop(belop)}</BodyShort>
+        <BodyShort>{formaterValutaBelop(belop)}</BodyShort>
       </HStack>
     </Box>
   );
