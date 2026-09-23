@@ -302,6 +302,7 @@ class GjennomforingEnkeltplassService(
 
         upsert(upsert)
             .also { publishTiltaksgjennomforingV2ToKafka(it) }
+            .also { haandterAvsluttendeStatus(enkeltplass, deltaker.status.type) }
             .let { logEndring("Oppdatert fra deltaker", it.id, Tiltaksadministrasjon) }
     }
 
@@ -443,6 +444,49 @@ class GjennomforingEnkeltplassService(
         outbox.publish(okonomi)
 
         return logEndring("Pris- og betalingsbetingelser endret", gjennomforingId, behandling.behandletAv).right()
+    }
+
+    private fun TransactionalQueryContext.haandterAvsluttendeStatus(
+        enkeltplass: Enkeltplass,
+        status: DeltakerStatusType,
+    ) {
+        when (status) {
+            DeltakerStatusType.DELTAR,
+            DeltakerStatusType.FULLFORT,
+            DeltakerStatusType.HAR_SLUTTET,
+            DeltakerStatusType.KLADD,
+            DeltakerStatusType.PABEGYNT_REGISTRERING,
+            DeltakerStatusType.SOKT_INN,
+            DeltakerStatusType.UTKAST_TIL_PAMELDING,
+            DeltakerStatusType.VENTELISTE,
+            DeltakerStatusType.VENTER_PA_OPPSTART,
+            DeltakerStatusType.VURDERES,
+            DeltakerStatusType.AVBRUTT,
+            -> return
+
+            DeltakerStatusType.IKKE_AKTUELL,
+            DeltakerStatusType.FEILREGISTRERT,
+            DeltakerStatusType.AVBRUTT_UTKAST,
+            -> {
+                enkeltplass.okonomi
+                    ?.takeIf { it.kanBesluttes() }
+                    ?.let {
+                        it.returner(Tiltaksadministrasjon).fold(
+                            { throw IllegalStateException("Systemet klarte ikke returnere enkeltplass okonomi") },
+                            { queries.totrinnskontroll.upsert(it) },
+                        )
+                    }
+
+                enkeltplass.prisendring
+                    ?.takeIf { it.totrinnskontroll.kanBesluttes() }
+                    ?.let {
+                        it.totrinnskontroll.returner(Tiltaksadministrasjon).fold(
+                            { throw IllegalStateException("Systemet klarte ikke returnere enkeltplass prisendring") },
+                            { queries.totrinnskontroll.upsert(it) },
+                        )
+                    }
+            }
+        }
     }
 
     private fun TransactionalQueryContext.slettEksisterendePrisendring(prisendring: Totrinnskontroll) {
