@@ -62,7 +62,7 @@ data class AmtDeltakerEksternV1Dto(
 
     @Serializable
     data class DeltakelsesmengdeDto(
-        val deltakelsesprosent: Float,
+        val deltakelsesprosent: Float?,
         val dagerPerUke: Float?,
         @Serializable(with = LocalDateSerializer::class)
         val gyldigFraDato: LocalDate,
