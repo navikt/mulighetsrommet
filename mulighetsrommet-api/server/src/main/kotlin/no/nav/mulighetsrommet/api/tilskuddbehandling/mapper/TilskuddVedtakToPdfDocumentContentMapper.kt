@@ -98,7 +98,6 @@ object TilskuddVedtakToPdfDocumentContentMapper {
                 )
             }
             paragraph { regular(HJEMMEL) }
-
         }
         when (tilskudd.utbetalingMottaker) {
             TilskuddMottaker.BRUKER -> utbetalingBrukerSection()
