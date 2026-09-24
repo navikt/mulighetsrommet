@@ -75,14 +75,14 @@ object TilskuddVedtakToPdfDocumentContentMapper {
         section(
             "Nav har innvilget ${tilskudd.tilskuddType} for perioden ${tilskudd.periode.formatPeriode()}.",
         ) {
-            paragraph { regular("Beløp til utbetaling: ${belop.belop} ${belop.valuta}") }
+            paragraph { regular("Beløp til utbetaling: ${belop.belop} ${belop.valuta}. Beløpet er beregnet ut fra mottatt faktura.") }
             if (tilskudd.begrunnelse != null) {
                 paragraph { regular(tilskudd.begrunnelse) }
             }
-            paragraph { regular(HJEMMEL) }
         }
         section(
             "Slik har vi vurdert saken din",
+            level = 3,
         ) {
             paragraph {
                 regular(
@@ -99,13 +99,13 @@ object TilskuddVedtakToPdfDocumentContentMapper {
             }
             paragraph { regular(HJEMMEL) }
 
-            when (tilskudd.utbetalingMottaker) {
-                TilskuddMottaker.BRUKER -> utbetalingBrukerSection()
+        }
+        when (tilskudd.utbetalingMottaker) {
+            TilskuddMottaker.BRUKER -> utbetalingBrukerSection()
 
-                TilskuddMottaker.ARRANGOR -> utbetalingArrangorSection(
-                    arrangorNavn,
-                )
-            }
+            TilskuddMottaker.ARRANGOR -> utbetalingArrangorSection(
+                arrangorNavn,
+            )
         }
     }
 
@@ -125,7 +125,7 @@ object TilskuddVedtakToPdfDocumentContentMapper {
     }
 
     private fun PdfDocumentContentBuilder.utbetalingBrukerSection() {
-        section("Når får du pengene? ") {
+        section("Når får du pengene?", level = 3) {
             paragraph {
                 regular(
                     "Pengene vil vanligvis utbetales til kontoen din etter to til tre virkedager.  ",
@@ -142,14 +142,26 @@ object TilskuddVedtakToPdfDocumentContentMapper {
                 regular("Kontakt oss på telefon 55 55 33 33 hvis du trenger hjelp. ")
             }
         }
+        dinePlikterSection()
     }
 }
 
 private fun PdfDocumentContentBuilder.utbetalingArrangorSection(arrangorNavn: String) {
-    section("Pengene utbetales til utdanningsstedet ditt") {
+    section("Pengene utbetales til utdanningsstedet ditt", level = 3) {
         paragraph {
             regular(
                 "Nav utbetaler tilskuddet til $arrangorNavn.",
+            )
+        }
+    }
+}
+
+private fun PdfDocumentContentBuilder.dinePlikterSection() {
+    section("Dine plikter", level = 3) {
+        paragraph {
+            regular(
+                "Hvis du har fått utbetalt for mye, må du vanligvis betale tilbake pengene. Det er derfor viktig " +
+                    "at du selv følger med på utbetalinger fra Nav og melder fra om eventuelle feil.",
             )
         }
     }

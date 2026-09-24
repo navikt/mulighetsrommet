@@ -29,7 +29,31 @@
           "type": "paragraph",
           "words": [
             {
-              "text": "Beløp til utbetaling: 1000 NOK"
+              "text": "Beløp til utbetaling: 1000 NOK. Beløpet er beregnet ut fra mottatt faktura."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": {
+        "text": "Slik har vi vurdert saken din",
+        "level": 3
+      },
+      "blocks": [
+        {
+          "type": "paragraph",
+          "words": [
+            {
+              "text": "Du får dekket skolepenger for å gjennomføre tiltaket Høyere utdanning ved Underenhet 1 AS i perioden 01.01.2025 - 30.12.2025."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "words": [
+            {
+              "text": "Vedtaket gjelder for perioden vi har mottatt faktura for. Hvis Nav skal gi tilskudd senere i utdanningsløpet, må du sende inn ny faktura når du mottar denne."
             }
           ]
         },
@@ -45,8 +69,8 @@
     },
     {
       "title": {
-        "text": "Når får du pengene? ",
-        "level": 2
+        "text": "Når får du pengene?",
+        "level": 3
       },
       "blocks": [
         {
@@ -77,31 +101,15 @@
     },
     {
       "title": {
-        "text": "Slik har vi vurdert saken din",
-        "level": 2
+        "text": "Dine plikter",
+        "level": 3
       },
       "blocks": [
         {
           "type": "paragraph",
           "words": [
             {
-              "text": "Du får dekket skolepenger for å gjennomføre tiltaket Høyere utdanning ved Underenhet 1 AS i perioden 01.01.2025 - 30.12.2025."
-            }
-          ]
-        },
-        {
-          "type": "paragraph",
-          "words": [
-            {
-              "text": "Vedtaket gjelder for perioden vi har mottatt faktura for. Hvis Nav skal gi tilskudd senere i utdanningsløpet, må du sende inn ny faktura når du mottar denne."
-            }
-          ]
-        },
-        {
-          "type": "paragraph",
-          "words": [
-            {
-              "text": "Vedtaket er fattet med hjemmel i forskrift om arbeidsmarkedstiltak (tiltaksforskriften) § 7-5, jf. lov om arbeidsmarkedstjenester (arbeidsmarkedsloven) § 13."
+              "text": "Hvis du har fått utbetalt for mye, må du vanligvis betale tilbake pengene. Det er derfor viktig at du selv følger med på utbetalinger fra Nav og melder fra om eventuelle feil."
             }
           ]
         }
