@@ -1,12 +1,16 @@
-import { client, ProblemDetail } from "@tiltaksadministrasjon/api-client";
+import {
+  HelVedSimuleringResponse,
+  ProblemDetail,
+  SimulerOpphorRequest,
+  TilskuddService,
+} from "@tiltaksadministrasjon/api-client";
 import { useApiMutation } from "@/hooks/useApiMutation";
 
 export function useSimulerOpphorTilskuddVedtak() {
-  return useApiMutation<unknown, ProblemDetail, string>({
-    mutationFn: (vedtakId) =>
-      client.get({
-        url: "/api/tiltaksadministrasjon/tilskudd/simuler-opphor/{vedtakId}",
-        path: { vedtakId },
-      }),
+  return useApiMutation<HelVedSimuleringResponse, ProblemDetail, SimulerOpphorRequest>({
+    mutationFn: async (body) => {
+      const result = await TilskuddService.postTilskuddVedtakOpphorSimulering({ body });
+      return result.data;
+    },
   });
 }

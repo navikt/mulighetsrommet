@@ -3988,37 +3988,27 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
-  /api/tiltaksadministrasjon/tilskudd/simuler-opphor/{vedtakId}:
-    get:
+  /api/tiltaksadministrasjon/tilskudd/simuler-opphor:
+    post:
       tags:
       - Tilskudd
       description: Simuler opphor for gitt vedtak og tilskudd
-      operationId: getTilskuddVedtakOpphorSimulering
-      parameters:
-      - name: gjennomforingId
-        in: path
-        required: true
-        deprecated: false
-        explode: false
-        schema:
-          type: string
-          format: uuid
-      - name: vedtakId
-        in: path
-        required: true
-        deprecated: false
-        explode: false
-        schema:
-          type: string
-          format: uuid
+      operationId: postTilskuddVedtakOpphorSimulering
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SimulerOpphorRequest"
+        required: false
       responses:
         "200":
-          description: Tilskudd
+          description: Simulert opphør
           headers: {}
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Tilskudd"
+                $ref: "#/components/schemas/HelVedSimuleringResponse"
         default:
           description: Problem details
           headers: {}
@@ -9815,6 +9805,255 @@ components:
       required:
       - handlinger
       - tilskudd
+    SimulerOpphorRequest:
+      type: object
+      properties:
+        gjennomforingId:
+          type: string
+          format: uuid
+        vedtakId:
+          type: string
+          format: uuid
+      required:
+      - gjennomforingId
+      - vedtakId
+    ? ""
+    : type: object
+      properties:
+        status:
+          $ref: "#/components/schemas/HelVedSimuleringResponse.Info.Status"
+        fagsystem:
+          $ref: "#/components/schemas/HelVedSimuleringResponse.Fagsystem"
+        message:
+          type: string
+      required:
+      - fagsystem
+      - message
+      - status
+    HelVedSimuleringResponse.Info.Status:
+      type: string
+      enum:
+      - OK_UTEN_ENDRING
+      - FEILET
+      - UTILGJENGELIG
+      - UGYLDIG_REQUEST
+    HelVedSimuleringResponse.Fagsystem:
+      type: string
+      enum:
+      - VALP
+    "2":
+      type: object
+      properties:
+        oppsummeringer:
+          type: array
+          items:
+            $ref: "#/components/schemas/HelVedSimuleringResponse.V1.OppsummeringForPeriode"
+        detaljer:
+          $ref: "#/components/schemas/HelVedSimuleringResponse.V1.SimuleringDetaljer"
+      required:
+      - detaljer
+      - oppsummeringer
+    HelVedSimuleringResponse.V1.OppsummeringForPeriode:
+      type: object
+      properties:
+        fom:
+          type: string
+          format: date
+        tom:
+          type: string
+          format: date
+        tidligereUtbetalt:
+          type: integer
+          format: int32
+        nyUtbetaling:
+          type: integer
+          format: int32
+        totalEtterbetaling:
+          type: integer
+          format: int32
+        totalFeilutbetaling:
+          type: integer
+          format: int32
+      required:
+      - fom
+      - nyUtbetaling
+      - tidligereUtbetalt
+      - tom
+      - totalEtterbetaling
+      - totalFeilutbetaling
+    HelVedSimuleringResponse.V1.SimuleringDetaljer:
+      type: object
+      properties:
+        gjelderId:
+          type: string
+        datoBeregnet:
+          type: string
+          format: date
+        totalBeløp:
+          type: integer
+          format: int32
+        perioder:
+          type: array
+          items:
+            $ref: "#/components/schemas/HelVedSimuleringResponse.V1.Periode"
+      required:
+      - datoBeregnet
+      - gjelderId
+      - perioder
+      - totalBeløp
+    HelVedSimuleringResponse.V1.Periode:
+      type: object
+      properties:
+        fom:
+          type: string
+          format: date
+        tom:
+          type: string
+          format: date
+        posteringer:
+          type: array
+          items:
+            $ref: "#/components/schemas/HelVedSimuleringResponse.V1.Postering"
+      required:
+      - fom
+      - posteringer
+      - tom
+    HelVedSimuleringResponse.V1.Postering:
+      type: object
+      properties:
+        fagområde:
+          type: string
+        sakId:
+          type: string
+        fom:
+          type: string
+          format: date
+        tom:
+          type: string
+          format: date
+        beløp:
+          type: integer
+          format: int32
+        type:
+          $ref: "#/components/schemas/HelVedSimuleringResponse.V1.PosteringType"
+        klassekode:
+          type: string
+      required:
+      - beløp
+      - fagområde
+      - fom
+      - klassekode
+      - sakId
+      - tom
+      - type
+    HelVedSimuleringResponse.V1.PosteringType:
+      type: string
+      enum:
+      - YTELSE
+      - FEILUTBETALING
+      - FORSKUDSSKATT
+      - JUSTERING
+      - TREKK
+      - MOTPOSTERING
+    "3":
+      type: object
+      properties:
+        perioder:
+          type: array
+          items:
+            $ref: "#/components/schemas/HelVedSimuleringResponse.V2.Simuleringsperiode"
+      required:
+      - perioder
+    HelVedSimuleringResponse.V2.Simuleringsperiode:
+      type: object
+      properties:
+        fom:
+          type: string
+          format: date
+        tom:
+          type: string
+          format: date
+        utbetalinger:
+          type: array
+          items:
+            $ref: "#/components/schemas/HelVedSimuleringResponse.V2.SimulertUtbetaling"
+      required:
+      - fom
+      - tom
+      - utbetalinger
+    HelVedSimuleringResponse.V2.SimulertUtbetaling:
+      type: object
+      properties:
+        fagsystem:
+          $ref: "#/components/schemas/HelVedSimuleringResponse.Fagsystem"
+        sakId:
+          type: string
+        utbetalesTil:
+          type: string
+        stønadstype:
+          type:
+          - "null"
+          - string
+        tidligereUtbetalt:
+          type: integer
+          format: int32
+        nyttBeløp:
+          type: integer
+          format: int32
+        posteringer:
+          type: array
+          items:
+            $ref: "#/components/schemas/HelVedSimuleringResponse.V2.Postering"
+      required:
+      - fagsystem
+      - nyttBeløp
+      - posteringer
+      - sakId
+      - stønadstype
+      - tidligereUtbetalt
+      - utbetalesTil
+    HelVedSimuleringResponse.V2.Postering:
+      type: object
+      properties:
+        fom:
+          type: string
+          format: date
+        tom:
+          type: string
+          format: date
+        beløp:
+          type: integer
+          format: int32
+        type:
+          $ref: "#/components/schemas/HelVedSimuleringResponse.V2.Type"
+        klassekode:
+          type: string
+      required:
+      - beløp
+      - fom
+      - klassekode
+      - tom
+      - type
+    HelVedSimuleringResponse.V2.Type:
+      type: string
+      enum:
+      - YTEL
+      - FEIL
+      - SKAT
+      - JUST
+      - TREK
+      - MOTP
+    HelVedSimuleringResponse:
+      anyOf:
+      - $ref: "#/components/schemas/"
+      - $ref: "#/components/schemas/2"
+      - $ref: "#/components/schemas/3"
+      discriminator:
+        propertyName: '@type'
+        mapping:
+          info: "#/components/schemas/"
+          v1: "#/components/schemas/"
+          v2: "#/components/schemas/"
     EndringshistorikkType:
       type: string
       enum:

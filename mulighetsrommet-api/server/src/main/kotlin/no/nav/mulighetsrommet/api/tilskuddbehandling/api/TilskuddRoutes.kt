@@ -1,14 +1,19 @@
 package no.nav.mulighetsrommet.api.tilskuddbehandling.api
 
 import io.github.smiley4.ktoropenapi.get
+import io.github.smiley4.ktoropenapi.post
 import io.ktor.http.HttpStatusCode
+import io.ktor.server.http.content.default
+import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
+import io.ktor.server.routing.post
 import io.ktor.server.routing.route
 import io.ktor.server.util.getOrFail
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
+import no.nav.mulighetsrommet.api.clients.helved.HelVedSimuleringResponse
 import no.nav.mulighetsrommet.api.clients.helved.HelVedSimuleringsError
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd
@@ -88,18 +93,17 @@ fun Route.tilskuddRoutes() {
                 result?.let { call.respond(it) } ?: call.respond(HttpStatusCode.NotFound)
             }
 
-            get("/simuler-opphor/{vedtakId}", {
+            post("/simuler-opphor", {
                 description = "Simuler opphor for gitt vedtak og tilskudd"
                 tags = setOf("Tilskudd")
-                operationId = "getTilskuddVedtakOpphorSimulering"
+                operationId = "postTilskuddVedtakOpphorSimulering"
                 request {
-                    pathParameterUuid("gjennomforingId")
-                    pathParameterUuid("vedtakId")
+                    body<SimulerOpphorRequest>()
                 }
                 response {
                     code(HttpStatusCode.OK) {
-                        description = "Tilskudd"
-                        body<Tilskudd>()
+                        description = "Simulert opphør"
+                        body<HelVedSimuleringResponse>()
                     }
                     default {
                         description = "Problem details"
@@ -107,30 +111,37 @@ fun Route.tilskuddRoutes() {
                     }
                 }
             }) {
-                val gjennomforingId = call.parameters.getOrFail<UUID>("gjennomforingId")
-                val vedtakId = call.parameters.getOrFail<UUID>("vedtakId")
+                val request = call.receive<SimulerOpphorRequest>()
                 if (NaisEnv.current().isProdGCP()) {
                     call.respond(
                         HttpStatusCode.Forbidden,
                         "Opphørssimulering er kun tillatt i dev-gcp miljøet",
                     )
                 } else {
-                    tilskuddService.simulerOpphor(gjennomforingId, vedtakId, AccessType.M2M).onLeft {
+                    tilskuddService.simulerOpphor(request.gjennomforingId, request.vedtakId, AccessType.M2M).onLeft {
                         val result = when (it) {
                             HelVedSimuleringsError.BadRequest -> HttpStatusCode.BadRequest
                             HelVedSimuleringsError.NotFound -> HttpStatusCode.NotFound
                             HelVedSimuleringsError.Conflict -> HttpStatusCode.Conflict
                             HelVedSimuleringsError.Error -> HttpStatusCode.InternalServerError
                         }
-                        return@get call.respond(result)
+                        call.respond(result)
                     }.onRight {
-                        return@get call.respond(HttpStatusCode.OK, it)
+                        call.respond(HttpStatusCode.OK, it)
                     }
                 }
             }
         }
     }
 }
+
+@Serializable
+data class SimulerOpphorRequest(
+    @Serializable(with = UUIDSerializer::class)
+    val gjennomforingId: UUID,
+    @Serializable(with = UUIDSerializer::class)
+    val vedtakId: UUID,
+)
 
 @Serializable
 data class TilskuddKompaktDto(

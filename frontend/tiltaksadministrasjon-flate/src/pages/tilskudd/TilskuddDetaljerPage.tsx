@@ -9,7 +9,11 @@ import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 import { formaterDato, formaterPeriode } from "@mr/frontend-common/utils/date";
 import { formaterValutaBelop } from "@mr/frontend-common/utils/utils";
 import { Alert, BodyShort, Button, ExpansionCard, HStack, Heading, VStack } from "@navikt/ds-react";
-import { TilskuddHandling, TilskuddVedtak } from "@tiltaksadministrasjon/api-client";
+import {
+  HelVedSimuleringResponse,
+  TilskuddHandling,
+  TilskuddVedtak,
+} from "@tiltaksadministrasjon/api-client";
 import { tilskuddMottakerToString } from "@/utils/Utils";
 import { useOpphorBrukerUtbetaling } from "@/api/tilskudd-behandling/mutations";
 import { useNavigate } from "react-router";
@@ -106,7 +110,7 @@ export function TilskuddDetaljerPage() {
                         >
                           Opphør
                         </Button>
-                        <SimulerOpphorButton vedtak={vedtak} />
+                        <SimulerOpphorButton gjennomforingId={gjennomforingId} vedtak={vedtak} />
                       </>
                     )}
                   </HStack>
@@ -120,27 +124,38 @@ export function TilskuddDetaljerPage() {
   );
 }
 
-function SimulerOpphorButton({ vedtak }: { vedtak: TilskuddVedtak }) {
+function SimulerOpphorButton({
+  gjennomforingId,
+  vedtak,
+}: {
+  gjennomforingId: string;
+  vedtak: TilskuddVedtak;
+}) {
   const simulerOpphorMutation = useSimulerOpphorTilskuddVedtak();
   const [modalOpen, setModalOpen] = useState(false);
-  const [simuleringResultat, setSimuleringResultat] = useState<unknown | null>(null);
+  const [simuleringResultat, setSimuleringResultat] = useState<HelVedSimuleringResponse | null>(
+    null,
+  );
   const [feilmelding, setFeilmelding] = useState<string | null>(null);
 
   function simulerOpphor() {
     setFeilmelding(null);
     setSimuleringResultat(null);
-    simulerOpphorMutation.mutate(vedtak.id, {
-      onSuccess: (data) => {
-        setSimuleringResultat(data);
-        setModalOpen(true);
+    simulerOpphorMutation.mutate(
+      { gjennomforingId, vedtakId: vedtak.id },
+      {
+        onSuccess: (data) => {
+          setSimuleringResultat(data);
+          setModalOpen(true);
+        },
+        onError: () => {
+          setFeilmelding("Kunne ikke simulere opphør.");
+        },
+        onValidationError: () => {
+          setFeilmelding("Kunne ikke simulere opphør.");
+        },
       },
-      onError: () => {
-        setFeilmelding("Kunne ikke simulere opphør.");
-      },
-      onValidationError: () => {
-        setFeilmelding("Kunne ikke simulere opphør.");
-      },
-    });
+    );
   }
 
   const simuleringTekst = simuleringResultat ? JSON.stringify(simuleringResultat, null, 2) : "";
