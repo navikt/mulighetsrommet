@@ -1,7 +1,7 @@
 import { TilsagnFormContainer } from "@/components/tilsagn/TilsagnFormContainer";
 import { useGjennomforing } from "@/api/gjennomforing/useGjennomforing";
 import { useTilsagn, useTilsagnRequest } from "../detaljer/tilsagnDetaljerLoader";
-import { ToTrinnsOpprettelseForklaring } from "@/components/totrinnskontroll/ToTrinnskontrollOpprettelseForklaring";
+import { TotrinnskontrollReturnert } from "@/components/totrinnskontroll/TotrinnskontrollReturnert";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
 import { useRelevanteKostnadssteder } from "@/pages/gjennomforing/tilsagn/useRelevanteKostnadssteder";
 
@@ -33,7 +33,7 @@ export function RedigerTilsagnFormPage() {
 
   return (
     <>
-      <ToTrinnsOpprettelseForklaring heading="Tilsagnet ble returnert" opprettelse={opprettelse} />
+      <TotrinnskontrollReturnert heading="Tilsagnet ble returnert" opprettelse={opprettelse} />
       <TilsagnFormContainer
         gjennomforing={gjennomforing}
         prismodell={prismodell}

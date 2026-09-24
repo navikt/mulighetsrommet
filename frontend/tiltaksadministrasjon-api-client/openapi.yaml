@@ -4030,7 +4030,7 @@ components:
     OpenApiVersion:
       type: number
       enum:
-        - 26
+        - 27
     RedaksjoneltInnholdLenke:
       type: object
       properties:
@@ -6424,29 +6424,39 @@ components:
         behandletTidspunkt:
           type: string
           format: date-time
-        aarsaker:
-          type: array
-          items:
-            type: string
-        forklaring:
+        behandletBegrunnelse:
           type:
           - "null"
           - string
+        behandletAarsaker:
+          type: array
+          items:
+            type: string
         besluttetAv:
           $ref: "#/components/schemas/AgentDto"
         besluttetTidspunkt:
           type: string
           format: date-time
+        besluttetBegrunnelse:
+          type:
+          - "null"
+          - string
+        besluttetAarsaker:
+          type: array
+          items:
+            type: string
         beslutning:
           $ref: "#/components/schemas/TotrinnskontrollDto.Beslutning"
       required:
-      - aarsaker
+      - behandletAarsaker
       - behandletAv
+      - behandletBegrunnelse
       - behandletTidspunkt
       - beslutning
+      - besluttetAarsaker
       - besluttetAv
+      - besluttetBegrunnelse
       - besluttetTidspunkt
-      - forklaring
       - id
     AgentDto:
       type: object
@@ -6477,19 +6487,19 @@ components:
         behandletTidspunkt:
           type: string
           format: date-time
-        aarsaker:
-          type: array
-          items:
-            type: string
-        forklaring:
+        behandletBegrunnelse:
           type:
           - "null"
           - string
+        behandletAarsaker:
+          type: array
+          items:
+            type: string
       required:
-      - aarsaker
+      - behandletAarsaker
       - behandletAv
+      - behandletBegrunnelse
       - behandletTidspunkt
-      - forklaring
       - id
     GjennomforingEnkeltplassDetaljerDto.Prisendring:
       type: object

@@ -179,7 +179,7 @@ class TilsagnService(
             tilsagn,
             navIdent,
             aarsaker = request.aarsaker.map { it.name },
-            forklaring = request.forklaring,
+            begrunnelse = request.forklaring,
             operation = "Sendt til oppgjør",
         )
     }
@@ -419,7 +419,7 @@ class TilsagnService(
         tilsagn: Tilsagn,
         besluttetAv: NavIdent,
         aarsaker: List<TilsagnStatusAarsak>,
-        forklaring: String?,
+        begrunnelse: String?,
     ): Either<List<FieldError>, Tilsagn> {
         if (tilsagn.status != TilsagnStatus.TIL_GODKJENNING) {
             return FieldError.of("Tilsagnet må ha status ${TilsagnStatus.TIL_GODKJENNING} for å returneres")
@@ -432,7 +432,8 @@ class TilsagnService(
         }
 
         val opprettelse = queries.totrinnskontroll.getOrError(tilsagn.id, TotrinnskontrollType.TILSAGN_OPPRETTELSE)
-        return opprettelse.returner(besluttetAv, aarsaker.map { it.name }, forklaring)
+        return opprettelse
+            .returner(besluttetAv, begrunnelse, aarsaker.map { it.name })
             .mapLeft { it.toFieldErrors() }
             .map { returnert ->
                 queries.totrinnskontroll.upsert(returnert)
@@ -446,19 +447,19 @@ class TilsagnService(
         tilsagn: Tilsagn,
         behandletAv: Agent,
         aarsaker: List<String>,
-        forklaring: String?,
+        begrunnelse: String?,
     ): Tilsagn {
         require(tilsagn.status == TilsagnStatus.GODKJENT) {
             "Kan bare annullere godkjente tilsagn"
         }
 
         val annullering = Totrinnskontroll.opprett(
-            UUID.randomUUID(),
-            tilsagn.id,
-            TotrinnskontrollType.TILSAGN_ANNULLERING,
-            behandletAv,
-            aarsaker,
-            forklaring,
+            id = UUID.randomUUID(),
+            entityId = tilsagn.id,
+            type = TotrinnskontrollType.TILSAGN_ANNULLERING,
+            behandletAv = behandletAv,
+            behandletBegrunnelse = begrunnelse,
+            behandletAarsaker = aarsaker,
         )
         queries.totrinnskontroll.upsert(annullering)
         outbox.publish(annullering)
@@ -495,7 +496,7 @@ class TilsagnService(
         tilsagn: Tilsagn,
         besluttetAv: NavIdent,
         aarsaker: List<TilsagnStatusAarsak>,
-        forklaring: String?,
+        begrunnelse: String?,
     ): Either<List<FieldError>, Tilsagn> {
         if (tilsagn.status != TilsagnStatus.TIL_ANNULLERING) {
             return FieldError.of("Tilsagnet må ha status ${TilsagnStatus.TIL_ANNULLERING} for at annullering kan returneres")
@@ -504,7 +505,8 @@ class TilsagnService(
         }
 
         val annullering = queries.totrinnskontroll.getOrError(tilsagn.id, TotrinnskontrollType.TILSAGN_ANNULLERING)
-        return annullering.returner(besluttetAv, aarsaker.map { it.name }, forklaring)
+        return annullering
+            .returner(besluttetAv, begrunnelse, aarsaker.map { it.name })
             .mapLeft { it.toFieldErrors() }
             .map { returnert ->
                 queries.totrinnskontroll.upsert(returnert)
@@ -525,7 +527,7 @@ class TilsagnService(
         tilsagn: Tilsagn,
         agent: Agent,
         aarsaker: List<String>,
-        forklaring: String?,
+        begrunnelse: String?,
         operation: String,
     ): Tilsagn = with(tx) {
         require(tilsagn.status == TilsagnStatus.GODKJENT) {
@@ -533,12 +535,12 @@ class TilsagnService(
         }
 
         val oppgjor = Totrinnskontroll.opprett(
-            UUID.randomUUID(),
-            tilsagn.id,
-            TotrinnskontrollType.TILSAGN_OPPGJOR,
-            agent,
-            aarsaker,
-            forklaring,
+            id = UUID.randomUUID(),
+            entityId = tilsagn.id,
+            type = TotrinnskontrollType.TILSAGN_OPPGJOR,
+            behandletAv = agent,
+            behandletBegrunnelse = begrunnelse,
+            behandletAarsaker = aarsaker,
         )
         queries.totrinnskontroll.upsert(oppgjor)
         outbox.publish(oppgjor)
@@ -572,7 +574,7 @@ class TilsagnService(
         tilsagn: Tilsagn,
         besluttetAv: NavIdent,
         aarsaker: List<TilsagnStatusAarsak>,
-        forklaring: String?,
+        begrunnelse: String?,
     ): Either<List<FieldError>, Tilsagn> {
         if (tilsagn.status != TilsagnStatus.TIL_OPPGJOR) {
             return FieldError.of("Tilsagnet må ha status ${TilsagnStatus.TIL_OPPGJOR} for at oppgjør kan returneres")
@@ -581,7 +583,8 @@ class TilsagnService(
         }
 
         val oppgjor = queries.totrinnskontroll.getOrError(tilsagn.id, TotrinnskontrollType.TILSAGN_OPPGJOR)
-        return oppgjor.returner(besluttetAv, aarsaker.map { it.name }, forklaring)
+        return oppgjor
+            .returner(besluttetAv, begrunnelse, aarsaker.map { it.name })
             .mapLeft { it.toFieldErrors() }
             .map { returnert ->
                 queries.totrinnskontroll.upsert(returnert)

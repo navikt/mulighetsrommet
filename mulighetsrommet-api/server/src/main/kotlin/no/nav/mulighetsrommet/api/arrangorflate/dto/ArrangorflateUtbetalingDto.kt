@@ -196,8 +196,8 @@ sealed class Avbrytelse {
                 (avbrytelseTotrinn as? TotrinnskontrollDto.Besluttet)?.let {
                     Nav(
                         avbruttDato = it.besluttetTidspunkt.toLocalDate(),
-                        aarsaker = it.aarsaker,
-                        forklaring = it.forklaring,
+                        aarsaker = it.behandletAarsaker,
+                        forklaring = it.behandletBegrunnelse,
                     )
                 } ?: throw IllegalStateException("Forventet besluttet totrinnskontroll når status er AVBRUTT_AV_NAV")
         }

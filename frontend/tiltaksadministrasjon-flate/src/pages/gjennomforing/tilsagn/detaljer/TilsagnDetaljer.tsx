@@ -11,7 +11,7 @@ import { Box, Button, Heading, HGrid, HStack, Show, Spacer, VStack } from "@navi
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import { AarsakerOgForklaring } from "@/components/totrinnskontroll/AarsakerOgForklaring";
-import { ToTrinnsOpprettelseForklaring } from "@/components/totrinnskontroll/ToTrinnskontrollOpprettelseForklaring";
+import { TotrinnskontrollReturnert } from "@/components/totrinnskontroll/TotrinnskontrollReturnert";
 import { formaterDato, formaterPeriode } from "@mr/frontend-common/utils/date";
 import { useTilsagn } from "./tilsagnDetaljerLoader";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
@@ -76,7 +76,7 @@ export function TilsagnDetaljer() {
 
   return (
     <>
-      <ToTrinnsOpprettelseForklaring heading="Tilsagnet ble returnert" opprettelse={opprettelse} />
+      <TotrinnskontrollReturnert heading="Tilsagnet ble returnert" opprettelse={opprettelse} />
       {erTilBeslutning(annullering) && (
         <AarsakerOgForklaring
           heading="Tilsagnet annulleres"
@@ -85,10 +85,10 @@ export function TilsagnDetaljer() {
               annullering.behandletTidspunkt,
             )}.`,
           ]}
-          aarsaker={annullering.aarsaker.map((aarsak) =>
+          aarsaker={annullering.behandletAarsaker.map((aarsak) =>
             aarsakTilTekst(aarsak as TilsagnStatusAarsak),
           )}
-          forklaring={annullering.forklaring}
+          forklaring={annullering.behandletBegrunnelse}
         />
       )}
       {erReturnert(annullering) && !tilOppgjor && (
@@ -99,10 +99,10 @@ export function TilsagnDetaljer() {
               annullering.behandletTidspunkt,
             )}.`,
           ]}
-          aarsaker={annullering.aarsaker.map((aarsak) =>
+          aarsaker={annullering.besluttetAarsaker.map((aarsak) =>
             aarsakTilTekst(aarsak as TilsagnStatusAarsak),
           )}
-          forklaring={annullering.forklaring}
+          forklaring={annullering.besluttetBegrunnelse}
         />
       )}
       {erTilBeslutning(tilOppgjor) && (
@@ -114,10 +114,10 @@ export function TilsagnDetaljer() {
               tilOppgjor.behandletTidspunkt,
             )}.`,
           ]}
-          aarsaker={tilOppgjor.aarsaker.map((aarsak) =>
+          aarsaker={tilOppgjor.behandletAarsaker.map((aarsak) =>
             aarsakTilTekst(aarsak as TilsagnStatusAarsak),
           )}
-          forklaring={tilOppgjor.forklaring}
+          forklaring={tilOppgjor.behandletBegrunnelse}
         />
       )}
       {erReturnert(tilOppgjor) && (
@@ -128,10 +128,10 @@ export function TilsagnDetaljer() {
               tilOppgjor.behandletTidspunkt,
             )}.`,
           ]}
-          aarsaker={tilOppgjor.aarsaker.map((aarsak) =>
+          aarsaker={tilOppgjor.besluttetAarsaker.map((aarsak) =>
             aarsakTilTekst(aarsak as TilsagnStatusAarsak),
           )}
-          forklaring={tilOppgjor.forklaring}
+          forklaring={tilOppgjor.besluttetBegrunnelse}
         />
       )}
       <VStack gap="space-24" padding="space-16" className="rounded-lg border-ax-neutral-400 border">
@@ -240,10 +240,10 @@ export function TilsagnDetaljer() {
                 <Separator />
                 <TotrinnsBegrunnelse
                   title="Begrunnelse for annullering"
-                  aarsaker={(annullering?.aarsaker ?? []).map((arsak) =>
+                  aarsaker={(annullering?.behandletAarsaker ?? []).map((arsak) =>
                     aarsakTilTekst(arsak as TilsagnStatusAarsak),
                   )}
-                  forklaring={annullering?.forklaring}
+                  forklaring={annullering?.behandletBegrunnelse}
                 />
               </>
             )}
@@ -252,10 +252,10 @@ export function TilsagnDetaljer() {
                 <Separator />
                 <TotrinnsBegrunnelse
                   title="Begrunnelse for oppgjør"
-                  aarsaker={(tilOppgjor?.aarsaker ?? []).map((arsak) =>
+                  aarsaker={(tilOppgjor?.behandletAarsaker ?? []).map((arsak) =>
                     aarsakTilTekst(arsak as TilsagnStatusAarsak),
                   )}
-                  forklaring={tilOppgjor?.forklaring}
+                  forklaring={tilOppgjor?.behandletBegrunnelse}
                 />
               </>
             )}

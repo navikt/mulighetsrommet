@@ -8,11 +8,13 @@ import no.nav.mulighetsrommet.api.domain.tiltak.Tiltakstype
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.Totrinnskontroll
 import no.nav.mulighetsrommet.api.persistence.tiltak.TiltakstypeQueries
 import no.nav.mulighetsrommet.api.persistence.totrinnskontroll.toTotrinnskontrollHendelse
+import no.nav.mulighetsrommet.api.persistence.totrinnskontroll.toTotrinnskontrollHendelseV1
 import no.nav.mulighetsrommet.kafka.KafkaProducerRecordQueries
 
 data class OutboxTopics(
     val sisteTiltakstyperV3: String,
     val totrinnskontrollHendelseV1: String,
+    val totrinnskontrollHendelseV2: String,
 )
 
 class SqlAdminOutbox(session: Session, private val topics: OutboxTopics) : QueryContext.Outbox {
@@ -33,13 +35,20 @@ class SqlAdminOutbox(session: Session, private val topics: OutboxTopics) : Query
     }
 
     override fun publish(totrinnskontroll: Totrinnskontroll) {
-        val hendelse = totrinnskontroll.toTotrinnskontrollHendelse()
-        val record = StoredProducerRecord(
+        val key = totrinnskontroll.entityId.toString().toByteArray()
+        val v1Record = StoredProducerRecord(
             topics.totrinnskontrollHendelseV1,
-            totrinnskontroll.entityId.toString().toByteArray(),
-            Json.encodeToString(hendelse).toByteArray(),
+            key,
+            Json.encodeToString(totrinnskontroll.toTotrinnskontrollHendelseV1()).toByteArray(),
             null,
         )
-        kpr.storeRecord(record)
+        val v2Record = StoredProducerRecord(
+            topics.totrinnskontrollHendelseV2,
+            key,
+            Json.encodeToString(totrinnskontroll.toTotrinnskontrollHendelse()).toByteArray(),
+            null,
+        )
+        kpr.storeRecord(v1Record)
+        kpr.storeRecord(v2Record)
     }
 }

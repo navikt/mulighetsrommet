@@ -625,8 +625,8 @@ class TilsagnServiceTest : FunSpec({
                     it.behandletAv shouldBe ansatt1
                     it.besluttetAv shouldBe null
                     it.status shouldBe TotrinnskontrollStatus.TIL_BEHANDLING
-                    it.aarsaker shouldBe listOf(TilsagnStatusAarsak.FEIL_BELOP.name)
-                    it.forklaring shouldBe "Velg et annet beløp"
+                    it.behandletAarsaker shouldBe listOf(TilsagnStatusAarsak.FEIL_BELOP.name)
+                    it.behandletBegrunnelse shouldBe "Velg et annet beløp"
                 }
             }
 
@@ -640,8 +640,8 @@ class TilsagnServiceTest : FunSpec({
                     it.behandletAv shouldBe ansatt1
                     it.besluttetAv shouldBe ansatt2
                     it.status shouldBe TotrinnskontrollStatus.GODKJENT
-                    it.aarsaker shouldBe listOf(TilsagnStatusAarsak.FEIL_BELOP.name)
-                    it.forklaring shouldBe "Velg et annet beløp"
+                    it.behandletAarsaker shouldBe listOf(TilsagnStatusAarsak.FEIL_BELOP.name)
+                    it.behandletBegrunnelse shouldBe "Velg et annet beløp"
                 }
             }
         }
@@ -798,7 +798,7 @@ class TilsagnServiceTest : FunSpec({
                     it.behandletAv shouldBe ansatt1
                     it.besluttetAv shouldBe ansatt2
                     it.status shouldBe TotrinnskontrollStatus.RETURNERT
-                    it.aarsaker shouldBe listOf(TilsagnStatusAarsak.FEIL_BELOP.name)
+                    it.besluttetAarsaker shouldBe listOf(TilsagnStatusAarsak.FEIL_BELOP.name)
                 }
             }
         }

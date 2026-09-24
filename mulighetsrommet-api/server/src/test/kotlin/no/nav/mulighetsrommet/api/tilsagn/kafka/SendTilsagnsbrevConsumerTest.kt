@@ -53,10 +53,12 @@ class SendTilsagnsbrevConsumerTest : FunSpec({
         status = status,
         behandletAv = TotrinnskontrollAgent.NavAnsatt(NavAnsattFixture.DonaldDuck.navIdent),
         behandletTidspunkt = Instant.now(),
+        behandletBegrunnelse = null,
+        behandletAarsaker = emptyList(),
         besluttetAv = TotrinnskontrollAgent.NavAnsatt(NavAnsattFixture.MikkeMus.navIdent),
         besluttetTidspunkt = Instant.now(),
-        aarsaker = emptyList(),
-        forklaring = null,
+        besluttetBegrunnelse = null,
+        besluttetAarsaker = emptyList(),
     )
 
     beforeEach {

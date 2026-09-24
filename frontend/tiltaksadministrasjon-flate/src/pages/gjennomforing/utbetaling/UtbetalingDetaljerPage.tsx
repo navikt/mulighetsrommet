@@ -66,7 +66,7 @@ import { SlettKorreksjonModal } from "@/components/utbetaling/SlettKorreksjonMod
 import { AvbrytUtbetalingModal } from "@/components/utbetaling/AvbrytUtbetalingModal";
 import { AvslaAvbrytelseUtbetalingModal } from "@/components/utbetaling/AvslaAvbrytelseUtbetalingModal";
 import { ErrorFieldSummary } from "@/components/skjema/ValideringsfeilOppsummering";
-import { ToTrinnsAvbrytelseForklaring } from "@/components/totrinnskontroll/ToTrinnskontrollAvbrytningForklaring";
+import { TotrinnskontrollUtbetalingAvbrytelse } from "@/components/totrinnskontroll/TotrinnskontrollUtbetalingAvbrytelse";
 import { TotrinnsBegrunnelse } from "@mr/frontend-common/components/TotrinnsBegrunnelse";
 import { aarsakTilTekst } from "@/utils/Utils";
 import { BekreftAvbrytelseModal } from "@/components/utbetaling/BekreftAvbrytelseModal";
@@ -163,9 +163,7 @@ export function UtbetalingDetaljerPage() {
         />
       </HStack>
       <VStack gap="space-12">
-        {utbetaling.status.type !== UtbetalingStatusDtoType.AVBRUTT_AV_NAV && (
-          <ToTrinnsAvbrytelseForklaring avbrytelse={utbetaling.avbrytelse} />
-        )}
+        <TotrinnskontrollUtbetalingAvbrytelse utbetaling={utbetaling} />
         <HGrid columns="1fr auto" align="start">
           <TwoColumnGrid separator>
             <Box>
@@ -284,10 +282,10 @@ export function UtbetalingDetaljerPage() {
                   <Separator />
                   <TotrinnsBegrunnelse
                     title="Begrunnelse for avbrytelse"
-                    aarsaker={utbetaling.avbrytelse.aarsaker.map((arsak) =>
+                    aarsaker={utbetaling.avbrytelse.behandletAarsaker.map((arsak) =>
                       aarsakTilTekst(arsak as UtbetalingStatusAarsak),
                     )}
-                    forklaring={utbetaling.avbrytelse.forklaring}
+                    forklaring={utbetaling.avbrytelse.behandletBegrunnelse}
                   />
                 </>
               )}

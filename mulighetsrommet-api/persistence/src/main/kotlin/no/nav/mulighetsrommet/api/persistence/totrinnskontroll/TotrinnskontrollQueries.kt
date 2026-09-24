@@ -25,31 +25,37 @@ class TotrinnskontrollQueries(val session: Session) : TotrinnskontrollQueryHandl
                 entity_id,
                 behandlet_av,
                 behandlet_tidspunkt,
-                aarsaker,
-                forklaring,
+                behandlet_begrunnelse,
+                behandlet_aarsaker,
                 type,
                 besluttet_av,
                 besluttet_tidspunkt,
+                besluttet_begrunnelse,
+                besluttet_aarsaker,
                 status
             ) values (
                 :id::uuid,
                 :entity_id::uuid,
                 :behandlet_av,
                 :behandlet_tidspunkt,
-                :aarsaker,
-                :forklaring,
+                :behandlet_begrunnelse,
+                :behandlet_aarsaker,
                 :type,
                 :besluttet_av,
                 :besluttet_tidspunkt,
+                :besluttet_begrunnelse,
+                :besluttet_aarsaker,
                 :status
             ) on conflict (id) do update set
                 behandlet_av = excluded.behandlet_av,
                 behandlet_tidspunkt = excluded.behandlet_tidspunkt,
-                aarsaker = excluded.aarsaker,
-                forklaring = excluded.forklaring,
+                behandlet_begrunnelse = excluded.behandlet_begrunnelse,
+                behandlet_aarsaker = excluded.behandlet_aarsaker,
                 type = excluded.type,
                 besluttet_av = excluded.besluttet_av,
                 besluttet_tidspunkt = excluded.besluttet_tidspunkt,
+                besluttet_begrunnelse = excluded.besluttet_begrunnelse,
+                besluttet_aarsaker = excluded.besluttet_aarsaker,
                 status = excluded.status
         """.trimIndent()
 
@@ -60,10 +66,12 @@ class TotrinnskontrollQueries(val session: Session) : TotrinnskontrollQueryHandl
             "status" to totrinnskontroll.status.name,
             "behandlet_av" to totrinnskontroll.behandletAv.textRepr(),
             "behandlet_tidspunkt" to totrinnskontroll.behandletTidspunkt,
+            "behandlet_begrunnelse" to totrinnskontroll.behandletBegrunnelse,
+            "behandlet_aarsaker" to totrinnskontroll.behandletAarsaker.let { session.createTextArray(it) },
             "besluttet_av" to totrinnskontroll.besluttetAv?.textRepr(),
             "besluttet_tidspunkt" to totrinnskontroll.besluttetTidspunkt,
-            "aarsaker" to totrinnskontroll.aarsaker.let { session.createTextArray(it) },
-            "forklaring" to totrinnskontroll.forklaring,
+            "besluttet_begrunnelse" to totrinnskontroll.besluttetBegrunnelse,
+            "besluttet_aarsaker" to totrinnskontroll.besluttetAarsaker.let { session.createTextArray(it) },
         )
 
         session.execute(queryOf(query, params))
@@ -195,10 +203,12 @@ class TotrinnskontrollQueries(val session: Session) : TotrinnskontrollQueryHandl
             type = TotrinnskontrollType.valueOf(string("type")),
             behandletAv = string("behandlet_av").toAgent(),
             behandletTidspunkt = instant("behandlet_tidspunkt"),
-            aarsaker = array<String>("aarsaker").toList(),
-            forklaring = stringOrNull("forklaring"),
+            behandletBegrunnelse = stringOrNull("behandlet_begrunnelse"),
+            behandletAarsaker = array<String>("behandlet_aarsaker").toList(),
             besluttetAv = stringOrNull("besluttet_av")?.toAgent(),
             besluttetTidspunkt = instantOrNull("besluttet_tidspunkt"),
+            besluttetBegrunnelse = stringOrNull("besluttet_begrunnelse"),
+            besluttetAarsaker = array<String>("besluttet_aarsaker").toList(),
             status = string("status").let { TotrinnskontrollStatus.valueOf(it) },
         )
     }
@@ -208,8 +218,10 @@ class TotrinnskontrollQueries(val session: Session) : TotrinnskontrollQueryHandl
         val behandletAv = string("behandlet_av").toAgent()
         val behandletAvNavn = stringOrNull("behandlet_av_navn")
         val behandletTidspunkt = localDateTime("behandlet_tidspunkt")
-        val aarsaker = array<String>("aarsaker").toList()
-        val forklaring = stringOrNull("forklaring")
+        val behandletBegrunnelse = stringOrNull("behandlet_begrunnelse")
+        val behandletAarsaker = array<String>("behandlet_aarsaker").toList()
+        val besluttetBegrunnelse = stringOrNull("besluttet_begrunnelse")
+        val besluttetAarsaker = array<String>("besluttet_aarsaker").toList()
         val status = string("status").let { TotrinnskontrollStatus.valueOf(it) }
 
         return if (status == TotrinnskontrollStatus.TIL_BEHANDLING) {
@@ -217,8 +229,8 @@ class TotrinnskontrollQueries(val session: Session) : TotrinnskontrollQueryHandl
                 id = id,
                 behandletAv = AgentDto.fromAgent(behandletAv, behandletAvNavn),
                 behandletTidspunkt = behandletTidspunkt,
-                aarsaker = aarsaker,
-                forklaring = forklaring,
+                behandletBegrunnelse = behandletBegrunnelse,
+                behandletAarsaker = behandletAarsaker,
             )
         } else {
             val besluttetAv = string("besluttet_av").toAgent()
@@ -227,10 +239,12 @@ class TotrinnskontrollQueries(val session: Session) : TotrinnskontrollQueryHandl
                 id = id,
                 behandletAv = AgentDto.fromAgent(behandletAv, behandletAvNavn),
                 behandletTidspunkt = behandletTidspunkt,
-                aarsaker = aarsaker,
-                forklaring = forklaring,
+                behandletBegrunnelse = behandletBegrunnelse,
+                behandletAarsaker = behandletAarsaker,
                 besluttetAv = AgentDto.fromAgent(besluttetAv, besluttetAvNavn),
                 besluttetTidspunkt = localDateTime("besluttet_tidspunkt"),
+                besluttetBegrunnelse = besluttetBegrunnelse,
+                besluttetAarsaker = besluttetAarsaker,
                 beslutning = when (status) {
                     TotrinnskontrollStatus.TIL_BEHANDLING -> error("Status TIL_BEHANDLING kan ikke mappes til TotrinnskontrollDto.Besluttet")
                     TotrinnskontrollStatus.SATT_PA_VENT -> TotrinnskontrollDto.Beslutning.SATT_PA_VENT
