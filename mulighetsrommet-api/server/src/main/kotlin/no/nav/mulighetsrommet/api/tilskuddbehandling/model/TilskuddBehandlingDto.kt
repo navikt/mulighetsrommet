@@ -89,5 +89,4 @@ enum class TilskuddBehandlingHandling {
     REDIGER,
     ATTESTER,
     RETURNER,
-    OPPHOR,
 }

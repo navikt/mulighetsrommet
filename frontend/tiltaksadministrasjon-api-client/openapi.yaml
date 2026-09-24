@@ -3979,7 +3979,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Tilskudd"
+                $ref: "#/components/schemas/TilskuddDto"
         default:
           description: Problem details
           headers: {}
@@ -9452,7 +9452,6 @@ components:
       - REDIGER
       - ATTESTER
       - RETURNER
-      - OPPHOR
     TilskuddBehandlingDetaljerDto:
       type: object
       properties:
@@ -9664,6 +9663,29 @@ components:
       - sisteVedtakResultat
       - tilskuddsnummer
       - type
+    Tilskudd:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        type:
+          $ref: "#/components/schemas/Opplaeringtilskudd"
+        gjennomforingId:
+          type: string
+          format: uuid
+        tilskuddsnummer:
+          type: string
+        vedtak:
+          type: array
+          items:
+            $ref: "#/components/schemas/Tilskudd.Vedtak"
+      required:
+      - gjennomforingId
+      - id
+      - tilskuddsnummer
+      - type
+      - vedtak
     Tilskudd.Vedtak:
       type: object
       properties:
@@ -9727,29 +9749,23 @@ components:
       - utbetalingMottaker
       - vedtakJournalpostId
       - vedtakResultat
-    Tilskudd:
+    TilskuddHandling:
+      type: string
+      enum:
+      - OPPHOR
+    TilskuddDto:
       type: object
       properties:
-        id:
-          type: string
-          format: uuid
-        type:
-          $ref: "#/components/schemas/Opplaeringtilskudd"
-        gjennomforingId:
-          type: string
-          format: uuid
-        tilskuddsnummer:
-          type: string
-        vedtak:
+        tilskudd:
+          $ref: "#/components/schemas/Tilskudd"
+        handlinger:
           type: array
           items:
-            $ref: "#/components/schemas/Tilskudd.Vedtak"
+            $ref: "#/components/schemas/TilskuddHandling"
+          uniqueItems: true
       required:
-      - gjennomforingId
-      - id
-      - tilskuddsnummer
-      - type
-      - vedtak
+      - handlinger
+      - tilskudd
     EndringshistorikkType:
       type: string
       enum:

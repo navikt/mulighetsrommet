@@ -17,7 +17,7 @@ import java.time.LocalDate
 import java.util.UUID
 
 object TilskuddFixtures {
-    val TilskuddInnvilgelse = TilskuddVedtak(
+    val TilskuddVedtakInnvilgelse = TilskuddVedtak(
         id = UUID.randomUUID(),
         tilskuddId = UUID.randomUUID(),
         tilskuddOpplaeringType = Opplaeringtilskudd.Kode.SKOLEPENGER,
@@ -40,7 +40,7 @@ object TilskuddFixtures {
         kommentarIntern = "kommentarIntern",
     )
 
-    val TilskuddAvslag = TilskuddVedtak(
+    val TilskuddVedtakAvslag = TilskuddVedtak(
         id = UUID.randomUUID(),
         tilskuddId = UUID.randomUUID(),
         tilskuddOpplaeringType = Opplaeringtilskudd.Kode.EKSAMENSGEBYR,
@@ -66,7 +66,7 @@ object TilskuddFixtures {
     val Behandling = TilskuddBehandling(
         id = UUID.randomUUID(),
         gjennomforingId = EnkelAmo.id,
-        tilskudd = listOf(TilskuddInnvilgelse, TilskuddAvslag),
+        tilskudd = listOf(TilskuddVedtakInnvilgelse, TilskuddVedtakAvslag),
         status = TilskuddBehandlingStatus.TIL_ATTESTERING,
         type = TilskuddBehandlingType.REGISTRERING,
         behandlendeEnhet = NavEnhetFixtures.Innlandet.enhetsnummer,

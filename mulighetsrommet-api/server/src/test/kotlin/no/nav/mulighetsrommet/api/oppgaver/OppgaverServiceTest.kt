@@ -1273,7 +1273,7 @@ class OppgaverServiceTest : FunSpec({
                 queries.tilskuddBehandling.upsert(
                     TilskuddFixtures.Behandling.copy(
                         status = TilskuddBehandlingStatus.FERDIG_BEHANDLET,
-                        tilskudd = listOf(TilskuddFixtures.TilskuddInnvilgelse),
+                        tilskudd = listOf(TilskuddFixtures.TilskuddVedtakInnvilgelse),
                     ),
                 )
                 setGodkjent(
@@ -1321,7 +1321,7 @@ class OppgaverServiceTest : FunSpec({
             val behandlingOslo = TilskuddFixtures.Behandling.copy(
                 id = UUID.randomUUID(),
                 tilskudd = listOf(
-                    TilskuddFixtures.TilskuddInnvilgelse.copy(
+                    TilskuddFixtures.TilskuddVedtakInnvilgelse.copy(
                         id = UUID.randomUUID(),
                         kostnadssted = NavEnhetFixtures.Oslo.enhetsnummer,
                     ),
@@ -1365,7 +1365,7 @@ class OppgaverServiceTest : FunSpec({
             val behandlingOslo = TilskuddFixtures.Behandling.copy(
                 gjennomforingId = GjennomforingFixtures.EnkelFagOgYrke.id,
                 id = UUID.randomUUID(),
-                tilskudd = listOf(TilskuddFixtures.TilskuddInnvilgelse.copy(id = UUID.randomUUID())),
+                tilskudd = listOf(TilskuddFixtures.TilskuddVedtakInnvilgelse.copy(id = UUID.randomUUID())),
             )
 
             MulighetsrommetTestDomain(

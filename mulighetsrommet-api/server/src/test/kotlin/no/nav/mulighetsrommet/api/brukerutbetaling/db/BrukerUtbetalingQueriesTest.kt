@@ -51,7 +51,7 @@ class BrukerUtbetalingQueriesTest : FunSpec({
 
     test("insert and setBrukerUtbetaling") {
         val behandling = TilskuddFixtures.Behandling
-        val tilskudd = TilskuddFixtures.TilskuddInnvilgelse
+        val tilskudd = TilskuddFixtures.TilskuddVedtakInnvilgelse
 
         database.api.transaction {
             queries.tilskuddBehandling.upsert(behandling.copy(tilskudd = listOf(tilskudd)))
@@ -73,7 +73,7 @@ class BrukerUtbetalingQueriesTest : FunSpec({
 
     test("getByTilskudd returns null when no utbetaling linked") {
         val behandling = TilskuddFixtures.Behandling
-        val tilskudd = TilskuddFixtures.TilskuddInnvilgelse
+        val tilskudd = TilskuddFixtures.TilskuddVedtakInnvilgelse
 
         database.api.transaction {
             queries.tilskuddBehandling.upsert(behandling.copy(tilskudd = listOf(tilskudd)))
@@ -101,7 +101,7 @@ class BrukerUtbetalingQueriesTest : FunSpec({
         database.api.session { queries.brukerUtbetaling.setHelVedStatus(brukerUtbetaling.id, nonEmptySetOf(1), status) }
 
         val behandling = TilskuddFixtures.Behandling
-        val tilskudd = TilskuddFixtures.TilskuddInnvilgelse
+        val tilskudd = TilskuddFixtures.TilskuddVedtakInnvilgelse
         database.api.transaction {
             queries.tilskuddBehandling.upsert(behandling.copy(tilskudd = listOf(tilskudd)))
         }

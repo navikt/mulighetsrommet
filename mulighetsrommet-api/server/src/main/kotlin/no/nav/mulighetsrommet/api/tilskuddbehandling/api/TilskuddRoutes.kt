@@ -2,22 +2,25 @@ package no.nav.mulighetsrommet.api.tilskuddbehandling.api
 
 import io.github.smiley4.ktoropenapi.get
 import io.ktor.http.HttpStatusCode
-import io.ktor.server.http.content.default
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.route
 import io.ktor.server.util.getOrFail
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.ApiDatabase
+import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
+import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.plugins.queryParameterUuid
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.Tilskudd
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddKompakt
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.Tilskuddsnummer
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultatDto
+import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -62,7 +65,7 @@ fun Route.tilskuddRoutes() {
                 response {
                     code(HttpStatusCode.OK) {
                         description = "Tilskudd"
-                        body<Tilskudd>()
+                        body<TilskuddDto>()
                     }
                     default {
                         description = "Problem details"
@@ -71,9 +74,13 @@ fun Route.tilskuddRoutes() {
                 }
             }) {
                 val tilskuddId = call.parameters.getOrFail<UUID>("tilskuddId")
-                val result = db.session { queries.tilskudd.get(tilskuddId) }
-                    ?: return@get call.respond(HttpStatusCode.NotFound)
-                call.respond(result)
+                val navIdent = getNavIdent()
+                val result = db.session {
+                    val tilskudd = queries.tilskudd.get(tilskuddId) ?: return@session null
+                    val handlinger = handlingerFor(tilskudd, navIdent)
+                    TilskuddDto.from(tilskudd, handlinger)
+                }
+                result?.let { call.respond(it) } ?: call.respond(HttpStatusCode.NotFound)
             }
         }
     }
@@ -103,5 +110,40 @@ data class TilskuddKompaktDto(
                 sisteVedtakLopenummer = tilskuddKompakt.sisteVedtakLopenummer,
             )
         }
+    }
+}
+
+@Serializable
+data class TilskuddDto(
+    val tilskudd: Tilskudd,
+    val handlinger: Set<TilskuddHandling>,
+) {
+    companion object {
+        fun from(tilskudd: Tilskudd, handlinger: Set<TilskuddHandling>): TilskuddDto {
+            return TilskuddDto(
+                tilskudd = tilskudd,
+                handlinger = handlinger,
+            )
+        }
+    }
+}
+
+@Serializable
+enum class TilskuddHandling {
+    OPPHOR,
+}
+
+private fun QueryContext.handlingerFor(tilskudd: Tilskudd, navIdent: NavIdent): Set<TilskuddHandling> {
+    val ansatt = queries.ansatt.get(navIdent) ?: return emptySet()
+    val ansattITeamMulighetsrommet = ansatt.hasGenerellRolle(Rolle.TEAM_MULIGHETSROMMET)
+
+    val sisteVedtak = tilskudd.vedtak.maxBy { it.lopenummer }
+    val erIkkeOpphor = sisteVedtak.utbetalingBelop?.belop?.let { belop -> belop > 0 } ?: false
+    val erInnvilget = sisteVedtak.vedtakResultat == VedtakResultat.INNVILGELSE
+
+    return if (erInnvilget && erIkkeOpphor && ansattITeamMulighetsrommet) {
+        setOf(TilskuddHandling.OPPHOR)
+    } else {
+        emptySet()
     }
 }
