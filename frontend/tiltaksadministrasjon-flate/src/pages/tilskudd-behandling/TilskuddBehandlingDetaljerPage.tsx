@@ -109,10 +109,7 @@ export function TilskuddBehandlingDetaljerPage() {
   return (
     <TilskuddBehandlingLayout gjennomforingId={gjennomforingId}>
       {erReturnert(opprettelse) && (
-        <TotrinnskontrollReturnert
-          heading="Behandlingen ble returnert"
-          opprettelse={opprettelse}
-        />
+        <TotrinnskontrollReturnert heading="Behandlingen ble returnert" opprettelse={opprettelse} />
       )}
       <Box marginBlock="space-16">
         <HStack gap="space-8" justify="end">
