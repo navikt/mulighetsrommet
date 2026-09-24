@@ -14,10 +14,10 @@
 
 #let headingStyle = (
   levels: (
-    "1": (size: 12pt,  before: 11.5pt, after: 0pt),
-    "2": (size: 9.75pt, before: 11.5pt, after: 0pt),
-    "3": (size: 9pt, before: 11.5pt, after: 0pt),
-    "4": (size: 8.25pt, before: 11.5pt, after: 0pt),
+    "1": (size: 12pt,  before: 14.5pt, after: 0pt),
+    "2": (size: 9.75pt, before: 14.5pt, after: 0pt),
+    "3": (size: 9pt, before: 14.5pt, after: 0pt),
+    "4": (size: 8.25pt, before: 14.5pt, after: 0pt),
   ),
 )
 
