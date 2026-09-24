@@ -10,7 +10,7 @@ import java.time.LocalDate
 data class Deltakelsesmengde(
     @Serializable(with = LocalDateSerializer::class)
     val gyldigFra: LocalDate,
-    val deltakelsesprosent: Float,
+    val deltakelsesprosent: Float?,
     val dagerPerUke: Float?,
     @Serializable(with = InstantSerializer::class)
     val opprettetTidspunkt: Instant,

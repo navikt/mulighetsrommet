@@ -77,10 +77,13 @@ object FastSatsPerTiltaksplassPerManedBeregning :
                     val mengde = window[0]
                     val gyldigTil = window.getOrNull(1)?.gyldigFra ?: deltakelsePeriode.slutt
 
+                    val deltakelsesprosent = requireNotNull(mengde.deltakelsesprosent) {
+                        "Deltakelsesprosent mangler for deltaker med id=$deltakelseId"
+                    }
                     Periode.of(mengde.gyldigFra, gyldigTil)?.intersect(periode)?.let { overlappingPeriode ->
                         DeltakelsesprosentPeriode(
                             periode = overlappingPeriode,
-                            deltakelsesprosent = mengde.deltakelsesprosent.toDouble(),
+                            deltakelsesprosent = deltakelsesprosent.toDouble(),
                         )
                     }
                 }
