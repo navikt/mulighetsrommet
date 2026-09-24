@@ -26,7 +26,8 @@ class HelVedSimuleringClient(
     private val logger = LoggerFactory.getLogger(javaClass)
     private val client = httpJsonClient(clientEngine).config {
         install(HttpTimeout) {
-            requestTimeoutMillis = 120_000
+            connectTimeoutMillis = 30_000
+            requestTimeoutMillis = 150_000
         }
     }
 
