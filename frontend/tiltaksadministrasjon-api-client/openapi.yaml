@@ -3988,6 +3988,45 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
+  /api/tiltaksadministrasjon/tilskudd/simuler-opphor/{vedtakId}:
+    get:
+      tags:
+      - Tilskudd
+      description: Simuler opphor for gitt vedtak og tilskudd
+      operationId: getTilskuddVedtakOpphorSimulering
+      parameters:
+      - name: gjennomforingId
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      - name: vedtakId
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: Tilskudd
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Tilskudd"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
   /api/tiltaksadministrasjon/historikk/{id}:
     get:
       tags:

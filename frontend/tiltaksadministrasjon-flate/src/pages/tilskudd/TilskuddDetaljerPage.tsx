@@ -1,20 +1,24 @@
 import { useTilskudd } from "@/api/tilskudd/useTilskuddOrError";
+import { useSimulerOpphorTilskuddVedtak } from "@/api/tilskudd/mutations";
 import { TilskuddLayout } from "@/components/tilskudd/TilskuddLayout";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
 import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
 import { Definisjonsliste } from "@mr/frontend-common/components/definisjonsliste/Definisjonsliste";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
+import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 import { formaterDato, formaterPeriode } from "@mr/frontend-common/utils/date";
 import { formaterValutaBelop } from "@mr/frontend-common/utils/utils";
-import { BodyShort, Button, ExpansionCard, Heading, HStack, VStack } from "@navikt/ds-react";
+import { Alert, BodyShort, Button, ExpansionCard, HStack, Heading, VStack } from "@navikt/ds-react";
 import { TilskuddHandling, TilskuddVedtak } from "@tiltaksadministrasjon/api-client";
 import { tilskuddMottakerToString } from "@/utils/Utils";
 import { useOpphorBrukerUtbetaling } from "@/api/tilskudd-behandling/mutations";
 import { useNavigate } from "react-router";
+import { useState } from "react";
 
 export function TilskuddDetaljerPage() {
   const { gjennomforingId, tilskuddId } = useRequiredParams(["gjennomforingId", "tilskuddId"]);
-  const { data: tilskudd } = useTilskudd(tilskuddId);
+  const { data: detaljer } = useTilskudd(tilskuddId);
+  const { handlinger, tilskudd } = detaljer;
   const navigate = useNavigate();
   const opphorMutation = useOpphorBrukerUtbetaling();
 
@@ -33,14 +37,14 @@ export function TilskuddDetaljerPage() {
     <TilskuddLayout gjennomforingId={gjennomforingId}>
       <VStack gap="space-16">
         <Heading level="1" size="medium">
-          {tilskudd.tilskudd.type.navn}
+          {tilskudd.type.navn}
         </Heading>
         <Definisjonsliste
           title="Tilskudd"
-          definitions={[{ key: "Tilskuddsnummer", value: tilskudd.tilskudd.tilskuddsnummer }]}
+          definitions={[{ key: "Tilskuddsnummer", value: tilskudd.tilskuddsnummer }]}
         />
         <VStack gap="space-16">
-          {tilskudd.tilskudd.vedtak.map((vedtak: TilskuddVedtak, index: number) => (
+          {tilskudd.vedtak.map((vedtak: TilskuddVedtak, index: number) => (
             <ExpansionCard
               key={vedtak.id}
               defaultOpen={index === 0}
@@ -92,15 +96,18 @@ export function TilskuddDetaljerPage() {
                       Gå til tilskuddsbehandling
                     </Lenke>
 
-                    {tilskudd.handlinger.includes(TilskuddHandling.OPPHOR) && index === 0 && (
-                      <Button
-                        type="button"
-                        variant="tertiary"
-                        data-color="danger"
-                        onClick={() => opphorUtbetaling(vedtak.behandlingId, vedtak.id)}
-                      >
-                        Opphør
-                      </Button>
+                    {handlinger.includes(TilskuddHandling.OPPHOR) && index === 0 && (
+                      <>
+                        <Button
+                          type="button"
+                          variant="tertiary"
+                          data-color="danger"
+                          onClick={() => opphorUtbetaling(vedtak.behandlingId, vedtak.id)}
+                        >
+                          Opphør
+                        </Button>
+                        <SimulerOpphorButton vedtak={vedtak} />
+                      </>
                     )}
                   </HStack>
                 </VStack>
@@ -110,5 +117,65 @@ export function TilskuddDetaljerPage() {
         </VStack>
       </VStack>
     </TilskuddLayout>
+  );
+}
+
+function SimulerOpphorButton({ vedtak }: { vedtak: TilskuddVedtak }) {
+  const simulerOpphorMutation = useSimulerOpphorTilskuddVedtak();
+  const [modalOpen, setModalOpen] = useState(false);
+  const [simuleringResultat, setSimuleringResultat] = useState<unknown | null>(null);
+  const [feilmelding, setFeilmelding] = useState<string | null>(null);
+
+  function simulerOpphor() {
+    setFeilmelding(null);
+    setSimuleringResultat(null);
+    simulerOpphorMutation.mutate(vedtak.id, {
+      onSuccess: (data) => {
+        setSimuleringResultat(data);
+        setModalOpen(true);
+      },
+      onError: () => {
+        setFeilmelding("Kunne ikke simulere opphør.");
+      },
+      onValidationError: () => {
+        setFeilmelding("Kunne ikke simulere opphør.");
+      },
+    });
+  }
+
+  const simuleringTekst = simuleringResultat ? JSON.stringify(simuleringResultat, null, 2) : "";
+
+  return (
+    <>
+      <VStack gap="space-8" align="start">
+        <Button
+          type="button"
+          variant="tertiary"
+          data-color="danger"
+          loading={simulerOpphorMutation.isPending}
+          onClick={simulerOpphor}
+        >
+          Simuler opphør
+        </Button>
+        {feilmelding && <Alert variant="error">{feilmelding}</Alert>}
+      </VStack>
+      <VarselModal
+        open={modalOpen}
+        handleClose={() => setModalOpen(false)}
+        headingText="Simulert opphør"
+        headingIconType="info"
+        body={
+          <VStack gap="space-16">
+            <BodyShort>Resultatet av simuleringen:</BodyShort>
+            <pre style={{ whiteSpace: "pre-wrap", wordBreak: "break-word" }}>{simuleringTekst}</pre>
+          </VStack>
+        }
+        primaryButton={
+          <Button type="button" variant="primary" onClick={() => setModalOpen(false)}>
+            Lukk
+          </Button>
+        }
+      />
+    </>
   );
 }
