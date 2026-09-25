@@ -1,4 +1,4 @@
-FROM europe-north1-docker.pkg.dev/cgr-nav/pull-through/nav.no/jre:openjdk-21@sha256:59aae400feb438475ef6c16275ee8a8f401707e6a09826430c01fa7450389452
+FROM europe-north1-docker.pkg.dev/cgr-nav/pull-through/nav.no/jre:openjdk-21@sha256:c57d2eac2b8092a9e3016930f3e9feaaa0e1fcae553a42a9cd1bc80927061df5
 LABEL org.opencontainers.image.source="https://github.com/navikt/mulighetsrommet"
 
 WORKDIR /app
