@@ -115,13 +115,13 @@ class TilskuddBehandlingServiceTest : FunSpec({
                 request.id,
                 ansatt1,
             )?.opprettelse.shouldBeTypeOf<TotrinnskontrollDto.Besluttet>() should {
-                it.besluttetAarsaker shouldBe listOf(
+                it.beslutning.utfall shouldBe TotrinnskontrollDto.Utfall.RETURNERT
+                it.beslutning.aarsaker shouldBe listOf(
                     TilskuddBehandlingStatusAarsak.FEIL_VEDTAKSRESULTAT.name,
                     TilskuddBehandlingStatusAarsak.ANNET.name,
                 )
-                it.besluttetBegrunnelse shouldBe "fordi"
-                it.beslutning shouldBe TotrinnskontrollDto.Beslutning.RETURNERT
-                it.besluttetAv.navn shouldBe "Mikke Mus"
+                it.beslutning.begrunnelse shouldBe "fordi"
+                it.beslutning.utfortAv.navn shouldBe "Mikke Mus"
             }
         }
     }

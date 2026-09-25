@@ -15,14 +15,22 @@ class TotrinnskontrollOutboxMapperTest : FunSpec({
         entityId = UUID.randomUUID(),
         type = TotrinnskontrollType.TILSAGN_OPPRETTELSE,
         status = status,
-        behandletAv = NavIdent("B123456"),
-        behandletTidspunkt = Instant.parse("2026-09-23T10:00:00Z"),
-        behandletBegrunnelse = "Begrunnelse fra behandler",
-        behandletAarsaker = listOf("BEHANDLET_AARSAK"),
-        besluttetAv = NavIdent("B654321"),
-        besluttetTidspunkt = Instant.parse("2026-09-23T11:00:00Z"),
-        besluttetBegrunnelse = "Begrunnelse fra beslutter",
-        besluttetAarsaker = listOf("BESLUTTET_AARSAK"),
+        behandling = Totrinnskontroll.Behandling(
+            utfortAv = NavIdent("B123456"),
+            tidspunkt = Instant.parse("2026-09-23T10:00:00Z"),
+            begrunnelse = "Begrunnelse fra behandler",
+            aarsaker = listOf("BEHANDLET_AARSAK"),
+        ),
+        beslutning = if (status == TotrinnskontrollStatus.TIL_BEHANDLING) {
+            null
+        } else {
+            Totrinnskontroll.Beslutning(
+                utfortAv = NavIdent("B654321"),
+                tidspunkt = Instant.parse("2026-09-23T11:00:00Z"),
+                begrunnelse = "Begrunnelse fra beslutter",
+                aarsaker = listOf("BESLUTTET_AARSAK"),
+            )
+        },
     )
 
     listOf(TotrinnskontrollStatus.TIL_BEHANDLING, TotrinnskontrollStatus.GODKJENT).forEach { status ->

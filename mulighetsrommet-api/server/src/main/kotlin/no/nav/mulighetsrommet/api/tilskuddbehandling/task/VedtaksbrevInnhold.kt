@@ -123,7 +123,7 @@ suspend fun QueryContext.hentVedtaksbrevInnhold(
         saksbehandler = formatNavn(saksbehandlerNavn),
         beslutter = formatNavn(beslutterNavn),
         behandlendeEnhet = behandlendeEnhet,
-        besluttetTidspunkt = (totrinnskontroll as TotrinnskontrollDto.Besluttet).besluttetTidspunkt,
+        besluttetTidspunkt = (totrinnskontroll as TotrinnskontrollDto.Besluttet).beslutning.tidspunkt,
     ).right()
 }
 
@@ -199,9 +199,9 @@ private fun validateSignaturNavn(
     val besluttet = totrinnskontroll as? TotrinnskontrollDto.Besluttet
         ?: return "Totrinnskontroll for tilskudd $vedtakId er ikke besluttet".left()
 
-    val saksbehandlerNavn = besluttet.behandletAv.navn
+    val saksbehandlerNavn = besluttet.behandling.utfortAv.navn
         ?: return "Totrinnskontroll for tilskudd $vedtakId mangler saksbehandlernavn".left()
-    val beslutterNavn = besluttet.besluttetAv.navn
+    val beslutterNavn = besluttet.beslutning.utfortAv.navn
         ?: return "Totrinnskontroll for tilskudd $vedtakId mangler beslutternavn".left()
 
     return (saksbehandlerNavn to beslutterNavn).right()

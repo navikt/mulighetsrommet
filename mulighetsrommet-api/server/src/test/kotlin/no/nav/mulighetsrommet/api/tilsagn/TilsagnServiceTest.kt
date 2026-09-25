@@ -5,6 +5,8 @@ import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
@@ -150,7 +152,7 @@ class TilsagnServiceTest : FunSpec({
 
             database.run {
                 queries.totrinnskontroll.getAll(requestId).shouldHaveSize(1).first().should {
-                    it.behandletAv shouldBe ansatt1
+                    it.behandling.utfortAv shouldBe ansatt1
                     it.type shouldBe TotrinnskontrollType.TILSAGN_OPPRETTELSE
                 }
             }
@@ -439,9 +441,9 @@ class TilsagnServiceTest : FunSpec({
 
             database.run {
                 queries.totrinnskontroll.getOrError(requestId, TotrinnskontrollType.TILSAGN_OPPRETTELSE).should {
-                    it.behandletAv shouldBe ansatt1
-                    it.besluttetAv shouldBe null
                     it.status shouldBe TotrinnskontrollStatus.TIL_BEHANDLING
+                    it.behandling.utfortAv shouldBe ansatt1
+                    it.beslutning.shouldBeNull()
                 }
             }
 
@@ -454,9 +456,9 @@ class TilsagnServiceTest : FunSpec({
 
             database.run {
                 queries.totrinnskontroll.getOrError(requestId, TotrinnskontrollType.TILSAGN_OPPRETTELSE).should {
-                    it.behandletAv shouldBe ansatt1
-                    it.besluttetAv shouldBe ansatt2
                     it.status shouldBe TotrinnskontrollStatus.RETURNERT
+                    it.behandling.utfortAv shouldBe ansatt1
+                    it.beslutning.shouldNotBeNull().utfortAv shouldBe ansatt2
                 }
             }
 
@@ -465,9 +467,9 @@ class TilsagnServiceTest : FunSpec({
 
             database.run {
                 queries.totrinnskontroll.getOrError(requestId, TotrinnskontrollType.TILSAGN_OPPRETTELSE).should {
-                    it.behandletAv shouldBe NavIdent("T888888")
-                    it.besluttetAv shouldBe null
                     it.status shouldBe TotrinnskontrollStatus.TIL_BEHANDLING
+                    it.behandling.utfortAv shouldBe NavIdent("T888888")
+                    it.beslutning.shouldBeNull()
                 }
             }
 
@@ -478,9 +480,9 @@ class TilsagnServiceTest : FunSpec({
 
             database.run {
                 queries.totrinnskontroll.getOrError(requestId, TotrinnskontrollType.TILSAGN_OPPRETTELSE).should {
-                    it.behandletAv shouldBe NavIdent("T888888")
-                    it.besluttetAv shouldBe ansatt2
                     it.status shouldBe TotrinnskontrollStatus.GODKJENT
+                    it.behandling.utfortAv shouldBe NavIdent("T888888")
+                    it.beslutning.shouldNotBeNull().utfortAv shouldBe ansatt2
                 }
 
                 queries.totrinnskontroll.getAll(requestId).shouldHaveSize(2)
@@ -622,11 +624,11 @@ class TilsagnServiceTest : FunSpec({
 
             database.run {
                 queries.totrinnskontroll.getOrError(requestId, TotrinnskontrollType.TILSAGN_ANNULLERING).should {
-                    it.behandletAv shouldBe ansatt1
-                    it.besluttetAv shouldBe null
                     it.status shouldBe TotrinnskontrollStatus.TIL_BEHANDLING
-                    it.behandletAarsaker shouldBe listOf(TilsagnStatusAarsak.FEIL_BELOP.name)
-                    it.behandletBegrunnelse shouldBe "Velg et annet beløp"
+                    it.behandling.utfortAv shouldBe ansatt1
+                    it.beslutning.shouldBeNull()
+                    it.behandling.aarsaker shouldBe listOf(TilsagnStatusAarsak.FEIL_BELOP.name)
+                    it.behandling.begrunnelse shouldBe "Velg et annet beløp"
                 }
             }
 
@@ -637,11 +639,11 @@ class TilsagnServiceTest : FunSpec({
 
             database.run {
                 queries.totrinnskontroll.getOrError(requestId, TotrinnskontrollType.TILSAGN_ANNULLERING).should {
-                    it.behandletAv shouldBe ansatt1
-                    it.besluttetAv shouldBe ansatt2
                     it.status shouldBe TotrinnskontrollStatus.GODKJENT
-                    it.behandletAarsaker shouldBe listOf(TilsagnStatusAarsak.FEIL_BELOP.name)
-                    it.behandletBegrunnelse shouldBe "Velg et annet beløp"
+                    it.behandling.utfortAv shouldBe ansatt1
+                    it.beslutning.shouldNotBeNull().utfortAv shouldBe ansatt2
+                    it.behandling.aarsaker shouldBe listOf(TilsagnStatusAarsak.FEIL_BELOP.name)
+                    it.behandling.begrunnelse shouldBe "Velg et annet beløp"
                 }
             }
         }
@@ -795,10 +797,10 @@ class TilsagnServiceTest : FunSpec({
 
             database.run {
                 queries.totrinnskontroll.getOrError(requestId, TotrinnskontrollType.TILSAGN_ANNULLERING).should {
-                    it.behandletAv shouldBe ansatt1
-                    it.besluttetAv shouldBe ansatt2
                     it.status shouldBe TotrinnskontrollStatus.RETURNERT
-                    it.besluttetAarsaker shouldBe listOf(TilsagnStatusAarsak.FEIL_BELOP.name)
+                    it.behandling.utfortAv shouldBe ansatt1
+                    it.beslutning.shouldNotBeNull().utfortAv shouldBe ansatt2
+                    it.beslutning.shouldNotBeNull().aarsaker shouldBe listOf(TilsagnStatusAarsak.FEIL_BELOP.name)
                 }
             }
         }
@@ -872,9 +874,9 @@ class TilsagnServiceTest : FunSpec({
 
             database.run {
                 queries.totrinnskontroll.getOrError(requestId, TotrinnskontrollType.TILSAGN_OPPGJOR).should {
-                    it.behandletAv shouldBe ansatt1
-                    it.besluttetAv shouldBe null
                     it.status shouldBe TotrinnskontrollStatus.TIL_BEHANDLING
+                    it.behandling.utfortAv shouldBe ansatt1
+                    it.beslutning.shouldBeNull()
                 }
             }
 
@@ -885,9 +887,9 @@ class TilsagnServiceTest : FunSpec({
 
             database.run {
                 queries.totrinnskontroll.getOrError(requestId, TotrinnskontrollType.TILSAGN_OPPGJOR).should {
-                    it.behandletAv shouldBe ansatt1
-                    it.besluttetAv shouldBe ansatt2
                     it.status shouldBe TotrinnskontrollStatus.GODKJENT
+                    it.behandling.utfortAv shouldBe ansatt1
+                    it.beslutning.shouldNotBeNull().utfortAv shouldBe ansatt2
                 }
             }
 

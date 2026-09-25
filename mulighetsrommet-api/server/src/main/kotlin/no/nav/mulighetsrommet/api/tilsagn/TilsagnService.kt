@@ -150,8 +150,8 @@ class TilsagnService(
         }
 
         val opprettelse = queries.totrinnskontroll.getOrError(id, TotrinnskontrollType.TILSAGN_OPPRETTELSE)
-        val behandletAv = opprettelse.behandletAv
-        if (opprettelse.besluttetAv == navIdent && behandletAv is NavIdent) {
+        val behandletAv = opprettelse.behandling.utfortAv
+        if (opprettelse.beslutning?.utfortAv == navIdent && behandletAv is NavIdent) {
             sendNotifikasjonSlettetTilsagn(tilsagn, besluttetAv = navIdent, behandletAv = behandletAv)
         }
 
@@ -513,7 +513,7 @@ class TilsagnService(
                 outbox.publish(returnert)
                 queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.GODKJENT)
 
-                val behandletAv = annullering.behandletAv
+                val behandletAv = annullering.behandling.utfortAv
                 if (behandletAv is NavIdent) {
                     sendNotifikasjonOmAvvistAnnullering(tilsagn, besluttetAv, behandletAv)
                 }
@@ -591,7 +591,7 @@ class TilsagnService(
                 outbox.publish(returnert)
                 queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.GODKJENT)
 
-                val behandletAv = oppgjor.behandletAv
+                val behandletAv = oppgjor.behandling.utfortAv
                 if (behandletAv is NavIdent) {
                     sendNotifikasjonOmAvvistOppgjor(tilsagn, besluttetAv, behandletAv)
                 }
@@ -679,9 +679,7 @@ class TilsagnService(
 
     private fun TransactionalQueryContext.publishOpprettBestilling(tilsagn: Tilsagn) {
         val opprettelse = queries.totrinnskontroll.getOrError(tilsagn.id, TotrinnskontrollType.TILSAGN_OPPRETTELSE)
-        val besluttetAv = opprettelse.besluttetAv
-        val besluttetTidspunkt = opprettelse.besluttetTidspunkt
-        check(besluttetAv != null && besluttetTidspunkt != null) {
+        val beslutning = checkNotNull(opprettelse.beslutning) {
             "Tilsagn id=${tilsagn.id} må være besluttet godkjent for å sendes til økonomi"
         }
 
@@ -724,10 +722,10 @@ class TilsagnService(
             avtalenummer = avtale?.sakarkivNummer?.value,
             belop = tilsagn.beregning.output.pris.belop,
             periode = tilsagn.periode,
-            behandletAv = opprettelse.behandletAv.toOkonomiPart(),
-            behandletTidspunkt = opprettelse.behandletTidspunkt,
-            besluttetAv = besluttetAv.toOkonomiPart(),
-            besluttetTidspunkt = besluttetTidspunkt,
+            behandletAv = opprettelse.behandling.utfortAv.toOkonomiPart(),
+            behandletTidspunkt = opprettelse.behandling.tidspunkt,
+            besluttetAv = beslutning.utfortAv.toOkonomiPart(),
+            besluttetTidspunkt = beslutning.tidspunkt,
             valuta = tilsagn.beregning.output.pris.valuta,
         )
 
@@ -736,18 +734,16 @@ class TilsagnService(
 
     private fun TransactionalQueryContext.publishAnnullerBestilling(tilsagn: Tilsagn) {
         val annullering = queries.totrinnskontroll.getOrError(tilsagn.id, TotrinnskontrollType.TILSAGN_ANNULLERING)
-        val besluttetAv = annullering.besluttetAv
-        val besluttetTidspunkt = annullering.besluttetTidspunkt
-        check(besluttetAv != null && besluttetTidspunkt != null) {
+        val beslutning = checkNotNull(annullering.beslutning) {
             "Tilsagn id=${tilsagn.id} må være besluttet annullert for å sendes som annullert til økonomi"
         }
 
         val annullerBestilling = AnnullerBestilling(
             bestillingsnummer = Bestillingsnummer(tilsagn.bestilling.bestillingsnummer),
-            behandletAv = annullering.behandletAv.toOkonomiPart(),
-            behandletTidspunkt = annullering.behandletTidspunkt,
-            besluttetAv = besluttetAv.toOkonomiPart(),
-            besluttetTidspunkt = besluttetTidspunkt,
+            behandletAv = annullering.behandling.utfortAv.toOkonomiPart(),
+            behandletTidspunkt = annullering.behandling.tidspunkt,
+            besluttetAv = beslutning.utfortAv.toOkonomiPart(),
+            besluttetTidspunkt = beslutning.tidspunkt,
         )
 
         outbox.publish(OkonomiBestillingMelding.Annullering(annullerBestilling))
@@ -755,18 +751,16 @@ class TilsagnService(
 
     private fun TransactionalQueryContext.publishGjorOppBestilling(tilsagn: Tilsagn) {
         val oppgjor = queries.totrinnskontroll.getOrError(tilsagn.id, TotrinnskontrollType.TILSAGN_OPPGJOR)
-        val besluttetAv = oppgjor.besluttetAv
-        val besluttetTidspunkt = oppgjor.besluttetTidspunkt
-        check(besluttetAv != null && besluttetTidspunkt != null) {
+        val beslutning = checkNotNull(oppgjor.beslutning) {
             "Tilsagn id=${tilsagn.id} må være besluttet oppgjort for å kunne sendes til økonomi"
         }
 
         val faktura = GjorOppBestilling(
             bestillingsnummer = Bestillingsnummer(tilsagn.bestilling.bestillingsnummer),
-            behandletAv = oppgjor.behandletAv.toOkonomiPart(),
-            behandletTidspunkt = oppgjor.behandletTidspunkt,
-            besluttetAv = besluttetAv.toOkonomiPart(),
-            besluttetTidspunkt = besluttetTidspunkt,
+            behandletAv = oppgjor.behandling.utfortAv.toOkonomiPart(),
+            behandletTidspunkt = oppgjor.behandling.tidspunkt,
+            besluttetAv = beslutning.utfortAv.toOkonomiPart(),
+            besluttetTidspunkt = beslutning.tidspunkt,
         )
 
         outbox.publish(OkonomiBestillingMelding.GjorOppBestilling(faktura))
@@ -836,15 +830,15 @@ class TilsagnService(
 
             return when (handling) {
                 TilsagnHandling.REDIGER -> erSaksbehandler
-                TilsagnHandling.GODKJENN -> erBeslutter && opprettelse.behandletAv != ansatt.navIdent
+                TilsagnHandling.GODKJENN -> erBeslutter && opprettelse.behandling.utfortAv != ansatt.navIdent
                 TilsagnHandling.RETURNER -> erSaksbehandler || erBeslutter
                 TilsagnHandling.SLETT -> erSaksbehandler
                 TilsagnHandling.GJOR_OPP -> erSaksbehandler
-                TilsagnHandling.GODKJENN_OPPGJOR -> erBeslutter && tilOppgjor?.behandletAv != ansatt.navIdent
+                TilsagnHandling.GODKJENN_OPPGJOR -> erBeslutter && tilOppgjor?.behandling?.utfortAv != ansatt.navIdent
                 TilsagnHandling.AVSLA_OPPGJOR -> erBeslutter
                 TilsagnHandling.ANNULLER -> erSaksbehandler
                 TilsagnHandling.AVSLA_ANNULLERING -> erBeslutter
-                TilsagnHandling.GODKJENN_ANNULLERING -> erBeslutter && annullering?.behandletAv != ansatt.navIdent
+                TilsagnHandling.GODKJENN_ANNULLERING -> erBeslutter && annullering?.behandling?.utfortAv != ansatt.navIdent
             }
         }
     }
