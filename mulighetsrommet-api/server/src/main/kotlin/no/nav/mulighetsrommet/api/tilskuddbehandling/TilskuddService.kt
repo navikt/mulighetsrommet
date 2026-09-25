@@ -21,10 +21,9 @@ class TilskuddService(
     suspend fun simulerOpphor(
         gjennomforingId: UUID,
         tilskuddVedtakId: UUID,
-        accessType: AccessType,
     ): Either<HelVedSimuleringsError, HelVedSimuleringResponse> = helVedSimuleringClient.simuler(
         hentHelVedUtbetaling(gjennomforingId, tilskuddVedtakId),
-        accessType,
+        accessType = AccessType.M2M,
     )
 
     suspend fun hentHelVedUtbetaling(gjennomforingId: UUID, tilskuddVedtakId: UUID): HelVedUtbetaling {

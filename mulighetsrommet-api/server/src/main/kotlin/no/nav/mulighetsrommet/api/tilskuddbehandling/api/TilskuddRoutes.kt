@@ -32,7 +32,6 @@ import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
-import no.nav.mulighetsrommet.tokenprovider.AccessType
 import org.koin.ktor.ext.inject
 import java.util.*
 
@@ -118,7 +117,7 @@ fun Route.tilskuddRoutes() {
                         "Opphørssimulering er kun tillatt i dev-gcp miljøet",
                     )
                 } else {
-                    tilskuddService.simulerOpphor(request.gjennomforingId, request.vedtakId, AccessType.M2M).onLeft {
+                    tilskuddService.simulerOpphor(request.gjennomforingId, request.vedtakId).onLeft {
                         val result = when (it) {
                             HelVedSimuleringsError.BadRequest -> HttpStatusCode.BadRequest
                             HelVedSimuleringsError.NotFound -> HttpStatusCode.NotFound
