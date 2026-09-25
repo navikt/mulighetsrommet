@@ -26,7 +26,6 @@ import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures
 import no.nav.mulighetsrommet.api.fixtures.setTilsagnStatus
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
-import no.nav.mulighetsrommet.api.pdfgen.PdfGenError
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.utbetaling.service.Gradering
 import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
@@ -35,6 +34,7 @@ import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
+import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.model.Tiltaksnummer
 import java.time.LocalDateTime
 import java.util.Base64
@@ -141,7 +141,16 @@ class SendTilsagnsbrevSagaTest : FunSpec({
         }
 
         test("ruller tilbake og skedulerer ingenting nar pdf-generering feiler") {
-            coEvery { pdfGenClient.getPdfDocument(any()) } returns PdfGenError(500, "Generering feilet").left()
+            coEvery {
+                pdfGenClient.getPdfDocument(any())
+            } returns object : ProblemDetail() {
+                override val type = "urn:pdfgenrs:error:generation-failed"
+                override val title = "Internal Server Error"
+                override val status = 500
+                override val detail = "Generering feilet"
+                override val instance = null
+                override val extensions = null
+            }.left()
 
             val saga = createSaga()
 
