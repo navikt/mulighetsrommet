@@ -1,5 +1,5 @@
 import {
-  TotrinnskontrollDtoBeslutning,
+  TotrinnskontrollDtoUtfall,
   UtbetalingDto,
   UtbetalingStatusAarsak,
   UtbetalingStatusDtoType,
@@ -7,7 +7,7 @@ import {
 import { AarsakerOgForklaring } from "@/components/totrinnskontroll/AarsakerOgForklaring";
 import { aarsakTilTekst } from "@/utils/Utils";
 import { formaterDato } from "@mr/frontend-common/utils/date";
-import { erBesluttet } from "@/utils/totrinnskontroll";
+import { erBesluttet, utledBehandletAvNavn, utledBesluttetAvNavn } from "@/utils/totrinnskontroll";
 
 type Props = {
   utbetaling: UtbetalingDto;
@@ -20,35 +20,35 @@ export function TotrinnskontrollUtbetalingAvbrytelse({ utbetaling }: Props) {
 
   const avbrytelse = utbetaling.avbrytelse;
   if (erBesluttet(avbrytelse)) {
-    switch (avbrytelse.beslutning) {
-      case TotrinnskontrollDtoBeslutning.RETURNERT:
+    switch (avbrytelse.beslutning.utfall) {
+      case TotrinnskontrollDtoUtfall.RETURNERT:
         return (
           <AarsakerOgForklaring
             heading="Avbrytelse av utbetalingskrav ble avslått"
             tekster={[
-              `${avbrytelse.besluttetAv.navn} avslo avbrytelsen ${formaterDato(avbrytelse.besluttetTidspunkt)}.`,
+              `${utledBesluttetAvNavn(avbrytelse)} avslo avbrytelsen ${formaterDato(avbrytelse.beslutning.tidspunkt)}.`,
             ]}
-            aarsaker={avbrytelse.besluttetAarsaker.map((aarsak) =>
+            aarsaker={avbrytelse.beslutning.aarsaker.map((aarsak) =>
               aarsakTilTekst(aarsak as UtbetalingStatusAarsak),
             )}
-            forklaring={avbrytelse.besluttetBegrunnelse}
+            forklaring={avbrytelse.beslutning.begrunnelse}
           />
         );
-      case TotrinnskontrollDtoBeslutning.GODKJENT:
+      case TotrinnskontrollDtoUtfall.GODKJENT:
         return (
           <AarsakerOgForklaring
             heading="Avbrytelse av utbetalingskrav ble godkjent"
             tekster={[
-              `${avbrytelse.behandletAv.navn || avbrytelse.behandletAv.agent} sendte kravet til avbrytelse den ${formaterDato(avbrytelse.behandletTidspunkt)}.`,
-              `Godkjent av ${avbrytelse.besluttetAv.navn} `,
+              `${utledBehandletAvNavn(avbrytelse)} sendte kravet til avbrytelse den ${formaterDato(avbrytelse.behandling.tidspunkt)}.`,
+              `Godkjent av ${avbrytelse.beslutning.utfortAv.navn} `,
             ]}
-            aarsaker={avbrytelse.behandletAarsaker.map((aarsak) =>
+            aarsaker={avbrytelse.behandling.aarsaker.map((aarsak) =>
               aarsakTilTekst(aarsak as UtbetalingStatusAarsak),
             )}
-            forklaring={avbrytelse.behandletBegrunnelse}
+            forklaring={avbrytelse.behandling.begrunnelse}
           />
         );
-      case TotrinnskontrollDtoBeslutning.SATT_PA_VENT:
+      case TotrinnskontrollDtoUtfall.SATT_PA_VENT:
         return null;
     }
   }
@@ -57,12 +57,12 @@ export function TotrinnskontrollUtbetalingAvbrytelse({ utbetaling }: Props) {
     <AarsakerOgForklaring
       heading="Utbetalingskrav til avbrytelse"
       tekster={[
-        `${avbrytelse.behandletAv.navn || avbrytelse.behandletAv.agent} sendte kravet til avbrytelse den ${formaterDato(avbrytelse.behandletTidspunkt)}.`,
+        `${utledBehandletAvNavn(avbrytelse)} sendte kravet til avbrytelse den ${formaterDato(avbrytelse.behandling.tidspunkt)}.`,
       ]}
-      aarsaker={avbrytelse.behandletAarsaker.map((aarsak) =>
+      aarsaker={avbrytelse.behandling.aarsaker.map((aarsak) =>
         aarsakTilTekst(aarsak as UtbetalingStatusAarsak),
       )}
-      forklaring={avbrytelse.behandletBegrunnelse}
+      forklaring={avbrytelse.behandling.begrunnelse}
     />
   );
 }

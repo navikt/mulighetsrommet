@@ -241,8 +241,8 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
             okonomi.shouldNotBeNull().should {
                 it.status shouldBe TotrinnskontrollStatus.TIL_BEHANDLING
-                it.behandletAv shouldBe opprettetAv
-                it.besluttetAv.shouldBeNull()
+                it.behandling.utfortAv shouldBe opprettetAv
+                it.beslutning.shouldBeNull()
             }
         }
 
@@ -291,7 +291,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
             okonomi.shouldNotBeNull().should {
                 it.status shouldBe TotrinnskontrollStatus.TIL_BEHANDLING
-                it.besluttetAv.shouldBeNull()
+                it.beslutning.shouldBeNull()
             }
         }
 
@@ -315,7 +315,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
             okonomi.shouldNotBeNull().should {
                 it.status shouldBe TotrinnskontrollStatus.GODKJENT
-                it.besluttetAv shouldBe besluttetAv
+                it.beslutning.shouldNotBeNull().utfortAv shouldBe besluttetAv
             }
         }
 
@@ -434,7 +434,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
             okonomi.shouldNotBeNull().should {
                 it.status shouldBe TotrinnskontrollStatus.GODKJENT
-                it.besluttetAv shouldBe besluttetAv
+                it.beslutning.shouldNotBeNull().utfortAv shouldBe besluttetAv
             }
         }
 
@@ -462,8 +462,8 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
             okonomi.shouldNotBeNull().should {
                 it.status shouldBe TotrinnskontrollStatus.SATT_PA_VENT
-                it.besluttetAv shouldBe besluttetAv
-                it.besluttetBegrunnelse shouldBe "Feil"
+                it.beslutning.shouldNotBeNull().utfortAv shouldBe besluttetAv
+                it.beslutning.shouldNotBeNull().begrunnelse shouldBe "Feil"
             }
         }
 
@@ -483,7 +483,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
             okonomi.shouldNotBeNull().should {
                 it.status shouldBe TotrinnskontrollStatus.GODKJENT
-                it.besluttetBegrunnelse shouldBe null
+                it.beslutning.shouldNotBeNull().begrunnelse.shouldBeNull()
             }
         }
 
@@ -800,7 +800,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                     enkeltplass.okonomi.shouldNotBeNull().should {
                         it.id shouldBe forsteBehandling.id
                         it.status shouldBe TotrinnskontrollStatus.TIL_BEHANDLING
-                        it.behandletAv shouldBe opprettetAv
+                        it.behandling.utfortAv shouldBe opprettetAv
                     }
                 }
 
@@ -818,7 +818,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                     enkeltplass.okonomi.shouldNotBeNull().should {
                         it.id shouldBe andreBehandling.id
                         it.status shouldBe TotrinnskontrollStatus.TIL_BEHANDLING
-                        it.behandletAv shouldBe opprettetAv
+                        it.behandling.utfortAv shouldBe opprettetAv
                     }
                 }
 
@@ -857,7 +857,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                     enkeltplass.okonomi.shouldNotBeNull().should {
                         it.id shouldBe andreBehandling.id
                         it.status shouldBe TotrinnskontrollStatus.TIL_BEHANDLING
-                        it.behandletAv shouldBe opprettetAv
+                        it.behandling.utfortAv shouldBe opprettetAv
                     }
                 }
 
@@ -1013,7 +1013,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                         it.entityId shouldBe soktInn.id
                         it.type shouldBe TotrinnskontrollType.ENKELTPLASS_PRISENDRING
                         it.status shouldBe TotrinnskontrollStatus.TIL_BEHANDLING
-                        it.behandletAv shouldBe opprettetAv
+                        it.behandling.utfortAv shouldBe opprettetAv
                     }
                 }
             }
@@ -1217,7 +1217,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                 database.run {
                     queries.totrinnskontroll.getById(behandling.id).should {
                         it.status shouldBe TotrinnskontrollStatus.GODKJENT
-                        it.besluttetAv shouldBe besluttetAv
+                        it.beslutning.shouldNotBeNull().utfortAv shouldBe besluttetAv
                     }
                 }
             }

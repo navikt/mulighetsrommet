@@ -21,14 +21,14 @@ fun Totrinnskontroll.toTotrinnskontrollHendelse(): TotrinnskontrollHendelse = To
         TotrinnskontrollStatus.GODKJENT -> TotrinnskontrollHendelse.Status.GODKJENT
         TotrinnskontrollStatus.RETURNERT -> TotrinnskontrollHendelse.Status.RETURNERT
     },
-    behandletAv = behandletAv.toAgentHendelse(),
-    behandletTidspunkt = behandletTidspunkt,
-    behandletBegrunnelse = behandletBegrunnelse,
-    behandletAarsaker = behandletAarsaker,
-    besluttetAv = besluttetAv?.toAgentHendelse(),
-    besluttetTidspunkt = besluttetTidspunkt,
-    besluttetBegrunnelse = besluttetBegrunnelse,
-    besluttetAarsaker = besluttetAarsaker,
+    behandletAv = behandling.utfortAv.toAgentHendelse(),
+    behandletTidspunkt = behandling.tidspunkt,
+    behandletBegrunnelse = behandling.begrunnelse,
+    behandletAarsaker = behandling.aarsaker,
+    besluttetAv = beslutning?.utfortAv?.toAgentHendelse(),
+    besluttetTidspunkt = beslutning?.tidspunkt,
+    besluttetBegrunnelse = beslutning?.begrunnelse,
+    besluttetAarsaker = beslutning?.aarsaker.orEmpty(),
 )
 
 fun Totrinnskontroll.toTotrinnskontrollHendelseV1(): TotrinnskontrollHendelseV1 {
@@ -44,8 +44,8 @@ fun Totrinnskontroll.toTotrinnskontrollHendelseV1(): TotrinnskontrollHendelseV1 
         behandletTidspunkt = hendelse.behandletTidspunkt,
         besluttetAv = hendelse.besluttetAv,
         besluttetTidspunkt = hendelse.besluttetTidspunkt,
-        aarsaker = if (behandlet) behandletAarsaker else besluttetAarsaker,
-        forklaring = if (behandlet) behandletBegrunnelse else besluttetBegrunnelse,
+        aarsaker = if (behandlet) behandling.aarsaker else requireNotNull(beslutning).aarsaker,
+        forklaring = if (behandlet) behandling.begrunnelse else requireNotNull(beslutning).begrunnelse,
     )
 }
 

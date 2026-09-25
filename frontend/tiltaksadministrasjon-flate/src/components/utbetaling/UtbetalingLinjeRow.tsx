@@ -51,7 +51,7 @@ export function UtbetalingLinjeRow({
         <VStack gap="space-16">
           {erReturnert(linje.opprettelse) ? (
             <VStack>
-              {linje.opprettelse.besluttetAarsaker.includes(
+              {linje.opprettelse.beslutning.aarsaker.includes(
                 UtbetalingLinjeReturnertAarsak.PROPAGERT_RETUR,
               ) ? (
                 <Alert size="medium" variant="warning">
@@ -62,10 +62,10 @@ export function UtbetalingLinjeRow({
               ) : (
                 <AarsakerOgForklaring
                   heading="Linjen ble returnert på grunn av følgende årsaker"
-                  aarsaker={linje.opprettelse.besluttetAarsaker.map((aarsak) =>
+                  aarsaker={linje.opprettelse.beslutning.aarsaker.map((aarsak) =>
                     utbetalingLinjeAarsakTilTekst(aarsak as UtbetalingLinjeReturnertAarsak),
                   )}
-                  forklaring={linje.opprettelse.besluttetBegrunnelse}
+                  forklaring={linje.opprettelse.beslutning.begrunnelse}
                 />
               )}
             </VStack>

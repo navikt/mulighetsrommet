@@ -6,7 +6,7 @@ import {
 import { AarsakerOgForklaring } from "@/components/totrinnskontroll/AarsakerOgForklaring";
 import { aarsakTilTekst } from "@/utils/Utils";
 import { formaterDato } from "@mr/frontend-common/utils/date";
-import { erBesluttet, erReturnert } from "@/utils/totrinnskontroll";
+import { erBesluttet, erReturnert, utledBesluttetAvNavn } from "@/utils/totrinnskontroll";
 
 type Props = {
   heading: string;
@@ -22,12 +22,12 @@ export function TotrinnskontrollReturnert({ heading, opprettelse }: Props) {
     <AarsakerOgForklaring
       heading={heading}
       tekster={[
-        `${opprettelse.besluttetAv.navn} returnerte den ${formaterDato(opprettelse.besluttetTidspunkt)}.`,
+        `${utledBesluttetAvNavn(opprettelse)} returnerte den ${formaterDato(opprettelse.beslutning.tidspunkt)}.`,
       ]}
-      aarsaker={opprettelse.besluttetAarsaker.map((aarsak) =>
+      aarsaker={opprettelse.beslutning.aarsaker.map((aarsak) =>
         aarsakTilTekst(aarsak as TilsagnStatusAarsak | TilskuddBehandlingStatusAarsak),
       )}
-      forklaring={opprettelse.besluttetBegrunnelse}
+      forklaring={opprettelse.beslutning.begrunnelse}
     />
   );
 }

@@ -699,7 +699,7 @@ class AdminUtbetalingServiceTest : FunSpec({
                     TotrinnskontrollType.UTBETALING_LINJE_OPPRETTELSE,
                 ).should {
                     it.status shouldBe TotrinnskontrollStatus.RETURNERT
-                    it.besluttetAv shouldBe Tiltaksadministrasjon
+                    it.beslutning.shouldNotBeNull().utfortAv shouldBe Tiltaksadministrasjon
                 }
 
                 queries.utbetalingLinje.getOrError(utbetalingLinje1.id).status shouldBe UtbetalingLinjeStatus.RETURNERT
@@ -708,7 +708,7 @@ class AdminUtbetalingServiceTest : FunSpec({
                     TotrinnskontrollType.UTBETALING_LINJE_OPPRETTELSE,
                 ).should {
                     it.status shouldBe TotrinnskontrollStatus.RETURNERT
-                    it.besluttetAv shouldBe NavAnsattFixture.DonaldDuck.navIdent
+                    it.beslutning.shouldNotBeNull().utfortAv shouldBe NavAnsattFixture.DonaldDuck.navIdent
                 }
             }
         }
@@ -901,16 +901,16 @@ class AdminUtbetalingServiceTest : FunSpec({
                     utbetalingLinje1.id,
                     TotrinnskontrollType.UTBETALING_LINJE_OPPRETTELSE,
                 ).should {
-                    it.besluttetAv shouldBe Tiltaksadministrasjon
                     it.status shouldBe TotrinnskontrollStatus.RETURNERT
+                    it.beslutning.shouldNotBeNull().utfortAv shouldBe Tiltaksadministrasjon
                 }
 
                 queries.totrinnskontroll.getOrError(
                     utbetalingLinje2.id,
                     TotrinnskontrollType.UTBETALING_LINJE_OPPRETTELSE,
                 ).should {
-                    it.besluttetAv shouldBe Tiltaksadministrasjon
                     it.status shouldBe TotrinnskontrollStatus.RETURNERT
+                    it.beslutning.shouldNotBeNull().utfortAv shouldBe Tiltaksadministrasjon
                 }
 
                 queries.kafkaProducerRecord.getRecords(10, listOf(BESTILLING_TOPIC)).shouldBeEmpty()

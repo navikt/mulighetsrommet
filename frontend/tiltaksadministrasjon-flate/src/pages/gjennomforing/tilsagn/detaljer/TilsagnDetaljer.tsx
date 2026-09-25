@@ -15,7 +15,12 @@ import { TotrinnskontrollReturnert } from "@/components/totrinnskontroll/Totrinn
 import { formaterDato, formaterPeriode } from "@mr/frontend-common/utils/date";
 import { useTilsagn } from "./tilsagnDetaljerLoader";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
-import { erReturnert, erTilBeslutning } from "@/utils/totrinnskontroll";
+import {
+  erReturnert,
+  erTilBeslutning,
+  utledBehandletAvNavn,
+  utledBesluttetAvNavn,
+} from "@/utils/totrinnskontroll";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { TilsagnRegnestykke } from "@/components/tilsagn/beregning/TilsagnRegnestykke";
 import { tilsagnTekster } from "@/components/tilsagn/TilsagnTekster";
@@ -81,28 +86,28 @@ export function TilsagnDetaljer() {
         <AarsakerOgForklaring
           heading="Tilsagnet annulleres"
           tekster={[
-            `${annullering.behandletAv.navn || annullering.behandletAv.agent} sendte tilsagnet til annullering den ${formaterDato(
-              annullering.behandletTidspunkt,
+            `${utledBehandletAvNavn(annullering)} sendte tilsagnet til annullering den ${formaterDato(
+              annullering.behandling.tidspunkt,
             )}.`,
           ]}
-          aarsaker={annullering.behandletAarsaker.map((aarsak) =>
+          aarsaker={annullering.behandling.aarsaker.map((aarsak) =>
             aarsakTilTekst(aarsak as TilsagnStatusAarsak),
           )}
-          forklaring={annullering.behandletBegrunnelse}
+          forklaring={annullering.behandling.begrunnelse}
         />
       )}
       {erReturnert(annullering) && !tilOppgjor && (
         <AarsakerOgForklaring
           heading="Annullering avvist"
           tekster={[
-            `${annullering.besluttetAv.navn || annullering.behandletAv.agent} avviste annullering den ${formaterDato(
-              annullering.behandletTidspunkt,
+            `${utledBesluttetAvNavn(annullering)} avviste annullering den ${formaterDato(
+              annullering.behandling.tidspunkt,
             )}.`,
           ]}
-          aarsaker={annullering.besluttetAarsaker.map((aarsak) =>
+          aarsaker={annullering.beslutning.aarsaker.map((aarsak) =>
             aarsakTilTekst(aarsak as TilsagnStatusAarsak),
           )}
-          forklaring={annullering.besluttetBegrunnelse}
+          forklaring={annullering.beslutning.begrunnelse}
         />
       )}
       {erTilBeslutning(tilOppgjor) && (
@@ -110,28 +115,28 @@ export function TilsagnDetaljer() {
           heading="Tilsagnet gjøres opp"
           ingress="Gjenstående beløp gjøres opp uten at det gjøres en utbetaling"
           tekster={[
-            `${tilOppgjor.behandletAv.navn || tilOppgjor.behandletAv.agent} sendte tilsagnet til oppgjør den ${formaterDato(
-              tilOppgjor.behandletTidspunkt,
+            `${utledBehandletAvNavn(tilOppgjor)} sendte tilsagnet til oppgjør den ${formaterDato(
+              tilOppgjor.behandling.tidspunkt,
             )}.`,
           ]}
-          aarsaker={tilOppgjor.behandletAarsaker.map((aarsak) =>
+          aarsaker={tilOppgjor.behandling.aarsaker.map((aarsak) =>
             aarsakTilTekst(aarsak as TilsagnStatusAarsak),
           )}
-          forklaring={tilOppgjor.behandletBegrunnelse}
+          forklaring={tilOppgjor.behandling.begrunnelse}
         />
       )}
       {erReturnert(tilOppgjor) && (
         <AarsakerOgForklaring
           heading="Oppgjør avvist"
           tekster={[
-            `${tilOppgjor.besluttetAv.navn || tilOppgjor.behandletAv.agent} avviste oppgjør den ${formaterDato(
-              tilOppgjor.behandletTidspunkt,
+            `${utledBesluttetAvNavn(tilOppgjor)} avviste oppgjør den ${formaterDato(
+              tilOppgjor.behandling.tidspunkt,
             )}.`,
           ]}
-          aarsaker={tilOppgjor.besluttetAarsaker.map((aarsak) =>
+          aarsaker={tilOppgjor.beslutning.aarsaker.map((aarsak) =>
             aarsakTilTekst(aarsak as TilsagnStatusAarsak),
           )}
-          forklaring={tilOppgjor.besluttetBegrunnelse}
+          forklaring={tilOppgjor.beslutning.begrunnelse}
         />
       )}
       <VStack gap="space-24" padding="space-16" className="rounded-lg border-ax-neutral-400 border">
@@ -240,10 +245,10 @@ export function TilsagnDetaljer() {
                 <Separator />
                 <TotrinnsBegrunnelse
                   title="Begrunnelse for annullering"
-                  aarsaker={(annullering?.behandletAarsaker ?? []).map((arsak) =>
+                  aarsaker={(annullering?.behandling.aarsaker ?? []).map((arsak) =>
                     aarsakTilTekst(arsak as TilsagnStatusAarsak),
                   )}
-                  forklaring={annullering?.behandletBegrunnelse}
+                  forklaring={annullering?.behandling.begrunnelse}
                 />
               </>
             )}
@@ -252,10 +257,10 @@ export function TilsagnDetaljer() {
                 <Separator />
                 <TotrinnsBegrunnelse
                   title="Begrunnelse for oppgjør"
-                  aarsaker={(tilOppgjor?.behandletAarsaker ?? []).map((arsak) =>
+                  aarsaker={(tilOppgjor?.behandling.aarsaker ?? []).map((arsak) =>
                     aarsakTilTekst(arsak as TilsagnStatusAarsak),
                   )}
-                  forklaring={tilOppgjor?.behandletBegrunnelse}
+                  forklaring={tilOppgjor?.behandling.begrunnelse}
                 />
               </>
             )}

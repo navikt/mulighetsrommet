@@ -232,7 +232,7 @@ class TilskuddBehandlingService(
 
         val attestant = ansatt.hasKontorspesifikkRolle(Rolle.ATTESTANT_UTBETALING, setOf(kostnadssted))
         val saksbehandler = ansatt.hasGenerellRolle(Rolle.SAKSBEHANDLER_OKONOMI)
-        val erIkkeBehandletAvAnsatt = totrinnskontroll.behandletAv.agent != ansatt.navIdent
+        val erIkkeBehandletAvAnsatt = totrinnskontroll.behandling.utfortAv.agent != ansatt.navIdent
 
         return when (handling) {
             TilskuddBehandlingHandling.REDIGER,

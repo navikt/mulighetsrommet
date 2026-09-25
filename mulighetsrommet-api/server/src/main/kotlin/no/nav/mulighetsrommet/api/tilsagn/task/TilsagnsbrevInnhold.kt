@@ -59,7 +59,7 @@ suspend fun QueryContext.hentTilsagnsbrevInnhold(
 
     val opprettelse = queries.totrinnskontroll.getDtoOrError(tilsagn.id, TotrinnskontrollType.TILSAGN_OPPRETTELSE)
     val beslutter = when (opprettelse) {
-        is TotrinnskontrollDto.Besluttet -> opprettelse.besluttetAv
+        is TotrinnskontrollDto.Besluttet -> opprettelse.beslutning.utfortAv
         is TotrinnskontrollDto.TilBeslutning -> return "Tilsagn $tilsagnId er ikke besluttet".left()
     }
 
@@ -69,8 +69,8 @@ suspend fun QueryContext.hentTilsagnsbrevInnhold(
         personalia = personalia,
         arrangor = arrangor,
         kontonummer = kontonummer,
-        saksbehandler = opprettelse.behandletAv,
+        saksbehandler = opprettelse.behandling.utfortAv,
         beslutter = beslutter,
-        besluttetTidspunkt = opprettelse.besluttetTidspunkt,
+        besluttetTidspunkt = opprettelse.beslutning.tidspunkt,
     ).right()
 }

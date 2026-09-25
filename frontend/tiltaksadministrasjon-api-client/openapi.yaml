@@ -4059,7 +4059,7 @@ components:
     OpenApiVersion:
       type: number
       enum:
-        - 27
+        - 28
     RedaksjoneltInnholdLenke:
       type: object
       properties:
@@ -6448,45 +6448,35 @@ components:
         id:
           type: string
           format: uuid
-        behandletAv:
-          $ref: "#/components/schemas/AgentDto"
-        behandletTidspunkt:
-          type: string
-          format: date-time
-        behandletBegrunnelse:
-          type:
-          - "null"
-          - string
-        behandletAarsaker:
-          type: array
-          items:
-            type: string
-        besluttetAv:
-          $ref: "#/components/schemas/AgentDto"
-        besluttetTidspunkt:
-          type: string
-          format: date-time
-        besluttetBegrunnelse:
-          type:
-          - "null"
-          - string
-        besluttetAarsaker:
-          type: array
-          items:
-            type: string
+        behandling:
+          $ref: "#/components/schemas/BehandlingDto"
         beslutning:
-          $ref: "#/components/schemas/TotrinnskontrollDto.Beslutning"
+          $ref: "#/components/schemas/BeslutningDto"
       required:
-      - behandletAarsaker
-      - behandletAv
-      - behandletBegrunnelse
-      - behandletTidspunkt
+      - behandling
       - beslutning
-      - besluttetAarsaker
-      - besluttetAv
-      - besluttetBegrunnelse
-      - besluttetTidspunkt
       - id
+    BehandlingDto:
+      type: object
+      properties:
+        utfortAv:
+          $ref: "#/components/schemas/AgentDto"
+        tidspunkt:
+          type: string
+          format: date-time
+        begrunnelse:
+          type:
+          - "null"
+          - string
+        aarsaker:
+          type: array
+          items:
+            type: string
+      required:
+      - aarsaker
+      - begrunnelse
+      - tidspunkt
+      - utfortAv
     AgentDto:
       type: object
       properties:
@@ -6499,7 +6489,31 @@ components:
       required:
       - agent
       - navn
-    TotrinnskontrollDto.Beslutning:
+    BeslutningDto:
+      type: object
+      properties:
+        utfortAv:
+          $ref: "#/components/schemas/AgentDto"
+        tidspunkt:
+          type: string
+          format: date-time
+        begrunnelse:
+          type:
+          - "null"
+          - string
+        aarsaker:
+          type: array
+          items:
+            type: string
+        utfall:
+          $ref: "#/components/schemas/TotrinnskontrollDto.Utfall"
+      required:
+      - aarsaker
+      - begrunnelse
+      - tidspunkt
+      - utfall
+      - utfortAv
+    TotrinnskontrollDto.Utfall:
       type: string
       enum:
       - SATT_PA_VENT
@@ -6511,24 +6525,10 @@ components:
         id:
           type: string
           format: uuid
-        behandletAv:
-          $ref: "#/components/schemas/AgentDto"
-        behandletTidspunkt:
-          type: string
-          format: date-time
-        behandletBegrunnelse:
-          type:
-          - "null"
-          - string
-        behandletAarsaker:
-          type: array
-          items:
-            type: string
+        behandling:
+          $ref: "#/components/schemas/BehandlingDto"
       required:
-      - behandletAarsaker
-      - behandletAv
-      - behandletBegrunnelse
-      - behandletTidspunkt
+      - behandling
       - id
     GjennomforingEnkeltplassDetaljerDto.Prisendring:
       type: object
