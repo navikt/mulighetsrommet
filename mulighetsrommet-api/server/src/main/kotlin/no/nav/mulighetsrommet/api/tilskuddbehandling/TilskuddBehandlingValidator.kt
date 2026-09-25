@@ -50,30 +50,30 @@ object TilskuddBehandlingValidator {
         gjennomforing: Gjennomforing,
     ): Validated<TilskuddVedtak> = validation {
         validateNotNull(req.kostnadssted) {
-            FieldError("Kostnadssted er påkrevd", "/tilskudd/$index/kostnadssted")
+            FieldError("/tilskudd/$index/kostnadssted", "Kostnadssted er påkrevd")
         }
         val periodeStart = req.periodeStart?.parseOrNull()
         validateNotNull(periodeStart) {
-            FieldError("Periodestart må være satt", "/tilskudd/$index/periodeStart")
+            FieldError("/tilskudd/$index/periodeStart", "Periodestart må være satt")
         }
         val periodeSlutt = req.periodeSlutt?.parseOrNull()
         validateNotNull(periodeSlutt) {
-            FieldError("Periodeslutt må være satt", "/tilskudd/$index/periodeSlutt")
+            FieldError("/tilskudd/$index/periodeSlutt", "Periodeslutt må være satt")
         }
         validateNotNull(req.soknadDato) {
-            FieldError("Søknadsdato må være satt", "/tilskudd/$index/soknadDato")
+            FieldError("/tilskudd/$index/soknadDato", "Søknadsdato må være satt")
         }
         validateNotNull(req.soknadJournalpostId) {
-            FieldError("JournalpostId må være satt", "/tilskudd/$index/soknadJournalpostId")
+            FieldError("/tilskudd/$index/soknadJournalpostId", "JournalpostId må være satt")
         }
         requireValid(req.soknadDato != null && req.soknadJournalpostId != null && req.kostnadssted != null && periodeStart != null && periodeSlutt != null)
         requireValid(!periodeStart.isAfter(periodeSlutt)) {
-            FieldError("Periodestart må være før slutt", "/tilskudd/$index/periodeStart")
+            FieldError("/tilskudd/$index/periodeStart", "Periodestart må være før slutt")
         }
         validate(gjennomforing.sluttDato == null || !periodeSlutt.isAfter(gjennomforing.sluttDato)) {
             FieldError(
-                "Sluttdato kan ikke være etter gjennomføringsperioden",
                 "/tilskudd/$index/periodeSlutt",
+                "Sluttdato kan ikke være etter gjennomføringsperioden",
             )
         }
         validateNotNull(req.tilskuddOpplaeringType) {
@@ -112,12 +112,6 @@ object TilskuddBehandlingValidator {
             FieldError(
                 "/tilskudd/$index/soknadBelop/belop",
                 "Søknadsbeløp må være positivt",
-            )
-        }
-        validateNotNull(req.soknadBelop?.valuta) {
-            FieldError(
-                "/tilskudd/$index/soknadBelop/valuta",
-                "Søknadsvaluta må være positivt",
             )
         }
         if (req.vedtakResultat == VedtakResultat.INNVILGELSE) {
