@@ -53,8 +53,8 @@ class PdfGenClientTest : FunSpec({
         error.title shouldBe "Internal Server Error"
         error.status shouldBe 500
         error.detail shouldBe "Klarte ikke generere pdf"
-        (error.extensions?.get("trace_id") as JsonPrimitive).content shouldBe "trace-1"
-        (error.extensions?.get("request_id") as JsonPrimitive).content shouldBe "request-1"
+        (error.extensions?.get("trace_id") as JsonPrimitive) shouldBe JsonPrimitive("trace-1")
+        (error.extensions?.get("request_id") as JsonPrimitive) shouldBe JsonPrimitive("request-1")
     }
 
     test("feil content-type gir generisk problem detail") {

@@ -85,6 +85,8 @@ object ProblemDetailSerializer : KSerializer<ProblemDetail> {
             JsonArray(value.map { mapAnyToJsonElement(it!!) })
         }
 
+        is JsonPrimitive -> value
+
         null -> JsonNull
 
         else -> Json.encodeToJsonElement(serializer(value::class.starProjectedType), value)
