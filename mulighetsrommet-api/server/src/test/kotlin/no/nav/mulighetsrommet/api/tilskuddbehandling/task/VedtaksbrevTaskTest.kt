@@ -211,6 +211,7 @@ private suspend fun opprettOgAttesterTilskudd(
         journalforVedtaksbrev = mockk(relaxed = true),
         pdf = mockk(relaxed = true),
         journalpostValidator = gyldigJournalpostValidator(),
+        personaliaService = mockk(relaxed = true),
     )
 
     service.upsert(request, NavAnsattFixture.DonaldDuck.navIdent).shouldBeRight()

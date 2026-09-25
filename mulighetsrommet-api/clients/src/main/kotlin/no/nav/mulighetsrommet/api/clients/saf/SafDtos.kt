@@ -40,7 +40,20 @@ data class HentJournalpost(
 @Serializable
 data class SafJournalpost(
     val journalpostId: String,
+    val bruker: SafBruker? = null,
 )
+
+@Serializable
+data class SafBruker(
+    val id: String? = null,
+    val type: SafBrukerIdType? = null,
+)
+
+enum class SafBrukerIdType {
+    AKTOERID,
+    FNR,
+    ORGNR,
+}
 
 enum class SafErrorCode {
     @SerialName("forbidden")

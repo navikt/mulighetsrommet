@@ -12,6 +12,8 @@ import io.mockk.coEvery
 import io.mockk.mockk
 import no.nav.mulighetsrommet.admin.journalpost.JournalpostValidator
 import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollDto
+import no.nav.mulighetsrommet.api.clients.saf.SafClient
+import no.nav.mulighetsrommet.api.clients.saf.SafError
 import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd
 import no.nav.mulighetsrommet.api.domain.testing.fixture.AvtaleFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavAnsattFixture
@@ -24,7 +26,6 @@ import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingSta
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
 import no.nav.mulighetsrommet.api.utbetaling.api.ValutaBelopRequest
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
-import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Valuta
 import java.time.LocalDate
@@ -80,21 +81,20 @@ class TilskuddBehandlingServiceTest : FunSpec({
         journalforVedtaksbrev = mockk(relaxed = true),
         pdf = mockk(relaxed = true),
         journalpostValidator = gyldigJournalpostValidator(),
+        personaliaService = mockk(relaxed = true),
     )
 
     context("validering av journalpost") {
-        test("upsert feiler når journalpost ikke finnes i saf") {
-            val journalpostValidator = mockk<JournalpostValidator> {
-                coEvery { validerJournalpostFinnes(any(), any(), any()) } returns
-                    listOf(
-                        FieldError("/tilskudd/0/soknadJournalpostId", "Fant ingen journalpost med id J-2024-001"),
-                    ).left()
+        test("upsert feiler når journalpost ikke er gyldig") {
+            val saf = mockk<SafClient> {
+                coEvery { hentJournalpost("J-2024-001", any()) } returns SafError.NotFound.left()
             }
             val service = TilskuddBehandlingService(
                 db = database.api,
                 journalforVedtaksbrev = mockk(relaxed = true),
                 pdf = mockk(relaxed = true),
-                journalpostValidator = journalpostValidator,
+                journalpostValidator = JournalpostValidator(saf),
+                personaliaService = mockk(relaxed = true),
             )
 
             service.upsert(request, ansatt1).shouldBeLeft().should {

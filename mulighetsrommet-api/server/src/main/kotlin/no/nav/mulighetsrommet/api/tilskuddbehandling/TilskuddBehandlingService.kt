@@ -17,6 +17,7 @@ import no.nav.mulighetsrommet.api.TransactionalQueryContext
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.Totrinnskontroll
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
+import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenError
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandling
@@ -34,10 +35,12 @@ import no.nav.mulighetsrommet.api.tilskuddbehandling.task.JournalforVedtaksbrev
 import no.nav.mulighetsrommet.api.tilskuddbehandling.task.hentForhandsvisningVedtaksbrevInnhold
 import no.nav.mulighetsrommet.api.totrinnskontroll.api.toFieldErrors
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingException
+import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
+import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import java.time.Instant
 import java.time.LocalDateTime
@@ -48,6 +51,7 @@ class TilskuddBehandlingService(
     private val journalforVedtaksbrev: JournalforVedtaksbrev,
     private val pdf: PdfGenClient,
     private val journalpostValidator: JournalpostValidator,
+    private val personaliaService: PersonaliaService,
 ) {
     suspend fun upsert(
         request: TilskuddBehandlingRequest,
@@ -60,7 +64,7 @@ class TilskuddBehandlingService(
 
         return TilskuddBehandlingValidator
             .validate(request, gjennomforing, behandlendeEnhet)
-            .flatMap { dbo -> validerJournalposterFinnes(request).map { dbo } }
+            .flatMap { dbo -> validerJournalposter(request, gjennomforing).map { dbo } }
             .map { dbo ->
                 db.transaction {
                     queries.tilskuddBehandling.upsert(dbo)
@@ -86,37 +90,54 @@ class TilskuddBehandlingService(
             }
     }
 
-    private suspend fun validerJournalposterFinnes(
+    private suspend fun validerJournalposter(
         request: TilskuddBehandlingRequest,
+        gjennomforing: Gjennomforing,
     ): Either<List<FieldError>, Unit> {
-        val errors = request.tilskudd.flatMapIndexed { index, tilskudd ->
-            when (val journalpostId = tilskudd.soknadJournalpostId) {
-                null -> emptyList()
-
-                else -> journalpostValidator.validerJournalpostFinnes(
-                    journalpostId = journalpostId,
-                    pointer = "/tilskudd/$index/soknadJournalpostId",
-                    accessType = AccessType.M2M,
-                ).fold({ it }, { emptyList() })
+        val medJournalpost = request.tilskudd.withIndex()
+            .mapNotNull { (index, tilskudd) ->
+                tilskudd.soknadJournalpostId?.let { index to it }
             }
+        if (medJournalpost.isEmpty()) {
+            return Unit.right()
+        }
+
+        val forventetArrangor = gjennomforing.arrangor.organisasjonsnummer
+        val forventetPerson = hentDeltakerNorskIdent(gjennomforing.id)
+
+        val errors = medJournalpost.flatMap { (index, journalpostId) ->
+            journalpostValidator.validerJournalpost(
+                journalpostId = journalpostId,
+                forventetBruker = forventetPerson,
+                forventetArrangor = forventetArrangor,
+                pointer = "/tilskudd/$index/soknadJournalpostId",
+                accessType = AccessType.M2M,
+            ).fold({ it }, { emptyList() })
         }
         return if (errors.isEmpty()) Unit.right() else errors.left()
+    }
+
+    private suspend fun hentDeltakerNorskIdent(gjennomforingId: UUID): NorskIdent? {
+        val deltaker = db.session { repository.deltaker.getByGjennomforing(gjennomforingId) }
+            .singleOrNull()
+            ?: return null
+        return personaliaService.getPersonalia(deltaker.id, PersonaliaService.OnBehalfOf.System).norskIdent()
     }
 
     fun getByGjennomforingId(gjennomforingId: UUID): List<TilskuddBehandlingKompakt> {
         return db.session {
             queries.tilskuddBehandling.getByGjennomforingId(gjennomforingId)
                 .map {
-                    val førsteTilskudd = it.tilskudd.firstOrNull()
+                    val firstTilskudd = it.tilskudd.firstOrNull()
                         ?: error("Tilskuddsbehandling med id=${it.id} mangler tilskudd")
                     TilskuddBehandlingKompakt(
                         id = it.id,
-                        soknadDato = førsteTilskudd.soknadDato,
-                        periode = førsteTilskudd.periode,
-                        journalpostId = førsteTilskudd.soknadJournalpostId,
+                        soknadDato = firstTilskudd.soknadDato,
+                        periode = firstTilskudd.periode,
+                        journalpostId = firstTilskudd.soknadJournalpostId,
                         tilskuddtyper = it.tilskudd.map { tilskudd -> tilskudd.tilskuddOpplaeringType }
                             .toSet(),
-                        kostnadssted = førsteTilskudd.kostnadssted,
+                        kostnadssted = firstTilskudd.kostnadssted,
                         status = it.status,
                         type = it.type,
                         samletVedtakResultat = it.samletVedtakResultat,

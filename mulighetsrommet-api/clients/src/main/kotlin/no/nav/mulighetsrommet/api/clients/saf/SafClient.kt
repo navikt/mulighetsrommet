@@ -93,6 +93,10 @@ class SafClient(
             query($journalpostId: String!) {
                 journalpost(journalpostId: $journalpostId) {
                     journalpostId
+                    bruker {
+                        id
+                        type
+                    }
                 }
             }
         """.trimIndent()

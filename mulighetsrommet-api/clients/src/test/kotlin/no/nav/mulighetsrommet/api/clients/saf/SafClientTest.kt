@@ -16,7 +16,10 @@ class SafClientTest : FunSpec({
                     """
                         {
                             "data": {
-                                "journalpost": { "journalpostId": "453857496" }
+                                "journalpost": {
+                                    "journalpostId": "453857496",
+                                    "bruker": { "id": "12345678910", "type": "FNR" }
+                                }
                             }
                         }
                     """.trimIndent(),
@@ -26,7 +29,12 @@ class SafClientTest : FunSpec({
         val saf = mockSafClient(clientEngine)
 
         saf.hentJournalpost("453857496", AccessType.M2M)
-            .shouldBeRight(SafJournalpost(journalpostId = "453857496"))
+            .shouldBeRight(
+                SafJournalpost(
+                    journalpostId = "453857496",
+                    bruker = SafBruker(id = "12345678910", type = SafBrukerIdType.FNR),
+                ),
+            )
     }
 
     test("not_found gir NotFound") {
