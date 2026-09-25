@@ -26,6 +26,10 @@ select v.id,
        v.vedtak_journalpost_id,
        v.vedtak_journalpost_distribuering_id,
        v.vedtak_journalfort_tidspunkt,
-       v.vedtak_distribuert_tidspunkt
+       v.vedtak_distribuert_tidspunkt,
+       utbetaling.id as utbetaling_id,
+       bruker_utbetaling.id as bruker_utbetaling_id
 from tilskudd_vedtak v
     inner join nav_enhet on nav_enhet.enhetsnummer = v.kostnadssted
+    left outer join utbetaling on v.utbetaling_id = utbetaling.id
+    left outer join bruker_utbetaling on v.id = bruker_utbetaling.tilskudd_vedtak_id

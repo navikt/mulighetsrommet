@@ -345,7 +345,7 @@ private data class TilskuddBehandlingViewRow(
     val gjennomforingId: UUID,
     @SerialName("vedtak_json")
     val vedtakJson: String,
-    val behandlendeEnhet: String,
+    val behandlendeEnhet: String?,
 )
 
 @Serializable
@@ -390,7 +390,7 @@ private fun Row.toTilskuddBehandlingViewRow(): TilskuddBehandlingViewRow {
         type = string("type"),
         gjennomforingId = uuid("gjennomforing_id"),
         vedtakJson = string("vedtak_json"),
-        behandlendeEnhet = string("behandlende_enhet"),
+        behandlendeEnhet = stringOrNull("behandlende_enhet"),
     )
 }
 
@@ -411,7 +411,7 @@ private fun TilskuddBehandlingViewRow.toDto(): TilskuddBehandlingDto {
         status = TilskuddBehandlingStatusDto(TilskuddBehandlingStatus.valueOf(status)),
         type = TilskuddBehandlingType.valueOf(type),
         samletVedtakResultat = samletVedtakResultatStatusTag(tilskudd.map { it.vedtakResultat.type }),
-        behandlendeEnhet = NavEnhetNummer(behandlendeEnhet),
+        behandlendeEnhet = behandlendeEnhet?.let { NavEnhetNummer(behandlendeEnhet) },
     )
 }
 
