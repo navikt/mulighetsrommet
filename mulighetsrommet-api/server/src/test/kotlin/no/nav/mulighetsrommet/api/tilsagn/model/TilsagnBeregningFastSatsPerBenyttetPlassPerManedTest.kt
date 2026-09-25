@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.tilsagn.model
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import no.nav.mulighetsrommet.api.domain.tiltak.PrismodellType
 import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
 import no.nav.mulighetsrommet.model.NOK
 import no.nav.mulighetsrommet.model.Periode
@@ -15,6 +16,7 @@ class TilsagnBeregningFastSatsPerBenyttetPlassPerManedTest : FunSpec({
             sats = 100.NOK,
             antallPlasser = 1,
             stengt = setOf(),
+            prismodell = PrismodellType.FAST_SATS_PER_BENYTTET_PLASS_PER_MANED,
         )
 
         TilsagnBeregningFastSatsPerBenyttetPlassPerManed.beregn(input).output.pris shouldBe 100.NOK
@@ -27,6 +29,7 @@ class TilsagnBeregningFastSatsPerBenyttetPlassPerManedTest : FunSpec({
             sats = 100.NOK,
             antallPlasser = 1,
             stengt = setOf(StengtPeriode(periode, "Vinterferie")),
+            prismodell = PrismodellType.FAST_SATS_PER_BENYTTET_PLASS_PER_MANED,
         )
 
         TilsagnBeregningFastSatsPerBenyttetPlassPerManed.beregn(input).output.pris shouldBe 0.NOK
@@ -43,6 +46,7 @@ class TilsagnBeregningFastSatsPerBenyttetPlassPerManedTest : FunSpec({
                     "Vinterferie",
                 ),
             ),
+            prismodell = PrismodellType.FAST_SATS_PER_BENYTTET_PLASS_PER_MANED,
         )
 
         // 10/22 ukedager * 100 = 45.45... = 45 NOK
@@ -57,6 +61,7 @@ class TilsagnBeregningFastSatsPerBenyttetPlassPerManedTest : FunSpec({
             stengt = setOf(
                 StengtPeriode(Periode.forMonthOf(LocalDate.of(2026, 3, 1)), "Utenfor periode"),
             ),
+            prismodell = PrismodellType.FAST_SATS_PER_BENYTTET_PLASS_PER_MANED,
         )
 
         TilsagnBeregningFastSatsPerBenyttetPlassPerManed.beregn(input).output.pris shouldBe 100.NOK

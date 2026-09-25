@@ -40,6 +40,7 @@ import { aarsakTilTekst } from "@/utils/Utils";
 import { TilsagnStengtePerioder } from "@/components/tilsagn/beregning/TilsagnStengtePerioder";
 import { formaterNavEnhet } from "@/utils/nav-enhet";
 import { TotrinnsBegrunnelse } from "@mr/frontend-common/components/TotrinnsBegrunnelse";
+import { stotterBeskrivelseTilArrangor } from "@/utils/prismodell";
 
 export function TilsagnDetaljer() {
   const { tilsagnId } = useRequiredParams(["tilsagnId"]);
@@ -194,14 +195,19 @@ export function TilsagnDetaljer() {
             <Separator />
             <VStack gap="space-16" className="flex-1">
               <MetadataFritekstfelt label={tilsagnTekster.kommentar.label} value={kommentar} />
-              <MetadataFritekstfelt label={tilsagnTekster.beskrivelse.label} value={beskrivelse} />
+              {stotterBeskrivelseTilArrangor(beregning.prismodell.type) && (
+                <MetadataFritekstfelt
+                  label={tilsagnTekster.beskrivelse.label}
+                  value={beskrivelse}
+                />
+              )}
             </VStack>
             <Show below="lg">
               <Separator />
             </Show>
           </HGrid>
           <HGrid columns={1} gap="space-8" align="center">
-            {beregning.prismodell.entries.map((entry) => (
+            {beregning.prismodell.detaljer.entries.map((entry) => (
               <MetadataVStack
                 key={entry.label}
                 label={entry.label}

@@ -49,8 +49,8 @@ import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures.utbetalingLinje1
 import no.nav.mulighetsrommet.api.fixtures.setTilsagnStatus
 import no.nav.mulighetsrommet.api.fixtures.setUtbetalingLinjeStatus
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAnnenAvtaltPris
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFastSatsPerBenyttetPlassPerManed
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.AutomatisertUtbetalingResult
 import no.nav.mulighetsrommet.api.utbetaling.model.SatsPeriode
@@ -792,6 +792,7 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
                         sats = 7_321.NOK,
                         antallPlasser = 1,
                         stengt = setOf(),
+                        prismodell = PrismodellType.FAST_SATS_PER_BENYTTET_PLASS_PER_MANED,
                     ),
                     output = TilsagnBeregningFastSatsPerBenyttetPlassPerManed.Output(pris = 7_321.NOK),
                 ),
@@ -995,17 +996,6 @@ private fun getForhandsgodkjentBeregning(periode: Periode, pris: ValutaBelop) = 
     ),
 )
 
-fun getTilsagnBeregning(pris: ValutaBelop) = TilsagnBeregningAnnenAvtaltPris(
-    input = TilsagnBeregningAnnenAvtaltPris.Input(
-        linjer = listOf(
-            TilsagnBeregningAnnenAvtaltPris.InputLinje(
-                id = UUID.randomUUID(),
-                beskrivelse = "Beskrivelse",
-                pris = pris,
-                antall = 1,
-            ),
-        ),
-        prisbetingelser = null,
-    ),
-    output = TilsagnBeregningAnnenAvtaltPris.Output(pris),
+fun getTilsagnBeregning(pris: ValutaBelop) = TilsagnBeregningFri.beregn(
+    TilsagnBeregningFri.Input(pris, PrismodellType.ANNEN_AVTALT_PRIS),
 )

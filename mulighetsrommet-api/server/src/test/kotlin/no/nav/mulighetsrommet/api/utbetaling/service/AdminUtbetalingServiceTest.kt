@@ -31,6 +31,7 @@ import no.nav.mulighetsrommet.api.domain.testing.fixture.ArrangorFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.AvtaleFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavAnsattFixture
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavEnhetFixtures.Innlandet
+import no.nav.mulighetsrommet.api.domain.tiltak.PrismodellType
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollStatus
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
@@ -1843,17 +1844,6 @@ private fun QueryContext.setRoller(ansatt: NavAnsatt, roller: Set<NavAnsattRolle
     queries.ansatt.save(ansatt.medRoller(roller))
 }
 
-fun getTilsagnBeregning(pris: ValutaBelop) = TilsagnBeregningAnnenAvtaltPris(
-    input = TilsagnBeregningAnnenAvtaltPris.Input(
-        linjer = listOf(
-            TilsagnBeregningAnnenAvtaltPris.InputLinje(
-                id = UUID.randomUUID(),
-                beskrivelse = "Beskrivelse",
-                pris = pris,
-                antall = 1,
-            ),
-        ),
-        prisbetingelser = null,
-    ),
-    output = TilsagnBeregningAnnenAvtaltPris.Output(pris),
+fun getTilsagnBeregning(pris: ValutaBelop) = TilsagnBeregningFri.beregn(
+    TilsagnBeregningFri.Input(pris, PrismodellType.ANNEN_AVTALT_PRIS),
 )

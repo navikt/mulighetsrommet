@@ -11,7 +11,6 @@ import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningType
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnInputLinjeRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
@@ -78,7 +77,6 @@ class TilskuddArrangorUtbetalingConsumer(
                         belop = requireNotNull(tilskuddVedtak.utbetalingBelop) {
                             "Utbetaling beløp var null ved inngivelse av tilskudd til arrangør"
                         },
-                        prisbetingelser = null,
                     )
                     val utbetaling = opprettOgBetalUtbetaling(
                         gjennomforingId = behandling.gjennomforingId,
@@ -96,7 +94,6 @@ class TilskuddArrangorUtbetalingConsumer(
         kostnadssted: NavEnhetNummer,
         periode: Periode,
         belop: ValutaBelop,
-        prisbetingelser: String?,
     ): Tilsagn {
         return tilsagnService.upsertInTx(
             TilsagnRequest(
@@ -105,17 +102,10 @@ class TilskuddArrangorUtbetalingConsumer(
                 gjennomforingId = gjennomforingId,
                 kostnadssted = kostnadssted,
                 beregning = TilsagnBeregningRequest(
-                    type = TilsagnBeregningType.ANNEN_AVTALT_PRIS,
+                    type = TilsagnBeregningType.FRI,
                     valuta = belop.valuta,
-                    prisbetingelser = prisbetingelser,
-                    linjer = listOf(
-                        TilsagnInputLinjeRequest(
-                            id = UUID.randomUUID(),
-                            beskrivelse = "Tilsagn for tilskudd til opplæring",
-                            pris = belop,
-                            antall = 1,
-                        ),
-                    ),
+                    prisbetingelser = null,
+                    pris = belop,
                 ),
                 kommentar = null,
                 beskrivelse = null,

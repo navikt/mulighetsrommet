@@ -22,20 +22,29 @@ import no.nav.mulighetsrommet.model.ValutaBelop
 @Serializable
 data class TilsagnBeregningDto(
     val pris: ValutaBelop,
-    val prismodell: DataDetails,
+    val prismodell: Prismodell,
     val regnestykke: CalculationDto? = null,
     val stengt: List<StengtPeriode> = listOf(),
 ) {
+    @Serializable
+    data class Prismodell(
+        val type: PrismodellType,
+        val detaljer: DataDetails,
+    )
+
     companion object {
         fun from(beregning: TilsagnBeregning): TilsagnBeregningDto {
             return when (beregning) {
                 is TilsagnBeregningAnnenAvtaltPris -> TilsagnBeregningDto(
                     pris = beregning.output.pris,
-                    prismodell = DataDetails(
-                        entries = listOf(
-                            DataElement.text(PrismodellType.ANNEN_AVTALT_PRIS.navn).label("Prismodell"),
-                            DataElement.text(beregning.input.prisbetingelser)
-                                .label("Pris- og betalingsbetingelser", LabeledDataElementType.MULTILINE),
+                    prismodell = Prismodell(
+                        type = beregning.input.prismodell,
+                        detaljer = DataDetails(
+                            entries = listOf(
+                                DataElement.text(beregning.input.prismodell.navn).label("Prismodell"),
+                                DataElement.text(beregning.input.prisbetingelser)
+                                    .label("Pris- og betalingsbetingelser", LabeledDataElementType.MULTILINE),
+                            ),
                         ),
                     ),
                     regnestykke = CalculationDto(
@@ -88,23 +97,27 @@ data class TilsagnBeregningDto(
 
                 is TilsagnBeregningFri -> TilsagnBeregningDto(
                     pris = beregning.output.pris,
-                    prismodell = DataDetails(
-                        entries = listOf(
-                            DataElement.text(PrismodellType.ANSKAFFET_ENKELTPLASS.navn).label("Prismodell"),
+                    prismodell = Prismodell(
+                        type = beregning.input.prismodell,
+                        detaljer = DataDetails(
+                            entries = listOf(
+                                DataElement.text("Nav har avtalt å betale leverandøren direkte")
+                                    .label(beregning.input.prismodell.navn),
+                            ),
                         ),
                     ),
                 )
 
                 is TilsagnBeregningFastSatsPerBenyttetPlassPerManed -> TilsagnBeregningDto(
                     pris = beregning.output.pris,
-                    prismodell = DataDetails(
-                        entries = listOf(
-                            DataElement.text(PrismodellType.FAST_SATS_PER_BENYTTET_PLASS_PER_MANED.navn)
-                                .label("Prismodell"),
-                            DataElement.number(beregning.input.antallPlasser).label("Antall plasser"),
-                            DataElement.money(
-                                beregning.input.sats,
-                            ).label("Sats"),
+                    prismodell = Prismodell(
+                        type = beregning.input.prismodell,
+                        detaljer = DataDetails(
+                            entries = listOf(
+                                DataElement.text(beregning.input.prismodell.navn).label("Prismodell"),
+                                DataElement.number(beregning.input.antallPlasser).label("Antall plasser"),
+                                DataElement.money(beregning.input.sats).label("Sats"),
+                            ),
                         ),
                     ),
                     regnestykke = getRegnestykkeManedsverk(
@@ -119,14 +132,16 @@ data class TilsagnBeregningDto(
 
                 is TilsagnBeregningAvtaltPrisPerBenyttetPlassPerManed -> TilsagnBeregningDto(
                     pris = beregning.output.pris,
-                    prismodell = DataDetails(
-                        entries = listOf(
-                            DataElement.text(PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_MANED.navn)
-                                .label("Prismodell"),
-                            DataElement.number(beregning.input.antallPlasser).label("Antall plasser"),
-                            DataElement.money(beregning.input.sats).label("Avtalt pris"),
-                            DataElement.text(beregning.input.prisbetingelser)
-                                .label("Pris- og betalingsbetingelser", LabeledDataElementType.MULTILINE),
+                    prismodell = Prismodell(
+                        type = beregning.input.prismodell,
+                        detaljer = DataDetails(
+                            entries = listOf(
+                                DataElement.text(beregning.input.prismodell.navn).label("Prismodell"),
+                                DataElement.number(beregning.input.antallPlasser).label("Antall plasser"),
+                                DataElement.money(beregning.input.sats).label("Avtalt pris"),
+                                DataElement.text(beregning.input.prisbetingelser)
+                                    .label("Pris- og betalingsbetingelser", LabeledDataElementType.MULTILINE),
+                            ),
                         ),
                     ),
 
@@ -143,14 +158,16 @@ data class TilsagnBeregningDto(
 
                 is TilsagnBeregningAvtaltPrisPerBenyttetPlassPerUke -> TilsagnBeregningDto(
                     pris = beregning.output.pris,
-                    prismodell = DataDetails(
-                        entries = listOf(
-                            DataElement.text(PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_UKE.navn)
-                                .label("Prismodell"),
-                            DataElement.number(beregning.input.antallPlasser).label("Antall plasser"),
-                            DataElement.money(beregning.input.sats).label("Avtalt pris"),
-                            DataElement.text(beregning.input.prisbetingelser)
-                                .label("Pris- og betalingsbetingelser", LabeledDataElementType.MULTILINE),
+                    prismodell = Prismodell(
+                        type = beregning.input.prismodell,
+                        detaljer = DataDetails(
+                            entries = listOf(
+                                DataElement.text(beregning.input.prismodell.navn).label("Prismodell"),
+                                DataElement.number(beregning.input.antallPlasser).label("Antall plasser"),
+                                DataElement.money(beregning.input.sats).label("Avtalt pris"),
+                                DataElement.text(beregning.input.prisbetingelser)
+                                    .label("Pris- og betalingsbetingelser", LabeledDataElementType.MULTILINE),
+                            ),
                         ),
                     ),
 
@@ -179,16 +196,19 @@ data class TilsagnBeregningDto(
                     stengt = getStengtePerioder(beregning.input.stengt),
                 )
 
-                is TilsagnBeregningAvtaltPrisPerBenyttetPlassPerHeleUke -> TilsagnBeregningDto(
+                is TilsagnBeregningAvtaltPrisPerBenyttetPlassPerHeleUke,
+                -> TilsagnBeregningDto(
                     pris = beregning.output.pris,
-                    prismodell = DataDetails(
-                        entries = listOf(
-                            DataElement.text(PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_HELE_UKE.navn)
-                                .label("Prismodell"),
-                            DataElement.number(beregning.input.antallPlasser).label("Antall plasser"),
-                            DataElement.money(beregning.input.sats).label("Avtalt pris"),
-                            DataElement.text(beregning.input.prisbetingelser)
-                                .label("Pris- og betalingsbetingelser", LabeledDataElementType.MULTILINE),
+                    prismodell = Prismodell(
+                        type = beregning.input.prismodell,
+                        detaljer = DataDetails(
+                            entries = listOf(
+                                DataElement.text(beregning.input.prismodell.navn).label("Prismodell"),
+                                DataElement.number(beregning.input.antallPlasser).label("Antall plasser"),
+                                DataElement.money(beregning.input.sats).label("Avtalt pris"),
+                                DataElement.text(beregning.input.prisbetingelser)
+                                    .label("Pris- og betalingsbetingelser", LabeledDataElementType.MULTILINE),
+                            ),
                         ),
                     ),
 
@@ -217,16 +237,18 @@ data class TilsagnBeregningDto(
 
                 is TilsagnBeregningAvtaltPrisPerTimeOppfolgingPerDeltaker -> TilsagnBeregningDto(
                     pris = beregning.output.pris,
-                    prismodell = DataDetails(
-                        entries = listOf(
-                            DataElement.text(PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER.navn)
-                                .label("Prismodell"),
-                            DataElement.number(beregning.input.antallPlasser).label("Antall plasser"),
-                            DataElement.money(beregning.input.sats).label("Avtalt pris per oppfølgingstime"),
-                            DataElement.number(beregning.input.antallTimerOppfolgingPerDeltaker)
-                                .label("Antall oppfølgingstimer per deltaker"),
-                            DataElement.text(beregning.input.prisbetingelser)
-                                .label("Pris- og betalingsbetingelser", LabeledDataElementType.MULTILINE),
+                    prismodell = Prismodell(
+                        type = beregning.input.prismodell,
+                        detaljer = DataDetails(
+                            entries = listOf(
+                                DataElement.text(beregning.input.prismodell.navn).label("Prismodell"),
+                                DataElement.number(beregning.input.antallPlasser).label("Antall plasser"),
+                                DataElement.money(beregning.input.sats).label("Avtalt pris per oppfølgingstime"),
+                                DataElement.number(beregning.input.antallTimerOppfolgingPerDeltaker)
+                                    .label("Antall oppfølgingstimer per deltaker"),
+                                DataElement.text(beregning.input.prisbetingelser)
+                                    .label("Pris- og betalingsbetingelser", LabeledDataElementType.MULTILINE),
+                            ),
                         ),
                     ),
 

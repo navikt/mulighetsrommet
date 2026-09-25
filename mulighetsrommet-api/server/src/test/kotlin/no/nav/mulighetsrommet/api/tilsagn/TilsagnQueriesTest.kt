@@ -15,6 +15,7 @@ import no.nav.mulighetsrommet.api.domain.testing.fixture.AvtaleFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.DeltakerFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavEnhetFixtures.Gjovik
 import no.nav.mulighetsrommet.api.domain.testing.fixture.TiltakstypeFixtures
+import no.nav.mulighetsrommet.api.domain.tiltak.PrismodellType
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
@@ -196,6 +197,7 @@ class TilsagnQueriesTest : FunSpec({
                                 "Vinterstengt",
                             ),
                         ),
+                        prismodell = PrismodellType.FAST_SATS_PER_BENYTTET_PLASS_PER_MANED,
                     ),
                     output = TilsagnBeregningFastSatsPerBenyttetPlassPerManed.Output(
                         pris = 1000.NOK,
