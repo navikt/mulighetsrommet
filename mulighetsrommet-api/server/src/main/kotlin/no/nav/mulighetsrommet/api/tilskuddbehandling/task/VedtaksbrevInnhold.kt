@@ -72,7 +72,7 @@ suspend fun QueryContext.hentVedtaksbrevInnhold(
     val gjennomforing = queries.gjennomforing.getGjennomforingEnkeltplassOrError(tilskuddBehandling.gjennomforingId)
     val deltaker = repository.deltaker.getByGjennomforing(gjennomforing.id).single()
     val personalia = personaliaService.getPersonalia(deltaker.id, PersonaliaService.OnBehalfOf.System)
-    val behandlendeEnhet = queries.enhet.get(tilskuddBehandling.behandlendeEnhet)?.navn
+    val behandlendeEnhet = tilskuddBehandling.behandlendeEnhet?.let { queries.enhet.get(it) }?.navn
         ?: return "Fant ikke behandlende enhet for behadnling $behandlingId".left()
 
     val periode = validateGjennomforingPeriode(gjennomforing)

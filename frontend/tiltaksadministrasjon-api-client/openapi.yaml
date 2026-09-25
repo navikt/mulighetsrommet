@@ -9384,7 +9384,9 @@ components:
         samletVedtakResultat:
           $ref: "#/components/schemas/SamletVedtakResultat"
         behandlendeEnhet:
-          type: string
+          type:
+          - "null"
+          - string
       required:
       - behandlendeEnhet
       - gjennomforingId

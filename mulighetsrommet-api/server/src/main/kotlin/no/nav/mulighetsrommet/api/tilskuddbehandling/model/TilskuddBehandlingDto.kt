@@ -24,7 +24,7 @@ data class TilskuddBehandlingDto(
     val status: TilskuddBehandlingStatusDto,
     val type: TilskuddBehandlingType,
     val samletVedtakResultat: SamletVedtakResultat,
-    val behandlendeEnhet: NavEnhetNummer,
+    val behandlendeEnhet: NavEnhetNummer?,
 ) {
     fun toDbo() = TilskuddBehandling(
         id = this.id,
