@@ -6,23 +6,22 @@ import no.nav.mulighetsrommet.admin.navansatt.service.NavAnsattService
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.contracts.totrinnskontroll.TotrinnskontrollAgent
 import no.nav.mulighetsrommet.api.contracts.totrinnskontroll.TotrinnskontrollHendelse
-import no.nav.mulighetsrommet.api.contracts.totrinnskontroll.TotrinnskontrollHendelseV1
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
-import no.nav.mulighetsrommet.api.totrinnskontroll.kafka.TotrinnskontrollHendelseV1Deserializer
+import no.nav.mulighetsrommet.api.totrinnskontroll.kafka.TotrinnskontrollHendelseDeserializer
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.notifications.NotificationMetadata
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
 import java.time.Instant
-import java.util.*
+import java.util.UUID
 
 class UtbetalingAvbruttNotifierConsumer(
     private val db: ApiDatabase,
     private val navAnsattService: NavAnsattService,
-) : KafkaTopicConsumer<UUID, TotrinnskontrollHendelseV1>(
+) : KafkaTopicConsumer<UUID, TotrinnskontrollHendelse>(
     uuidDeserializer(),
-    TotrinnskontrollHendelseV1Deserializer(),
+    TotrinnskontrollHendelseDeserializer(),
 ) {
-    override suspend fun consume(key: UUID, message: TotrinnskontrollHendelseV1) {
+    override suspend fun consume(key: UUID, message: TotrinnskontrollHendelse) {
         if (message.type != TotrinnskontrollType.UTBETALING_AVBRYTELSE) {
             return
         }
@@ -32,7 +31,7 @@ class UtbetalingAvbruttNotifierConsumer(
         }
     }
 
-    private fun informerSaksbehandlerAvslattAvbytelse(behandling: TotrinnskontrollHendelseV1) = db.transaction {
+    private fun informerSaksbehandlerAvslattAvbytelse(behandling: TotrinnskontrollHendelse) = db.transaction {
         val utbetaling = queries.utbetaling.getOrError(behandling.entityId)
         val besluttetAv = behandling.besluttetAv
         val behandletAv = behandling.behandletAv
