@@ -95,7 +95,9 @@ class JournalforVedtaksbrev(
         )
         return pdf
             .getPdfDocument(content)
-            .mapLeft { error -> "Feil fra pdfgen: ${error.message}" }
+            .mapLeft { error ->
+                "Feil fra pdfgen: ${error.detail}"
+            }
     }
 }
 

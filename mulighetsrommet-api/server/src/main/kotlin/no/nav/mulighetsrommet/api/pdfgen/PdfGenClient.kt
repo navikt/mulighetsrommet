@@ -18,12 +18,15 @@ import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
 import io.ktor.serialization.kotlinx.json.json
+import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.model.ProblemDetail
+import org.slf4j.LoggerFactory
 
 class PdfGenClient(
     clientEngine: HttpClientEngine = CIO.create(),
     private val baseUrl: String,
 ) {
+    private val logger = LoggerFactory.getLogger(javaClass)
     private val client = HttpClient(clientEngine) {
         install(ContentNegotiation) {
             json()
@@ -56,7 +59,29 @@ class PdfGenClient(
         return if (response.status.isSuccess()) {
             response.bodyAsBytes().right()
         } else {
-            response.body<ProblemDetail>().left()
+            val contentType = response.contentType()?.withoutParameters()
+            val error = if (contentType == ContentType.Application.ProblemJson) {
+                response.body<ProblemDetail>()
+            } else {
+                genericProblemDetail(response.status)
+            }
+            logger.error(
+                "Feil ved generering av PDF: {}",
+                Json.encodeToString(error),
+            )
+
+            error.left()
+        }
+    }
+
+    private fun genericProblemDetail(status: io.ktor.http.HttpStatusCode): ProblemDetail {
+        return object : ProblemDetail() {
+            override val type = "about:blank"
+            override val title = status.description.ifBlank { "HTTP ${status.value}" }
+            override val status = status.value
+            override val detail = "pdfgen returnerte HTTP ${status.value}"
+            override val instance: String? = null
+            override val extensions: Map<String, Any?>? = null
         }
     }
 }

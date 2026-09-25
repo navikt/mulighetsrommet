@@ -57,27 +57,20 @@ class PdfGenClientTest : FunSpec({
         (error.extensions?.get("request_id") as JsonPrimitive).content shouldBe "request-1"
     }
 
-    test("parsing av problem detail bevarer detalj") {
+    test("feil content-type gir generisk problem detail") {
         val engine = MockEngine {
             respond(
-                content = """
-                    {
-                      "type": "urn:pdfgenrs:error:payload-too-large",
-                      "title": "Payload Too Large",
-                      "status": 413,
-                      "detail": "Body er for stor"
-                    }
-                """.trimIndent(),
                 status = HttpStatusCode.InternalServerError,
-                headers = headersOf(HttpHeaders.ContentType, ContentType.Application.ProblemJson.toString()),
+                headers = headersOf(HttpHeaders.ContentType, ContentType.Text.Plain.toString()),
+                content = "Internal Server Error",
             )
         }
 
         val error = createClient(engine).getPdfDocument(content).shouldBeLeft()
 
-        error.type shouldBe "urn:pdfgenrs:error:payload-too-large"
-        error.title shouldBe "Payload Too Large"
-        error.status shouldBe 413
-        error.detail shouldBe "Body er for stor"
+        error.type shouldBe "about:blank"
+        error.title shouldBe "Internal Server Error"
+        error.status shouldBe 500
+        error.detail shouldBe "pdfgen returnerte HTTP 500"
     }
 })
