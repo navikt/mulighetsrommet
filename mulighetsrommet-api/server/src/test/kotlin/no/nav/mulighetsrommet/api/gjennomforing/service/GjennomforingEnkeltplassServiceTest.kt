@@ -97,8 +97,8 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
         kategorisering = kategorisering,
     )
 
-    fun behandling(opprettetAv: NavIdent): TotrinnskontrollBehandling {
-        return TotrinnskontrollBehandling(UUID.randomUUID(), opprettetAv)
+    fun behandling(opprettetAv: NavIdent, begrunnelse: String? = null): TotrinnskontrollBehandling {
+        return TotrinnskontrollBehandling(UUID.randomUUID(), opprettetAv, begrunnelse)
     }
 
     context("opprettUtkast") {
@@ -1016,6 +1016,23 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                         it.behandling.utfortAv shouldBe opprettetAv
                     }
                 }
+            }
+
+            test("setter begrunnelse på prisendringens behandling når økonomi er GODKJENT") {
+                val soktInn = createRequest()
+                val opprettelse = behandling(opprettetAv)
+                service.soktInn(soktInn, opprettelse).shouldBeRight()
+
+                service.settOkonomiGodkjent(soktInn.id, opprettelse.id, besluttetAv).shouldBeRight()
+
+                val behandling = behandling(opprettetAv, begrunnelse = "Ny pris avtalt med arrangør")
+                val enkeltplass = service.endrePrisinformasjon(
+                    soktInn.id,
+                    UpsertEnkeltplass.Prismodell.Anskaffelse(3000),
+                    behandling,
+                ).shouldBeRight()
+
+                enkeltplass.prisendring.shouldNotBeNull().totrinnskontroll.behandling.begrunnelse shouldBe "Ny pris avtalt med arrangør"
             }
 
             test("setter eksisterende prisendring til RETURNERT ved ny prisendring når økonomi er GODKJENT") {
