@@ -6,13 +6,13 @@ import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd
 import no.nav.mulighetsrommet.api.tilsagn.api.KostnadsstedDto
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandling
 import no.nav.mulighetsrommet.model.DataElement
+import no.nav.mulighetsrommet.model.JournalpostId
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.time.LocalDate
 import java.util.UUID
-import kotlin.String
 
 @Serializable
 data class TilskuddBehandlingDto(
@@ -49,7 +49,7 @@ data class TilskuddBehandlingKompakt(
     val id: UUID,
     @Serializable(with = LocalDateSerializer::class)
     val soknadDato: LocalDate,
-    val journalpostId: String,
+    val journalpostId: JournalpostId,
     val tilskuddtyper: Set<Opplaeringtilskudd.Kode>,
     val periode: Periode,
     val kostnadssted: KostnadsstedDto,

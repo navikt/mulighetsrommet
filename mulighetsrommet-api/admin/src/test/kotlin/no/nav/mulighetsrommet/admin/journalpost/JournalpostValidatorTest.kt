@@ -80,14 +80,25 @@ class JournalpostValidatorTest : FunSpec({
         )
     }
 
-    test("journalpost som ikke finnes gir feil") {
+    test("journalpost på feil format gir feil") {
         val saf = mockk<SafClient>()
         coEvery { saf.hentJournalpost(any(), any()) } returns SafError.NotFound.left()
 
         val validator = JournalpostValidator(saf)
 
         validator.validerJournalpost("finnes-ikke", person, arrangor, pointer, AccessType.M2M).shouldBeLeft(
-            listOf(FieldError(pointer, "Fant ingen journalpost med id finnes-ikke")),
+            listOf(FieldError(pointer, "Feil format på Journalpost-ID: finnes-ikke")),
+        )
+    }
+
+    test("journalpost som ikke finnes gir feil") {
+        val saf = mockk<SafClient>()
+        coEvery { saf.hentJournalpost(any(), any()) } returns SafError.NotFound.left()
+
+        val validator = JournalpostValidator(saf)
+
+        validator.validerJournalpost("123", person, arrangor, pointer, AccessType.M2M).shouldBeLeft(
+            listOf(FieldError(pointer, "Fant ingen journalpost med id 123")),
         )
     }
 

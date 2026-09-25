@@ -87,7 +87,7 @@ class TilskuddBehandlingServiceTest : FunSpec({
     context("validering av journalpost") {
         test("upsert feiler når journalpost ikke er gyldig") {
             val saf = mockk<SafClient> {
-                coEvery { hentJournalpost("J-2024-001", any()) } returns SafError.NotFound.left()
+                coEvery { hentJournalpost("12345", any()) } returns SafError.NotFound.left()
             }
             val service = TilskuddBehandlingService(
                 db = database.api,

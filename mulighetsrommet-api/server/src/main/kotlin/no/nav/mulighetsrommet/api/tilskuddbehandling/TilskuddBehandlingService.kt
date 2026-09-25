@@ -1,11 +1,11 @@
 package no.nav.mulighetsrommet.api.tilskuddbehandling
 
 import arrow.core.Either
-import arrow.core.flatMap
 import arrow.core.getOrElse
 import arrow.core.left
 import arrow.core.nel
 import arrow.core.right
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.mulighetsrommet.admin.endringshistorikk.EndringshistorikkType
@@ -17,7 +17,6 @@ import no.nav.mulighetsrommet.api.TransactionalQueryContext
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.Totrinnskontroll
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
-import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenError
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandling
@@ -38,10 +37,12 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingException
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.FieldError
+import no.nav.mulighetsrommet.model.JournalpostId
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.tokenprovider.AccessType
+import no.nav.mulighetsrommet.validation.Validated
 import java.time.Instant
 import java.time.LocalDateTime
 import java.util.UUID
@@ -62,9 +63,22 @@ class TilskuddBehandlingService(
         val behandlendeEnhet = db.session { queries.ansatt.get(navIdent) }?.hovedenhet
             ?: throw IllegalArgumentException("Fant ikke enhet for ansatt $navIdent")
 
+        val forventetPerson = hentDeltakerNorskIdent(gjennomforing.id)
+        val forventetArrangor = gjennomforing.arrangor.organisasjonsnummer
+        val journalpostValidatorF: (String, Int) -> Validated<JournalpostId> = { journalpostId: String, index: Int ->
+            runBlocking {
+                journalpostValidator.validerJournalpost(
+                    journalpostId = journalpostId,
+                    forventetBruker = forventetPerson,
+                    forventetArrangor = forventetArrangor,
+                    pointer = "/tilskudd/$index/soknadJournalpostId",
+                    accessType = AccessType.M2M,
+                )
+            }
+        }
+
         return TilskuddBehandlingValidator
-            .validate(request, gjennomforing, behandlendeEnhet)
-            .flatMap { dbo -> validerJournalposter(request, gjennomforing).map { dbo } }
+            .validate(request, gjennomforing, behandlendeEnhet, journalpostValidatorF)
             .map { dbo ->
                 db.transaction {
                     queries.tilskuddBehandling.upsert(dbo)
@@ -88,33 +102,6 @@ class TilskuddBehandlingService(
                     logEndring("Sendt til attestering", dbo.id, navIdent)
                 }
             }
-    }
-
-    private suspend fun validerJournalposter(
-        request: TilskuddBehandlingRequest,
-        gjennomforing: Gjennomforing,
-    ): Either<List<FieldError>, Unit> {
-        val medJournalpost = request.tilskudd.withIndex()
-            .mapNotNull { (index, tilskudd) ->
-                tilskudd.soknadJournalpostId?.let { index to it }
-            }
-        if (medJournalpost.isEmpty()) {
-            return Unit.right()
-        }
-
-        val forventetArrangor = gjennomforing.arrangor.organisasjonsnummer
-        val forventetPerson = hentDeltakerNorskIdent(gjennomforing.id)
-
-        val errors = medJournalpost.flatMap { (index, journalpostId) ->
-            journalpostValidator.validerJournalpost(
-                journalpostId = journalpostId,
-                forventetBruker = forventetPerson,
-                forventetArrangor = forventetArrangor,
-                pointer = "/tilskudd/$index/soknadJournalpostId",
-                accessType = AccessType.M2M,
-            ).fold({ it }, { emptyList() })
-        }
-        return if (errors.isEmpty()) Unit.right() else errors.left()
     }
 
     private suspend fun hentDeltakerNorskIdent(gjennomforingId: UUID): NorskIdent? {
@@ -376,7 +363,8 @@ class TilskuddBehandlingService(
             ?: throw IllegalArgumentException("Fant ikke enhet for ansatt $navIdent")
 
         return TilskuddBehandlingValidator
-            .validate(request, gjennomforing, behandlendeEnhet)
+            // Dummy journalpost validator her
+            .validate(request, gjennomforing, behandlendeEnhet) { _, _ -> JournalpostId("123").right() }
             .map { dbo ->
                 vedtaksbrevForhandsvisPdf(dbo).getOrElse { throw IllegalStateException("Klarte ikke lage vedtaksbrev pdf") }
             }

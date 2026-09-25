@@ -10,6 +10,7 @@ import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingTyp
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
 import no.nav.mulighetsrommet.api.utils.DatoUtils.parseOrNull
 import no.nav.mulighetsrommet.model.FieldError
+import no.nav.mulighetsrommet.model.JournalpostId
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Periode
@@ -25,12 +26,14 @@ object TilskuddBehandlingValidator {
         request: TilskuddBehandlingRequest,
         gjennomforing: Gjennomforing,
         behandlendeEnhet: NavEnhetNummer,
+        journalpostValidator: (String, Int) -> Validated<JournalpostId>,
     ): Validated<TilskuddBehandling> = validation {
         val tilskudd = request.tilskudd.mapIndexed { index, v ->
             validateTilskuddRequest(
                 req = v,
                 index = index,
                 gjennomforing = gjennomforing,
+                journalpostValidator,
             ).bind()
         }
 
@@ -48,6 +51,7 @@ object TilskuddBehandlingValidator {
         req: TilskuddRequest,
         index: Int,
         gjennomforing: Gjennomforing,
+        journalpostValidator: (String, Int) -> Validated<JournalpostId>,
     ): Validated<TilskuddVedtak> = validation {
         validateNotNull(req.kostnadssted) {
             FieldError("Kostnadssted er påkrevd", "/tilskudd/$index/kostnadssted")
@@ -132,11 +136,13 @@ object TilskuddBehandlingValidator {
         requireValid(req.vedtakResultat != VedtakResultat.INNVILGELSE || req.belop != null)
         val periode = Periode.fromInclusiveDates(requireNotNull(periodeStart), requireNotNull(periodeSlutt))
 
+        val jId = journalpostValidator(req.soknadJournalpostId, index).bind()
+
         TilskuddVedtak(
             id = req.id,
             tilskuddId = req.tilskuddId,
             tilskuddOpplaeringType = req.tilskuddOpplaeringType,
-            soknadJournalpostId = req.soknadJournalpostId,
+            soknadJournalpostId = jId,
             soknadDato = req.soknadDato,
             soknadBelop = ValutaBelop(req.soknadBelop.belop, req.soknadBelop.valuta),
             periode = periode,

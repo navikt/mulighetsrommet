@@ -6,6 +6,7 @@ import no.nav.mulighetsrommet.api.tilsagn.api.KostnadsstedDto
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddVedtak
 import no.nav.mulighetsrommet.model.DataElement
+import no.nav.mulighetsrommet.model.JournalpostId
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.ValutaBelop
@@ -24,7 +25,7 @@ data class TilskuddOpplaeringDto(
     val tilskuddOpplaeringType: Opplaeringtilskudd.Kode,
     @Serializable(with = LocalDateSerializer::class)
     val soknadDato: LocalDate,
-    val soknadJournalpostId: String,
+    val soknadJournalpostId: JournalpostId,
     val soknadBelop: ValutaBelop,
     val periode: Periode,
     val kostnadssted: KostnadsstedDto,
