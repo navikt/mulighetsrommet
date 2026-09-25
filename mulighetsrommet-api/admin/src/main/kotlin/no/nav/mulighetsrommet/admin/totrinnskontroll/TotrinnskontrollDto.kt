@@ -22,8 +22,8 @@ sealed class TotrinnskontrollDto {
     abstract val id: UUID
     abstract val behandletAv: AgentDto
     abstract val behandletTidspunkt: LocalDateTime
-    abstract val aarsaker: List<String>
-    abstract val forklaring: String?
+    abstract val behandletBegrunnelse: String?
+    abstract val behandletAarsaker: List<String>
 
     @Serializable
     @SerialName("TotrinnskontrollDto.TilBeslutning")
@@ -33,8 +33,8 @@ sealed class TotrinnskontrollDto {
         override val behandletAv: AgentDto,
         @Serializable(with = LocalDateTimeSerializer::class)
         override val behandletTidspunkt: LocalDateTime,
-        override val aarsaker: List<String>,
-        override val forklaring: String?,
+        override val behandletBegrunnelse: String?,
+        override val behandletAarsaker: List<String>,
     ) : TotrinnskontrollDto()
 
     @Serializable
@@ -45,11 +45,13 @@ sealed class TotrinnskontrollDto {
         override val behandletAv: AgentDto,
         @Serializable(with = LocalDateTimeSerializer::class)
         override val behandletTidspunkt: LocalDateTime,
-        override val aarsaker: List<String>,
-        override val forklaring: String?,
+        override val behandletBegrunnelse: String?,
+        override val behandletAarsaker: List<String>,
         val besluttetAv: AgentDto,
         @Serializable(with = LocalDateTimeSerializer::class)
         val besluttetTidspunkt: LocalDateTime,
+        val besluttetBegrunnelse: String?,
+        val besluttetAarsaker: List<String>,
         val beslutning: Beslutning,
     ) : TotrinnskontrollDto()
 

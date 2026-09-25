@@ -25,12 +25,14 @@ data class Totrinnskontroll(
     val behandletAv: Agent,
     @Serializable(with = InstantSerializer::class)
     val behandletTidspunkt: Instant,
-    val aarsaker: List<String>,
-    val forklaring: String?,
+    val behandletBegrunnelse: String?,
+    val behandletAarsaker: List<String>,
     @Serializable(with = AgentSerializer::class)
     val besluttetAv: Agent?,
     @Serializable(with = InstantSerializer::class)
     val besluttetTidspunkt: Instant?,
+    val besluttetBegrunnelse: String?,
+    val besluttetAarsaker: List<String>,
 ) {
 
     fun kanSettesPaVent(): Boolean {
@@ -55,8 +57,8 @@ data class Totrinnskontroll(
             entityId: UUID,
             type: TotrinnskontrollType,
             behandletAv: Agent,
-            aarsaker: List<String> = emptyList(),
-            forklaring: String? = null,
+            behandletBegrunnelse: String? = null,
+            behandletAarsaker: List<String> = emptyList(),
         ): Totrinnskontroll = Totrinnskontroll(
             id = id,
             entityId = entityId,
@@ -64,17 +66,19 @@ data class Totrinnskontroll(
             status = TotrinnskontrollStatus.TIL_BEHANDLING,
             behandletAv = behandletAv,
             behandletTidspunkt = instantAsMicros(),
+            behandletBegrunnelse = behandletBegrunnelse,
+            behandletAarsaker = behandletAarsaker,
             besluttetAv = null,
             besluttetTidspunkt = null,
-            aarsaker = aarsaker,
-            forklaring = forklaring,
+            besluttetBegrunnelse = null,
+            besluttetAarsaker = emptyList(),
         )
     }
 
     fun settPaVent(
         besluttetAv: Agent,
-        aarsaker: List<String> = emptyList(),
-        forklaring: String? = null,
+        besluttetBegrunnelse: String? = null,
+        besluttetAarsaker: List<String> = emptyList(),
     ): Either<TotrinnskontrollError, Totrinnskontroll> {
         if (!kanSettesPaVent()) {
             return alleredeBesluttetError()
@@ -83,8 +87,8 @@ data class Totrinnskontroll(
             status = TotrinnskontrollStatus.SATT_PA_VENT,
             besluttetAv = besluttetAv,
             besluttetTidspunkt = instantAsMicros(),
-            aarsaker = aarsaker.ifEmpty { this.aarsaker },
-            forklaring = forklaring ?: this.forklaring,
+            besluttetBegrunnelse = besluttetBegrunnelse,
+            besluttetAarsaker = besluttetAarsaker,
         ).right()
     }
 
@@ -96,10 +100,12 @@ data class Totrinnskontroll(
             status = TotrinnskontrollStatus.TIL_BEHANDLING,
             behandletAv = nyBehandletAv,
             behandletTidspunkt = instantAsMicros(),
+            behandletBegrunnelse = null,
+            behandletAarsaker = emptyList(),
             besluttetAv = null,
             besluttetTidspunkt = null,
-            aarsaker = listOf(),
-            forklaring = null,
+            besluttetBegrunnelse = null,
+            besluttetAarsaker = emptyList(),
         ).right()
     }
 
@@ -114,13 +120,15 @@ data class Totrinnskontroll(
             status = TotrinnskontrollStatus.GODKJENT,
             besluttetAv = besluttetAv,
             besluttetTidspunkt = instantAsMicros(),
+            besluttetBegrunnelse = null,
+            besluttetAarsaker = emptyList(),
         ).right()
     }
 
     fun returner(
         besluttetAv: Agent,
-        aarsaker: List<String> = emptyList(),
-        forklaring: String? = null,
+        besluttetBegrunnelse: String? = null,
+        besluttetAarsaker: List<String> = emptyList(),
     ): Either<TotrinnskontrollError, Totrinnskontroll> {
         // TODO: ikke tillate systemet å returnere godkjent totrinnskontroll
         //  Vi har et tilfelle der systemet er tillatt å endre fra GODKJENT til RETURNERT, men det mer "riktige"
@@ -132,8 +140,8 @@ data class Totrinnskontroll(
             status = TotrinnskontrollStatus.RETURNERT,
             besluttetAv = besluttetAv,
             besluttetTidspunkt = instantAsMicros(),
-            aarsaker = aarsaker.ifEmpty { this.aarsaker },
-            forklaring = forklaring ?: this.forklaring,
+            besluttetBegrunnelse = besluttetBegrunnelse,
+            besluttetAarsaker = besluttetAarsaker,
         ).right()
     }
 

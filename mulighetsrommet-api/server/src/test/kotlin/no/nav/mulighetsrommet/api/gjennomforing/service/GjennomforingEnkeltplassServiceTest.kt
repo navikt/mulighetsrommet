@@ -463,7 +463,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
             okonomi.shouldNotBeNull().should {
                 it.status shouldBe TotrinnskontrollStatus.SATT_PA_VENT
                 it.besluttetAv shouldBe besluttetAv
-                it.forklaring shouldBe "Feil"
+                it.besluttetBegrunnelse shouldBe "Feil"
             }
         }
 
@@ -483,7 +483,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
             okonomi.shouldNotBeNull().should {
                 it.status shouldBe TotrinnskontrollStatus.GODKJENT
-                it.forklaring shouldBe null
+                it.besluttetBegrunnelse shouldBe null
             }
         }
 

@@ -194,7 +194,7 @@ class TilskuddBehandlingService(
         id: UUID,
         navIdent: NavIdent,
         aarsaker: List<TilskuddBehandlingStatusAarsak>,
-        forklaring: String?,
+        begrunnelse: String?,
     ): Either<List<FieldError>, TilskuddBehandlingDto> = db.transaction {
         val behandling = requireNotNull(queries.tilskuddBehandling.get(id)) {
             "TilskuddBehandling med id $id ble ikke funnet"
@@ -209,8 +209,9 @@ class TilskuddBehandlingService(
             TilskuddBehandlingType.REGISTRERING -> TotrinnskontrollType.TILSKUDD_OPPRETTELSE
             TilskuddBehandlingType.REVURDERING -> TotrinnskontrollType.TILSKUDD_OPPHOR
         }
-        val totrinnskontroll = queries.totrinnskontroll.getOrError(id, kontrollType)
-        totrinnskontroll.returner(navIdent, aarsaker.map { it.name }, forklaring).mapLeft { it.toFieldErrors() }
+        queries.totrinnskontroll.getOrError(id, kontrollType)
+            .returner(navIdent, begrunnelse, aarsaker.map { it.name })
+            .mapLeft { it.toFieldErrors() }
             .map { returnert ->
                 queries.totrinnskontroll.upsert(returnert)
                 outbox.publish(returnert)
@@ -267,7 +268,7 @@ class TilskuddBehandlingService(
         }
     }
 
-    suspend fun revurderingOpphor(
+    fun revurderingOpphor(
         forrigeTilskuddVedtakId: UUID,
         behandlingId: UUID,
         saksbehandler: NavIdent,
@@ -309,16 +310,16 @@ class TilskuddBehandlingService(
     private fun revurderingOpphorTotrinnkontroll(
         behandlingId: UUID,
         aarsaker: List<TilskuddBehandlingStatusAarsak>,
-        forklaring: String?,
+        begrunnelse: String?,
         behandletAv: Agent,
     ): Totrinnskontroll = with(tx) {
         val opphorTotrinnskontroll = Totrinnskontroll.opprett(
-            UUID.randomUUID(),
-            behandlingId,
-            TotrinnskontrollType.TILSKUDD_OPPHOR,
-            behandletAv,
-            aarsaker.map { it.name },
-            forklaring,
+            id = UUID.randomUUID(),
+            entityId = behandlingId,
+            type = TotrinnskontrollType.TILSKUDD_OPPHOR,
+            behandletAv = behandletAv,
+            behandletBegrunnelse = begrunnelse,
+            behandletAarsaker = aarsaker.map { it.name },
         )
         queries.totrinnskontroll.upsert(opphorTotrinnskontroll)
         outbox.publish(opphorTotrinnskontroll)

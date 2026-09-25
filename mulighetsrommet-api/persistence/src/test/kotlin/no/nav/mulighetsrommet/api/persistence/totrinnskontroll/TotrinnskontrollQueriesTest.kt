@@ -32,11 +32,13 @@ class TotrinnskontrollQueriesTest : FunSpec({
                     type = TotrinnskontrollType.TILSAGN_OPPRETTELSE,
                     behandletAv = NavIdent("B100000"),
                     behandletTidspunkt = Instant.now(),
-                    status = TotrinnskontrollStatus.TIL_BEHANDLING,
+                    behandletBegrunnelse = null,
+                    behandletAarsaker = emptyList(),
                     besluttetAv = null,
                     besluttetTidspunkt = null,
-                    aarsaker = emptyList(),
-                    forklaring = null,
+                    besluttetBegrunnelse = null,
+                    besluttetAarsaker = emptyList(),
+                    status = TotrinnskontrollStatus.TIL_BEHANDLING,
                 ),
             )
 
@@ -47,11 +49,13 @@ class TotrinnskontrollQueriesTest : FunSpec({
                     type = TotrinnskontrollType.TILSAGN_OPPRETTELSE,
                     behandletAv = NavIdent("B200000"),
                     behandletTidspunkt = Instant.now(),
-                    status = TotrinnskontrollStatus.GODKJENT,
+                    behandletBegrunnelse = "Begrunnelse fra behandler",
+                    behandletAarsaker = listOf("BEHANDLET_AARSAK"),
                     besluttetAv = Tiltaksadministrasjon,
                     besluttetTidspunkt = Instant.now(),
-                    aarsaker = listOf("FEIL_BELOP"),
-                    forklaring = "Feil beløp oppgitt",
+                    besluttetBegrunnelse = "Feil beløp oppgitt",
+                    besluttetAarsaker = listOf("FEIL_BELOP"),
+                    status = TotrinnskontrollStatus.GODKJENT,
                 ),
             )
 
@@ -60,8 +64,10 @@ class TotrinnskontrollQueriesTest : FunSpec({
                 it.behandletAv shouldBe NavIdent("B200000")
                 it.status shouldBe TotrinnskontrollStatus.GODKJENT
                 it.besluttetAv shouldBe Tiltaksadministrasjon
-                it.aarsaker shouldBe listOf("FEIL_BELOP")
-                it.forklaring shouldBe "Feil beløp oppgitt"
+                it.behandletBegrunnelse shouldBe "Begrunnelse fra behandler"
+                it.behandletAarsaker shouldBe listOf("BEHANDLET_AARSAK")
+                it.besluttetBegrunnelse shouldBe "Feil beløp oppgitt"
+                it.besluttetAarsaker shouldBe listOf("FEIL_BELOP")
             }
         }
     }
@@ -78,11 +84,13 @@ class TotrinnskontrollQueriesTest : FunSpec({
                     type = TotrinnskontrollType.TILSAGN_OPPRETTELSE,
                     behandletAv = Tiltaksadministrasjon,
                     behandletTidspunkt = Instant.now(),
-                    status = TotrinnskontrollStatus.GODKJENT,
+                    behandletBegrunnelse = null,
+                    behandletAarsaker = emptyList(),
                     besluttetAv = Tiltaksadministrasjon,
                     besluttetTidspunkt = Instant.now(),
-                    aarsaker = emptyList(),
-                    forklaring = null,
+                    besluttetBegrunnelse = null,
+                    besluttetAarsaker = emptyList(),
+                    status = TotrinnskontrollStatus.GODKJENT,
                 ),
             )
 
@@ -93,11 +101,13 @@ class TotrinnskontrollQueriesTest : FunSpec({
                     type = TotrinnskontrollType.TILSAGN_OPPRETTELSE,
                     behandletAv = Tiltaksadministrasjon,
                     behandletTidspunkt = Instant.now(),
-                    status = TotrinnskontrollStatus.RETURNERT,
+                    behandletBegrunnelse = null,
+                    behandletAarsaker = emptyList(),
                     besluttetAv = Arena,
                     besluttetTidspunkt = Instant.now(),
-                    aarsaker = emptyList(),
-                    forklaring = null,
+                    besluttetBegrunnelse = null,
+                    besluttetAarsaker = emptyList(),
+                    status = TotrinnskontrollStatus.RETURNERT,
                 ),
             )
 
@@ -122,11 +132,13 @@ class TotrinnskontrollQueriesTest : FunSpec({
                     type = TotrinnskontrollType.TILSAGN_OPPRETTELSE,
                     behandletAv = Tiltaksadministrasjon,
                     behandletTidspunkt = gammeltTidspunkt,
-                    status = TotrinnskontrollStatus.RETURNERT,
+                    behandletBegrunnelse = null,
+                    behandletAarsaker = emptyList(),
                     besluttetAv = Arena,
                     besluttetTidspunkt = gammeltTidspunkt,
-                    aarsaker = emptyList(),
-                    forklaring = null,
+                    besluttetBegrunnelse = null,
+                    besluttetAarsaker = emptyList(),
+                    status = TotrinnskontrollStatus.RETURNERT,
                 ),
             )
 
@@ -140,11 +152,13 @@ class TotrinnskontrollQueriesTest : FunSpec({
                     type = TotrinnskontrollType.TILSAGN_OPPRETTELSE,
                     behandletAv = NavIdent("B123456"),
                     behandletTidspunkt = nyttTidspunkt,
-                    status = TotrinnskontrollStatus.TIL_BEHANDLING,
+                    behandletBegrunnelse = null,
+                    behandletAarsaker = emptyList(),
                     besluttetAv = null,
                     besluttetTidspunkt = null,
-                    aarsaker = emptyList(),
-                    forklaring = null,
+                    besluttetBegrunnelse = null,
+                    besluttetAarsaker = emptyList(),
+                    status = TotrinnskontrollStatus.TIL_BEHANDLING,
                 ),
             )
 
@@ -171,11 +185,13 @@ class TotrinnskontrollQueriesTest : FunSpec({
                     type = TotrinnskontrollType.TILSAGN_OPPRETTELSE,
                     behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
                     behandletTidspunkt = Instant.now(),
-                    status = TotrinnskontrollStatus.GODKJENT,
+                    behandletBegrunnelse = null,
+                    behandletAarsaker = emptyList(),
                     besluttetAv = NavAnsattFixture.MikkeMus.navIdent,
                     besluttetTidspunkt = Instant.now(),
-                    aarsaker = emptyList(),
-                    forklaring = null,
+                    besluttetBegrunnelse = null,
+                    besluttetAarsaker = emptyList(),
+                    status = TotrinnskontrollStatus.GODKJENT,
                 ),
             )
 
@@ -198,11 +214,13 @@ class TotrinnskontrollQueriesTest : FunSpec({
                     type = TotrinnskontrollType.TILSAGN_OPPRETTELSE,
                     behandletAv = Tiltaksadministrasjon,
                     behandletTidspunkt = Instant.now(),
-                    status = TotrinnskontrollStatus.RETURNERT,
+                    behandletBegrunnelse = null,
+                    behandletAarsaker = emptyList(),
                     besluttetAv = Arena,
                     besluttetTidspunkt = Instant.now(),
-                    aarsaker = emptyList(),
-                    forklaring = null,
+                    besluttetBegrunnelse = null,
+                    besluttetAarsaker = emptyList(),
+                    status = TotrinnskontrollStatus.RETURNERT,
                 ),
             )
 

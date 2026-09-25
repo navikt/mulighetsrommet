@@ -226,8 +226,11 @@ function OkonomiStatusSattPaVent({ okonomi }: { okonomi: TotrinnskontrollDtoBesl
           {okonomi.besluttetAv.navn} satte godkjenning av enkeltplass på vent den{" "}
           {formaterDato(okonomi.besluttetTidspunkt)}.
         </BodyShort>
-        {okonomi.forklaring && (
-          <MetadataFritekstfelt label="Forklaring" value={okonomi.forklaring} />
+        {okonomi.besluttetBegrunnelse && (
+          <MetadataFritekstfelt
+            label="Intern kommentar (valgfritt)"
+            value={okonomi.besluttetBegrunnelse}
+          />
         )}
       </InfoCard.Content>
     </InfoCard>
@@ -278,8 +281,11 @@ function PrisendringPaVent({ totrinnskontroll, prismodell }: PrisendringPaVentPr
             {totrinnskontroll.besluttetAv.navn} satte godkjenning av prisendring på vent den{" "}
             {formaterDato(totrinnskontroll.besluttetTidspunkt)}.
           </BodyShort>
-          {totrinnskontroll.forklaring && (
-            <MetadataFritekstfelt label="Forklaring" value={totrinnskontroll.forklaring} />
+          {totrinnskontroll.besluttetBegrunnelse && (
+            <MetadataFritekstfelt
+              label="Intern kommentar (valgfritt)"
+              value={totrinnskontroll.besluttetBegrunnelse}
+            />
           )}
           <Betalingsbetingelser prismodell={prismodell} />
         </VStack>

@@ -216,7 +216,7 @@ class TilskuddBrukerUtbetalingConsumer(
     }
 }
 
-fun BrukerUtbetalingDbo.toHelVedUtbetaling(personIdent: NorskIdent?): HelVedUtbetaling = HelVedUtbetaling(
+fun BrukerUtbetalingDbo.toHelVedUtbetaling(personIdent: NorskIdent?, simulering: Boolean = false): HelVedUtbetaling = HelVedUtbetaling(
     id = id,
     sakId = sakId,
     behandlingId = behandlingId.toString(),
@@ -230,7 +230,7 @@ fun BrukerUtbetalingDbo.toHelVedUtbetaling(personIdent: NorskIdent?): HelVedUtbe
     saksbehandler = saksbehandler,
     beslutter = beslutter,
     besluttetTidspunkt = besluttetTidspunkt,
-    dryrun = false,
+    dryrun = simulering,
 )
 
 fun Tiltakskode.toHelVedTiltakskode(): HelVedUtbetaling.Tiltakskode = when (this) {

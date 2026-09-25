@@ -11,6 +11,7 @@ import { tilsagnHandlers } from "./endpoints/tilsagnHandler";
 import { utdanningHandlers } from "./endpoints/utdanningHandlers";
 import { oppgaverHandlers } from "./endpoints/oppgaverHandlers";
 import { utbetalingHandlers } from "./endpoints/utbetalingHandlers";
+import { tilskuddHandlers } from "./endpoints/tilskuddHandlers";
 import { personopplysningerHandlers } from "@/mocks/endpoints/personopplysningerHandler";
 import { redaksjoneltInnholdHandlers } from "@/mocks/endpoints/redaksjoneltInnholdHandlers";
 import { tiltakDokumentHandlers } from "@/mocks/endpoints/tiltakDokumentHandlers";
@@ -30,6 +31,7 @@ export const apiHandlers = [
   ...utdanningHandlers,
   ...oppgaverHandlers,
   ...utbetalingHandlers,
+  ...tilskuddHandlers,
   ...personopplysningerHandlers,
   ...tiltakDokumentHandlers,
 ];

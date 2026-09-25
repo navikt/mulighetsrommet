@@ -231,7 +231,7 @@ class UtbetalingService(
     fun returnerUtbetalingLinje(
         id: UUID,
         aarsaker: List<UtbetalingLinjeReturnertAarsak>,
-        forklaring: String?,
+        begrunnelse: String?,
         agent: Agent,
     ): Either<List<FieldError>, Utbetaling> = with(tx) {
         val linje = queries.utbetalingLinje.getOrError(id)
@@ -257,7 +257,7 @@ class UtbetalingService(
             }
         }
 
-        returnerUtbetalingLinje(linje, aarsaker, forklaring, agent).right()
+        returnerUtbetalingLinje(linje, aarsaker, begrunnelse, agent).right()
     }
 
     context(tx: TransactionalQueryContext)
@@ -286,10 +286,10 @@ class UtbetalingService(
         id: UUID,
         agent: Agent,
         aarsaker: List<String>,
-        forklaring: String?,
+        begrunnelse: String?,
     ): Either<List<FieldError>, Utbetaling> = with(tx) {
         val utbetaling = queries.utbetaling.getAndAcquireLock(id)
-        return utbetaling.settTilAbrytelse(agent, aarsaker, forklaring).map { utbetalingTilAvbrytelse ->
+        return utbetaling.settTilAbrytelse(agent, aarsaker, begrunnelse).map { utbetalingTilAvbrytelse ->
             queries.utbetaling.save(utbetalingTilAvbrytelse)
 
             outbox.publish(utbetalingTilAvbrytelse.avbrytelse!!.totrinnskontroll)
@@ -315,10 +315,10 @@ class UtbetalingService(
         id: UUID,
         besluttetAv: NavIdent,
         aarsaker: List<String>,
-        forklaring: String?,
+        begrunnelse: String?,
     ): Either<List<FieldError>, Utbetaling> = with(tx) {
         val utbetaling = queries.utbetaling.getAndAcquireLock(id)
-        return utbetaling.avslaAbrytelse(besluttetAv, aarsaker, forklaring).map { utbetalingTilSaksbehandling ->
+        return utbetaling.avslaAbrytelse(besluttetAv, aarsaker, begrunnelse).map { utbetalingTilSaksbehandling ->
             queries.utbetaling.save(utbetalingTilSaksbehandling)
 
             outbox.publish(utbetalingTilSaksbehandling.avbrytelse!!.totrinnskontroll)
@@ -734,7 +734,7 @@ class UtbetalingService(
             tilsagn,
             opprettelse.behandletAv,
             aarsaker = listOf(),
-            forklaring = null,
+            begrunnelse = null,
             operation = "Sendt til oppgjør ved behandling av utbetaling",
         )
         tilsagnService.gjorOppTilsagn(
@@ -749,10 +749,10 @@ class UtbetalingService(
     private fun TransactionalQueryContext.returnerUtbetalingLinje(
         linje: UtbetalingLinje,
         aarsaker: List<UtbetalingLinjeReturnertAarsak>,
-        forklaring: String?,
+        begrunnelse: String?,
         besluttetAv: Agent,
     ): Utbetaling {
-        setReturnertUtbetalingLinje(linje.id, aarsaker, forklaring, besluttetAv)
+        setReturnertUtbetalingLinje(linje.id, aarsaker, begrunnelse, besluttetAv)
 
         // Sett også de resterende utbetalingslinjene som returnert
         queries.utbetalingLinje.getByUtbetalingId(linje.utbetalingId)
@@ -774,12 +774,12 @@ class UtbetalingService(
     private fun TransactionalQueryContext.setReturnertUtbetalingLinje(
         utbetalingLinjeId: UUID,
         aarsaker: List<UtbetalingLinjeReturnertAarsak>,
-        forklaring: String?,
+        begrunnelse: String?,
         besluttetAv: Agent,
     ) {
         queries.utbetalingLinje.setStatus(utbetalingLinjeId, UtbetalingLinjeStatus.RETURNERT)
         val opprettelse = getTotrinnskontroll(utbetalingLinjeId)
-        opprettelse.returner(besluttetAv, aarsaker.map { it.name }, forklaring).onLeft {
+        opprettelse.returner(besluttetAv, begrunnelse, aarsaker.map { it.name }).onLeft {
             throw UtbetalingException(it.toFieldErrors())
         }.onRight { returnert ->
             queries.totrinnskontroll.upsert(returnert)
