@@ -90,7 +90,6 @@ data class KafkaTopics(
     val arenaMigreringGjennomforingTopic: String = "team-mulighetsrommet.arena-migrering-tiltaksgjennomforinger-v1",
     val datavarehusTiltakTopic: String = "team-mulighetsrommet.datavarehus-tiltak-v1",
     val helvedUtbetalingTopic: String = "team-mulighetsrommet.tilskudd.utbetaling-v1",
-    val totrinnskontrollV1Topic: String = "team-mulighetsrommet.totrinnskontroll-v1",
     val totrinnskontrollV2Topic: String = "team-mulighetsrommet.totrinnskontroll-v2",
 )
 

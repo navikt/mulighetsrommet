@@ -58,7 +58,7 @@ versjon av hver nøkkel beholdes.
 
 ---
 
-## totrinnskontroll-v1
+## totrinnskontroll-v2
 
 - Inneholder hendelser om behandling og besluttelse (totrinnskontroll) av entiteter i Tiltaksadministrasjon, bl.a.
   tilsagn og utbetalinger.
