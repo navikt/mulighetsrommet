@@ -39,7 +39,7 @@ data class NavAnsatt private constructor(
         return setOf(requiredRole, *otherRoles).any { hasGenerellRolle(it) }
     }
 
-    fun displayName(): String = "$fornavn $etternavn"
+    fun fulltNavn(): String = "$fornavn $etternavn"
 
     companion object {
         fun opprett(

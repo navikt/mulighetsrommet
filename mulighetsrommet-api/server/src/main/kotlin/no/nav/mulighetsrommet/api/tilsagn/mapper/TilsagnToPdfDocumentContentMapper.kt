@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.api.tilsagn.mapper
 
-import no.nav.mulighetsrommet.admin.totrinnskontroll.AgentDto
 import no.nav.mulighetsrommet.api.pdfgen.Deltaker
 import no.nav.mulighetsrommet.api.pdfgen.PdfDocumentContent
 import no.nav.mulighetsrommet.api.pdfgen.SectionBuilder
@@ -9,7 +8,6 @@ import no.nav.mulighetsrommet.api.pdfgen.TopSection
 import no.nav.mulighetsrommet.api.tilsagn.task.TilsagnsbrevInnhold
 import no.nav.mulighetsrommet.api.utbetaling.service.Gradering
 import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
-import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.ValutaBelop
 import java.text.NumberFormat
 import java.util.Locale
@@ -101,8 +99,8 @@ object TilsagnToPdfDocumentContentMapper {
 
         signature(
             Signature(
-                saksbehandler = innhold.saksbehandler.personNavn(),
-                beslutter = innhold.beslutter.personNavn(),
+                saksbehandler = innhold.saksbehandler,
+                beslutter = innhold.beslutter,
                 enhet = innhold.tilsagn.kostnadssted.navn,
             ),
         )
@@ -110,11 +108,6 @@ object TilsagnToPdfDocumentContentMapper {
 
     private fun formaterDeltakerPersonalia(personalia: Personalia): String {
         return personalia.norskIdent()?.let { "${personalia.navn()} (${it.value})" } ?: personalia.navn()
-    }
-
-    private fun AgentDto.personNavn(): String? = when (agent) {
-        is NavIdent -> navn
-        else -> null
     }
 
     private fun SectionBuilder.addInvoiceInfo() {
