@@ -4,6 +4,7 @@ import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
 import io.ktor.client.HttpClient
+import io.ktor.client.call.body
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.HttpTimeout
@@ -13,11 +14,11 @@ import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.request.url
 import io.ktor.client.statement.bodyAsBytes
-import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
 import io.ktor.serialization.kotlinx.json.json
+import no.nav.mulighetsrommet.model.ProblemDetail
 
 class PdfGenClient(
     clientEngine: HttpClientEngine = CIO.create(),
@@ -32,7 +33,7 @@ class PdfGenClient(
         }
     }
 
-    suspend fun getPdfDocument(content: PdfDocumentContent): Either<PdfGenError, ByteArray> {
+    suspend fun getPdfDocument(content: PdfDocumentContent): Either<ProblemDetail, ByteArray> {
         return downloadPdf(
             app = "block-content",
             template = "document",
@@ -44,7 +45,7 @@ class PdfGenClient(
         app: String,
         template: String,
         body: T,
-    ): Either<PdfGenError, ByteArray> {
+    ): Either<ProblemDetail, ByteArray> {
         val response = client.post {
             url("$baseUrl/api/v1/genpdf/$app/$template")
             contentType(ContentType.Application.Json)
@@ -55,9 +56,7 @@ class PdfGenClient(
         return if (response.status.isSuccess()) {
             response.bodyAsBytes().right()
         } else {
-            PdfGenError(response.status.value, response.bodyAsText()).left()
+            response.body<ProblemDetail>().left()
         }
     }
 }
-
-data class PdfGenError(val statusCode: Int, val message: String)
