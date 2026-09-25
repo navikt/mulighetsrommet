@@ -68,7 +68,7 @@ class GjennomforingRequestKafkaConsumer(
 
         val arrangor = getArrangor(payload.organisasjonsnummer)
         val soktInn = toRequest(gjennomforingId, arrangor.id, payload)
-        val behandling = TotrinnskontrollBehandling(totrinnskontroll.id, totrinnskontroll.behandletAv)
+        val behandling = totrinnskontroll.toBehandling()
         enkeltplasser.soktInn(soktInn, behandling)
             .onLeft { errors -> error("Klarte ikke opprette enkeltplass: $errors") }
     }
@@ -96,7 +96,7 @@ class GjennomforingRequestKafkaConsumer(
     private fun handterEnkeltplassEndrePrisinformasjon(request: GjennomforingRequest.EnkeltplassEndrePrisinformasjon) {
         enkeltplasser.endrePrisinformasjon(
             gjennomforingId = request.gjennomforingId,
-            behandling = TotrinnskontrollBehandling(request.totrinnskontroll.id, request.totrinnskontroll.behandletAv),
+            behandling = request.totrinnskontroll.toBehandling(),
             prisinformasjon = toPrismodell(request.payload),
         ).onLeft { errors -> error("Klarte ikke håndtere endring av prisinformasjon: $errors") }
     }
@@ -106,7 +106,7 @@ class GjennomforingRequestKafkaConsumer(
     ) {
         enkeltplasser.tilbakekallPrisinformasjon(
             gjennomforingId = request.gjennomforingId,
-            behandling = TotrinnskontrollBehandling(request.totrinnskontroll.id, request.totrinnskontroll.behandletAv),
+            behandling = request.totrinnskontroll.toBehandling(),
         ).onLeft { error ->
             when (error) {
                 is TotrinnskontrollError.AlleredeBesluttet,
@@ -154,4 +154,8 @@ private fun toPrismodell(
             tilleggsopplysninger = prisinformasjon.tilleggsopplysninger,
         )
     }
+}
+
+private fun GjennomforingRequest.Totrinnskontroll.toBehandling(): TotrinnskontrollBehandling {
+    return TotrinnskontrollBehandling(id, behandletAv, begrunnelse)
 }

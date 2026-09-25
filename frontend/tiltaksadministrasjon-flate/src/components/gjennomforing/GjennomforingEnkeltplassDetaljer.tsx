@@ -262,6 +262,12 @@ function PrisendringTilGodkjenning({
             {utledBehandletAvNavn(totrinnskontroll)} sendte en prisendring til godkjenning den{" "}
             {formaterDato(totrinnskontroll.behandling.tidspunkt)}.
           </BodyShort>
+          {totrinnskontroll.behandling.begrunnelse && (
+            <MetadataFritekstfelt
+              label="Begrunnelse fra veileder"
+              value={totrinnskontroll.behandling.begrunnelse}
+            />
+          )}
           <Betalingsbetingelser prismodell={prismodell} />
         </VStack>
       </InfoCard.Content>
@@ -286,6 +292,12 @@ function PrisendringPaVent({ totrinnskontroll, prismodell }: PrisendringPaVentPr
             {utledBesluttetAvNavn(totrinnskontroll)} satte godkjenning av prisendring på vent den{" "}
             {formaterDato(totrinnskontroll.beslutning.tidspunkt)}.
           </BodyShort>
+          {totrinnskontroll.behandling.begrunnelse && (
+            <MetadataFritekstfelt
+              label="Begrunnelse fra veileder"
+              value={totrinnskontroll.behandling.begrunnelse}
+            />
+          )}
           {totrinnskontroll.beslutning.begrunnelse && (
             <MetadataFritekstfelt
               label="Intern kommentar (valgfritt)"
