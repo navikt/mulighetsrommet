@@ -219,6 +219,8 @@ spec:
           namespace: nais-system
         - application: populasjonstilgangskontroll
           namespace: tilgangsmaskin
+        - application: simulering
+          namespace: helved
       external:
         - host: slack.com
         - host: xegcworx.apicdn.sanity.io
