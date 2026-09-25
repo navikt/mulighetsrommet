@@ -22,7 +22,7 @@ import no.nav.mulighetsrommet.admin.endringshistorikk.EndringshistorikkType
 import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollDto
 import no.nav.mulighetsrommet.api.ApplicationConfigTest
 import no.nav.mulighetsrommet.api.QueryContext
-import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
+import no.nav.mulighetsrommet.api.aarsakerbegrunnelse.AarsakerOgBegrunnelseRequest
 import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsatt
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsattRolle
@@ -425,7 +425,7 @@ class AdminUtbetalingServiceTest : FunSpec({
             service.returnerUtbetalingLinje(
                 id = linje.id,
                 aarsaker = listOf(UtbetalingLinjeReturnertAarsak.ANNET),
-                forklaring = "Maksbeløp er 5",
+                begrunnelse = "Maksbeløp er 5",
                 navIdent = domain.ansatte[0].navIdent,
             ).shouldBeRight().status shouldBe UtbetalingStatusType.RETURNERT
 
@@ -462,7 +462,7 @@ class AdminUtbetalingServiceTest : FunSpec({
             service.returnerUtbetalingLinje(
                 id = linje1.id,
                 aarsaker = listOf(UtbetalingLinjeReturnertAarsak.ANNET),
-                forklaring = "Maksbeløp er 5",
+                begrunnelse = "Maksbeløp er 5",
                 navIdent = NavAnsattFixture.MikkeMus.navIdent,
             ).shouldBeRight().status shouldBe UtbetalingStatusType.RETURNERT
 
@@ -623,7 +623,7 @@ class AdminUtbetalingServiceTest : FunSpec({
             service.returnerUtbetalingLinje(
                 id = utbetalingLinje1.id,
                 aarsaker = listOf(UtbetalingLinjeReturnertAarsak.FEIL_BELOP),
-                forklaring = null,
+                begrunnelse = null,
                 navIdent = NavAnsattFixture.MikkeMus.navIdent,
             ).shouldBeRight().status shouldBe UtbetalingStatusType.RETURNERT
 
@@ -688,7 +688,7 @@ class AdminUtbetalingServiceTest : FunSpec({
             service.returnerUtbetalingLinje(
                 id = utbetalingLinje2.id,
                 aarsaker = listOf(UtbetalingLinjeReturnertAarsak.ANNET),
-                forklaring = "Maksbeløp er 5",
+                begrunnelse = "Maksbeløp er 5",
                 navIdent = NavAnsattFixture.DonaldDuck.navIdent,
             ).shouldBeRight().status shouldBe UtbetalingStatusType.RETURNERT
 
@@ -820,7 +820,7 @@ class AdminUtbetalingServiceTest : FunSpec({
             service.returnerUtbetalingLinje(
                 id = linje1.id,
                 aarsaker = listOf(UtbetalingLinjeReturnertAarsak.ANNET),
-                forklaring = "Maksbeløp er 5",
+                begrunnelse = "Maksbeløp er 5",
                 navIdent = NavAnsattFixture.MikkeMus.navIdent,
             ).shouldBeRight().status shouldBe UtbetalingStatusType.RETURNERT
 
@@ -836,7 +836,7 @@ class AdminUtbetalingServiceTest : FunSpec({
             service.returnerUtbetalingLinje(
                 id = linje1.id,
                 aarsaker = listOf(UtbetalingLinjeReturnertAarsak.ANNET),
-                forklaring = "Maksbeløp er 5",
+                begrunnelse = "Maksbeløp er 5",
                 navIdent = NavAnsattFixture.MikkeMus.navIdent,
             ).shouldBeRight().status shouldBe UtbetalingStatusType.RETURNERT
 
@@ -1161,7 +1161,7 @@ class AdminUtbetalingServiceTest : FunSpec({
             service.returnerUtbetalingLinje(
                 id = linje.id,
                 aarsaker = listOf(UtbetalingLinjeReturnertAarsak.ANNET),
-                forklaring = "Fordi",
+                begrunnelse = "Fordi",
                 navIdent = NavAnsattFixture.DonaldDuck.navIdent,
             ).shouldBeRight().status shouldBe UtbetalingStatusType.RETURNERT
         }
@@ -1194,7 +1194,7 @@ class AdminUtbetalingServiceTest : FunSpec({
             service.returnerUtbetalingLinje(
                 id = linje.id,
                 aarsaker = listOf(UtbetalingLinjeReturnertAarsak.FEIL_BELOP),
-                forklaring = null,
+                begrunnelse = null,
                 navIdent = NavAnsattFixture.DonaldDuck.navIdent,
             ).shouldBeRight().status shouldBe UtbetalingStatusType.RETURNERT
         }
@@ -1223,7 +1223,7 @@ class AdminUtbetalingServiceTest : FunSpec({
             service.returnerUtbetalingLinje(
                 id = linje.id,
                 aarsaker = listOf(UtbetalingLinjeReturnertAarsak.FEIL_BELOP),
-                forklaring = null,
+                begrunnelse = null,
                 navIdent = NavAnsattFixture.MikkeMus.navIdent,
             ) shouldBeLeft listOf(
                 FieldError.of("Du kan ikke returnere utbetalingen fordi du mangler tilgang"),
@@ -1471,9 +1471,9 @@ class AdminUtbetalingServiceTest : FunSpec({
                 )
                 service.opprettUtbetaling(korreksjon, navIdent).shouldBeRight()
 
-                val aarsaker = AarsakerOgForklaringRequest(
+                val aarsaker = AarsakerOgBegrunnelseRequest(
                     aarsaker = listOf(UtbetalingStatusAarsak.TILSAGN_GJORT_OPP),
-                    forklaring = null,
+                    begrunnelse = null,
                 )
                 service.sendTilAvbrytelse(korreksjon.id, navIdent, aarsaker) shouldBeLeft
                     listOf(
@@ -1484,9 +1484,9 @@ class AdminUtbetalingServiceTest : FunSpec({
             test("kan avbryte utbetalinger med status GENERTERT, TIL_BEHANDLING og RETURNERT") {
                 val service = createUtbetalingService()
 
-                val aarsaker = AarsakerOgForklaringRequest(
+                val aarsaker = AarsakerOgBegrunnelseRequest(
                     aarsaker = listOf(UtbetalingStatusAarsak.TILSAGN_GJORT_OPP),
-                    forklaring = null,
+                    begrunnelse = null,
                 )
                 val feilmelding = Either.Left(listOf(FieldError.of("Utbetaling kan ikke settes til avbrytelse")))
                 val tilAvbrytelse = Either.Right(UtbetalingStatusType.TIL_AVBRYTELSE)
@@ -1524,11 +1524,11 @@ class AdminUtbetalingServiceTest : FunSpec({
                 ).initialize(database.api)
                 val service = createUtbetalingService()
 
-                val aarsakerOgForklaring = AarsakerOgForklaringRequest(
+                val aarsakerOgBegrunnelse = AarsakerOgBegrunnelseRequest(
                     aarsaker = listOf(UtbetalingStatusAarsak.TILSAGN_GJORT_OPP),
-                    forklaring = null,
+                    begrunnelse = null,
                 )
-                service.sendTilAvbrytelse(utbetaling1.id, navIdent, aarsakerOgForklaring).shouldBeRight()
+                service.sendTilAvbrytelse(utbetaling1.id, navIdent, aarsakerOgBegrunnelse).shouldBeRight()
 
                 val utbetalingDetaljer = service.getUtbetalingDetaljer(utbetaling1.id, navIdent)
 
@@ -1567,11 +1567,11 @@ class AdminUtbetalingServiceTest : FunSpec({
                 ).initialize(database.api)
                 val service = createUtbetalingService()
 
-                val aarsakerOgForklaring = AarsakerOgForklaringRequest(
+                val aarsakerOgBegrunnelse = AarsakerOgBegrunnelseRequest(
                     aarsaker = listOf(UtbetalingStatusAarsak.TILSAGN_GJORT_OPP),
-                    forklaring = null,
+                    begrunnelse = null,
                 )
-                service.sendTilAvbrytelse(utbetaling1.id, navIdent, aarsakerOgForklaring).shouldBeRight()
+                service.sendTilAvbrytelse(utbetaling1.id, navIdent, aarsakerOgBegrunnelse).shouldBeRight()
 
                 service.godkjennAvbrytelse(utbetaling1.id, navIdent) shouldBeLeft listOf(
                     FieldError.of("Du kan ikke beslutte noe du selv har behandlet"),
@@ -1587,11 +1587,11 @@ class AdminUtbetalingServiceTest : FunSpec({
                 ).initialize(database.api)
                 val service = createUtbetalingService()
 
-                val aarsakerOgForklaring = AarsakerOgForklaringRequest(
+                val aarsakerOgBegrunnelse = AarsakerOgBegrunnelseRequest(
                     aarsaker = listOf(UtbetalingStatusAarsak.TILSAGN_GJORT_OPP),
-                    forklaring = null,
+                    begrunnelse = null,
                 )
-                service.sendTilAvbrytelse(utbetaling1.id, NavAnsattFixture.MikkeMus.navIdent, aarsakerOgForklaring)
+                service.sendTilAvbrytelse(utbetaling1.id, NavAnsattFixture.MikkeMus.navIdent, aarsakerOgBegrunnelse)
                     .shouldBeRight()
 
                 service.godkjennAvbrytelse(utbetaling1.id, navIdent)
@@ -1609,11 +1609,11 @@ class AdminUtbetalingServiceTest : FunSpec({
                 ).initialize(database.api)
                 val service = createUtbetalingService()
 
-                val aarsakerOgForklaring = AarsakerOgForklaringRequest(
+                val aarsakerOgBegrunnelse = AarsakerOgBegrunnelseRequest(
                     aarsaker = listOf(UtbetalingStatusAarsak.TILSAGN_GJORT_OPP),
-                    forklaring = null,
+                    begrunnelse = null,
                 )
-                service.avslaAvbrytelse(utbetaling1.id, navIdent, aarsakerOgForklaring) shouldBeLeft listOf(
+                service.avslaAvbrytelse(utbetaling1.id, navIdent, aarsakerOgBegrunnelse) shouldBeLeft listOf(
                     FieldError.of("Utbetalingen er ikke til avbrytelse"),
                 )
             }
@@ -1631,18 +1631,18 @@ class AdminUtbetalingServiceTest : FunSpec({
                 service.sendTilAvbrytelse(
                     utbetaling1.id,
                     navIdent,
-                    AarsakerOgForklaringRequest(listOf(UtbetalingStatusAarsak.TILSAGN_GJORT_OPP), null),
+                    AarsakerOgBegrunnelseRequest(listOf(UtbetalingStatusAarsak.TILSAGN_GJORT_OPP), null),
                 ).shouldBeRight()
 
                 service.getUtbetalingDetaljer(utbetaling1.id, navIdent).utbetaling.status.shouldBe(
                     UtbetalingStatusDto.fromUtbetalingStatus(UtbetalingStatusType.TIL_AVBRYTELSE, emptySet(), null),
                 )
 
-                val aarsakerOgForklaring = AarsakerOgForklaringRequest(
+                val aarsakerOgBegrunnelse = AarsakerOgBegrunnelseRequest(
                     aarsaker = listOf(UtbetalingStatusAarsak.ANNET),
-                    forklaring = "Det er masse igjen på tilsagnet",
+                    begrunnelse = "Det er masse igjen på tilsagnet",
                 )
-                service.avslaAvbrytelse(utbetaling1.id, navIdent, aarsakerOgForklaring).shouldBeRight()
+                service.avslaAvbrytelse(utbetaling1.id, navIdent, aarsakerOgBegrunnelse).shouldBeRight()
 
                 service.getUtbetalingDetaljer(utbetaling1.id, navIdent).utbetaling.status.shouldBe(
                     UtbetalingStatusDto.fromUtbetalingStatus(originalStatus, emptySet(), null),

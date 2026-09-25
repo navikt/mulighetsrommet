@@ -1,5 +1,5 @@
 import {
-  AarsakerOgForklaringRequestTilskuddBehandlingStatusAarsak,
+  AarsakerOgBegrunnelseRequestTilskuddBehandlingStatusAarsak,
   ProblemDetail,
   TilskuddBehandlingOpphorResponse,
   TilskuddBehandlingRequest,
@@ -42,7 +42,7 @@ export function useReturnerTilskuddBehandling(gjennomforingId: string) {
   return useApiMutation<
     unknown,
     ProblemDetail,
-    { id: string; body: AarsakerOgForklaringRequestTilskuddBehandlingStatusAarsak }
+    { id: string; body: AarsakerOgBegrunnelseRequestTilskuddBehandlingStatusAarsak }
   >({
     mutationFn: ({ id, body }) =>
       TilskuddBehandlingService.returnerTilskuddBehandling({ path: { id }, body }),

@@ -1,6 +1,6 @@
-import { AarsakerOgForklaringModal } from "@/components/modal/AarsakerOgForklaringModal";
+import { AarsakerOgBegrunnelseModal } from "@/components/modal/AarsakerOgBegrunnelseModal";
 import {
-  AarsakerOgForklaringRequestTilsagnStatusAarsak,
+  AarsakerOgBegrunnelseRequestTilsagnStatusAarsak,
   FieldError,
   TilsagnHandling,
   TilsagnStatus,
@@ -10,7 +10,7 @@ import {
 import { Box, Button, Heading, HGrid, HStack, Show, Spacer, VStack } from "@navikt/ds-react";
 import { useState } from "react";
 import { useNavigate } from "react-router";
-import { AarsakerOgForklaring } from "@/components/totrinnskontroll/AarsakerOgForklaring";
+import { AarsakerOgBegrunnelse } from "@/components/totrinnskontroll/AarsakerOgBegrunnelse";
 import { TotrinnskontrollReturnert } from "@/components/totrinnskontroll/TotrinnskontrollReturnert";
 import { formaterDato, formaterPeriode } from "@mr/frontend-common/utils/date";
 import { useTilsagn } from "./tilsagnDetaljerLoader";
@@ -67,7 +67,7 @@ export function TilsagnDetaljer() {
     );
   }
 
-  function returnerTilsagn(request: AarsakerOgForklaringRequestTilsagnStatusAarsak) {
+  function returnerTilsagn(request: AarsakerOgBegrunnelseRequestTilsagnStatusAarsak) {
     returnerTilsagnMutation.mutate(
       { id: tilsagn.id, request },
       {
@@ -83,7 +83,7 @@ export function TilsagnDetaljer() {
     <>
       <TotrinnskontrollReturnert heading="Tilsagnet ble returnert" opprettelse={opprettelse} />
       {erTilBeslutning(annullering) && (
-        <AarsakerOgForklaring
+        <AarsakerOgBegrunnelse
           heading="Tilsagnet annulleres"
           tekster={[
             `${utledBehandletAvNavn(annullering)} sendte tilsagnet til annullering den ${formaterDato(
@@ -93,11 +93,11 @@ export function TilsagnDetaljer() {
           aarsaker={annullering.behandling.aarsaker.map((aarsak) =>
             aarsakTilTekst(aarsak as TilsagnStatusAarsak),
           )}
-          forklaring={annullering.behandling.begrunnelse}
+          begrunnelse={annullering.behandling.begrunnelse}
         />
       )}
       {erReturnert(annullering) && !tilOppgjor && (
-        <AarsakerOgForklaring
+        <AarsakerOgBegrunnelse
           heading="Annullering avvist"
           tekster={[
             `${utledBesluttetAvNavn(annullering)} avviste annullering den ${formaterDato(
@@ -107,11 +107,11 @@ export function TilsagnDetaljer() {
           aarsaker={annullering.beslutning.aarsaker.map((aarsak) =>
             aarsakTilTekst(aarsak as TilsagnStatusAarsak),
           )}
-          forklaring={annullering.beslutning.begrunnelse}
+          begrunnelse={annullering.beslutning.begrunnelse}
         />
       )}
       {erTilBeslutning(tilOppgjor) && (
-        <AarsakerOgForklaring
+        <AarsakerOgBegrunnelse
           heading="Tilsagnet gjøres opp"
           ingress="Gjenstående beløp gjøres opp uten at det gjøres en utbetaling"
           tekster={[
@@ -122,11 +122,11 @@ export function TilsagnDetaljer() {
           aarsaker={tilOppgjor.behandling.aarsaker.map((aarsak) =>
             aarsakTilTekst(aarsak as TilsagnStatusAarsak),
           )}
-          forklaring={tilOppgjor.behandling.begrunnelse}
+          begrunnelse={tilOppgjor.behandling.begrunnelse}
         />
       )}
       {erReturnert(tilOppgjor) && (
-        <AarsakerOgForklaring
+        <AarsakerOgBegrunnelse
           heading="Oppgjør avvist"
           tekster={[
             `${utledBesluttetAvNavn(tilOppgjor)} avviste oppgjør den ${formaterDato(
@@ -136,7 +136,7 @@ export function TilsagnDetaljer() {
           aarsaker={tilOppgjor.beslutning.aarsaker.map((aarsak) =>
             aarsakTilTekst(aarsak as TilsagnStatusAarsak),
           )}
-          forklaring={tilOppgjor.beslutning.begrunnelse}
+          begrunnelse={tilOppgjor.beslutning.begrunnelse}
         />
       )}
       <VStack gap="space-24" padding="space-16" className="rounded-lg border-ax-neutral-400 border">
@@ -248,7 +248,7 @@ export function TilsagnDetaljer() {
                   aarsaker={(annullering?.behandling.aarsaker ?? []).map((arsak) =>
                     aarsakTilTekst(arsak as TilsagnStatusAarsak),
                   )}
-                  forklaring={annullering?.behandling.begrunnelse}
+                  begrunnelse={annullering?.behandling.begrunnelse}
                 />
               </>
             )}
@@ -260,7 +260,7 @@ export function TilsagnDetaljer() {
                   aarsaker={(tilOppgjor?.behandling.aarsaker ?? []).map((arsak) =>
                     aarsakTilTekst(arsak as TilsagnStatusAarsak),
                   )}
-                  forklaring={tilOppgjor?.behandling.begrunnelse}
+                  begrunnelse={tilOppgjor?.behandling.begrunnelse}
                 />
               </>
             )}
@@ -325,7 +325,7 @@ export function TilsagnDetaljer() {
             </Button>
           )}
         </HStack>
-        <AarsakerOgForklaringModal<TilsagnStatusAarsak>
+        <AarsakerOgBegrunnelseModal<TilsagnStatusAarsak>
           aarsaker={[
             {
               value: TilsagnStatusAarsak.FEIL_ANTALL_PLASSER,
@@ -348,25 +348,25 @@ export function TilsagnDetaljer() {
               label: aarsakTilTekst(TilsagnStatusAarsak.ANNET),
             },
           ]}
-          header="Send i retur med forklaring"
+          header="Send i retur med begrunnelse"
           buttonLabel="Send i retur"
           open={avvisModalOpen}
           onClose={() => setAvvisModalOpen(false)}
           errors={errors}
           onConfirm={returnerTilsagn}
         />
-        <AarsakerOgForklaringModal<TilsagnStatusAarsak>
+        <AarsakerOgBegrunnelseModal<TilsagnStatusAarsak>
           aarsaker={[{ value: TilsagnStatusAarsak.ANNET, label: "Annet" }]}
-          header="Avslå annullering med forklaring"
+          header="Avslå annullering med begrunnelse"
           buttonLabel="Avslå annullering"
           open={avvisAnnulleringModalOpen}
           onClose={() => setAvvisAnnulleringModalOpen(false)}
           errors={errors}
           onConfirm={returnerTilsagn}
         />
-        <AarsakerOgForklaringModal<TilsagnStatusAarsak>
+        <AarsakerOgBegrunnelseModal<TilsagnStatusAarsak>
           aarsaker={[{ value: TilsagnStatusAarsak.ANNET, label: "Annet" }]}
-          header="Avslå oppgjør med forklaring"
+          header="Avslå oppgjør med begrunnelse"
           buttonLabel="Avslå oppgjør"
           open={avvisOppgjorModalOpen}
           onClose={() => setAvvisOppgjorModalOpen(false)}

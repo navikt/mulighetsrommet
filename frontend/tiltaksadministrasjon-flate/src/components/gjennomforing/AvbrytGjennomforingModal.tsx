@@ -1,7 +1,7 @@
 import { InfoCard } from "@navikt/ds-react";
 import { useState } from "react";
 import { useAvbrytGjennomforing } from "@/api/gjennomforing/useAvbrytGjennomforing";
-import { AarsakerOgForklaringModal } from "@/components/modal/AarsakerOgForklaringModal";
+import { AarsakerOgBegrunnelseModal } from "@/components/modal/AarsakerOgBegrunnelseModal";
 import { useGjennomforingDeltakerSummary } from "@/api/gjennomforing/useGjennomforingDeltakerSummary";
 import {
   AvbrytGjennomforingAarsak,
@@ -28,12 +28,12 @@ export function AvbrytGjennomforingModal({
 
   const [avbrytModalErrors, setAvbrytModalErrors] = useState<FieldError[]>([]);
 
-  function avbryt(aarsaker: AvbrytGjennomforingAarsak[], forklaring: string | null) {
+  function avbryt(aarsaker: AvbrytGjennomforingAarsak[], begrunnelse: string | null) {
     avbrytMutation.mutate(
       {
         id: gjennomforingId,
         aarsaker,
-        forklaring,
+        begrunnelse,
       },
       {
         onSuccess: () => {
@@ -47,7 +47,7 @@ export function AvbrytGjennomforingModal({
   }
 
   return (
-    <AarsakerOgForklaringModal<AvbrytGjennomforingAarsak>
+    <AarsakerOgBegrunnelseModal<AvbrytGjennomforingAarsak>
       header={`Ønsker du å avbryte «${gjennomforingNavn}»?`}
       open={open}
       buttonLabel="Ja, jeg vil avbryte gjennomføringen"
@@ -94,7 +94,7 @@ export function AvbrytGjennomforingModal({
         setOpen(false);
         setAvbrytModalErrors([]);
       }}
-      onConfirm={({ aarsaker, forklaring }) => avbryt(aarsaker, forklaring)}
+      onConfirm={({ aarsaker, begrunnelse }) => avbryt(aarsaker, begrunnelse)}
       errors={avbrytModalErrors}
     />
   );

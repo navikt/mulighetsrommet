@@ -285,7 +285,7 @@ export function UtbetalingDetaljerPage() {
                     aarsaker={utbetaling.avbrytelse.behandling.aarsaker.map((arsak) =>
                       aarsakTilTekst(arsak as UtbetalingStatusAarsak),
                     )}
-                    forklaring={utbetaling.avbrytelse.behandling.begrunnelse}
+                    begrunnelse={utbetaling.avbrytelse.behandling.begrunnelse}
                   />
                 </>
               )}

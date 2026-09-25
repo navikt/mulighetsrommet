@@ -12,7 +12,7 @@ import no.nav.mulighetsrommet.admin.navansatt.service.NavAnsattService
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.TransactionalQueryContext
-import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
+import no.nav.mulighetsrommet.api.aarsakerbegrunnelse.AarsakerOgBegrunnelseRequest
 import no.nav.mulighetsrommet.api.domain.arrangor.Arrangor
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsatt
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
@@ -163,23 +163,23 @@ class TilsagnService(
     fun tilAnnulleringRequest(
         id: UUID,
         navIdent: NavIdent,
-        request: AarsakerOgForklaringRequest<TilsagnStatusAarsak>,
+        request: AarsakerOgBegrunnelseRequest<TilsagnStatusAarsak>,
     ): Tilsagn = db.transaction {
         val tilsagn = queries.tilsagn.getAndAcquireLock(id)
-        setTilAnnullering(tilsagn, navIdent, request.aarsaker.map { it.name }, request.forklaring)
+        setTilAnnullering(tilsagn, navIdent, request.aarsaker.map { it.name }, request.begrunnelse)
     }
 
     fun tilOppgjorRequest(
         id: UUID,
         navIdent: NavIdent,
-        request: AarsakerOgForklaringRequest<TilsagnStatusAarsak>,
+        request: AarsakerOgBegrunnelseRequest<TilsagnStatusAarsak>,
     ): Tilsagn = db.transaction {
         val tilsagn = queries.tilsagn.getAndAcquireLock(id)
         setTilOppgjor(
             tilsagn,
             navIdent,
             aarsaker = request.aarsaker.map { it.name },
-            begrunnelse = request.forklaring,
+            begrunnelse = request.begrunnelse,
             operation = "Sendt til oppgjør",
         )
     }
@@ -367,7 +367,7 @@ class TilsagnService(
         id: UUID,
         navIdent: NavIdent,
         aarsaker: List<TilsagnStatusAarsak>,
-        forklaring: String?,
+        begrunnelse: String?,
     ): Either<List<FieldError>, Tilsagn> = db.transaction {
         val tilsagn = queries.tilsagn.getAndAcquireLock(id)
 
@@ -382,11 +382,11 @@ class TilsagnService(
                 .nel()
                 .left()
 
-            TilsagnStatus.TIL_GODKJENNING -> returnerTilsagn(tilsagn, navIdent, aarsaker, forklaring)
+            TilsagnStatus.TIL_GODKJENNING -> returnerTilsagn(tilsagn, navIdent, aarsaker, begrunnelse)
 
-            TilsagnStatus.TIL_ANNULLERING -> avvisAnnullering(tilsagn, navIdent, aarsaker, forklaring)
+            TilsagnStatus.TIL_ANNULLERING -> avvisAnnullering(tilsagn, navIdent, aarsaker, begrunnelse)
 
-            TilsagnStatus.TIL_OPPGJOR -> avvisOppgjor(tilsagn, navIdent, aarsaker, forklaring)
+            TilsagnStatus.TIL_OPPGJOR -> avvisOppgjor(tilsagn, navIdent, aarsaker, begrunnelse)
         }
     }
 

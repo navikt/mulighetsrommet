@@ -1,6 +1,6 @@
 import { useAttesterUtbetalingLinje, useReturnerUtbetalingLinje } from "@/api/utbetaling/mutations";
 import {
-  AarsakerOgForklaringRequestUtbetalingLinjeReturnertAarsak,
+  AarsakerOgBegrunnelseRequestUtbetalingLinjeReturnertAarsak,
   UtbetalingLinjeReturnertAarsak,
   FieldError,
   UtbetalingDto,
@@ -9,7 +9,7 @@ import {
 } from "@tiltaksadministrasjon/api-client";
 import { BodyShort, Button, Heading, HStack, TextField, VStack } from "@navikt/ds-react";
 import { useState } from "react";
-import { AarsakerOgForklaringModal } from "../modal/AarsakerOgForklaringModal";
+import { AarsakerOgBegrunnelseModal } from "../modal/AarsakerOgBegrunnelseModal";
 import { UtbetalingLinjeRow } from "./UtbetalingLinjeRow";
 import { UtbetalingLinjeTable } from "./UtbetalingLinjeTable";
 import { useUtbetalingsLinjer } from "@/pages/gjennomforing/utbetaling/utbetalingPageLoader";
@@ -45,7 +45,7 @@ export function BesluttUtbetalingLinjeView({ utbetaling }: Props) {
 
   function returnerUtbetalingLinje(
     id: string,
-    body: AarsakerOgForklaringRequestUtbetalingLinjeReturnertAarsak,
+    body: AarsakerOgBegrunnelseRequestUtbetalingLinjeReturnertAarsak,
   ) {
     returnerUtbetalingLinjeMutation.mutate(
       { id, body },
@@ -120,7 +120,7 @@ export function BesluttUtbetalingLinjeView({ utbetaling }: Props) {
                       {utbetalingTekster.linje.handlinger.attester}
                     </Button>
                   )}
-                  <AarsakerOgForklaringModal<UtbetalingLinjeReturnertAarsak>
+                  <AarsakerOgBegrunnelseModal<UtbetalingLinjeReturnertAarsak>
                     header={utbetalingTekster.linje.aarsak.modal.header}
                     ingress={<BodyShort>{utbetalingTekster.linje.aarsak.modal.ingress}</BodyShort>}
                     open={avvisModalOpen}

@@ -6,7 +6,7 @@ import arrow.core.left
 import arrow.core.nel
 import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollDto
 import no.nav.mulighetsrommet.api.ApiDatabase
-import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
+import no.nav.mulighetsrommet.api.aarsakerbegrunnelse.AarsakerOgBegrunnelseRequest
 import no.nav.mulighetsrommet.api.domain.arrangor.Arrangor
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsatt
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
@@ -224,13 +224,13 @@ class AdminUtbetalingService(
     fun sendTilAvbrytelse(
         id: UUID,
         navIdent: NavIdent,
-        request: AarsakerOgForklaringRequest<UtbetalingStatusAarsak>,
+        request: AarsakerOgBegrunnelseRequest<UtbetalingStatusAarsak>,
     ): Either<List<FieldError>, Utbetaling> = db.transaction {
         utbetalingService.sendTilAvbrytelse(
             id = id,
             agent = navIdent,
             aarsaker = request.aarsaker.map { it.name },
-            begrunnelse = request.forklaring,
+            begrunnelse = request.begrunnelse,
         )
     }
 
@@ -241,13 +241,13 @@ class AdminUtbetalingService(
     fun avslaAvbrytelse(
         id: UUID,
         navIdent: NavIdent,
-        request: AarsakerOgForklaringRequest<UtbetalingStatusAarsak>,
+        request: AarsakerOgBegrunnelseRequest<UtbetalingStatusAarsak>,
     ): Either<List<FieldError>, Utbetaling> = db.transaction {
         return utbetalingService.avslaAvbrytelse(
             id = id,
             besluttetAv = navIdent,
             aarsaker = request.aarsaker.map { it.name },
-            begrunnelse = request.forklaring,
+            begrunnelse = request.begrunnelse,
         )
     }
 
@@ -261,10 +261,10 @@ class AdminUtbetalingService(
     fun returnerUtbetalingLinje(
         id: UUID,
         aarsaker: List<UtbetalingLinjeReturnertAarsak>,
-        forklaring: String?,
+        begrunnelse: String?,
         navIdent: NavIdent,
     ): Either<List<FieldError>, Utbetaling> = db.transaction {
-        utbetalingService.returnerUtbetalingLinje(id, aarsaker, forklaring, navIdent)
+        utbetalingService.returnerUtbetalingLinje(id, aarsaker, begrunnelse, navIdent)
     }
 
     fun slettKorreksjon(id: UUID): Either<List<FieldError>, Unit> = db.transaction {

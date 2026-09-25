@@ -274,7 +274,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                 soktInn.id,
                 behandling.id,
                 besluttetAv,
-                forklaring = "Feil prisbetingelser",
+                begrunnelse = "Feil prisbetingelser",
             ).shouldBeRight()
 
             val prismodell = UpsertEnkeltplass.Prismodell.TilskuddTilOpplaering(
@@ -457,7 +457,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                 soktInn.id,
                 behandling.id,
                 besluttetAv,
-                forklaring = "Feil",
+                begrunnelse = "Feil",
             ).shouldBeRight()
 
             okonomi.shouldNotBeNull().should {
@@ -476,7 +476,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                 soktInn.id,
                 behandling.id,
                 besluttetAv,
-                forklaring = "Feil prisbetingelser",
+                begrunnelse = "Feil prisbetingelser",
             ).shouldBeRight()
 
             val (_, okonomi) = service.settOkonomiGodkjent(soktInn.id, behandling.id, besluttetAv).shouldBeRight()
@@ -498,7 +498,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                 .shouldBeLeft()
                 .first().detail shouldBe "Totrinnskontrollen er allerede godkjent"
 
-            service.settOkonomiPaVent(soktInn.id, behandling.id, besluttetAv, forklaring = "Angret")
+            service.settOkonomiPaVent(soktInn.id, behandling.id, besluttetAv, begrunnelse = "Angret")
                 .shouldBeLeft()
                 .first().detail shouldBe "Totrinnskontrollen er allerede godkjent"
         }
@@ -511,7 +511,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                 .shouldBeLeft()
                 .first().detail shouldBe "Grunnlaget har endret seg siden det ble hentet. Forsøk igjen."
 
-            service.settOkonomiPaVent(soktInn.id, UUID.randomUUID(), besluttetAv, forklaring = "Angret")
+            service.settOkonomiPaVent(soktInn.id, UUID.randomUUID(), besluttetAv, begrunnelse = "Angret")
                 .shouldBeLeft()
                 .first().detail shouldBe "Grunnlaget har endret seg siden det ble hentet. Forsøk igjen."
         }
@@ -1080,7 +1080,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                     forsteBehandling,
                 ).shouldBeRight()
 
-                service.settOkonomiPaVent(soktInn.id, forsteBehandling.id, besluttetAv, forklaring = "Trenger mer info")
+                service.settOkonomiPaVent(soktInn.id, forsteBehandling.id, besluttetAv, "Trenger mer info")
                     .shouldBeRight()
 
                 val andreBehandling = behandling(opprettetAv)
@@ -1118,7 +1118,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                 val soktInn = createRequest()
                 val forsteBehandling = behandling(opprettetAv)
                 service.soktInn(soktInn, forsteBehandling).shouldBeRight()
-                service.settOkonomiPaVent(soktInn.id, forsteBehandling.id, besluttetAv, forklaring = "Trenger mer info")
+                service.settOkonomiPaVent(soktInn.id, forsteBehandling.id, besluttetAv, "Trenger mer info")
                     .shouldBeRight()
 
                 service.tilbakekallPrisinformasjon(soktInn.id, forsteBehandling).shouldBeRight().should {
@@ -1252,7 +1252,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                     prisendring,
                 ).shouldBeRight()
 
-                service.settOkonomiPaVent(soktInn.id, prisendring.id, besluttetAv, forklaring = "Trenger mer info")
+                service.settOkonomiPaVent(soktInn.id, prisendring.id, besluttetAv, "Trenger mer info")
                     .shouldBeRight()
 
                 service.settOkonomiGodkjent(soktInn.id, prisendring.id, besluttetAv).shouldBeRight()
@@ -1280,7 +1280,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                     behandling,
                 ).shouldBeRight()
 
-                service.settOkonomiPaVent(soktInn.id, behandling.id, besluttetAv, forklaring = "Trenger mer info")
+                service.settOkonomiPaVent(soktInn.id, behandling.id, besluttetAv, "Trenger mer info")
                     .shouldBeRight()
 
                 database.run {
@@ -1303,7 +1303,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                 val utkast = createRequest()
                 service.opprettUtkast(utkast, opprettetAv).shouldBeRight()
 
-                service.settOkonomiPaVent(utkast.id, UUID.randomUUID(), besluttetAv, forklaring = null)
+                service.settOkonomiPaVent(utkast.id, UUID.randomUUID(), besluttetAv, begrunnelse = null)
                     .shouldBeLeft()
                     .first().detail shouldBe "Økonomi har ikke blitt sendt til godkjenning"
             }

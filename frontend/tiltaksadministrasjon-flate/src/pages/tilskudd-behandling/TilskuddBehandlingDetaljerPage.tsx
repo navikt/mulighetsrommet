@@ -3,7 +3,7 @@ import {
   useReturnerTilskuddBehandling,
 } from "@/api/tilskudd-behandling/mutations";
 import { useTilskuddBehandling } from "@/api/tilskudd-behandling/useTilskuddBehandling";
-import { AarsakerOgForklaringModal } from "@/components/modal/AarsakerOgForklaringModal";
+import { AarsakerOgBegrunnelseModal } from "@/components/modal/AarsakerOgBegrunnelseModal";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
 import {
   EndringshistorikkType,
@@ -76,7 +76,7 @@ export function TilskuddBehandlingDetaljerPage() {
 
   function sendIRetur(data: {
     aarsaker: TilskuddBehandlingStatusAarsak[];
-    forklaring: string | null;
+    begrunnelse: string | null;
   }) {
     returnerMutation.mutate(
       { id: behandling.id, body: { ...data } },
@@ -229,7 +229,7 @@ export function TilskuddBehandlingDetaljerPage() {
           {error.detail}
         </Alert>
       ))}
-      <AarsakerOgForklaringModal<TilskuddBehandlingStatusAarsak>
+      <AarsakerOgBegrunnelseModal<TilskuddBehandlingStatusAarsak>
         aarsaker={[
           {
             value: TilskuddBehandlingStatusAarsak.FEIL_SAKSOPPLYSNINGER,
@@ -248,7 +248,7 @@ export function TilskuddBehandlingDetaljerPage() {
             label: aarsakTilTekst(TilskuddBehandlingStatusAarsak.ANNET),
           },
         ]}
-        header="Send i retur med forklaring"
+        header="Send i retur med begrunnelse"
         buttonLabel="Send i retur"
         open={returModalOpen}
         onClose={() => setReturModalOpen(false)}

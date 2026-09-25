@@ -6,10 +6,10 @@ type Props = {
   ingress?: string;
   tekster?: string[];
   aarsaker: string[];
-  forklaring: string | null | undefined;
+  begrunnelse: string | null | undefined;
 };
 
-export function AarsakerOgForklaring({ heading, ingress, tekster, aarsaker, forklaring }: Props) {
+export function AarsakerOgBegrunnelse({ heading, ingress, tekster, aarsaker, begrunnelse }: Props) {
   return (
     <InfoCard data-color="warning">
       <InfoCard.Header>
@@ -33,7 +33,7 @@ export function AarsakerOgForklaring({ heading, ingress, tekster, aarsaker, fork
             ))}
           </List>
         </Box>
-        {forklaring && <MetadataFritekstfelt label="Forklaring" value={forklaring} />}
+        {begrunnelse && <MetadataFritekstfelt label="Begrunnelse" value={begrunnelse} />}
       </InfoCard.Content>
     </InfoCard>
   );

@@ -1,6 +1,6 @@
 import {
-  AarsakerOgForklaringRequestUtbetalingLinjeReturnertAarsak,
-  AarsakerOgForklaringRequestUtbetalingStatusAarsak,
+  AarsakerOgBegrunnelseRequestUtbetalingLinjeReturnertAarsak,
+  AarsakerOgBegrunnelseRequestUtbetalingStatusAarsak,
   OpprettUtbetalingLinjerRequest,
   ProblemDetail,
   UtbetalingRequest,
@@ -61,7 +61,7 @@ export function useReturnerUtbetalingLinje() {
   return useApiMutation<
     unknown,
     ProblemDetail,
-    { id: string; body: AarsakerOgForklaringRequestUtbetalingLinjeReturnertAarsak }
+    { id: string; body: AarsakerOgBegrunnelseRequestUtbetalingLinjeReturnertAarsak }
   >({
     mutationFn: ({ id, body }) => UtbetalingService.returnerUtbetalingLinje({ path: { id }, body }),
     async onSuccess() {
@@ -76,7 +76,7 @@ export function useAvbrytUtbetaling() {
   return useApiMutation<
     unknown,
     ProblemDetail,
-    { id: string; body: AarsakerOgForklaringRequestUtbetalingStatusAarsak }
+    { id: string; body: AarsakerOgBegrunnelseRequestUtbetalingStatusAarsak }
   >({
     mutationFn: ({ id, body }) => UtbetalingService.avbrytUtbetaling({ path: { id }, body }),
     async onSuccess() {
@@ -102,7 +102,7 @@ export function useAvslaAvbrytelseUtbetaling() {
   return useApiMutation<
     unknown,
     ProblemDetail,
-    { id: string; body: AarsakerOgForklaringRequestUtbetalingStatusAarsak }
+    { id: string; body: AarsakerOgBegrunnelseRequestUtbetalingStatusAarsak }
   >({
     mutationFn: ({ id, body }) =>
       UtbetalingService.avslaAvbrytelseUtbetaling({ path: { id }, body }),

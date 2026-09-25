@@ -18,7 +18,7 @@ import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.admin.endringshistorikk.EndringshistorikkType
 import no.nav.mulighetsrommet.api.ApplicationConfigTest
 import no.nav.mulighetsrommet.api.QueryContext
-import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
+import no.nav.mulighetsrommet.api.aarsakerbegrunnelse.AarsakerOgBegrunnelseRequest
 import no.nav.mulighetsrommet.api.contracts.gjennomforing.TiltaksgjennomforingV2Dto
 import no.nav.mulighetsrommet.api.domain.arrangor.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsattRolle
@@ -301,9 +301,9 @@ class GjennomforingAvtaleServiceTest : FunSpec({
     context("avbryte gjennomføring") {
         val service = createService()
 
-        val feilregistrering = AarsakerOgForklaringRequest(
+        val feilregistrering = AarsakerOgBegrunnelseRequest(
             aarsaker = listOf(AvbrytGjennomforingAarsak.FEILREGISTRERING),
-            forklaring = null,
+            begrunnelse = null,
         )
 
         test("blir valideringsfeil hvis gjennomføringen er avsluttet") {
@@ -318,7 +318,7 @@ class GjennomforingAvtaleServiceTest : FunSpec({
             service.avbrytGjennomforing(
                 gjennomforing.id,
                 sluttDato = LocalDate.now(),
-                aarsakerOgForklaring = feilregistrering,
+                aarsakerOgBegrunnelse = feilregistrering,
                 avbruttAv = bertilNavIdent,
             ).shouldBeLeft(
                 listOf(FieldError.of("Gjennomføringen er allerede avsluttet")),
@@ -337,7 +337,7 @@ class GjennomforingAvtaleServiceTest : FunSpec({
             service.avbrytGjennomforing(
                 gjennomforing.id,
                 sluttDato = LocalDate.now(),
-                aarsakerOgForklaring = feilregistrering,
+                aarsakerOgBegrunnelse = feilregistrering,
                 avbruttAv = bertilNavIdent,
             ).shouldBeLeft(
                 listOf(FieldError.of("Gjennomføringen er allerede avbrutt")),
@@ -358,7 +358,7 @@ class GjennomforingAvtaleServiceTest : FunSpec({
             service.avbrytGjennomforing(
                 gjennomforing.id,
                 sluttDato = LocalDate.of(2023, 7, 2),
-                aarsakerOgForklaring = feilregistrering,
+                aarsakerOgBegrunnelse = feilregistrering,
                 avbruttAv = bertilNavIdent,
             ).shouldBeLeft(
                 listOf(FieldError.of("Gjennomføringen er allerede avsluttet")),
@@ -378,7 +378,7 @@ class GjennomforingAvtaleServiceTest : FunSpec({
             service.avbrytGjennomforing(
                 gjennomforing.id,
                 sluttDato = LocalDate.of(2023, 7, 1),
-                aarsakerOgForklaring = feilregistrering,
+                aarsakerOgBegrunnelse = feilregistrering,
                 avbruttAv = bertilNavIdent,
             ).shouldBeRight().should {
                 it.status.shouldBeTypeOf<GjennomforingAvtaleStatus.Avbrutt>()
@@ -411,7 +411,7 @@ class GjennomforingAvtaleServiceTest : FunSpec({
             service.avbrytGjennomforing(
                 gjennomforing.id,
                 sluttDato = LocalDate.of(2023, 8, 1),
-                aarsakerOgForklaring = feilregistrering,
+                aarsakerOgBegrunnelse = feilregistrering,
                 avbruttAv = bertilNavIdent,
             ).shouldBeLeft(
                 listOf(FieldError.of("Ny sluttdato må være før gjeldende sluttdato")),
@@ -431,7 +431,7 @@ class GjennomforingAvtaleServiceTest : FunSpec({
             service.avbrytGjennomforing(
                 gjennomforing.id,
                 sluttDato = LocalDate.of(2023, 6, 1),
-                aarsakerOgForklaring = feilregistrering,
+                aarsakerOgBegrunnelse = feilregistrering,
                 avbruttAv = bertilNavIdent,
             ).shouldBeRight().should {
                 it.status.shouldBeTypeOf<GjennomforingAvtaleStatus.Avlyst>()

@@ -590,7 +590,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/AarsakerOgForklaringRequest_AvbrytAvtaleAarsak"
+              $ref: "#/components/schemas/AarsakerOgBegrunnelseRequest_AvbrytAvtaleAarsak"
         required: false
       responses:
         "200":
@@ -1099,7 +1099,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/AarsakerOgForklaringRequest_AvbrytGjennomforingAarsak"
+              $ref: "#/components/schemas/AarsakerOgBegrunnelseRequest_AvbrytGjennomforingAarsak"
         required: false
       responses:
         "200":
@@ -2146,7 +2146,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/AarsakerOgForklaringRequest_TilsagnStatusAarsak"
+              $ref: "#/components/schemas/AarsakerOgBegrunnelseRequest_TilsagnStatusAarsak"
         required: false
       responses:
         "200":
@@ -2178,7 +2178,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/AarsakerOgForklaringRequest_TilsagnStatusAarsak"
+              $ref: "#/components/schemas/AarsakerOgBegrunnelseRequest_TilsagnStatusAarsak"
         required: false
       responses:
         "200":
@@ -2236,7 +2236,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/AarsakerOgForklaringRequest_TilsagnStatusAarsak"
+              $ref: "#/components/schemas/AarsakerOgBegrunnelseRequest_TilsagnStatusAarsak"
         required: false
       responses:
         "200":
@@ -2524,7 +2524,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/AarsakerOgForklaringRequest_UtbetalingStatusAarsak"
+              $ref: "#/components/schemas/AarsakerOgBegrunnelseRequest_UtbetalingStatusAarsak"
         required: false
       responses:
         "200":
@@ -2584,7 +2584,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/AarsakerOgForklaringRequest_UtbetalingStatusAarsak"
+              $ref: "#/components/schemas/AarsakerOgBegrunnelseRequest_UtbetalingStatusAarsak"
         required: false
       responses:
         "200":
@@ -2795,7 +2795,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/AarsakerOgForklaringRequest_UtbetalingLinjeReturnertAarsak"
+              $ref: "#/components/schemas/AarsakerOgBegrunnelseRequest_UtbetalingLinjeReturnertAarsak"
         required: false
       responses:
         "200":
@@ -3803,7 +3803,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/AarsakerOgForklaringRequest_TilskuddBehandlingStatusAarsak"
+              $ref: "#/components/schemas/AarsakerOgBegrunnelseRequest_TilskuddBehandlingStatusAarsak"
         required: false
       responses:
         "200":
@@ -4059,7 +4059,7 @@ components:
     OpenApiVersion:
       type: number
       enum:
-        - 28
+        - 29
     RedaksjoneltInnholdLenke:
       type: object
       properties:
@@ -5459,20 +5459,20 @@ components:
       - FEILREGISTRERING
       - AVBRUTT_I_ARENA
       - ANNET
-    AarsakerOgForklaringRequest_AvbrytAvtaleAarsak:
+    AarsakerOgBegrunnelseRequest_AvbrytAvtaleAarsak:
       type: object
       properties:
         aarsaker:
           type: array
           items:
             $ref: "#/components/schemas/AvbrytAvtaleAarsak"
-        forklaring:
+        begrunnelse:
           type:
           - "null"
           - string
       required:
       - aarsaker
-      - forklaring
+      - begrunnelse
     GetAvtalerRequest:
       type: object
       properties:
@@ -5837,20 +5837,20 @@ components:
       - FEILREGISTRERING
       - AVBRUTT_I_ARENA
       - ANNET
-    AarsakerOgForklaringRequest_AvbrytGjennomforingAarsak:
+    AarsakerOgBegrunnelseRequest_AvbrytGjennomforingAarsak:
       type: object
       properties:
         aarsaker:
           type: array
           items:
             $ref: "#/components/schemas/AvbrytGjennomforingAarsak"
-        forklaring:
+        begrunnelse:
           type:
           - "null"
           - string
       required:
       - aarsaker
-      - forklaring
+      - begrunnelse
     GjenapneGjennomforingRequest:
       type: object
       properties:
@@ -6736,7 +6736,7 @@ components:
     SettPaVentOkonomiRequest:
       type: object
       properties:
-        forklaring:
+        begrunnelse:
           type:
           - "null"
           - string
@@ -6744,7 +6744,7 @@ components:
           type: string
           format: uuid
       required:
-      - forklaring
+      - begrunnelse
       - totrinnskontrollId
     TiltakDokumentRequest.VeilederinfoRequest:
       type: object
@@ -8041,20 +8041,20 @@ components:
       - FEIL_PERIODE
       - FEIL_BELOP
       - ANNET
-    AarsakerOgForklaringRequest_TilsagnStatusAarsak:
+    AarsakerOgBegrunnelseRequest_TilsagnStatusAarsak:
       type: object
       properties:
         aarsaker:
           type: array
           items:
             $ref: "#/components/schemas/TilsagnStatusAarsak"
-        forklaring:
+        begrunnelse:
           type:
           - "null"
           - string
       required:
       - aarsaker
-      - forklaring
+      - begrunnelse
     TilsagnDeltakereRequest:
       type: object
       properties:
@@ -8419,20 +8419,20 @@ components:
       enum:
       - TILSAGN_GJORT_OPP
       - ANNET
-    AarsakerOgForklaringRequest_UtbetalingStatusAarsak:
+    AarsakerOgBegrunnelseRequest_UtbetalingStatusAarsak:
       type: object
       properties:
         aarsaker:
           type: array
           items:
             $ref: "#/components/schemas/UtbetalingStatusAarsak"
-        forklaring:
+        begrunnelse:
           type:
           - "null"
           - string
       required:
       - aarsaker
-      - forklaring
+      - begrunnelse
     UtbetalingBeregningType:
       type: string
       enum:
@@ -8705,20 +8705,20 @@ components:
       - ANNET
       - PROPAGERT_RETUR
       - TILSAGN_FEIL_STATUS
-    AarsakerOgForklaringRequest_UtbetalingLinjeReturnertAarsak:
+    AarsakerOgBegrunnelseRequest_UtbetalingLinjeReturnertAarsak:
       type: object
       properties:
         aarsaker:
           type: array
           items:
             $ref: "#/components/schemas/UtbetalingLinjeReturnertAarsak"
-        forklaring:
+        begrunnelse:
           type:
           - "null"
           - string
       required:
       - aarsaker
-      - forklaring
+      - begrunnelse
     TilskuddUtbetalingKompaktDto:
       type: object
       properties:
@@ -9648,20 +9648,20 @@ components:
       - FEIL_BELOP
       - FEIL_VEDTAKSRESULTAT
       - ANNET
-    AarsakerOgForklaringRequest_TilskuddBehandlingStatusAarsak:
+    AarsakerOgBegrunnelseRequest_TilskuddBehandlingStatusAarsak:
       type: object
       properties:
         aarsaker:
           type: array
           items:
             $ref: "#/components/schemas/TilskuddBehandlingStatusAarsak"
-        forklaring:
+        begrunnelse:
           type:
           - "null"
           - string
       required:
       - aarsaker
-      - forklaring
+      - begrunnelse
     TilskuddBehandlingOpphorResponse:
       type: object
       properties:

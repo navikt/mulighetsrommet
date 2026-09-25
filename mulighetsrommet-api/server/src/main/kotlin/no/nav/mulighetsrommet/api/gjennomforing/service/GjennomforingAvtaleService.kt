@@ -16,7 +16,7 @@ import no.nav.mulighetsrommet.admin.navansatt.service.NavAnsattService
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.TransactionalQueryContext
-import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
+import no.nav.mulighetsrommet.api.aarsakerbegrunnelse.AarsakerOgBegrunnelseRequest
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingDetaljerRequest
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingRequest
@@ -276,7 +276,7 @@ class GjennomforingAvtaleService(
         id: UUID,
         avbruttAv: Agent,
         sluttDato: LocalDate,
-        aarsakerOgForklaring: AarsakerOgForklaringRequest<AvbrytGjennomforingAarsak>,
+        aarsakerOgBegrunnelse: AarsakerOgBegrunnelseRequest<AvbrytGjennomforingAarsak>,
     ): Either<List<FieldError>, GjennomforingAvtale> = db.transaction {
         val gjennomforing = getOrError(id)
 
@@ -302,8 +302,8 @@ class GjennomforingAvtaleService(
             id = id,
             status = status,
             sluttDato = nySluttDato,
-            aarsaker = aarsakerOgForklaring.aarsaker,
-            forklaring = aarsakerOgForklaring.forklaring,
+            aarsaker = aarsakerOgBegrunnelse.aarsaker,
+            forklaring = aarsakerOgBegrunnelse.begrunnelse,
         )
         queries.gjennomforing.setPublisert(id, false)
         queries.gjennomforing.setApentForPamelding(id, false)

@@ -28,7 +28,7 @@ import io.ktor.server.util.getOrFail
 import io.ktor.server.util.getValue
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.ApiDatabase
-import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
+import no.nav.mulighetsrommet.api.aarsakerbegrunnelse.AarsakerOgBegrunnelseRequest
 import no.nav.mulighetsrommet.api.avtale.api.AmoKategoriseringRequest
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.domain.opplaring.Utdanningslop
@@ -175,7 +175,7 @@ fun Route.gjennomforingRoutes() {
                 operationId = "avbrytGjennomforing"
                 request {
                     pathParameterUuid("id")
-                    body<AarsakerOgForklaringRequest<AvbrytGjennomforingAarsak>>()
+                    body<AarsakerOgBegrunnelseRequest<AvbrytGjennomforingAarsak>>()
                 }
                 response {
                     code(HttpStatusCode.OK) {
@@ -193,14 +193,14 @@ fun Route.gjennomforingRoutes() {
             }) {
                 val id = call.parameters.getOrFail<UUID>("id")
                 val navIdent = getNavIdent()
-                val request = call.receive<AarsakerOgForklaringRequest<AvbrytGjennomforingAarsak>>()
+                val request = call.receive<AarsakerOgBegrunnelseRequest<AvbrytGjennomforingAarsak>>()
 
                 request.validate()
                     .flatMap {
                         avtaleGjennomforinger.avbrytGjennomforing(
                             id,
                             sluttDato = LocalDate.now(),
-                            aarsakerOgForklaring = it,
+                            aarsakerOgBegrunnelse = it,
                             avbruttAv = navIdent,
                         )
                     }

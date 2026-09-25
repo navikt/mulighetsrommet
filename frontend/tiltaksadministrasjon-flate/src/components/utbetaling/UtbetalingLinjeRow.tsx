@@ -11,7 +11,7 @@ import { formaterValuta } from "@mr/frontend-common/utils/utils";
 import { Alert, Heading, HStack, InfoCard, Link, List, Table, VStack } from "@navikt/ds-react";
 import React, { useState } from "react";
 import { Link as ReactRouterLink } from "react-router";
-import { AarsakerOgForklaring } from "@/components/totrinnskontroll/AarsakerOgForklaring";
+import { AarsakerOgBegrunnelse } from "@/components/totrinnskontroll/AarsakerOgBegrunnelse";
 import { TilsagnInformasjon } from "./TilsagnInformasjon";
 import { UtbetalingLinjeStatusTag } from "./UtbetalingLinjeStatusTag";
 import { BehandlerInformasjon } from "./BehandlerInformasjon";
@@ -60,12 +60,12 @@ export function UtbetalingLinjeRow({
                   </Heading>
                 </Alert>
               ) : (
-                <AarsakerOgForklaring
+                <AarsakerOgBegrunnelse
                   heading="Linjen ble returnert på grunn av følgende årsaker"
                   aarsaker={linje.opprettelse.beslutning.aarsaker.map((aarsak) =>
                     utbetalingLinjeAarsakTilTekst(aarsak as UtbetalingLinjeReturnertAarsak),
                   )}
-                  forklaring={linje.opprettelse.beslutning.begrunnelse}
+                  begrunnelse={linje.opprettelse.beslutning.begrunnelse}
                 />
               )}
             </VStack>

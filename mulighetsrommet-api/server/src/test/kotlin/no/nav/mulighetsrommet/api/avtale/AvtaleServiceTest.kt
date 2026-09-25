@@ -24,7 +24,7 @@ import no.nav.mulighetsrommet.admin.enhetsregister.EnhetsregisterGateway
 import no.nav.mulighetsrommet.admin.enhetsregister.Virksomhet
 import no.nav.mulighetsrommet.admin.enhetsregister.VirksomhetOppslag
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
-import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
+import no.nav.mulighetsrommet.api.aarsakerbegrunnelse.AarsakerOgBegrunnelseRequest
 import no.nav.mulighetsrommet.api.avtale.api.DetaljerRequest
 import no.nav.mulighetsrommet.api.avtale.api.OpprettOpsjonLoggRequest
 import no.nav.mulighetsrommet.api.avtale.api.PersonvernRequest
@@ -584,9 +584,9 @@ class AvtaleServiceTest : FunSpec({
                 avbruttAvtale.id,
                 tidspunkt = LocalDateTime.now(),
                 avbruttAv = bertilNavIdent,
-                aarsakerOgForklaring = AarsakerOgForklaringRequest(
+                aarsakerOgBegrunnelse = AarsakerOgBegrunnelseRequest(
                     aarsaker = listOf(AvbrytAvtaleAarsak.BUDSJETT_HENSYN),
-                    forklaring = null,
+                    begrunnelse = null,
                 ),
             ).shouldBeLeft(
                 listOf(FieldError.of("Avtalen er allerede avbrutt")),
@@ -594,9 +594,9 @@ class AvtaleServiceTest : FunSpec({
             avtaleService.avbrytAvtale(
                 avsluttetAvtale.id,
                 tidspunkt = LocalDateTime.now(),
-                aarsakerOgForklaring = AarsakerOgForklaringRequest(
+                aarsakerOgBegrunnelse = AarsakerOgBegrunnelseRequest(
                     listOf(AvbrytAvtaleAarsak.BUDSJETT_HENSYN),
-                    forklaring = null,
+                    begrunnelse = null,
                 ),
                 avbruttAv = bertilNavIdent,
             ).shouldBeLeft(
@@ -624,9 +624,9 @@ class AvtaleServiceTest : FunSpec({
             avtaleService.avbrytAvtale(
                 avtale.id,
                 tidspunkt = LocalDateTime.now(),
-                aarsakerOgForklaring = AarsakerOgForklaringRequest(
+                aarsakerOgBegrunnelse = AarsakerOgBegrunnelseRequest(
                     listOf(AvbrytAvtaleAarsak.ANNET),
-                    forklaring = null,
+                    begrunnelse = null,
                 ),
                 avbruttAv = bertilNavIdent,
             ).shouldBeLeft(
@@ -654,9 +654,9 @@ class AvtaleServiceTest : FunSpec({
             avtaleService.avbrytAvtale(
                 avtale.id,
                 tidspunkt = LocalDateTime.now(),
-                aarsakerOgForklaring = AarsakerOgForklaringRequest(
+                aarsakerOgBegrunnelse = AarsakerOgBegrunnelseRequest(
                     aarsaker = listOf(AvbrytAvtaleAarsak.ANNET),
-                    forklaring = ":)",
+                    begrunnelse = ":)",
                 ),
                 avbruttAv = bertilNavIdent,
             ).shouldBeRight().should {

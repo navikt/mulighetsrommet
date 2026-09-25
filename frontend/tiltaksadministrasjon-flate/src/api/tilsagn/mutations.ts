@@ -1,5 +1,5 @@
 import {
-  AarsakerOgForklaringRequestTilsagnStatusAarsak,
+  AarsakerOgBegrunnelseRequestTilsagnStatusAarsak,
   EndringshistorikkType,
   ProblemDetail,
   TilsagnRequest,
@@ -46,7 +46,7 @@ export function useReturnerTilsagn() {
   return useApiMutation<
     unknown,
     ProblemDetail,
-    { id: string; request: AarsakerOgForklaringRequestTilsagnStatusAarsak }
+    { id: string; request: AarsakerOgBegrunnelseRequestTilsagnStatusAarsak }
   >({
     mutationFn: ({ id, request }) =>
       TilsagnService.returnerTilsagn({ path: { id }, body: request }),
@@ -70,7 +70,7 @@ export function useTilsagnTilAnnullering() {
   return useApiMutation<
     unknown,
     ProblemDetail,
-    { id: string; request: AarsakerOgForklaringRequestTilsagnStatusAarsak }
+    { id: string; request: AarsakerOgBegrunnelseRequestTilsagnStatusAarsak }
   >({
     mutationFn: ({ id, request }) => TilsagnService.tilAnnullering({ path: { id }, body: request }),
     mutationKey: QueryKeys.annullerTilsagn(),
@@ -93,7 +93,7 @@ export function useTilsagnTilOppgjor() {
   return useApiMutation<
     unknown,
     ProblemDetail,
-    { id: string; request: AarsakerOgForklaringRequestTilsagnStatusAarsak }
+    { id: string; request: AarsakerOgBegrunnelseRequestTilsagnStatusAarsak }
   >({
     mutationFn: ({ id, request }) => TilsagnService.gjorOpp({ path: { id }, body: request }),
     mutationKey: QueryKeys.gjorOppTilsagn(),

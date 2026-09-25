@@ -70,7 +70,7 @@ data class Utbetaling(
     fun settTilAbrytelse(
         agent: Agent,
         aarsaker: List<String>,
-        forklaring: String?,
+        begrunnelse: String?,
     ): Either<List<FieldError>, Utbetaling> {
         if (!kanSettesTilAvbrytelse()) {
             return FieldError.of("Utbetaling kan ikke settes til avbrytelse").nel().left()
@@ -83,7 +83,7 @@ data class Utbetaling(
                     entityId = id,
                     type = TotrinnskontrollType.UTBETALING_AVBRYTELSE,
                     behandletAv = agent,
-                    behandletBegrunnelse = forklaring,
+                    behandletBegrunnelse = begrunnelse,
                     behandletAarsaker = aarsaker,
                 ),
                 returnert = status,
@@ -105,7 +105,7 @@ data class Utbetaling(
     fun avslaAbrytelse(
         besluttetAv: NavIdent,
         aarsaker: List<String>,
-        forklaring: String?,
+        begrunnelse: String?,
     ): Either<List<FieldError>, Utbetaling> {
         if (status != UtbetalingStatusType.TIL_AVBRYTELSE) {
             return FieldError.of("Utbetalingen er ikke til avbrytelse")
@@ -113,7 +113,7 @@ data class Utbetaling(
                 .left()
         }
         return avbrytelse!!.totrinnskontroll
-            .returner(besluttetAv, forklaring, aarsaker)
+            .returner(besluttetAv, begrunnelse, aarsaker)
             .mapLeft { it.toFieldErrors() }
             .map { retunert ->
                 copy(avbrytelse = avbrytelse.copy(totrinnskontroll = retunert), status = avbrytelse.returnert)

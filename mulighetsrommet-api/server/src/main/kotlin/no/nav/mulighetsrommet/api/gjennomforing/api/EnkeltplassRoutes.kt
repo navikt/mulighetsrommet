@@ -74,7 +74,7 @@ fun Route.enkeltplassRoutes() {
                 val navIdent = getNavIdent()
 
                 val result = enkeltplasser
-                    .settOkonomiPaVent(id, request.totrinnskontrollId, navIdent, request.forklaring)
+                    .settOkonomiPaVent(id, request.totrinnskontrollId, navIdent, request.begrunnelse)
                     .mapLeft { ValidationError(errors = it) }
                     .map { HttpStatusCode.OK }
 
@@ -86,7 +86,7 @@ fun Route.enkeltplassRoutes() {
 
 @Serializable
 data class SettPaVentOkonomiRequest(
-    val forklaring: String? = null,
+    val begrunnelse: String? = null,
     @Serializable(with = UUIDSerializer::class)
     val totrinnskontrollId: UUID,
 )

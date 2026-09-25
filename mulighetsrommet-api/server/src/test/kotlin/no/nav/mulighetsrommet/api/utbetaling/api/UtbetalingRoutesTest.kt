@@ -16,7 +16,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import no.nav.mulighetsrommet.admin.navansatt.EntraGroupNavAnsattRolleMapping
 import no.nav.mulighetsrommet.api.ApplicationConfigTest
-import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
+import no.nav.mulighetsrommet.api.aarsakerbegrunnelse.AarsakerOgBegrunnelseRequest
 import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
 import no.nav.mulighetsrommet.api.createAuthConfig
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
@@ -189,7 +189,7 @@ class UtbetalingRoutesTest : FunSpec({
 
                 val response = client.post("/api/tiltaksadministrasjon/utbetalingslinjer/$id/returner") {
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
-                    setBody(AarsakerOgForklaringRequest(listOf(UtbetalingLinjeReturnertAarsak.FEIL_BELOP), null))
+                    setBody(AarsakerOgBegrunnelseRequest(listOf(UtbetalingLinjeReturnertAarsak.FEIL_BELOP), null))
                 }
 
                 response.status shouldBe HttpStatusCode.Forbidden
@@ -207,7 +207,7 @@ class UtbetalingRoutesTest : FunSpec({
 
                 val response = client.post("/api/tiltaksadministrasjon/utbetalingslinjer/$id/returner") {
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
-                    setBody(AarsakerOgForklaringRequest(listOf(UtbetalingLinjeReturnertAarsak.FEIL_BELOP), null))
+                    setBody(AarsakerOgBegrunnelseRequest(listOf(UtbetalingLinjeReturnertAarsak.FEIL_BELOP), null))
                 }
 
                 response.status shouldBe HttpStatusCode.BadRequest
@@ -436,9 +436,9 @@ class UtbetalingRoutesTest : FunSpec({
                     client.put(abrytelseUrl(UUID.randomUUID())) {
                         bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                         setBody(
-                            AarsakerOgForklaringRequest<UtbetalingStatusAarsak>(
+                            AarsakerOgBegrunnelseRequest<UtbetalingStatusAarsak>(
                                 aarsaker = emptyList(),
-                                forklaring = null,
+                                begrunnelse = null,
                             ),
                         )
                     }.status shouldBe HttpStatusCode.Forbidden
@@ -455,9 +455,9 @@ class UtbetalingRoutesTest : FunSpec({
                     val response = client.put(abrytelseUrl(UtbetalingFixtures.utbetaling1.id)) {
                         bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                         setBody(
-                            AarsakerOgForklaringRequest<UtbetalingStatusAarsak>(
+                            AarsakerOgBegrunnelseRequest<UtbetalingStatusAarsak>(
                                 aarsaker = emptyList(),
-                                forklaring = null,
+                                begrunnelse = null,
                             ),
                         )
                     }
@@ -478,9 +478,9 @@ class UtbetalingRoutesTest : FunSpec({
                     val response = client.put(abrytelseUrl(UtbetalingFixtures.utbetaling1.id)) {
                         bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                         setBody(
-                            AarsakerOgForklaringRequest(
+                            AarsakerOgBegrunnelseRequest(
                                 aarsaker = listOf(UtbetalingStatusAarsak.ANNET),
-                                forklaring = "Avtalt avbrytelse",
+                                begrunnelse = "Avtalt avbrytelse",
                             ),
                         )
                     }
@@ -511,9 +511,9 @@ class UtbetalingRoutesTest : FunSpec({
                     client.put(avslaAbrytelseUrl(UUID.randomUUID())) {
                         bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                         setBody(
-                            AarsakerOgForklaringRequest<UtbetalingStatusAarsak>(
+                            AarsakerOgBegrunnelseRequest<UtbetalingStatusAarsak>(
                                 aarsaker = emptyList(),
-                                forklaring = null,
+                                begrunnelse = null,
                             ),
                         )
                     }.status shouldBe HttpStatusCode.Forbidden
@@ -530,9 +530,9 @@ class UtbetalingRoutesTest : FunSpec({
                     val response = client.put(avslaAbrytelseUrl(UtbetalingFixtures.utbetaling1.id)) {
                         bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                         setBody(
-                            AarsakerOgForklaringRequest<UtbetalingStatusAarsak>(
+                            AarsakerOgBegrunnelseRequest<UtbetalingStatusAarsak>(
                                 aarsaker = emptyList(),
-                                forklaring = null,
+                                begrunnelse = null,
                             ),
                         )
                     }

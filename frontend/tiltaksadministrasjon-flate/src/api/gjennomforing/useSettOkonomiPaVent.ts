@@ -9,12 +9,12 @@ export function useSettOkonomiPaVent() {
   return useApiMutation<
     unknown,
     ProblemDetail,
-    { id: string; forklaring: string | null; totrinnskontrollId: string }
+    { id: string; begrunnelse: string | null; totrinnskontrollId: string }
   >({
-    mutationFn: ({ id, forklaring, totrinnskontrollId }) => {
+    mutationFn: ({ id, begrunnelse, totrinnskontrollId }) => {
       return EnkeltplassService.settOkonomiPaVent({
         path: { id },
-        body: { forklaring, totrinnskontrollId },
+        body: { begrunnelse, totrinnskontrollId },
       });
     },
     async onSuccess(_, { id }) {

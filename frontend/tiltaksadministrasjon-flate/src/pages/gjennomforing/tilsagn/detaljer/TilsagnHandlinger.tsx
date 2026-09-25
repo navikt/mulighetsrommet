@@ -3,7 +3,7 @@ import { Handlinger } from "@/components/handlinger/Handlinger";
 import { EraserIcon, PencilFillIcon, TrashFillIcon, TrashIcon } from "@navikt/aksel-icons";
 import { BodyShort, Button, HStack } from "@navikt/ds-react";
 import {
-  AarsakerOgForklaringRequestTilsagnStatusAarsak,
+  AarsakerOgBegrunnelseRequestTilsagnStatusAarsak,
   EndringshistorikkType,
   FieldError,
   TilsagnHandling,
@@ -15,7 +15,7 @@ import { useTilsagn } from "./tilsagnDetaljerLoader";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
 import { useState } from "react";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
-import { AarsakerOgForklaringModal } from "@/components/modal/AarsakerOgForklaringModal";
+import { AarsakerOgBegrunnelseModal } from "@/components/modal/AarsakerOgBegrunnelseModal";
 import {
   useSlettTilsagn,
   useTilsagnTilAnnullering,
@@ -47,7 +47,7 @@ export function TilsagnHandlinger() {
   const [slettTilsagnModalOpen, setSlettTilsagnModalOpen] = useState<boolean>(false);
   const [errors, setErrors] = useState<FieldError[]>([]);
 
-  function tilAnnullering(request: AarsakerOgForklaringRequestTilsagnStatusAarsak) {
+  function tilAnnullering(request: AarsakerOgBegrunnelseRequestTilsagnStatusAarsak) {
     tilAnnulleringMutation.mutate(
       { id: tilsagn.tilsagn.id, request },
       {
@@ -57,7 +57,7 @@ export function TilsagnHandlinger() {
     );
   }
 
-  function upsertTilOppgjor(request: AarsakerOgForklaringRequestTilsagnStatusAarsak) {
+  function upsertTilOppgjor(request: AarsakerOgBegrunnelseRequestTilsagnStatusAarsak) {
     tilOppgjorMutation.mutate(
       { id: tilsagn.tilsagn.id, request },
       {
@@ -134,16 +134,16 @@ export function TilsagnHandlinger() {
         secondaryButton
         secondaryButtonHandleAction={() => setSlettTilsagnModalOpen(false)}
       />
-      <AarsakerOgForklaringModal<TilsagnStatusAarsak>
+      <AarsakerOgBegrunnelseModal<TilsagnStatusAarsak>
         aarsaker={tilAnnuleringAarsaker}
-        header="Annuller tilsagn med forklaring"
+        header="Annuller tilsagn med begrunnelse"
         buttonLabel="Send til godkjenning"
         errors={errors}
         open={tilAnnulleringModalOpen}
         onClose={() => setTilAnnulleringModalOpen(false)}
         onConfirm={tilAnnullering}
       />
-      <AarsakerOgForklaringModal<TilsagnStatusAarsak>
+      <AarsakerOgBegrunnelseModal<TilsagnStatusAarsak>
         aarsaker={[
           {
             value: TilsagnStatusAarsak.ARRANGOR_HAR_IKKE_SENDT_KRAV,
@@ -151,7 +151,7 @@ export function TilsagnHandlinger() {
           },
           { value: TilsagnStatusAarsak.ANNET, label: "Annet" },
         ]}
-        header="Gjør opp tilsagn med forklaring"
+        header="Gjør opp tilsagn med begrunnelse"
         ingress={
           <BodyShort>Gjenstående beløp gjøres opp uten at det gjøres en utbetaling</BodyShort>
         }

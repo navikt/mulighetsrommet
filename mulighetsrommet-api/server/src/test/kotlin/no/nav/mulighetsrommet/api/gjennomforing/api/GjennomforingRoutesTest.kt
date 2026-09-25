@@ -15,7 +15,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import no.nav.mulighetsrommet.admin.navansatt.EntraGroupNavAnsattRolleMapping
 import no.nav.mulighetsrommet.api.ApplicationConfigTest
-import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
+import no.nav.mulighetsrommet.api.aarsakerbegrunnelse.AarsakerOgBegrunnelseRequest
 import no.nav.mulighetsrommet.api.createAuthConfig
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.domain.testing.fixture.ArrangorFixtures
@@ -297,9 +297,9 @@ class GjennomforingRoutesTest : FunSpec({
                         bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                         contentType(ContentType.Application.Json)
                         setBody(
-                            AarsakerOgForklaringRequest(
+                            AarsakerOgBegrunnelseRequest(
                                 aarsaker = listOf(AvbrytGjennomforingAarsak.ANNET),
-                                forklaring = null,
+                                begrunnelse = null,
                             ),
                         )
                     }
@@ -317,9 +317,9 @@ class GjennomforingRoutesTest : FunSpec({
                         bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                         contentType(ContentType.Application.Json)
                         setBody(
-                            AarsakerOgForklaringRequest(
+                            AarsakerOgBegrunnelseRequest(
                                 aarsaker = listOf(AvbrytGjennomforingAarsak.FEILREGISTRERING),
-                                forklaring = null,
+                                begrunnelse = null,
                             ),
                         )
                     }
@@ -339,9 +339,9 @@ class GjennomforingRoutesTest : FunSpec({
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                     contentType(ContentType.Application.Json)
                     setBody(
-                        AarsakerOgForklaringRequest(
+                        AarsakerOgBegrunnelseRequest(
                             aarsaker = listOf(AvbrytGjennomforingAarsak.FEILREGISTRERING),
-                            forklaring = null,
+                            begrunnelse = null,
                         ),
                     )
                 }
