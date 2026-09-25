@@ -65,15 +65,15 @@ data class Tiltak(
 )
 
 suspend fun QueryContext.hentVedtaksbrevInnhold(
-    vedtakId: UUID,
+    behandlingId: UUID,
     personaliaService: PersonaliaService,
 ): Either<String, VedtaksbrevInnhold> {
-    val tilskuddBehandling = queries.tilskuddBehandling.getOrError(vedtakId)
+    val tilskuddBehandling = queries.tilskuddBehandling.getOrError(behandlingId)
     val gjennomforing = queries.gjennomforing.getGjennomforingEnkeltplassOrError(tilskuddBehandling.gjennomforingId)
     val deltaker = repository.deltaker.getByGjennomforing(gjennomforing.id).single()
     val personalia = personaliaService.getPersonalia(deltaker.id, PersonaliaService.OnBehalfOf.System)
     val behandlendeEnhet = queries.enhet.get(tilskuddBehandling.behandlendeEnhet)?.navn
-        ?: return "Fant ikke behandlende enhet for tilskudd $vedtakId".left()
+        ?: return "Fant ikke behandlende enhet for behadnling $behandlingId".left()
 
     val periode = validateGjennomforingPeriode(gjennomforing)
         .fold({ return it.left() }, { it })
@@ -104,13 +104,13 @@ suspend fun QueryContext.hentVedtaksbrevInnhold(
         )
     }
 
-    val opprettelse = queries.totrinnskontroll.getOrError(vedtakId, TotrinnskontrollType.TILSKUDD_OPPRETTELSE)
+    val opprettelse = queries.totrinnskontroll.getOrError(behandlingId, TotrinnskontrollType.TILSKUDD_OPPRETTELSE)
     val saksbehandler = (opprettelse.behandling.utfortAv as? NavIdent)?.let { queries.ansatt.get(it) }
-        ?: return "Klarte ikke utlede saksbehandler fra totrinnskontroll id=${opprettelse.id}".left()
+        ?: return "Klarte ikke utlede saksbehandler fra totrinnskontroll".left()
 
-    val beslutning = opprettelse.beslutning ?: return "Vedtak $vedtakId er ikke besluttet".left()
+    val beslutning = opprettelse.beslutning ?: return "Tilskuddsbehandling $behandlingId er ikke besluttet".left()
     val beslutter = (beslutning.utfortAv as? NavIdent)?.let { queries.ansatt.get(it) }
-        ?: return "Klarte ikke utlede beslutter fra totrinnskontroll id=${opprettelse.id}".left()
+        ?: return "Klarte ikke utlede beslutter fra totrinnskontroll".left()
 
     return VedtaksbrevInnhold(
         tilskuddvedtak = tilskuddvedtak,

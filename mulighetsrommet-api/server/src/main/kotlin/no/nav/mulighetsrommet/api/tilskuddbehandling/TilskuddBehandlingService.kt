@@ -163,7 +163,7 @@ class TilskuddBehandlingService(
 
     private fun TransactionalQueryContext.scheduleJournalforVedtak(behandlingId: UUID) {
         journalforVedtaksbrev.schedule(
-            vedtakId = behandlingId,
+            behandlingId = behandlingId,
             startTime = Instant.now(),
             tx = session,
         )

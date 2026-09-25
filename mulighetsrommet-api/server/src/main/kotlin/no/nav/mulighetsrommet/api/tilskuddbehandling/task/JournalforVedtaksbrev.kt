@@ -35,44 +35,42 @@ class JournalforVedtaksbrev(
     @Serializable
     data class TaskData(
         @Serializable(with = UUIDSerializer::class)
-        val vedtakId: UUID,
+        val behandlingId: UUID,
     )
 
     val task: OneTimeTask<TaskData> = Tasks
         .oneTime(javaClass.simpleName, TaskData::class.java)
         .onFailure(FailureHandler.ExponentialBackoffFailureHandler<TaskData>(ofMinutes(5)))
         .executeSuspend { inst, _ ->
-            journalfor(inst.data.vedtakId).onLeft { message ->
-                throw Exception("Feil ved journalføring av vedtak med id=${inst.data.vedtakId}: $message")
+            journalfor(inst.data.behandlingId).onLeft { message ->
+                throw Exception("Feil ved journalføring av tilskuddsbehandling med id=${inst.data.behandlingId}: $message")
             }.onRight { response ->
-                logger.info("Skedulerer distribusjon av vedtaksbrev journalpostId: $response, vedtakId: ${inst.data.vedtakId}")
-                distribuerVedtaksbrev.schedule(inst.data.vedtakId)
+                logger.info("Skedulerer distribusjon av vedtaksbrev journalpostId: $response, behandlingId: ${inst.data.behandlingId}")
+                distribuerVedtaksbrev.schedule(inst.data.behandlingId)
             }
         }
 
-    fun schedule(vedtakId: UUID, startTime: Instant, tx: TransactionalSession): UUID {
-        val id = UUID.randomUUID()
-        val instance = task.instance(id.toString(), TaskData(vedtakId))
+    fun schedule(behandlingId: UUID, startTime: Instant, tx: TransactionalSession) {
+        val instance = task.instance(behandlingId.toString(), TaskData(behandlingId))
         val client = transactionalSchedulerClient(task, tx.connection.underlying)
         client.scheduleIfNotExists(instance, startTime)
-        return id
     }
 
-    suspend fun journalfor(id: UUID): Either<String, String> = db.transaction {
-        val vedtakJournalpostId = queries.tilskuddBehandling.getVedtakJournalpostId(id)
+    suspend fun journalfor(behandlingId: UUID): Either<String, String> = db.transaction {
+        val vedtakJournalpostId = queries.tilskuddBehandling.getVedtakJournalpostId(behandlingId)
         if (vedtakJournalpostId != null) {
             logger.info("Vedtak om tilskudd er allerede journalført med id $vedtakJournalpostId")
             return@transaction Either.Right(vedtakJournalpostId)
         }
 
-        logger.info("Journalfører vedtak med id: $id")
+        logger.info("Journalfører vedtak med id: $behandlingId")
 
-        hentVedtaksbrevInnhold(id, personaliaService).flatMap { innhold ->
+        hentVedtaksbrevInnhold(behandlingId, personaliaService).flatMap { innhold ->
             generatePdf(innhold)
                 .flatMap { pdf ->
                     val journalpost = vedtakJournalpost(
                         pdf,
-                        id,
+                        behandlingId,
                         innhold.deltakerPersonalia.norskIdent,
                         innhold.tiltak.lopenummer,
                     )
@@ -81,7 +79,7 @@ class JournalforVedtaksbrev(
                         .mapLeft { error -> "Feil fra dokark: ${error.message}" }
                 }
                 .map { response ->
-                    queries.tilskuddBehandling.setJournalpostId(id, response.journalpostId)
+                    queries.tilskuddBehandling.setJournalpostId(behandlingId, response.journalpostId)
                     response.journalpostId
                 }
         }
@@ -101,7 +99,7 @@ class JournalforVedtaksbrev(
 
 fun vedtakJournalpost(
     pdf: ByteArray,
-    vedtakId: UUID,
+    behandlingId: UUID,
     fnr: String,
     fagsakId: String,
 ): Journalpost = Journalpost(
@@ -131,7 +129,7 @@ fun vedtakJournalpost(
             ),
         ),
     ),
-    eksternReferanseId = vedtakId.toString(),
+    eksternReferanseId = behandlingId.toString(),
     journalfoerendeEnhet = "9999", // Automatisk journalføring,
     sak = Journalpost.Sak(
         sakstype = Journalpost.Sak.Sakstype.FAGSAK,
