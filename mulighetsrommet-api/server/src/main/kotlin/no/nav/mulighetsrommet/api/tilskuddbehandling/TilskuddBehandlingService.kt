@@ -92,6 +92,7 @@ class TilskuddBehandlingService(
         val errors = request.tilskudd.flatMapIndexed { index, tilskudd ->
             when (val journalpostId = tilskudd.soknadJournalpostId) {
                 null -> emptyList()
+
                 else -> journalpostValidator.validerJournalpostFinnes(
                     journalpostId = journalpostId,
                     pointer = "/tilskudd/$index/soknadJournalpostId",
