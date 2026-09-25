@@ -23,6 +23,7 @@ import no.nav.mulighetsrommet.admin.deltaker.ReplikerDeltakerForslagUseCase
 import no.nav.mulighetsrommet.admin.deltaker.ReplikerDeltakerUseCase
 import no.nav.mulighetsrommet.admin.enhetsregister.EnhetsregisterGateway
 import no.nav.mulighetsrommet.admin.enhetsregister.EnhetsregisterQuery
+import no.nav.mulighetsrommet.admin.journalpost.JournalpostValidator
 import no.nav.mulighetsrommet.admin.kostnadssted.KostnadsstedQuery
 import no.nav.mulighetsrommet.admin.navansatt.NavAnsattDtoQuery
 import no.nav.mulighetsrommet.admin.navansatt.service.NavAnsattService
@@ -64,6 +65,7 @@ import no.nav.mulighetsrommet.api.clients.msgraph.MsGraphClient
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Client
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClient
 import no.nav.mulighetsrommet.api.clients.pdl.PdlClient
+import no.nav.mulighetsrommet.api.clients.saf.SafClient
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokarkClient
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokdistClient
@@ -352,6 +354,14 @@ private fun services(appConfig: AppConfig) = module {
             clientEngine = appConfig.pdl.engine ?: appConfig.engine,
         )
     }
+    single {
+        SafClient(
+            config = SafClient.Config(appConfig.saf.url, maxRetries = 3),
+            tokenProvider = azureAdTokenProvider.withScope(appConfig.saf.scope),
+            clientEngine = appConfig.saf.engine ?: appConfig.engine,
+        )
+    }
+    single { JournalpostValidator(get()) }
     single { HentAdressebeskyttetPersonBolkPdlQuery(get()) }
     single { HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQuery(get()) }
     single { HentHistoriskeIdenterPdlQuery(get()) }
@@ -595,7 +605,7 @@ private fun services(appConfig: AppConfig) = module {
             navAnsattService = get(),
         )
     }
-    single { TilskuddBehandlingService(get(), get(), get()) }
+    single { TilskuddBehandlingService(get(), get(), get(), get()) }
     single { AltinnRettigheterService(db = get(), altinnClient = get()) }
     single { OppgaverService(get(), get()) }
     single { ArrangorflateService(get(), get(), get()) }

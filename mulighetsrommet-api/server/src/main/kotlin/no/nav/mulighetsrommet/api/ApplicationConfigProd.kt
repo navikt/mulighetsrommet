@@ -420,6 +420,10 @@ val ApplicationConfigProd = AppConfig(
         url = "https://dokarkiv.prod-fss-pub.nais.io",
         scope = "api://prod-fss.teamdokumenthandtering.dokarkiv/.default",
     ),
+    saf = AuthenticatedHttpClientConfig(
+        url = "https://saf.prod-fss-pub.nais.io",
+        scope = "api://prod-fss.teamdokumenthandtering.saf/.default",
+    ),
     dokdistfordeling = AuthenticatedHttpClientConfig(
         url = "https://dokdistfordeling.prod-fss-pub.nais.io",
         scope = "api://prod-fss.teamdokumenthandtering.dokdistfordeling/.default",

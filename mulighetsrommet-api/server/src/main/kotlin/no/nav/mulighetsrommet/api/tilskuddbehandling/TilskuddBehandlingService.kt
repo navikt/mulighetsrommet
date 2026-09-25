@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.tilskuddbehandling
 
 import arrow.core.Either
+import arrow.core.flatMap
 import arrow.core.getOrElse
 import arrow.core.left
 import arrow.core.nel
@@ -8,6 +9,7 @@ import arrow.core.right
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.mulighetsrommet.admin.endringshistorikk.EndringshistorikkType
+import no.nav.mulighetsrommet.admin.journalpost.JournalpostValidator
 import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollDto
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
@@ -36,6 +38,7 @@ import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
+import no.nav.mulighetsrommet.tokenprovider.AccessType
 import java.time.Instant
 import java.time.LocalDateTime
 import java.util.UUID
@@ -44,8 +47,9 @@ class TilskuddBehandlingService(
     private val db: ApiDatabase,
     private val journalforVedtaksbrev: JournalforVedtaksbrev,
     private val pdf: PdfGenClient,
+    private val journalpostValidator: JournalpostValidator,
 ) {
-    fun upsert(
+    suspend fun upsert(
         request: TilskuddBehandlingRequest,
         navIdent: NavIdent,
     ): Either<List<FieldError>, Unit> {
@@ -56,6 +60,7 @@ class TilskuddBehandlingService(
 
         return TilskuddBehandlingValidator
             .validate(request, gjennomforing, behandlendeEnhet)
+            .flatMap { dbo -> validerJournalposterFinnes(request).map { dbo } }
             .map { dbo ->
                 db.transaction {
                     queries.tilskuddBehandling.upsert(dbo)
@@ -79,6 +84,22 @@ class TilskuddBehandlingService(
                     logEndring("Sendt til attestering", dbo.id, navIdent)
                 }
             }
+    }
+
+    private suspend fun validerJournalposterFinnes(
+        request: TilskuddBehandlingRequest,
+    ): Either<List<FieldError>, Unit> {
+        val errors = request.tilskudd.flatMapIndexed { index, tilskudd ->
+            when (val journalpostId = tilskudd.soknadJournalpostId) {
+                null -> emptyList()
+                else -> journalpostValidator.validerJournalpostFinnes(
+                    journalpostId = journalpostId,
+                    pointer = "/tilskudd/$index/soknadJournalpostId",
+                    accessType = AccessType.M2M,
+                ).fold({ it }, { emptyList() })
+            }
+        }
+        return if (errors.isEmpty()) Unit.right() else errors.left()
     }
 
     fun getByGjennomforingId(gjennomforingId: UUID): List<TilskuddBehandlingKompakt> {

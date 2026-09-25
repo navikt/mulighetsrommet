@@ -242,6 +242,10 @@ val ApplicationConfigTest = AppConfig(
         url = "http://localhost/dokark",
         scope = "default",
     ),
+    saf = AuthenticatedHttpClientConfig(
+        url = "http://localhost/saf",
+        scope = "default",
+    ),
     dokdistfordeling = AuthenticatedHttpClientConfig(
         url = "http://localhost/dokdistfordeling",
         scope = "default",

@@ -18,6 +18,7 @@ import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
+import no.nav.mulighetsrommet.api.tilskuddbehandling.gyldigJournalpostValidator
 import no.nav.mulighetsrommet.api.tilskuddbehandling.TilskuddBehandlingService
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingRequest
@@ -130,6 +131,7 @@ class TilskuddArrangorUtbetalingConsumerTest : FunSpec({
             database.api,
             journalforVedtaksbrev,
             mockk(relaxed = true),
+            gyldigJournalpostValidator(),
         )
 
         service.upsert(request, NavAnsattFixture.DonaldDuck.navIdent).shouldBeRight()
@@ -151,6 +153,7 @@ class TilskuddArrangorUtbetalingConsumerTest : FunSpec({
             database.api,
             journalforVedtaksbrev,
             mockk(relaxed = true),
+            gyldigJournalpostValidator(),
         )
         service.upsert(request, NavAnsattFixture.DonaldDuck.navIdent).shouldBeRight()
 
@@ -168,6 +171,7 @@ class TilskuddArrangorUtbetalingConsumerTest : FunSpec({
             database.api,
             journalforVedtaksbrev,
             mockk(relaxed = true),
+            gyldigJournalpostValidator(),
         )
         service.upsert(request, NavAnsattFixture.DonaldDuck.navIdent).shouldBeRight()
 

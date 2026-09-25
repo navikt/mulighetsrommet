@@ -545,6 +545,10 @@ val ApplicationConfigLocal = AppConfig(
         url = "http://localhost:8090/dokark",
         scope = "default",
     ),
+    saf = AuthenticatedHttpClientConfig(
+        url = "http://localhost:8090/saf",
+        scope = "default",
+    ),
     dokdistfordeling = AuthenticatedHttpClientConfig(
         url = "http://localhost:8090/dokdistfordeling",
         scope = "default",

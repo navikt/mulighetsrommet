@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.tilskuddbehandling
 
+import arrow.core.left
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
@@ -7,7 +8,9 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
+import io.mockk.coEvery
 import io.mockk.mockk
+import no.nav.mulighetsrommet.admin.journalpost.JournalpostValidator
 import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollDto
 import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd
 import no.nav.mulighetsrommet.api.domain.testing.fixture.AvtaleFixtures
@@ -22,6 +25,7 @@ import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
 import no.nav.mulighetsrommet.api.utbetaling.api.ValutaBelopRequest
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.NavEnhetNummer
+import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.Valuta
 import java.time.LocalDate
 import java.util.UUID
@@ -75,7 +79,30 @@ class TilskuddBehandlingServiceTest : FunSpec({
         db = database.api,
         journalforVedtaksbrev = mockk(relaxed = true),
         pdf = mockk(relaxed = true),
+        journalpostValidator = gyldigJournalpostValidator(),
     )
+
+    context("validering av journalpost") {
+        test("upsert feiler når journalpost ikke finnes i saf") {
+            val journalpostValidator = mockk<JournalpostValidator> {
+                coEvery { validerJournalpostFinnes(any(), any(), any()) } returns
+                    listOf(
+                        FieldError("/tilskudd/0/soknadJournalpostId", "Fant ingen journalpost med id J-2024-001"),
+                    ).left()
+            }
+            val service = TilskuddBehandlingService(
+                db = database.api,
+                journalforVedtaksbrev = mockk(relaxed = true),
+                pdf = mockk(relaxed = true),
+                journalpostValidator = journalpostValidator,
+            )
+
+            service.upsert(request, ansatt1).shouldBeLeft().should {
+                it shouldHaveSize 1
+                it.first().pointer shouldBe "/tilskudd/0/soknadJournalpostId"
+            }
+        }
+    }
 
     context("attester og returner") {
         test("kan ikke attestere sin egen behandling") {

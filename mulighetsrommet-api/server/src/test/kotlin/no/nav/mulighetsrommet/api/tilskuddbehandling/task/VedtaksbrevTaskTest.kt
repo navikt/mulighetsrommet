@@ -22,6 +22,7 @@ import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenError
+import no.nav.mulighetsrommet.api.tilskuddbehandling.gyldigJournalpostValidator
 import no.nav.mulighetsrommet.api.tilskuddbehandling.TilskuddBehandlingService
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingRequest
@@ -209,6 +210,7 @@ private suspend fun opprettOgAttesterTilskudd(
         db = db,
         journalforVedtaksbrev = mockk(relaxed = true),
         pdf = mockk(relaxed = true),
+        journalpostValidator = gyldigJournalpostValidator(),
     )
 
     service.upsert(request, NavAnsattFixture.DonaldDuck.navIdent).shouldBeRight()
