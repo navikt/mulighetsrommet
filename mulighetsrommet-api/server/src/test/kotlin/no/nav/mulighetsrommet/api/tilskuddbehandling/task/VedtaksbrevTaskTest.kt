@@ -24,6 +24,7 @@ import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenError
 import no.nav.mulighetsrommet.api.tilskuddbehandling.TilskuddBehandlingService
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
+import no.nav.mulighetsrommet.api.tilskuddbehandling.gyldigJournalpostValidator
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingRequest
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
 import no.nav.mulighetsrommet.api.utbetaling.api.ValutaBelopRequest
@@ -189,7 +190,7 @@ private suspend fun opprettOgAttesterTilskudd(
                 id = tilskuddVedtakId,
                 tilskuddId = tilskuddId,
                 tilskuddOpplaeringType = Opplaeringtilskudd.Kode.SKOLEPENGER,
-                soknadJournalpostId = "J-2024-001",
+                soknadJournalpostId = "001",
                 soknadDato = LocalDate.of(2024, 1, 15),
                 periodeStart = "2025-01-01",
                 periodeSlutt = "2025-07-01",
@@ -209,6 +210,8 @@ private suspend fun opprettOgAttesterTilskudd(
         db = db,
         journalforVedtaksbrev = mockk(relaxed = true),
         pdf = mockk(relaxed = true),
+        journalpostValidator = gyldigJournalpostValidator(),
+        personaliaService = mockk(relaxed = true),
     )
 
     service.upsert(request, NavAnsattFixture.DonaldDuck.navIdent).shouldBeRight()

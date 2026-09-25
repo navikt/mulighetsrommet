@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.tilskuddbehandling.db
 
 import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
+import no.nav.mulighetsrommet.model.JournalpostId
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Periode
@@ -13,7 +14,7 @@ data class TilskuddVedtak(
     val id: UUID,
     val tilskuddId: UUID,
     val tilskuddOpplaeringType: Opplaeringtilskudd.Kode,
-    val soknadJournalpostId: String,
+    val soknadJournalpostId: JournalpostId,
     val soknadDato: LocalDate,
     val soknadBelop: ValutaBelop,
     val periode: Periode,

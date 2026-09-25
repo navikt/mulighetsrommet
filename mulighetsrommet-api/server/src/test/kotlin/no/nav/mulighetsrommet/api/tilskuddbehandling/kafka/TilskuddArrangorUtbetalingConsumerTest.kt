@@ -20,6 +20,7 @@ import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilskuddbehandling.TilskuddBehandlingService
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
+import no.nav.mulighetsrommet.api.tilskuddbehandling.gyldigJournalpostValidator
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingRequest
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
 import no.nav.mulighetsrommet.api.tilskuddbehandling.task.JournalforVedtaksbrev
@@ -37,6 +38,7 @@ import no.nav.tiltak.okonomi.Tilskuddstype
 import java.time.Instant
 import java.time.LocalDate
 import java.util.UUID
+import kotlin.run
 
 class TilskuddArrangorUtbetalingConsumerTest : FunSpec({
     val database = extension(ApiDatabaseTestListener())
@@ -72,7 +74,7 @@ class TilskuddArrangorUtbetalingConsumerTest : FunSpec({
                 id = tilskuddVedtakId,
                 tilskuddId = tilskuddId,
                 tilskuddOpplaeringType = Opplaeringtilskudd.Kode.SKOLEPENGER,
-                soknadJournalpostId = "J-2024-001",
+                soknadJournalpostId = "12345",
                 soknadDato = LocalDate.of(2024, 1, 15),
                 periodeStart = "2025-01-01",
                 periodeSlutt = "2025-07-01",
@@ -132,6 +134,8 @@ class TilskuddArrangorUtbetalingConsumerTest : FunSpec({
             database.api,
             journalforVedtaksbrev,
             mockk(relaxed = true),
+            gyldigJournalpostValidator(),
+            mockk(relaxed = true),
         )
 
         service.upsert(request, NavAnsattFixture.DonaldDuck.navIdent).shouldBeRight()
@@ -153,6 +157,8 @@ class TilskuddArrangorUtbetalingConsumerTest : FunSpec({
             database.api,
             journalforVedtaksbrev,
             mockk(relaxed = true),
+            gyldigJournalpostValidator(),
+            mockk(relaxed = true),
         )
         service.upsert(request, NavAnsattFixture.DonaldDuck.navIdent).shouldBeRight()
 
@@ -169,6 +175,8 @@ class TilskuddArrangorUtbetalingConsumerTest : FunSpec({
         val service = TilskuddBehandlingService(
             database.api,
             journalforVedtaksbrev,
+            mockk(relaxed = true),
+            gyldigJournalpostValidator(),
             mockk(relaxed = true),
         )
         service.upsert(request, NavAnsattFixture.DonaldDuck.navIdent).shouldBeRight()
