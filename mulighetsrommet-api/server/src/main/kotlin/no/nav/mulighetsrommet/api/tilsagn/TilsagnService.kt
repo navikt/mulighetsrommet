@@ -674,7 +674,7 @@ class TilsagnService(
 
     private fun getAnsattNavn(navIdent: NavIdent): String {
         val beslutterAnsatt = navAnsattService.getNavAnsattByNavIdent(navIdent)
-        return beslutterAnsatt?.displayName() ?: navIdent.value
+        return beslutterAnsatt?.fulltNavn() ?: navIdent.value
     }
 
     private fun TransactionalQueryContext.publishOpprettBestilling(tilsagn: Tilsagn) {

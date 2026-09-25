@@ -3,7 +3,6 @@ package no.nav.mulighetsrommet.api.tilskuddbehandling.task
 import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
-import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollDto
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
@@ -13,6 +12,8 @@ import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
 import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
+import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskLocalDateTime
+import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
 import java.time.LocalDateTime
@@ -64,33 +65,21 @@ data class Tiltak(
 )
 
 suspend fun QueryContext.hentVedtaksbrevInnhold(
-    vedtakId: UUID,
+    behandlingId: UUID,
     personaliaService: PersonaliaService,
 ): Either<String, VedtaksbrevInnhold> {
-    val tilskuddBehandling = queries.tilskuddBehandling.getOrError(vedtakId)
+    val tilskuddBehandling = queries.tilskuddBehandling.getOrError(behandlingId)
     val gjennomforing = queries.gjennomforing.getGjennomforingEnkeltplassOrError(tilskuddBehandling.gjennomforingId)
     val deltaker = repository.deltaker.getByGjennomforing(gjennomforing.id).single()
     val personalia = personaliaService.getPersonalia(deltaker.id, PersonaliaService.OnBehalfOf.System)
     val behandlendeEnhet = queries.enhet.get(tilskuddBehandling.behandlendeEnhet)?.navn
-        ?: return "Fant ikke behandlende enhet for tilskudd $vedtakId".left()
+        ?: return "Fant ikke behandlende enhet for behadnling $behandlingId".left()
 
     val periode = validateGjennomforingPeriode(gjennomforing)
         .fold({ return it.left() }, { it })
 
     val deltakerPersonalia = validateDeltakerPersonalia(personalia)
         .fold({ return it.left() }, { it })
-
-    val totrinnskontroll = queries.totrinnskontroll.getDtoOrError(
-        vedtakId,
-        TotrinnskontrollType.TILSKUDD_OPPRETTELSE,
-    )
-    val (saksbehandlerNavn, beslutterNavn) = validateSignaturNavn(vedtakId, totrinnskontroll)
-        .fold({ return it.left() }, { it })
-
-    val arrangor = Arrangor(
-        navn = gjennomforing.arrangor.navn,
-        organisasjonsnummer = gjennomforing.arrangor.organisasjonsnummer,
-    )
 
     val tiltak = Tiltak(
         navn = gjennomforing.navn,
@@ -115,15 +104,23 @@ suspend fun QueryContext.hentVedtaksbrevInnhold(
         )
     }
 
+    val opprettelse = queries.totrinnskontroll.getOrError(behandlingId, TotrinnskontrollType.TILSKUDD_OPPRETTELSE)
+    val saksbehandler = (opprettelse.behandling.utfortAv as? NavIdent)?.let { queries.ansatt.get(it) }
+        ?: return "Klarte ikke utlede saksbehandler fra totrinnskontroll".left()
+
+    val beslutning = opprettelse.beslutning ?: return "Tilskuddsbehandling $behandlingId er ikke besluttet".left()
+    val beslutter = (beslutning.utfortAv as? NavIdent)?.let { queries.ansatt.get(it) }
+        ?: return "Klarte ikke utlede beslutter fra totrinnskontroll".left()
+
     return VedtaksbrevInnhold(
         tilskuddvedtak = tilskuddvedtak,
         tiltak = tiltak,
         deltakerPersonalia = deltakerPersonalia,
         arrangorNavn = gjennomforing.arrangor.navn,
-        saksbehandler = formatNavn(saksbehandlerNavn),
-        beslutter = formatNavn(beslutterNavn),
+        saksbehandler = saksbehandler.fulltNavn(),
+        beslutter = beslutter.fulltNavn(),
         behandlendeEnhet = behandlendeEnhet,
-        besluttetTidspunkt = (totrinnskontroll as TotrinnskontrollDto.Besluttet).beslutning.tidspunkt,
+        besluttetTidspunkt = beslutning.tidspunkt.tilNorskLocalDateTime(),
     ).right()
 }
 
@@ -190,26 +187,6 @@ private fun validateDeltakerPersonalia(personalia: Personalia): Either<String, D
         navn = personalia.navn(),
         norskIdent = norskIdent.value,
     ).right()
-}
-
-private fun validateSignaturNavn(
-    vedtakId: UUID,
-    totrinnskontroll: TotrinnskontrollDto,
-): Either<String, Pair<String, String>> {
-    val besluttet = totrinnskontroll as? TotrinnskontrollDto.Besluttet
-        ?: return "Totrinnskontroll for tilskudd $vedtakId er ikke besluttet".left()
-
-    val saksbehandlerNavn = besluttet.behandling.utfortAv.navn
-        ?: return "Totrinnskontroll for tilskudd $vedtakId mangler saksbehandlernavn".left()
-    val beslutterNavn = besluttet.beslutning.utfortAv.navn
-        ?: return "Totrinnskontroll for tilskudd $vedtakId mangler beslutternavn".left()
-
-    return (saksbehandlerNavn to beslutterNavn).right()
-}
-
-private fun formatNavn(fulltNavn: String): String {
-    val parts = fulltNavn.trim().split(Regex("\\s+")).filter { it.isNotBlank() }
-    return parts.joinToString(" ")
 }
 
 private fun Opplaeringtilskudd.Kode.toDisplayName(): String = when (this) {

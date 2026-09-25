@@ -66,7 +66,7 @@ class UtbetalingAvbruttNotifierConsumer(
 
         is TotrinnskontrollAgent.NavAnsatt -> {
             val beslutterAnsatt = navAnsattService.getNavAnsattByNavIdent(agent.navIdent)
-            beslutterAnsatt?.displayName() ?: agent.navIdent.value
+            beslutterAnsatt?.fulltNavn() ?: agent.navIdent.value
         }
 
         is TotrinnskontrollAgent.System -> agent.system
