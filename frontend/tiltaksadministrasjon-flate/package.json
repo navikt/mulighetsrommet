@@ -38,7 +38,7 @@
     "@unhead/react": "3.4.1",
     "dequal": "2.0.3",
     "highcharts": "13.0.2",
-    "jotai": "2.20.2",
+    "jotai": "3.0.0",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "react-error-boundary": "6.1.5",
