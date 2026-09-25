@@ -15,7 +15,7 @@
     "@date-fns/tz": "1.5.0",
     "@date-fns/utc": "2.1.1",
     "@hookform/resolvers": "5.9.1",
-    "@portabletext/react": "7.0.1",
+    "@portabletext/react": "8.0.1",
     "@tanstack/react-query": "5.102.8",
     "classnames": "2.5.1",
     "date-fns": "4.4.0",
