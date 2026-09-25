@@ -7,6 +7,5 @@ val databaseConfig: DatabaseConfig = createRandomDatabaseConfig("mr-api")
 
 val outboxConfig = OutboxTopics(
     sisteTiltakstyperV3 = "siste-tiltakstyper-v3",
-    totrinnskontrollHendelseV1 = "totrinnskontroll-hendelse-v1",
     totrinnskontrollHendelseV2 = "totrinnskontroll-hendelse-v2",
 )

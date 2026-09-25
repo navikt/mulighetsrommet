@@ -201,7 +201,6 @@ private fun db(config: AppConfig) = module {
     single<AdminDatabase> {
         val topics = OutboxTopics(
             sisteTiltakstyperV3 = config.kafka.topics.sisteTiltakstyperTopic,
-            totrinnskontrollHendelseV1 = config.kafka.topics.totrinnskontrollV1Topic,
             totrinnskontrollHendelseV2 = config.kafka.topics.totrinnskontrollV2Topic,
         )
         SqlAdminDatabase(database, topics)

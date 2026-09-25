@@ -33,21 +33,3 @@ data class TotrinnskontrollHendelse(
         RETURNERT,
     }
 }
-
-@Serializable
-data class TotrinnskontrollHendelseV1(
-    @Serializable(with = UUIDSerializer::class)
-    val id: UUID,
-    @Serializable(with = UUIDSerializer::class)
-    val entityId: UUID,
-    val type: TotrinnskontrollType,
-    val status: TotrinnskontrollHendelse.Status,
-    val behandletAv: TotrinnskontrollAgent,
-    @Serializable(with = InstantSerializer::class)
-    val behandletTidspunkt: Instant,
-    val besluttetAv: TotrinnskontrollAgent?,
-    @Serializable(with = InstantSerializer::class)
-    val besluttetTidspunkt: Instant?,
-    val aarsaker: List<String>,
-    val forklaring: String?,
-)
