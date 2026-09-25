@@ -2,22 +2,33 @@ import { useTilskudd } from "@/api/tilskudd/useTilskuddOrError";
 import { useSimulerOpphorTilskuddVedtak } from "@/api/tilskudd/mutations";
 import { TilskuddLayout } from "@/components/tilskudd/TilskuddLayout";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
-import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
-import {
-  Definisjonsliste,
-  Definition,
-} from "@mr/frontend-common/components/definisjonsliste/Definisjonsliste";
+import { Definition } from "@mr/frontend-common/components/definisjonsliste/Definisjonsliste";
+import { MetadataVStack, Separator } from "@mr/frontend-common/components/datadriven/Metadata";
+import { Definisjonsliste } from "@mr/frontend-common/components/definisjonsliste/Definisjonsliste";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
-import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 import { formaterDato, formaterPeriode } from "@mr/frontend-common/utils/date";
 import { formaterValutaBelop } from "@mr/frontend-common/utils/utils";
-import { Alert, BodyShort, Button, ExpansionCard, HStack, Heading, VStack } from "@navikt/ds-react";
-import { HelVedSimuleringResponse, TilskuddHandling } from "@tiltaksadministrasjon/api-client";
-import { TilskuddVedtak, TilskuddVedtakUtbetaling } from "@tiltaksadministrasjon/api-client";
+import { TilskuddVedtakUtbetaling } from "@tiltaksadministrasjon/api-client";
+import {
+  Alert,
+  BodyShort,
+  Button,
+  ExpansionCard,
+  HStack,
+  Heading,
+  Modal,
+  TextField,
+  VStack,
+} from "@navikt/ds-react";
+import {
+  HelVedSimuleringResponse,
+  TilskuddHandling,
+  TilskuddVedtak,
+} from "@tiltaksadministrasjon/api-client";
 import { tilskuddMottakerToString } from "@/utils/Utils";
 import { useOpphorBrukerUtbetaling } from "@/api/tilskudd-behandling/mutations";
 import { useNavigate } from "react-router";
-import { useState } from "react";
+import { SubmitEvent, useState } from "react";
 
 export function TilskuddDetaljerPage() {
   const { gjennomforingId, tilskuddId } = useRequiredParams(["gjennomforingId", "tilskuddId"]);
@@ -105,7 +116,7 @@ export function TilskuddDetaljerPage() {
                         >
                           Opphør
                         </Button>
-                        <SimulerOpphorButton gjennomforingId={gjennomforingId} vedtak={vedtak} />
+                        <SimulerButton gjennomforingId={gjennomforingId} vedtak={vedtak} />
                       </>
                     )}
                   </HStack>
@@ -153,7 +164,7 @@ function utbetalingInfo(utbetaling: TilskuddVedtakUtbetaling): Definition[] {
   }
 }
 
-function SimulerOpphorButton({
+function SimulerButton({
   gjennomforingId,
   vedtak,
 }: {
@@ -162,20 +173,44 @@ function SimulerOpphorButton({
 }) {
   const simulerOpphorMutation = useSimulerOpphorTilskuddVedtak();
   const [modalOpen, setModalOpen] = useState(false);
+  const [belop, setBelop] = useState("0");
   const [simuleringResultat, setSimuleringResultat] = useState<HelVedSimuleringResponse | null>(
     null,
   );
   const [feilmelding, setFeilmelding] = useState<string | null>(null);
+  const formId = `simuler-opphor-form-${vedtak.id}`;
 
-  function simulerOpphor() {
+  function openModal() {
+    setBelop("0");
     setFeilmelding(null);
     setSimuleringResultat(null);
+    setModalOpen(true);
+  }
+
+  function closeModal() {
+    setModalOpen(false);
+    setBelop("0");
+    setFeilmelding(null);
+    setSimuleringResultat(null);
+    simulerOpphorMutation.reset();
+  }
+
+  function simulerOpphor(e: SubmitEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setFeilmelding(null);
+    setSimuleringResultat(null);
+
+    const parsedBelop = Number(belop);
+    if (!Number.isInteger(parsedBelop) || parsedBelop < 0) {
+      setFeilmelding("Beløp må være 0 eller større.");
+      return;
+    }
+
     simulerOpphorMutation.mutate(
-      { gjennomforingId, vedtakId: vedtak.id },
+      { gjennomforingId, vedtakId: vedtak.id, belop: parsedBelop },
       {
         onSuccess: (data) => {
           setSimuleringResultat(data);
-          setModalOpen(true);
         },
         onError: () => {
           setFeilmelding("Kunne ikke simulere opphør.");
@@ -187,39 +222,62 @@ function SimulerOpphorButton({
     );
   }
 
-  const simuleringTekst = simuleringResultat ? JSON.stringify(simuleringResultat, null, 2) : "";
-
   return (
     <>
-      <VStack gap="space-8" align="start">
-        <Button
-          type="button"
-          variant="tertiary"
-          data-color="danger"
-          loading={simulerOpphorMutation.isPending}
-          onClick={simulerOpphor}
-        >
-          Simuler opphør
-        </Button>
-        {feilmelding && <Alert variant="error">{feilmelding}</Alert>}
-      </VStack>
-      <VarselModal
+      <Button
+        type="button"
+        variant="tertiary"
+        data-color="accent"
+        loading={simulerOpphorMutation.isPending}
+        onClick={openModal}
+      >
+        Simuler utbetaling
+      </Button>
+      <Modal
         open={modalOpen}
-        handleClose={() => setModalOpen(false)}
-        headingText="Simulert opphør"
-        headingIconType="info"
-        body={
-          <VStack gap="space-16">
-            <BodyShort>Resultatet av simuleringen:</BodyShort>
-            <pre style={{ whiteSpace: "pre-wrap", wordBreak: "break-word" }}>{simuleringTekst}</pre>
+        onClose={closeModal}
+        closeOnBackdropClick
+        header={{ heading: "Simuler utbetaling" }}
+        width="medium"
+      >
+        <Modal.Body>
+          <form id={formId} onSubmit={simulerOpphor}>
+            <VStack gap="space-16">
+              <MetadataVStack
+                label="Vedtak utbetalt beløp"
+                value={vedtak.utbetaling?.belop.belop}
+              />
+              <BodyShort>Fyll inn beløpet du vil simulere utbetaling med</BodyShort>
+              <TextField
+                label="Beløp"
+                type="number"
+                min={0}
+                step={1}
+                value={belop}
+                onChange={(event) => setBelop(event.currentTarget.value)}
+              />
+              {simuleringResultat && (
+                <pre style={{ whiteSpace: "pre-wrap", wordBreak: "break-word" }}>
+                  {JSON.stringify(simuleringResultat, null, 2)}
+                </pre>
+              )}
+            </VStack>
+          </form>
+        </Modal.Body>
+        <Modal.Footer>
+          <VStack gap="space-4">
+            <HStack gap="space-4">
+              <Button form={formId} type="submit" loading={simulerOpphorMutation.isPending}>
+                Simuler opphør
+              </Button>
+              <Button type="button" variant="tertiary" onClick={closeModal}>
+                Avbryt
+              </Button>
+            </HStack>
+            {feilmelding && <Alert variant="error">{feilmelding}</Alert>}
           </VStack>
-        }
-        primaryButton={
-          <Button type="button" variant="primary" onClick={() => setModalOpen(false)}>
-            Lukk
-          </Button>
-        }
-      />
+        </Modal.Footer>
+      </Modal>
     </>
   );
 }

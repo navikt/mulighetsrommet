@@ -9851,7 +9851,11 @@ components:
         vedtakId:
           type: string
           format: uuid
+        belop:
+          type: integer
+          format: int32
       required:
+      - belop
       - gjennomforingId
       - vedtakId
     ? ""

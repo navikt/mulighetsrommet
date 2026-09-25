@@ -117,7 +117,7 @@ fun Route.tilskuddRoutes() {
                         "Opphørssimulering er kun tillatt i dev-gcp miljøet",
                     )
                 } else {
-                    tilskuddService.simulerOpphor(request.gjennomforingId, request.vedtakId).onLeft {
+                    tilskuddService.simulerOpphor(request.gjennomforingId, request.vedtakId, request.belop).onLeft {
                         val result = when (it) {
                             HelVedSimuleringsError.BadRequest -> HttpStatusCode.BadRequest
                             HelVedSimuleringsError.NotFound -> HttpStatusCode.NotFound
@@ -140,6 +140,7 @@ data class SimulerOpphorRequest(
     val gjennomforingId: UUID,
     @Serializable(with = UUIDSerializer::class)
     val vedtakId: UUID,
+    val belop: Int = 0,
 )
 
 @Serializable
