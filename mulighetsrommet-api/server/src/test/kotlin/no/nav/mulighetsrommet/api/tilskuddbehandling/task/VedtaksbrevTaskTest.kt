@@ -190,7 +190,7 @@ private suspend fun opprettOgAttesterTilskudd(
                 id = tilskuddVedtakId,
                 tilskuddId = tilskuddId,
                 tilskuddOpplaeringType = Opplaeringtilskudd.Kode.SKOLEPENGER,
-                soknadJournalpostId = "J-2024-001",
+                soknadJournalpostId = "001",
                 soknadDato = LocalDate.of(2024, 1, 15),
                 periodeStart = "2025-01-01",
                 periodeSlutt = "2025-07-01",

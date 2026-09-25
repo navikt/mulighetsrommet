@@ -2,12 +2,14 @@ package no.nav.mulighetsrommet.admin.journalpost
 
 import arrow.core.flatMap
 import arrow.core.left
+import arrow.core.nel
 import arrow.core.right
 import no.nav.mulighetsrommet.api.clients.saf.SafBruker
 import no.nav.mulighetsrommet.api.clients.saf.SafBrukerIdType
 import no.nav.mulighetsrommet.api.clients.saf.SafClient
 import no.nav.mulighetsrommet.api.clients.saf.SafError
 import no.nav.mulighetsrommet.model.FieldError
+import no.nav.mulighetsrommet.model.JournalpostId
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.tokenprovider.AccessType
@@ -33,21 +35,30 @@ class JournalpostValidator(
         forventetArrangor: Organisasjonsnummer?,
         pointer: String,
         accessType: AccessType,
-    ): Validated<Unit> = saf.hentJournalpost(journalpostId, accessType)
-        .mapLeft {
-            when (it) {
-                SafError.NotFound -> listOf(
-                    FieldError(pointer, "Fant ingen journalpost med id $journalpostId"),
-                )
+    ): Validated<JournalpostId> {
+        val jId = JournalpostId.parse(journalpostId)
+            ?: return FieldError(
+                pointer,
+                "Feil format på Journalpost-ID: $journalpostId",
+            ).nel().left()
 
-                SafError.Error -> listOf(
-                    FieldError(pointer, "Klarte ikke å slå opp journalpost. Prøv igjen senere."),
-                )
+        return saf.hentJournalpost(journalpostId, accessType)
+            .mapLeft {
+                when (it) {
+                    SafError.NotFound -> listOf(
+                        FieldError(pointer, "Fant ingen journalpost med id $journalpostId"),
+                    )
+
+                    SafError.Error -> listOf(
+                        FieldError(pointer, "Klarte ikke å slå opp journalpost. Prøv igjen senere."),
+                    )
+                }
             }
-        }
-        .flatMap { journalpost ->
-            validerBruker(journalpost.bruker, forventetBruker, forventetArrangor, pointer)
-        }
+            .flatMap { journalpost ->
+                validerBruker(journalpost.bruker, forventetBruker, forventetArrangor, pointer)
+            }
+            .map { jId }
+    }
 
     private fun validerBruker(
         bruker: SafBruker?,

@@ -1,6 +1,45 @@
 package no.nav.mulighetsrommet.api.tilskuddbehandling.kafka
 
-/*
+import io.kotest.assertions.arrow.core.shouldBeRight
+import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.nulls.shouldNotBeNull
+import io.kotest.matchers.shouldBe
+import io.mockk.coEvery
+import io.mockk.mockk
+import no.nav.mulighetsrommet.admin.arrangor.BetalingsinformasjonQuery
+import no.nav.mulighetsrommet.api.contracts.totrinnskontroll.TotrinnskontrollAgent
+import no.nav.mulighetsrommet.api.contracts.totrinnskontroll.TotrinnskontrollHendelse
+import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsinformasjon
+import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd
+import no.nav.mulighetsrommet.api.domain.testing.fixture.NavAnsattFixture
+import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
+import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
+import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
+import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures
+import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
+import no.nav.mulighetsrommet.api.tilskuddbehandling.TilskuddBehandlingService
+import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
+import no.nav.mulighetsrommet.api.tilskuddbehandling.gyldigJournalpostValidator
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingRequest
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
+import no.nav.mulighetsrommet.api.tilskuddbehandling.task.JournalforVedtaksbrev
+import no.nav.mulighetsrommet.api.utbetaling.api.ValutaBelopRequest
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
+import no.nav.mulighetsrommet.api.utbetaling.service.UtbetalingService
+import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
+import no.nav.mulighetsrommet.model.Kontonummer
+import no.nav.mulighetsrommet.model.NavEnhetNummer
+import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.model.Valuta
+import no.nav.tiltak.okonomi.Tilskuddstype
+import java.time.Instant
+import java.time.LocalDate
+import java.util.UUID
+import kotlin.run
+
 class TilskuddArrangorUtbetalingConsumerTest : FunSpec({
     val database = extension(ApiDatabaseTestListener())
 
@@ -35,7 +74,7 @@ class TilskuddArrangorUtbetalingConsumerTest : FunSpec({
                 id = tilskuddVedtakId,
                 tilskuddId = tilskuddId,
                 tilskuddOpplaeringType = Opplaeringtilskudd.Kode.SKOLEPENGER,
-                soknadJournalpostId = "J-2024-001",
+                soknadJournalpostId = "12345",
                 soknadDato = LocalDate.of(2024, 1, 15),
                 periodeStart = "2025-01-01",
                 periodeSlutt = "2025-07-01",
@@ -159,6 +198,3 @@ class TilskuddArrangorUtbetalingConsumerTest : FunSpec({
         }
     }
 })
-
-
- */
