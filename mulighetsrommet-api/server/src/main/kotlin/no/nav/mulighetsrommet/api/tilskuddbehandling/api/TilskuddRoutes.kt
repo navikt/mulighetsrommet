@@ -194,7 +194,11 @@ private fun QueryContext.handlingerFor(tilskudd: Tilskudd, navIdent: NavIdent): 
     val ansattITeamMulighetsrommet = ansatt.hasGenerellRolle(Rolle.TEAM_MULIGHETSROMMET)
 
     val sisteVedtak = tilskudd.vedtak.maxBy { it.lopenummer }
-    val erIkkeOpphor = sisteVedtak.utbetalingBelop?.belop?.let { belop -> belop > 0 } ?: false
+    val erIkkeOpphor = when (sisteVedtak.utbetaling) {
+        is Tilskudd.Vedtak.Utbetaling.Arrangor -> sisteVedtak.utbetaling.belop.belop > 0
+        is Tilskudd.Vedtak.Utbetaling.Bruker -> sisteVedtak.utbetaling.belop.belop > 0
+        null -> false
+    }
     val erInnvilget = sisteVedtak.vedtakResultat == VedtakResultat.INNVILGELSE
 
     return if (erInnvilget && erIkkeOpphor && ansattITeamMulighetsrommet) {

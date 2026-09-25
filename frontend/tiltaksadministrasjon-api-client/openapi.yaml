@@ -9750,10 +9750,6 @@ components:
           type: string
         soknadBelop:
           $ref: "#/components/schemas/ValutaBelop"
-        utbetalingBelop:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/ValutaBelop"
         vedtakResultat:
           $ref: "#/components/schemas/VedtakResultat"
         kommentarVedtaksbrev:
@@ -9762,14 +9758,14 @@ components:
           - string
         utbetalingMottaker:
           $ref: "#/components/schemas/TilskuddMottaker"
-        kid:
-          type:
-          - "null"
-          - string
         kommentarIntern:
           type:
           - "null"
           - string
+        utbetaling:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/Tilskudd.Vedtak.Utbetaling"
         vedtakJournalpostId:
           type:
           - "null"
@@ -9777,7 +9773,6 @@ components:
       required:
       - behandlingId
       - id
-      - kid
       - kommentarIntern
       - kommentarVedtaksbrev
       - kostnadssted
@@ -9786,10 +9781,50 @@ components:
       - soknadBelop
       - soknadDato
       - soknadJournalpostId
-      - utbetalingBelop
+      - utbetaling
       - utbetalingMottaker
       - vedtakJournalpostId
       - vedtakResultat
+    Tilskudd.Vedtak.Utbetaling:
+      anyOf:
+      - $ref: "#/components/schemas/ARRANGOR"
+      - $ref: "#/components/schemas/BRUKER"
+      discriminator:
+        propertyName: type
+        mapping:
+          ARRANGOR: "#/components/schemas/ARRANGOR"
+          BRUKER: "#/components/schemas/BRUKER"
+    ARRANGOR:
+      type: object
+      properties:
+        utbetalingId:
+          type:
+          - "null"
+          - string
+          format: uuid
+        kid:
+          type:
+          - "null"
+          - string
+        belop:
+          $ref: "#/components/schemas/ValutaBelop"
+      required:
+      - belop
+      - kid
+      - utbetalingId
+    BRUKER:
+      type: object
+      properties:
+        brukerUtbetalingId:
+          type:
+          - "null"
+          - string
+          format: uuid
+        belop:
+          $ref: "#/components/schemas/ValutaBelop"
+      required:
+      - belop
+      - brukerUtbetalingId
     TilskuddHandling:
       type: string
       enum:
