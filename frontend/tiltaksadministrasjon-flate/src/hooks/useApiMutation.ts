@@ -19,11 +19,11 @@ type ApiMutateOptions<TData, TError, TVariables, TContext> = Pick<
 > &
   OnValidationErrorOption;
 
-export type ApiMutationResult<TData, TError, TVariables, TOnMutateResult> = UseMutationResult<
-  TData,
-  TError,
-  TVariables,
-  TOnMutateResult
+type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K> : never;
+
+export type ApiMutationResult<TData, TError, TVariables, TOnMutateResult> = DistributiveOmit<
+  UseMutationResult<TData, TError, TVariables, TOnMutateResult>,
+  "mutate"
 > & {
   mutate: (
     variables: TVariables,
