@@ -82,6 +82,10 @@ export function SaksopplysningerForm({ arrangorId }: Props) {
                   rules={{ required: "Periodeslutt må fylles ut" }}
                 />
               </HStack>
+              <VelgKostnadssted
+                name={`tilskudd.${index}.kostnadssted`}
+                kostnadssteder={kostnadssteder.flatMap((r) => r.kostnadssteder.map((k) => k))}
+              />
               <HStack gap="space-16" align="start">
                 <FormSelect
                   label="Tilskuddstype"
@@ -120,10 +124,6 @@ export function SaksopplysningerForm({ arrangorId }: Props) {
                 </FormSelect>
                 <Spacer />
               </HStack>
-              <VelgKostnadssted
-                name={`tilskudd.${index}.kostnadssted`}
-                kostnadssteder={kostnadssteder.flatMap((r) => r.kostnadssteder.map((k) => k))}
-              />
               <ControlledRadioGroup
                 size="small"
                 name={`tilskudd.${index}.utbetalingMottaker`}

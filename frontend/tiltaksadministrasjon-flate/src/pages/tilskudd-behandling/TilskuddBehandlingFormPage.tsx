@@ -6,7 +6,7 @@ import { SaksopplysningerForm } from "@/components/tilskudd-behandling/Saksopply
 import { VedtakForm } from "@/components/tilskudd-behandling/VedtakForm";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
 import { TilskuddBehandlingRequest, ValidationError } from "@tiltaksadministrasjon/api-client";
-import { Box, Button, HStack, Tabs } from "@navikt/ds-react";
+import { Box, Button, Heading, HStack, Tabs, VStack } from "@navikt/ds-react";
 import { ReactElement, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { useNavigate, useParams } from "react-router";
@@ -23,9 +23,9 @@ import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
 import { applyValidationErrors } from "@/components/skjema/helpers";
 import { CalculatorIcon, FilePdfIcon, PersonRectangleIcon } from "@navikt/aksel-icons";
-import { Betalingsbetingelser } from "@/components/gjennomforing/Betalingsbetingelser";
 import { VedtaksbrevPdfModal } from "@/components/tilskudd-behandling/VedtaksbrevPdfModal";
 import { useVedtaksbrevPdfBlobPost } from "@/api/tilskudd-behandling/useVedtaksbrevPdfBlob";
+import { PrismodellDetaljer } from "@/components/prismodell/PrismodellDetaljer";
 
 interface Tab {
   key: TilskuddBehandlingTab;
@@ -154,7 +154,7 @@ export function TilskuddBehandlingFormPage() {
       />
       <form onSubmit={onSubmit}>
         <TilskuddBehandlingLayout gjennomforingId={gjennomforingId}>
-          <>
+          <VStack gap="space-24">
             {data?.opprettelse && (
               <TotrinnskontrollReturnert
                 heading="Behandlingen ble returnert"
@@ -200,7 +200,12 @@ export function TilskuddBehandlingFormPage() {
                       <VedtakForm />
                     </Tabs.Panel>
                   </Box>
-                  <Betalingsbetingelser prismodell={prismodell} />
+                  <VStack gap="space-20">
+                    <Heading level="3" size="medium">
+                      Avtalte utgifter
+                    </Heading>
+                    <PrismodellDetaljer prismodell={prismodell} />
+                  </VStack>
                 </TwoColumnGrid>
               </Box>
             </Tabs>
@@ -239,7 +244,7 @@ export function TilskuddBehandlingFormPage() {
                 </Button>
               )}
             </HStack>
-          </>
+          </VStack>
         </TilskuddBehandlingLayout>
       </form>
     </FormProvider>
