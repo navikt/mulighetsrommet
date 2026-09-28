@@ -19,7 +19,7 @@ export default defineConfig({
     manifest: "asset-manifest.json",
     chunkSizeWarningLimit: 1400,
     sourcemap: true,
-    minify: "esbuild",
+    minify: "oxc",
     commonjsOptions: {
       transformMixedEsModules: true,
     },
