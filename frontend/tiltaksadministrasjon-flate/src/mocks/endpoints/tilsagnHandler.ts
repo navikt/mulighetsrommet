@@ -81,13 +81,15 @@ export const tilsagnHandlers = [
 const tilBeslutning: TotrinnskontrollDto = {
   type: "TotrinnskontrollDto.TilBeslutning",
   id: "00000000-0000-0000-0000-000000000001",
-  behandletAv: {
-    agent: "P123456",
-    navn: "Per Haraldsen",
+  behandling: {
+    utfortAv: {
+      agent: "P123456",
+      navn: "Per Haraldsen",
+    },
+    tidspunkt: "2024-01-01T22:00:00",
+    begrunnelse: null,
+    aarsaker: [],
   },
-  behandletTidspunkt: "2024-01-01T22:00:00",
-  behandletBegrunnelse: null,
-  behandletAarsaker: [],
 };
 
 const beregning: TilsagnBeregningDto = {

@@ -167,7 +167,7 @@ class TilskuddVedtakToPdfDocumentContentMapperTest : FunSpec({
             hentVedtaksbrevInnhold(behandling.id, personaliaService)
         }
 
-        result.shouldBeLeft("Totrinnskontroll for tilskudd ${behandling.id} er ikke besluttet")
+        result.shouldBeLeft("Tilskuddsbehandling ${behandling.id} er ikke besluttet")
     }
 
     test("Feiler når totrinnskontroll mangler saksbehandlernavn") {
@@ -186,7 +186,7 @@ class TilskuddVedtakToPdfDocumentContentMapperTest : FunSpec({
             hentVedtaksbrevInnhold(behandling.id, personaliaService)
         }
 
-        result.shouldBeLeft("Totrinnskontroll for tilskudd ${behandling.id} mangler saksbehandlernavn")
+        result.shouldBeLeft("Klarte ikke utlede saksbehandler fra totrinnskontroll")
     }
 
     test("Feiler når totrinnskontroll mangler beslutternavn") {
@@ -205,6 +205,6 @@ class TilskuddVedtakToPdfDocumentContentMapperTest : FunSpec({
             hentVedtaksbrevInnhold(behandling.id, personaliaService)
         }
 
-        result.shouldBeLeft("Totrinnskontroll for tilskudd ${behandling.id} mangler beslutternavn")
+        result.shouldBeLeft("Klarte ikke utlede beslutter fra totrinnskontroll")
     }
 })

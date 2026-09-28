@@ -4,6 +4,8 @@ import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.admin.totrinnskontroll.AgentDto
+import no.nav.mulighetsrommet.admin.totrinnskontroll.BehandlingDto
+import no.nav.mulighetsrommet.admin.totrinnskontroll.BeslutningDto
 import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollDto
 import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollQueryHandler
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.Totrinnskontroll
@@ -64,14 +66,14 @@ class TotrinnskontrollQueries(val session: Session) : TotrinnskontrollQueryHandl
             "entity_id" to totrinnskontroll.entityId,
             "type" to totrinnskontroll.type.name,
             "status" to totrinnskontroll.status.name,
-            "behandlet_av" to totrinnskontroll.behandletAv.textRepr(),
-            "behandlet_tidspunkt" to totrinnskontroll.behandletTidspunkt,
-            "behandlet_begrunnelse" to totrinnskontroll.behandletBegrunnelse,
-            "behandlet_aarsaker" to totrinnskontroll.behandletAarsaker.let { session.createTextArray(it) },
-            "besluttet_av" to totrinnskontroll.besluttetAv?.textRepr(),
-            "besluttet_tidspunkt" to totrinnskontroll.besluttetTidspunkt,
-            "besluttet_begrunnelse" to totrinnskontroll.besluttetBegrunnelse,
-            "besluttet_aarsaker" to totrinnskontroll.besluttetAarsaker.let { session.createTextArray(it) },
+            "behandlet_av" to totrinnskontroll.behandling.utfortAv.textRepr(),
+            "behandlet_tidspunkt" to totrinnskontroll.behandling.tidspunkt,
+            "behandlet_begrunnelse" to totrinnskontroll.behandling.begrunnelse,
+            "behandlet_aarsaker" to totrinnskontroll.behandling.aarsaker.let { session.createTextArray(it) },
+            "besluttet_av" to totrinnskontroll.beslutning?.utfortAv?.textRepr(),
+            "besluttet_tidspunkt" to totrinnskontroll.beslutning?.tidspunkt,
+            "besluttet_begrunnelse" to totrinnskontroll.beslutning?.begrunnelse,
+            "besluttet_aarsaker" to totrinnskontroll.beslutning?.aarsaker.orEmpty().let { session.createTextArray(it) },
         )
 
         session.execute(queryOf(query, params))
@@ -201,14 +203,20 @@ class TotrinnskontrollQueries(val session: Session) : TotrinnskontrollQueryHandl
             id = uuid("id"),
             entityId = uuid("entity_id"),
             type = TotrinnskontrollType.valueOf(string("type")),
-            behandletAv = string("behandlet_av").toAgent(),
-            behandletTidspunkt = instant("behandlet_tidspunkt"),
-            behandletBegrunnelse = stringOrNull("behandlet_begrunnelse"),
-            behandletAarsaker = array<String>("behandlet_aarsaker").toList(),
-            besluttetAv = stringOrNull("besluttet_av")?.toAgent(),
-            besluttetTidspunkt = instantOrNull("besluttet_tidspunkt"),
-            besluttetBegrunnelse = stringOrNull("besluttet_begrunnelse"),
-            besluttetAarsaker = array<String>("besluttet_aarsaker").toList(),
+            behandling = Totrinnskontroll.Behandling(
+                utfortAv = string("behandlet_av").toAgent(),
+                tidspunkt = instant("behandlet_tidspunkt"),
+                begrunnelse = stringOrNull("behandlet_begrunnelse"),
+                aarsaker = array<String>("behandlet_aarsaker").toList(),
+            ),
+            beslutning = stringOrNull("besluttet_av")?.let {
+                Totrinnskontroll.Beslutning(
+                    utfortAv = it.toAgent(),
+                    tidspunkt = instant("besluttet_tidspunkt"),
+                    begrunnelse = stringOrNull("besluttet_begrunnelse"),
+                    aarsaker = array<String>("besluttet_aarsaker").toList(),
+                )
+            },
             status = string("status").let { TotrinnskontrollStatus.valueOf(it) },
         )
     }
@@ -227,30 +235,36 @@ class TotrinnskontrollQueries(val session: Session) : TotrinnskontrollQueryHandl
         return if (status == TotrinnskontrollStatus.TIL_BEHANDLING) {
             TotrinnskontrollDto.TilBeslutning(
                 id = id,
-                behandletAv = AgentDto.fromAgent(behandletAv, behandletAvNavn),
-                behandletTidspunkt = behandletTidspunkt,
-                behandletBegrunnelse = behandletBegrunnelse,
-                behandletAarsaker = behandletAarsaker,
+                behandling = BehandlingDto(
+                    utfortAv = AgentDto.fromAgent(behandletAv, behandletAvNavn),
+                    tidspunkt = behandletTidspunkt,
+                    begrunnelse = behandletBegrunnelse,
+                    aarsaker = behandletAarsaker,
+                ),
             )
         } else {
             val besluttetAv = string("besluttet_av").toAgent()
             val besluttetAvNavn = stringOrNull("besluttet_av_navn")
             TotrinnskontrollDto.Besluttet(
                 id = id,
-                behandletAv = AgentDto.fromAgent(behandletAv, behandletAvNavn),
-                behandletTidspunkt = behandletTidspunkt,
-                behandletBegrunnelse = behandletBegrunnelse,
-                behandletAarsaker = behandletAarsaker,
-                besluttetAv = AgentDto.fromAgent(besluttetAv, besluttetAvNavn),
-                besluttetTidspunkt = localDateTime("besluttet_tidspunkt"),
-                besluttetBegrunnelse = besluttetBegrunnelse,
-                besluttetAarsaker = besluttetAarsaker,
-                beslutning = when (status) {
-                    TotrinnskontrollStatus.TIL_BEHANDLING -> error("Status TIL_BEHANDLING kan ikke mappes til TotrinnskontrollDto.Besluttet")
-                    TotrinnskontrollStatus.SATT_PA_VENT -> TotrinnskontrollDto.Beslutning.SATT_PA_VENT
-                    TotrinnskontrollStatus.GODKJENT -> TotrinnskontrollDto.Beslutning.GODKJENT
-                    TotrinnskontrollStatus.RETURNERT -> TotrinnskontrollDto.Beslutning.RETURNERT
-                },
+                behandling = BehandlingDto(
+                    utfortAv = AgentDto.fromAgent(behandletAv, behandletAvNavn),
+                    tidspunkt = behandletTidspunkt,
+                    begrunnelse = behandletBegrunnelse,
+                    aarsaker = behandletAarsaker,
+                ),
+                beslutning = BeslutningDto(
+                    utfortAv = AgentDto.fromAgent(besluttetAv, besluttetAvNavn),
+                    tidspunkt = localDateTime("besluttet_tidspunkt"),
+                    begrunnelse = besluttetBegrunnelse,
+                    aarsaker = besluttetAarsaker,
+                    utfall = when (status) {
+                        TotrinnskontrollStatus.TIL_BEHANDLING -> error("Status TIL_BEHANDLING kan ikke mappes til TotrinnskontrollDto.Besluttet")
+                        TotrinnskontrollStatus.SATT_PA_VENT -> TotrinnskontrollDto.Utfall.SATT_PA_VENT
+                        TotrinnskontrollStatus.GODKJENT -> TotrinnskontrollDto.Utfall.GODKJENT
+                        TotrinnskontrollStatus.RETURNERT -> TotrinnskontrollDto.Utfall.RETURNERT
+                    },
+                ),
             )
         }
     }

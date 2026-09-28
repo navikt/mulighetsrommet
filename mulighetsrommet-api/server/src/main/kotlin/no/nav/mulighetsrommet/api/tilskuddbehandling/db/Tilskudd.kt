@@ -1,6 +1,9 @@
 package no.nav.mulighetsrommet.api.tilskuddbehandling.db
 
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonClassDiscriminator
 import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
 import no.nav.mulighetsrommet.model.Kid
@@ -35,14 +38,35 @@ data class Tilskudd(
         val periode: Periode,
         val kostnadssted: NavEnhetNummer,
         val soknadBelop: ValutaBelop,
-        val utbetalingBelop: ValutaBelop?,
         val vedtakResultat: VedtakResultat,
         val kommentarVedtaksbrev: String?,
         val utbetalingMottaker: TilskuddMottaker,
-        val kid: Kid?,
         val kommentarIntern: String?,
+        val utbetaling: Utbetaling?,
         val vedtakJournalpostId: String?,
-    )
+    ) {
+        @OptIn(ExperimentalSerializationApi::class)
+        @Serializable
+        @JsonClassDiscriminator("type")
+        sealed interface Utbetaling {
+            @Serializable
+            @SerialName("BRUKER")
+            data class Bruker(
+                @Serializable(with = UUIDSerializer::class)
+                val brukerUtbetalingId: UUID?,
+                val belop: ValutaBelop,
+            ) : Utbetaling
+
+            @Serializable
+            @SerialName("ARRANGOR")
+            data class Arrangor(
+                @Serializable(with = UUIDSerializer::class)
+                val utbetalingId: UUID?,
+                val kid: Kid?,
+                val belop: ValutaBelop,
+            ) : Utbetaling
+        }
+    }
 }
 
 @Serializable

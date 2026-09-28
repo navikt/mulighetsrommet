@@ -11,5 +11,5 @@ data class TilskuddBehandling(
     val tilskudd: List<TilskuddVedtak>,
     val status: TilskuddBehandlingStatus,
     val type: TilskuddBehandlingType,
-    val behandlendeEnhet: NavEnhetNummer,
+    val behandlendeEnhet: NavEnhetNummer?,
 )

@@ -21,19 +21,34 @@ data class Totrinnskontroll(
     val entityId: UUID,
     val type: TotrinnskontrollType,
     val status: TotrinnskontrollStatus,
-    @Serializable(with = AgentSerializer::class)
-    val behandletAv: Agent,
-    @Serializable(with = InstantSerializer::class)
-    val behandletTidspunkt: Instant,
-    val behandletBegrunnelse: String?,
-    val behandletAarsaker: List<String>,
-    @Serializable(with = AgentSerializer::class)
-    val besluttetAv: Agent?,
-    @Serializable(with = InstantSerializer::class)
-    val besluttetTidspunkt: Instant?,
-    val besluttetBegrunnelse: String?,
-    val besluttetAarsaker: List<String>,
+    val behandling: Behandling,
+    val beslutning: Beslutning?,
 ) {
+    @Serializable
+    data class Behandling(
+        @Serializable(with = AgentSerializer::class)
+        val utfortAv: Agent,
+        @Serializable(with = InstantSerializer::class)
+        val tidspunkt: Instant,
+        val begrunnelse: String?,
+        val aarsaker: List<String>,
+    )
+
+    @Serializable
+    data class Beslutning(
+        @Serializable(with = AgentSerializer::class)
+        val utfortAv: Agent,
+        @Serializable(with = InstantSerializer::class)
+        val tidspunkt: Instant,
+        val begrunnelse: String?,
+        val aarsaker: List<String>,
+    )
+
+    init {
+        require((status == TotrinnskontrollStatus.TIL_BEHANDLING) == (beslutning == null)) {
+            "Beslutning må være satt hvis og bare hvis status er besluttet"
+        }
+    }
 
     fun kanSettesPaVent(): Boolean {
         return status == TotrinnskontrollStatus.TIL_BEHANDLING
@@ -48,7 +63,7 @@ data class Totrinnskontroll(
     }
 
     fun kanBehandlesAv(agent: Agent): Boolean {
-        return !(agent is NavIdent && agent == behandletAv)
+        return !(agent is NavIdent && agent == behandling.utfortAv)
     }
 
     companion object {
@@ -64,14 +79,13 @@ data class Totrinnskontroll(
             entityId = entityId,
             type = type,
             status = TotrinnskontrollStatus.TIL_BEHANDLING,
-            behandletAv = behandletAv,
-            behandletTidspunkt = instantAsMicros(),
-            behandletBegrunnelse = behandletBegrunnelse,
-            behandletAarsaker = behandletAarsaker,
-            besluttetAv = null,
-            besluttetTidspunkt = null,
-            besluttetBegrunnelse = null,
-            besluttetAarsaker = emptyList(),
+            behandling = Behandling(
+                utfortAv = behandletAv,
+                tidspunkt = instantAsMicros(),
+                begrunnelse = behandletBegrunnelse,
+                aarsaker = behandletAarsaker,
+            ),
+            beslutning = null,
         )
     }
 
@@ -85,10 +99,12 @@ data class Totrinnskontroll(
         }
         return copy(
             status = TotrinnskontrollStatus.SATT_PA_VENT,
-            besluttetAv = besluttetAv,
-            besluttetTidspunkt = instantAsMicros(),
-            besluttetBegrunnelse = besluttetBegrunnelse,
-            besluttetAarsaker = besluttetAarsaker,
+            beslutning = Beslutning(
+                utfortAv = besluttetAv,
+                tidspunkt = instantAsMicros(),
+                begrunnelse = besluttetBegrunnelse,
+                aarsaker = besluttetAarsaker,
+            ),
         ).right()
     }
 
@@ -98,14 +114,13 @@ data class Totrinnskontroll(
         }
         return copy(
             status = TotrinnskontrollStatus.TIL_BEHANDLING,
-            behandletAv = nyBehandletAv,
-            behandletTidspunkt = instantAsMicros(),
-            behandletBegrunnelse = null,
-            behandletAarsaker = emptyList(),
-            besluttetAv = null,
-            besluttetTidspunkt = null,
-            besluttetBegrunnelse = null,
-            besluttetAarsaker = emptyList(),
+            behandling = Behandling(
+                utfortAv = nyBehandletAv,
+                tidspunkt = instantAsMicros(),
+                begrunnelse = null,
+                aarsaker = emptyList(),
+            ),
+            beslutning = null,
         ).right()
     }
 
@@ -118,10 +133,12 @@ data class Totrinnskontroll(
         }
         return copy(
             status = TotrinnskontrollStatus.GODKJENT,
-            besluttetAv = besluttetAv,
-            besluttetTidspunkt = instantAsMicros(),
-            besluttetBegrunnelse = null,
-            besluttetAarsaker = emptyList(),
+            beslutning = Beslutning(
+                utfortAv = besluttetAv,
+                tidspunkt = instantAsMicros(),
+                begrunnelse = null,
+                aarsaker = emptyList(),
+            ),
         ).right()
     }
 
@@ -138,10 +155,12 @@ data class Totrinnskontroll(
         }
         return copy(
             status = TotrinnskontrollStatus.RETURNERT,
-            besluttetAv = besluttetAv,
-            besluttetTidspunkt = instantAsMicros(),
-            besluttetBegrunnelse = besluttetBegrunnelse,
-            besluttetAarsaker = besluttetAarsaker,
+            beslutning = Beslutning(
+                utfortAv = besluttetAv,
+                tidspunkt = instantAsMicros(),
+                begrunnelse = besluttetBegrunnelse,
+                aarsaker = besluttetAarsaker,
+            ),
         ).right()
     }
 

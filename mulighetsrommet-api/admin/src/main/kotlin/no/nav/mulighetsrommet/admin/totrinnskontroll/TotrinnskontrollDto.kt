@@ -20,21 +20,14 @@ import java.util.UUID
 @JsonClassDiscriminator("type")
 sealed class TotrinnskontrollDto {
     abstract val id: UUID
-    abstract val behandletAv: AgentDto
-    abstract val behandletTidspunkt: LocalDateTime
-    abstract val behandletBegrunnelse: String?
-    abstract val behandletAarsaker: List<String>
+    abstract val behandling: BehandlingDto
 
     @Serializable
     @SerialName("TotrinnskontrollDto.TilBeslutning")
     data class TilBeslutning(
         @Serializable(with = UUIDSerializer::class)
         override val id: UUID,
-        override val behandletAv: AgentDto,
-        @Serializable(with = LocalDateTimeSerializer::class)
-        override val behandletTidspunkt: LocalDateTime,
-        override val behandletBegrunnelse: String?,
-        override val behandletAarsaker: List<String>,
+        override val behandling: BehandlingDto,
     ) : TotrinnskontrollDto()
 
     @Serializable
@@ -42,25 +35,35 @@ sealed class TotrinnskontrollDto {
     data class Besluttet(
         @Serializable(with = UUIDSerializer::class)
         override val id: UUID,
-        override val behandletAv: AgentDto,
-        @Serializable(with = LocalDateTimeSerializer::class)
-        override val behandletTidspunkt: LocalDateTime,
-        override val behandletBegrunnelse: String?,
-        override val behandletAarsaker: List<String>,
-        val besluttetAv: AgentDto,
-        @Serializable(with = LocalDateTimeSerializer::class)
-        val besluttetTidspunkt: LocalDateTime,
-        val besluttetBegrunnelse: String?,
-        val besluttetAarsaker: List<String>,
-        val beslutning: Beslutning,
+        override val behandling: BehandlingDto,
+        val beslutning: BeslutningDto,
     ) : TotrinnskontrollDto()
 
-    enum class Beslutning {
+    enum class Utfall {
         SATT_PA_VENT,
         GODKJENT,
         RETURNERT,
     }
 }
+
+@Serializable
+data class BehandlingDto(
+    val utfortAv: AgentDto,
+    @Serializable(with = LocalDateTimeSerializer::class)
+    val tidspunkt: LocalDateTime,
+    val begrunnelse: String?,
+    val aarsaker: List<String>,
+)
+
+@Serializable
+data class BeslutningDto(
+    val utfortAv: AgentDto,
+    @Serializable(with = LocalDateTimeSerializer::class)
+    val tidspunkt: LocalDateTime,
+    val begrunnelse: String?,
+    val aarsaker: List<String>,
+    val utfall: TotrinnskontrollDto.Utfall,
+)
 
 @Serializable
 data class AgentDto(

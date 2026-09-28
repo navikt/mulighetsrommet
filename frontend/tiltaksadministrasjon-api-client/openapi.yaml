@@ -4059,7 +4059,7 @@ components:
     OpenApiVersion:
       type: number
       enum:
-        - 27
+        - 28
     RedaksjoneltInnholdLenke:
       type: object
       properties:
@@ -6448,45 +6448,35 @@ components:
         id:
           type: string
           format: uuid
-        behandletAv:
-          $ref: "#/components/schemas/AgentDto"
-        behandletTidspunkt:
-          type: string
-          format: date-time
-        behandletBegrunnelse:
-          type:
-          - "null"
-          - string
-        behandletAarsaker:
-          type: array
-          items:
-            type: string
-        besluttetAv:
-          $ref: "#/components/schemas/AgentDto"
-        besluttetTidspunkt:
-          type: string
-          format: date-time
-        besluttetBegrunnelse:
-          type:
-          - "null"
-          - string
-        besluttetAarsaker:
-          type: array
-          items:
-            type: string
+        behandling:
+          $ref: "#/components/schemas/BehandlingDto"
         beslutning:
-          $ref: "#/components/schemas/TotrinnskontrollDto.Beslutning"
+          $ref: "#/components/schemas/BeslutningDto"
       required:
-      - behandletAarsaker
-      - behandletAv
-      - behandletBegrunnelse
-      - behandletTidspunkt
+      - behandling
       - beslutning
-      - besluttetAarsaker
-      - besluttetAv
-      - besluttetBegrunnelse
-      - besluttetTidspunkt
       - id
+    BehandlingDto:
+      type: object
+      properties:
+        utfortAv:
+          $ref: "#/components/schemas/AgentDto"
+        tidspunkt:
+          type: string
+          format: date-time
+        begrunnelse:
+          type:
+          - "null"
+          - string
+        aarsaker:
+          type: array
+          items:
+            type: string
+      required:
+      - aarsaker
+      - begrunnelse
+      - tidspunkt
+      - utfortAv
     AgentDto:
       type: object
       properties:
@@ -6499,7 +6489,31 @@ components:
       required:
       - agent
       - navn
-    TotrinnskontrollDto.Beslutning:
+    BeslutningDto:
+      type: object
+      properties:
+        utfortAv:
+          $ref: "#/components/schemas/AgentDto"
+        tidspunkt:
+          type: string
+          format: date-time
+        begrunnelse:
+          type:
+          - "null"
+          - string
+        aarsaker:
+          type: array
+          items:
+            type: string
+        utfall:
+          $ref: "#/components/schemas/TotrinnskontrollDto.Utfall"
+      required:
+      - aarsaker
+      - begrunnelse
+      - tidspunkt
+      - utfall
+      - utfortAv
+    TotrinnskontrollDto.Utfall:
       type: string
       enum:
       - SATT_PA_VENT
@@ -6511,24 +6525,10 @@ components:
         id:
           type: string
           format: uuid
-        behandletAv:
-          $ref: "#/components/schemas/AgentDto"
-        behandletTidspunkt:
-          type: string
-          format: date-time
-        behandletBegrunnelse:
-          type:
-          - "null"
-          - string
-        behandletAarsaker:
-          type: array
-          items:
-            type: string
+        behandling:
+          $ref: "#/components/schemas/BehandlingDto"
       required:
-      - behandletAarsaker
-      - behandletAv
-      - behandletBegrunnelse
-      - behandletTidspunkt
+      - behandling
       - id
     GjennomforingEnkeltplassDetaljerDto.Prisendring:
       type: object
@@ -9385,7 +9385,9 @@ components:
         samletVedtakResultat:
           $ref: "#/components/schemas/SamletVedtakResultat"
         behandlendeEnhet:
-          type: string
+          type:
+          - "null"
+          - string
       required:
       - behandlendeEnhet
       - gjennomforingId
@@ -9749,10 +9751,6 @@ components:
           type: string
         soknadBelop:
           $ref: "#/components/schemas/ValutaBelop"
-        utbetalingBelop:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/ValutaBelop"
         vedtakResultat:
           $ref: "#/components/schemas/VedtakResultat"
         kommentarVedtaksbrev:
@@ -9761,14 +9759,14 @@ components:
           - string
         utbetalingMottaker:
           $ref: "#/components/schemas/TilskuddMottaker"
-        kid:
-          type:
-          - "null"
-          - string
         kommentarIntern:
           type:
           - "null"
           - string
+        utbetaling:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/Tilskudd.Vedtak.Utbetaling"
         vedtakJournalpostId:
           type:
           - "null"
@@ -9776,7 +9774,6 @@ components:
       required:
       - behandlingId
       - id
-      - kid
       - kommentarIntern
       - kommentarVedtaksbrev
       - kostnadssted
@@ -9785,10 +9782,50 @@ components:
       - soknadBelop
       - soknadDato
       - soknadJournalpostId
-      - utbetalingBelop
+      - utbetaling
       - utbetalingMottaker
       - vedtakJournalpostId
       - vedtakResultat
+    Tilskudd.Vedtak.Utbetaling:
+      anyOf:
+      - $ref: "#/components/schemas/ARRANGOR"
+      - $ref: "#/components/schemas/BRUKER"
+      discriminator:
+        propertyName: type
+        mapping:
+          ARRANGOR: "#/components/schemas/ARRANGOR"
+          BRUKER: "#/components/schemas/BRUKER"
+    ARRANGOR:
+      type: object
+      properties:
+        utbetalingId:
+          type:
+          - "null"
+          - string
+          format: uuid
+        kid:
+          type:
+          - "null"
+          - string
+        belop:
+          $ref: "#/components/schemas/ValutaBelop"
+      required:
+      - belop
+      - kid
+      - utbetalingId
+    BRUKER:
+      type: object
+      properties:
+        brukerUtbetalingId:
+          type:
+          - "null"
+          - string
+          format: uuid
+        belop:
+          $ref: "#/components/schemas/ValutaBelop"
+      required:
+      - belop
+      - brukerUtbetalingId
     TilskuddHandling:
       type: string
       enum:
@@ -9815,7 +9852,11 @@ components:
         vedtakId:
           type: string
           format: uuid
+        belop:
+          type: integer
+          format: int32
       required:
+      - belop
       - gjennomforingId
       - vedtakId
     ? ""

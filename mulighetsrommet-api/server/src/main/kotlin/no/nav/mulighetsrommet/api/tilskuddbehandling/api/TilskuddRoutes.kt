@@ -32,7 +32,6 @@ import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
-import no.nav.mulighetsrommet.tokenprovider.AccessType
 import org.koin.ktor.ext.inject
 import java.util.*
 
@@ -118,7 +117,7 @@ fun Route.tilskuddRoutes() {
                         "Opphørssimulering er kun tillatt i dev-gcp miljøet",
                     )
                 } else {
-                    tilskuddService.simulerOpphor(request.gjennomforingId, request.vedtakId, AccessType.M2M).onLeft {
+                    tilskuddService.simulerOpphor(request.gjennomforingId, request.vedtakId, request.belop).onLeft {
                         val result = when (it) {
                             HelVedSimuleringsError.BadRequest -> HttpStatusCode.BadRequest
                             HelVedSimuleringsError.NotFound -> HttpStatusCode.NotFound
@@ -141,6 +140,7 @@ data class SimulerOpphorRequest(
     val gjennomforingId: UUID,
     @Serializable(with = UUIDSerializer::class)
     val vedtakId: UUID,
+    val belop: Int = 0,
 )
 
 @Serializable
@@ -195,7 +195,11 @@ private fun QueryContext.handlingerFor(tilskudd: Tilskudd, navIdent: NavIdent): 
     val ansattITeamMulighetsrommet = ansatt.hasGenerellRolle(Rolle.TEAM_MULIGHETSROMMET)
 
     val sisteVedtak = tilskudd.vedtak.maxBy { it.lopenummer }
-    val erIkkeOpphor = sisteVedtak.utbetalingBelop?.belop?.let { belop -> belop > 0 } ?: false
+    val erIkkeOpphor = when (sisteVedtak.utbetaling) {
+        is Tilskudd.Vedtak.Utbetaling.Arrangor -> sisteVedtak.utbetaling.belop.belop > 0
+        is Tilskudd.Vedtak.Utbetaling.Bruker -> sisteVedtak.utbetaling.belop.belop > 0
+        null -> false
+    }
     val erInnvilget = sisteVedtak.vedtakResultat == VedtakResultat.INNVILGELSE
 
     return if (erInnvilget && erIkkeOpphor && ansattITeamMulighetsrommet) {

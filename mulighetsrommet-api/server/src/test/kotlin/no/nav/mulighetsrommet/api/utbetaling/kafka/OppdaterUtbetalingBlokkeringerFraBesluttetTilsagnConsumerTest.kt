@@ -8,7 +8,6 @@ import io.mockk.mockk
 import io.mockk.verify
 import no.nav.mulighetsrommet.api.contracts.totrinnskontroll.TotrinnskontrollAgent
 import no.nav.mulighetsrommet.api.contracts.totrinnskontroll.TotrinnskontrollHendelse
-import no.nav.mulighetsrommet.api.contracts.totrinnskontroll.TotrinnskontrollHendelseV1
 import no.nav.mulighetsrommet.api.domain.testing.fixture.AvtaleFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavAnsattFixture
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
@@ -33,20 +32,20 @@ class OppdaterUtbetalingBlokkeringerFraBesluttetTilsagnConsumerTest : FunSpec({
         )
     }
 
-    fun opprettHendelseMedStatus(type: TotrinnskontrollType, status: TotrinnskontrollHendelse.Status) = TotrinnskontrollHendelseV1(
+    fun opprettHendelseMedStatus(type: TotrinnskontrollType, status: TotrinnskontrollHendelse.Status) = TotrinnskontrollHendelse(
         id = UUID.randomUUID(),
         entityId = tilsagn.id,
         type = type,
         status = status,
         behandletAv = TotrinnskontrollAgent.NavAnsatt(NavAnsattFixture.DonaldDuck.navIdent),
         behandletTidspunkt = Instant.now(),
+        behandletBegrunnelse = null,
+        behandletAarsaker = emptyList(),
         besluttetAv = TotrinnskontrollAgent.NavAnsatt(NavAnsattFixture.MikkeMus.navIdent),
         besluttetTidspunkt = Instant.now(),
-        forklaring = null,
-        aarsaker = emptyList(),
+        besluttetBegrunnelse = null,
+        besluttetAarsaker = emptyList(),
     )
-
-    fun opprettGodkjentHendelse(type: TotrinnskontrollType) = opprettHendelseMedStatus(type, TotrinnskontrollHendelse.Status.GODKJENT)
 
     beforeEach {
         MulighetsrommetTestDomain(
@@ -73,7 +72,7 @@ class OppdaterUtbetalingBlokkeringerFraBesluttetTilsagnConsumerTest : FunSpec({
             }
             val consumer = createConsumer(genererUtbetalingService)
 
-            val hendelse = opprettGodkjentHendelse(type)
+            val hendelse = opprettHendelseMedStatus(type, TotrinnskontrollHendelse.Status.GODKJENT)
             consumer.consume(hendelse.entityId.toString(), hendelse)
 
             verify(exactly = if (shouldBeCalled) 1 else 0) {

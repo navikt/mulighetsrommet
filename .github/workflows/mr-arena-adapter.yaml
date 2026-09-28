@@ -44,7 +44,7 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew :mulighetsrommet-arena-adapter:check :mulighetsrommet-arena-adapter:installDist
       - name: Build and push Docker image
-        uses: nais/docker-build-push@0e73849f69ff260ee27597553c0a7848ca4e9795 # v0
+        uses: nais/docker-build-push@423a915c9b72edf2ba848b88171ccb0489e2a40a # v0
         id: docker-build-push
         if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
         with:

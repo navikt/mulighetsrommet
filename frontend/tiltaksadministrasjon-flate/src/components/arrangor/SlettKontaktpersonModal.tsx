@@ -10,7 +10,7 @@ import {
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 import { Alert, BodyShort, Button, Heading, Table, VStack } from "@navikt/ds-react";
-import { UseMutationResult } from "@tanstack/react-query";
+import { ApiMutationResult } from "@/hooks/useApiMutation";
 import { RefObject } from "react";
 import { Laster } from "../laster/Laster";
 
@@ -119,7 +119,7 @@ interface DokumentKoblingerProps {
   dokumenter: DokumentKoblingForKontaktperson[];
   kontaktperson: ArrangorKontaktperson;
   baseUrl: "gjennomforinger" | "avtaler";
-  frikobleMutation: UseMutationResult<
+  frikobleMutation: ApiMutationResult<
     unknown,
     ProblemDetail,
     {

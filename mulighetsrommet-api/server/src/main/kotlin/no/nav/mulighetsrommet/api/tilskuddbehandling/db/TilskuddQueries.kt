@@ -87,6 +87,9 @@ private fun Row.toTilskudd(vedtak: List<Tilskudd.Vedtak>): Tilskudd {
 }
 
 private fun Row.toVedtak(): Tilskudd.Vedtak {
+    val mottaker = TilskuddMottaker.valueOf(string("utbetaling_mottaker"))
+    val vedtaksResultat = VedtakResultat.valueOf(string("vedtak_resultat"))
+    val utbetaling = if (vedtaksResultat == VedtakResultat.INNVILGELSE) toTIlskuddUTbetaling(mottaker) else null
     return Tilskudd.Vedtak(
         id = uuid("id"),
         behandlingId = uuid("tilskudd_behandling_id"),
@@ -96,14 +99,28 @@ private fun Row.toVedtak(): Tilskudd.Vedtak {
         periode = periode("periode"),
         kostnadssted = NavEnhetNummer(string("kostnadssted")),
         soknadBelop = Json.decodeFromString<ValutaBelop>(string("soknad_belop")),
-        utbetalingBelop = stringOrNull("utbetaling_belop")?.let { Json.decodeFromString<ValutaBelop>(it) },
-        vedtakResultat = VedtakResultat.valueOf(string("vedtak_resultat")),
+        vedtakResultat = vedtaksResultat,
         kommentarVedtaksbrev = stringOrNull("kommentar_vedtaksbrev"),
-        utbetalingMottaker = TilskuddMottaker.valueOf(string("utbetaling_mottaker")),
-        kid = stringOrNull("kid")?.let { Kid.parse(it) },
+        utbetalingMottaker = mottaker,
         kommentarIntern = stringOrNull("kommentar_intern"),
         vedtakJournalpostId = stringOrNull("vedtak_journalpost_id"),
+        utbetaling = utbetaling,
     )
+}
+
+private fun Row.toTIlskuddUTbetaling(mottaker: TilskuddMottaker): Tilskudd.Vedtak.Utbetaling {
+    val utbetalingBelop = string("utbetaling_belop").let { Json.decodeFromString<ValutaBelop>(it) }
+    return when (mottaker) {
+        TilskuddMottaker.BRUKER ->
+            Tilskudd.Vedtak.Utbetaling.Bruker(uuidOrNull("bruker_utbetaling_id"), utbetalingBelop)
+
+        TilskuddMottaker.ARRANGOR ->
+            Tilskudd.Vedtak.Utbetaling.Arrangor(
+                uuidOrNull("arrangor_utbetaling_id"),
+                stringOrNull("kid")?.let { Kid.parse(it) },
+                utbetalingBelop,
+            )
+    }
 }
 
 private fun Row.toTilskuddKompakt(): TilskuddKompakt {

@@ -21,13 +21,13 @@ class TilskuddService(
     suspend fun simulerOpphor(
         gjennomforingId: UUID,
         tilskuddVedtakId: UUID,
-        accessType: AccessType,
+        belop: Int,
     ): Either<HelVedSimuleringsError, HelVedSimuleringResponse> = helVedSimuleringClient.simuler(
-        hentHelVedUtbetaling(gjennomforingId, tilskuddVedtakId),
-        accessType,
+        hentHelVedUtbetaling(gjennomforingId, tilskuddVedtakId, belop),
+        accessType = AccessType.M2M,
     )
 
-    suspend fun hentHelVedUtbetaling(gjennomforingId: UUID, tilskuddVedtakId: UUID): HelVedUtbetaling {
+    suspend fun hentHelVedUtbetaling(gjennomforingId: UUID, tilskuddVedtakId: UUID, belop: Int): HelVedUtbetaling {
         val (brukerUtbetaling, deltakerId) = db.session {
             val brukerUtbetaling = queries.brukerUtbetaling.getByTilskuddVedtak(tilskuddVedtakId)
                 ?: error("Fant ikke bruker_utbetaling for tilskuddVedtakId=$tilskuddVedtakId")
@@ -40,7 +40,7 @@ class TilskuddService(
 
         return brukerUtbetaling
             // Ny behandlingId
-            .copy(behandlingId = brukerUtbetaling.behandlingId.plus(1), belop = 0)
+            .copy(behandlingId = brukerUtbetaling.behandlingId.plus(1), belop = belop)
             .toHelVedUtbetaling(personalia.norskIdent())
     }
 }

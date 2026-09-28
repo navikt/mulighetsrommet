@@ -3,6 +3,8 @@ package no.nav.mulighetsrommet.api.domain.totrinnskontroll
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import no.nav.mulighetsrommet.model.NavIdent
@@ -31,9 +33,9 @@ class TotrinnskontrollTest : FunSpec({
         test("oppretter TIL_BEHANDLING med riktig behandletAv") {
             val opprettelse = opprett(TotrinnskontrollType.TILSAGN_OPPRETTELSE)
             opprettelse.entityId shouldBe entityId
-            opprettelse.behandletAv shouldBe behandletAv
+            opprettelse.behandling.utfortAv shouldBe behandletAv
             opprettelse.status shouldBe TotrinnskontrollStatus.TIL_BEHANDLING
-            opprettelse.besluttetAv shouldBe null
+            opprettelse.beslutning shouldBe null
         }
 
         test("støtter årsaker og begrunnelse fra behandler") {
@@ -42,10 +44,9 @@ class TotrinnskontrollTest : FunSpec({
                 behandletBegrunnelse = "Perioden er feil",
                 behandletAarsaker = listOf("FEIL_PERIODE"),
             )
-            opprettelse.behandletBegrunnelse shouldBe "Perioden er feil"
-            opprettelse.behandletAarsaker shouldBe listOf("FEIL_PERIODE")
-            opprettelse.besluttetBegrunnelse shouldBe null
-            opprettelse.besluttetAarsaker shouldBe emptyList()
+            opprettelse.behandling.begrunnelse shouldBe "Perioden er feil"
+            opprettelse.behandling.aarsaker shouldBe listOf("FEIL_PERIODE")
+            opprettelse.beslutning shouldBe null
         }
     }
 
@@ -53,8 +54,8 @@ class TotrinnskontrollTest : FunSpec({
         test("godkjenner og returnerer oppdatert tilstand") {
             val godkjent = opprett().godkjenn(besluttetAv).shouldBeRight()
             godkjent.status shouldBe TotrinnskontrollStatus.GODKJENT
-            godkjent.besluttetAv shouldBe besluttetAv
-            godkjent.besluttetTidspunkt shouldNotBe null
+            godkjent.beslutning.shouldNotBeNull().utfortAv shouldBe besluttetAv
+            godkjent.beslutning.tidspunkt shouldNotBe null
         }
 
         test("feiler når behandletAv og besluttetAv er samme NavIdent") {
@@ -77,8 +78,8 @@ class TotrinnskontrollTest : FunSpec({
                 behandletAarsaker = listOf("FEIL_PERIODE"),
             )
             val godkjent = opprettelse.godkjenn(besluttetAv).shouldBeRight()
-            godkjent.behandletAarsaker shouldBe listOf("FEIL_PERIODE")
-            godkjent.besluttetAarsaker shouldBe emptyList()
+            godkjent.behandling.aarsaker shouldBe listOf("FEIL_PERIODE")
+            godkjent.beslutning.shouldNotBeNull().aarsaker shouldBe emptyList()
         }
 
         test("godkjenning etter satt på vent fjerner forrige beslutters begrunnelse") {
@@ -88,8 +89,8 @@ class TotrinnskontrollTest : FunSpec({
 
             val godkjent = sattPaVent.godkjenn(NavIdent("DD3")).shouldBeRight()
 
-            godkjent.besluttetBegrunnelse shouldBe null
-            godkjent.besluttetAarsaker shouldBe emptyList()
+            godkjent.beslutning.shouldNotBeNull().begrunnelse shouldBe null
+            godkjent.beslutning.shouldNotBeNull().aarsaker shouldBe emptyList()
         }
     }
 
@@ -104,10 +105,10 @@ class TotrinnskontrollTest : FunSpec({
                 besluttetAarsaker = listOf("BESLUTTET_AARSAK"),
             ).shouldBeRight()
 
-            returnert.behandletBegrunnelse shouldBe "Begrunnelse fra behandler"
-            returnert.behandletAarsaker shouldBe listOf("BEHANDLET_AARSAK")
-            returnert.besluttetBegrunnelse shouldBe "Begrunnelse fra beslutter"
-            returnert.besluttetAarsaker shouldBe listOf("BESLUTTET_AARSAK")
+            returnert.behandling.begrunnelse shouldBe "Begrunnelse fra behandler"
+            returnert.behandling.aarsaker shouldBe listOf("BEHANDLET_AARSAK")
+            returnert.beslutning.shouldNotBeNull().begrunnelse shouldBe "Begrunnelse fra beslutter"
+            returnert.beslutning.aarsaker shouldBe listOf("BESLUTTET_AARSAK")
         }
 
         test("returnerer og oppdaterer tilstand") {
@@ -117,12 +118,12 @@ class TotrinnskontrollTest : FunSpec({
                 besluttetAarsaker = listOf("FEIL_BELOP"),
             ).shouldBeRight()
             returnert.status shouldBe TotrinnskontrollStatus.RETURNERT
-            returnert.besluttetAv shouldBe besluttetAv
-            returnert.besluttetTidspunkt shouldNotBe null
-            returnert.behandletBegrunnelse shouldBe null
-            returnert.behandletAarsaker shouldBe emptyList()
-            returnert.besluttetBegrunnelse shouldBe "Beløp er feil"
-            returnert.besluttetAarsaker shouldBe listOf("FEIL_BELOP")
+            returnert.behandling.begrunnelse shouldBe null
+            returnert.behandling.aarsaker shouldBe emptyList()
+            returnert.beslutning.shouldNotBeNull().utfortAv shouldBe besluttetAv
+            returnert.beslutning.tidspunkt shouldNotBe null
+            returnert.beslutning.begrunnelse shouldBe "Beløp er feil"
+            returnert.beslutning.aarsaker shouldBe listOf("FEIL_BELOP")
         }
 
         test("retur kan gjøres av samme NavIdent som behandletAv") {
@@ -132,19 +133,25 @@ class TotrinnskontrollTest : FunSpec({
                 besluttetAarsaker = listOf("FEIL_BELOP"),
             ).shouldBeRight()
             returnert.status shouldBe TotrinnskontrollStatus.RETURNERT
-            returnert.besluttetAv shouldBe behandletAv
+            returnert.beslutning.shouldNotBeNull().utfortAv shouldBe behandletAv
         }
 
         test("feiler når allerede godkjent og besluttetAv er NavIdent") {
             val godkjent = opprett().godkjenn(besluttetAv).shouldBeRight()
-            godkjent.returner(besluttetAv, besluttetAarsaker = listOf("FEIL_BELOP")) shouldBeLeft TotrinnskontrollError.AlleredeBesluttet(
+            godkjent.returner(
+                besluttetAv,
+                besluttetAarsaker = listOf("FEIL_BELOP"),
+            ) shouldBeLeft TotrinnskontrollError.AlleredeBesluttet(
                 TotrinnskontrollStatus.GODKJENT,
             )
         }
 
         test("feiler når allerede returnert") {
             val returnert = opprett().returner(besluttetAv).shouldBeRight()
-            returnert.returner(besluttetAv, besluttetAarsaker = listOf("FEIL_BELOP")) shouldBeLeft TotrinnskontrollError.AlleredeBesluttet(
+            returnert.returner(
+                besluttetAv,
+                besluttetAarsaker = listOf("FEIL_BELOP"),
+            ) shouldBeLeft TotrinnskontrollError.AlleredeBesluttet(
                 TotrinnskontrollStatus.RETURNERT,
             )
         }
@@ -161,7 +168,7 @@ class TotrinnskontrollTest : FunSpec({
                 .settPaVent(besluttetAv, besluttetBegrunnelse = "Trenger mer info")
                 .shouldBeRight()
             paVent.status shouldBe TotrinnskontrollStatus.SATT_PA_VENT
-            paVent.besluttetAv shouldBe besluttetAv
+            paVent.beslutning.shouldNotBeNull().utfortAv shouldBe besluttetAv
         }
     }
 
@@ -171,12 +178,9 @@ class TotrinnskontrollTest : FunSpec({
 
         test("tilbakestiller til TIL_BEHANDLING med ny behandletAv") {
             val tilbakestilt = sattPaVent().tilbakestill(NavIdent("DD3")).shouldBeRight()
-            tilbakestilt.behandletAv shouldBe NavIdent("DD3")
             tilbakestilt.status shouldBe TotrinnskontrollStatus.TIL_BEHANDLING
-            tilbakestilt.besluttetAv shouldBe null
-            tilbakestilt.besluttetTidspunkt shouldBe null
-            tilbakestilt.behandletBegrunnelse shouldBe null
-            tilbakestilt.besluttetBegrunnelse shouldBe null
+            tilbakestilt.behandling.utfortAv shouldBe NavIdent("DD3")
+            tilbakestilt.beslutning.shouldBeNull()
         }
 
         test("beholder ikke eksisterende årsaker etter tilbakestilling") {
@@ -190,16 +194,15 @@ class TotrinnskontrollTest : FunSpec({
                 besluttetAarsaker = listOf("BESLUTTET_AARSAK"),
             ).shouldBeRight()
             val tilbakestilt = paVent.tilbakestill(behandletAv).shouldBeRight()
-            tilbakestilt.behandletBegrunnelse shouldBe null
-            tilbakestilt.behandletAarsaker shouldBe emptyList()
-            tilbakestilt.besluttetBegrunnelse shouldBe null
-            tilbakestilt.besluttetAarsaker shouldBe emptyList()
+            tilbakestilt.behandling.begrunnelse shouldBe null
+            tilbakestilt.behandling.aarsaker shouldBe emptyList()
+            tilbakestilt.beslutning.shouldBeNull()
         }
 
         test("oppdaterer behandletTidspunkt til nåtid") {
             val paVent = sattPaVent()
             val tilbakestilt = paVent.tilbakestill(behandletAv).shouldBeRight()
-            tilbakestilt.behandletTidspunkt shouldNotBe paVent.behandletTidspunkt
+            tilbakestilt.behandling.tidspunkt shouldNotBe paVent.behandling.tidspunkt
         }
 
         test("feiler når status er TIL_BEHANDLING") {

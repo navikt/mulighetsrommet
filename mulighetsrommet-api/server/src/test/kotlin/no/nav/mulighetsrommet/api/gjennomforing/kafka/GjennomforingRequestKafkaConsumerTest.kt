@@ -159,7 +159,7 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
                 gjennomforing.status shouldBe GjennomforingEnkeltplassStatus.UtkastTilPamelding
                 gjennomforing.arrangor.id shouldBe ArrangorFixtures.underenhet1.id
                 gjennomforing.ansvarligEnhet.enhetsnummer shouldBe NavEnhetNummer("0400")
-                okonomi.shouldNotBeNull().behandletAv shouldBe NavIdent("B123456")
+                okonomi.shouldNotBeNull().behandling.utfortAv shouldBe NavIdent("B123456")
             }
         }
 

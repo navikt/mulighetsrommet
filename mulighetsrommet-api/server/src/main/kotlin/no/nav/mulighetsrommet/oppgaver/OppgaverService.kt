@@ -301,7 +301,7 @@ private fun QueryContext.toOppgave(data: TilsagnOppgaveData, ansatt: NavAnsatt):
                 description = "Tilsagnet ${data.bestillingsnummer} er sendt til godkjenning",
                 tiltakstype = tiltakstype,
                 link = link,
-                createdAt = opprettelse.behandletTidspunkt.tilNorskLocalDateTime(),
+                createdAt = opprettelse.behandling.tidspunkt.tilNorskLocalDateTime(),
                 arrangor = data.arrangor,
             ).takeIf {
                 TilsagnService.tilgangTilHandling(
@@ -316,7 +316,7 @@ private fun QueryContext.toOppgave(data: TilsagnOppgaveData, ansatt: NavAnsatt):
         }
 
         TilsagnStatus.RETURNERT -> {
-            val besluttetTidspunkt = requireNotNull(opprettelse.besluttetTidspunkt)
+            val besluttetTidspunkt = requireNotNull(opprettelse.beslutning).tidspunkt
             Oppgave(
                 id = data.id,
                 type = OppgaveType.TILSAGN_RETURNERT,
@@ -351,7 +351,7 @@ private fun QueryContext.toOppgave(data: TilsagnOppgaveData, ansatt: NavAnsatt):
                 description = "Tilsagnet ${data.bestillingsnummer} er sendt til annullering",
                 tiltakstype = tiltakstype,
                 link = link,
-                createdAt = annullering.behandletTidspunkt.tilNorskLocalDateTime(),
+                createdAt = annullering.behandling.tidspunkt.tilNorskLocalDateTime(),
                 arrangor = data.arrangor,
             ).takeIf {
                 TilsagnService.tilgangTilHandling(
@@ -376,7 +376,7 @@ private fun QueryContext.toOppgave(data: TilsagnOppgaveData, ansatt: NavAnsatt):
                 description = "Tilsagnet ${data.bestillingsnummer} er klar til oppgjør",
                 tiltakstype = tiltakstype,
                 link = link,
-                createdAt = tilOppgjor.behandletTidspunkt.tilNorskLocalDateTime(),
+                createdAt = tilOppgjor.behandling.tidspunkt.tilNorskLocalDateTime(),
                 arrangor = data.arrangor,
             ).takeIf {
                 TilsagnService.tilgangTilHandling(

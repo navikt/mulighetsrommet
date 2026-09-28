@@ -30,14 +30,13 @@ class TotrinnskontrollQueriesTest : FunSpec({
                     id = id,
                     entityId = entityId,
                     type = TotrinnskontrollType.TILSAGN_OPPRETTELSE,
-                    behandletAv = NavIdent("B100000"),
-                    behandletTidspunkt = Instant.now(),
-                    behandletBegrunnelse = null,
-                    behandletAarsaker = emptyList(),
-                    besluttetAv = null,
-                    besluttetTidspunkt = null,
-                    besluttetBegrunnelse = null,
-                    besluttetAarsaker = emptyList(),
+                    behandling = Totrinnskontroll.Behandling(
+                        utfortAv = NavIdent("B100000"),
+                        tidspunkt = Instant.now(),
+                        begrunnelse = null,
+                        aarsaker = emptyList(),
+                    ),
+                    beslutning = null,
                     status = TotrinnskontrollStatus.TIL_BEHANDLING,
                 ),
             )
@@ -47,27 +46,31 @@ class TotrinnskontrollQueriesTest : FunSpec({
                     id = id,
                     entityId = entityId,
                     type = TotrinnskontrollType.TILSAGN_OPPRETTELSE,
-                    behandletAv = NavIdent("B200000"),
-                    behandletTidspunkt = Instant.now(),
-                    behandletBegrunnelse = "Begrunnelse fra behandler",
-                    behandletAarsaker = listOf("BEHANDLET_AARSAK"),
-                    besluttetAv = Tiltaksadministrasjon,
-                    besluttetTidspunkt = Instant.now(),
-                    besluttetBegrunnelse = "Feil beløp oppgitt",
-                    besluttetAarsaker = listOf("FEIL_BELOP"),
+                    behandling = Totrinnskontroll.Behandling(
+                        utfortAv = NavIdent("B200000"),
+                        tidspunkt = Instant.now(),
+                        begrunnelse = "Begrunnelse fra behandler",
+                        aarsaker = listOf("BEHANDLET_AARSAK"),
+                    ),
+                    beslutning = Totrinnskontroll.Beslutning(
+                        utfortAv = Tiltaksadministrasjon,
+                        tidspunkt = Instant.now(),
+                        begrunnelse = "Feil beløp oppgitt",
+                        aarsaker = listOf("FEIL_BELOP"),
+                    ),
                     status = TotrinnskontrollStatus.GODKJENT,
                 ),
             )
 
             queries.totrinnskontroll.getOrError(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE).also {
                 it.id shouldBe id
-                it.behandletAv shouldBe NavIdent("B200000")
+                it.behandling.utfortAv shouldBe NavIdent("B200000")
                 it.status shouldBe TotrinnskontrollStatus.GODKJENT
-                it.besluttetAv shouldBe Tiltaksadministrasjon
-                it.behandletBegrunnelse shouldBe "Begrunnelse fra behandler"
-                it.behandletAarsaker shouldBe listOf("BEHANDLET_AARSAK")
-                it.besluttetBegrunnelse shouldBe "Feil beløp oppgitt"
-                it.besluttetAarsaker shouldBe listOf("FEIL_BELOP")
+                it.beslutning?.utfortAv shouldBe Tiltaksadministrasjon
+                it.behandling.begrunnelse shouldBe "Begrunnelse fra behandler"
+                it.behandling.aarsaker shouldBe listOf("BEHANDLET_AARSAK")
+                it.beslutning?.begrunnelse shouldBe "Feil beløp oppgitt"
+                it.beslutning?.aarsaker shouldBe listOf("FEIL_BELOP")
             }
         }
     }
@@ -82,14 +85,18 @@ class TotrinnskontrollQueriesTest : FunSpec({
                     id = id,
                     entityId = entityId,
                     type = TotrinnskontrollType.TILSAGN_OPPRETTELSE,
-                    behandletAv = Tiltaksadministrasjon,
-                    behandletTidspunkt = Instant.now(),
-                    behandletBegrunnelse = null,
-                    behandletAarsaker = emptyList(),
-                    besluttetAv = Tiltaksadministrasjon,
-                    besluttetTidspunkt = Instant.now(),
-                    besluttetBegrunnelse = null,
-                    besluttetAarsaker = emptyList(),
+                    behandling = Totrinnskontroll.Behandling(
+                        utfortAv = Tiltaksadministrasjon,
+                        tidspunkt = Instant.now(),
+                        begrunnelse = null,
+                        aarsaker = emptyList(),
+                    ),
+                    beslutning = Totrinnskontroll.Beslutning(
+                        utfortAv = Tiltaksadministrasjon,
+                        tidspunkt = Instant.now(),
+                        begrunnelse = null,
+                        aarsaker = emptyList(),
+                    ),
                     status = TotrinnskontrollStatus.GODKJENT,
                 ),
             )
@@ -99,20 +106,24 @@ class TotrinnskontrollQueriesTest : FunSpec({
                     id = id,
                     entityId = entityId,
                     type = TotrinnskontrollType.TILSAGN_OPPRETTELSE,
-                    behandletAv = Tiltaksadministrasjon,
-                    behandletTidspunkt = Instant.now(),
-                    behandletBegrunnelse = null,
-                    behandletAarsaker = emptyList(),
-                    besluttetAv = Arena,
-                    besluttetTidspunkt = Instant.now(),
-                    besluttetBegrunnelse = null,
-                    besluttetAarsaker = emptyList(),
+                    behandling = Totrinnskontroll.Behandling(
+                        utfortAv = Tiltaksadministrasjon,
+                        tidspunkt = Instant.now(),
+                        begrunnelse = null,
+                        aarsaker = emptyList(),
+                    ),
+                    beslutning = Totrinnskontroll.Beslutning(
+                        utfortAv = Arena,
+                        tidspunkt = Instant.now(),
+                        begrunnelse = null,
+                        aarsaker = emptyList(),
+                    ),
                     status = TotrinnskontrollStatus.RETURNERT,
                 ),
             )
 
             queries.totrinnskontroll.getOrError(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE).should {
-                it.besluttetAv shouldBe Arena
+                it.beslutning?.utfortAv shouldBe Arena
                 it.status shouldBe TotrinnskontrollStatus.RETURNERT
             }
         }
@@ -130,14 +141,18 @@ class TotrinnskontrollQueriesTest : FunSpec({
                     id = gammelId,
                     entityId = entityId,
                     type = TotrinnskontrollType.TILSAGN_OPPRETTELSE,
-                    behandletAv = Tiltaksadministrasjon,
-                    behandletTidspunkt = gammeltTidspunkt,
-                    behandletBegrunnelse = null,
-                    behandletAarsaker = emptyList(),
-                    besluttetAv = Arena,
-                    besluttetTidspunkt = gammeltTidspunkt,
-                    besluttetBegrunnelse = null,
-                    besluttetAarsaker = emptyList(),
+                    behandling = Totrinnskontroll.Behandling(
+                        utfortAv = Tiltaksadministrasjon,
+                        tidspunkt = gammeltTidspunkt,
+                        begrunnelse = null,
+                        aarsaker = emptyList(),
+                    ),
+                    beslutning = Totrinnskontroll.Beslutning(
+                        utfortAv = Arena,
+                        tidspunkt = gammeltTidspunkt,
+                        begrunnelse = null,
+                        aarsaker = emptyList(),
+                    ),
                     status = TotrinnskontrollStatus.RETURNERT,
                 ),
             )
@@ -150,21 +165,20 @@ class TotrinnskontrollQueriesTest : FunSpec({
                     id = nyId,
                     entityId = entityId,
                     type = TotrinnskontrollType.TILSAGN_OPPRETTELSE,
-                    behandletAv = NavIdent("B123456"),
-                    behandletTidspunkt = nyttTidspunkt,
-                    behandletBegrunnelse = null,
-                    behandletAarsaker = emptyList(),
-                    besluttetAv = null,
-                    besluttetTidspunkt = null,
-                    besluttetBegrunnelse = null,
-                    besluttetAarsaker = emptyList(),
+                    behandling = Totrinnskontroll.Behandling(
+                        utfortAv = NavIdent("B123456"),
+                        tidspunkt = nyttTidspunkt,
+                        begrunnelse = null,
+                        aarsaker = emptyList(),
+                    ),
+                    beslutning = null,
                     status = TotrinnskontrollStatus.TIL_BEHANDLING,
                 ),
             )
 
             queries.totrinnskontroll.getOrError(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE).also {
                 it.id shouldBe nyId
-                it.behandletAv shouldBe NavIdent("B123456")
+                it.behandling.utfortAv shouldBe NavIdent("B123456")
                 it.status shouldBe TotrinnskontrollStatus.TIL_BEHANDLING
             }
         }
@@ -183,22 +197,26 @@ class TotrinnskontrollQueriesTest : FunSpec({
                     id = UUID.randomUUID(),
                     entityId = entityId,
                     type = TotrinnskontrollType.TILSAGN_OPPRETTELSE,
-                    behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
-                    behandletTidspunkt = Instant.now(),
-                    behandletBegrunnelse = null,
-                    behandletAarsaker = emptyList(),
-                    besluttetAv = NavAnsattFixture.MikkeMus.navIdent,
-                    besluttetTidspunkt = Instant.now(),
-                    besluttetBegrunnelse = null,
-                    besluttetAarsaker = emptyList(),
+                    behandling = Totrinnskontroll.Behandling(
+                        utfortAv = NavAnsattFixture.DonaldDuck.navIdent,
+                        tidspunkt = Instant.now(),
+                        begrunnelse = null,
+                        aarsaker = emptyList(),
+                    ),
+                    beslutning = Totrinnskontroll.Beslutning(
+                        utfortAv = NavAnsattFixture.MikkeMus.navIdent,
+                        tidspunkt = Instant.now(),
+                        begrunnelse = null,
+                        aarsaker = emptyList(),
+                    ),
                     status = TotrinnskontrollStatus.GODKJENT,
                 ),
             )
 
             val dto = queries.totrinnskontroll.getDtoOrError(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE)
             dto.shouldBeTypeOf<TotrinnskontrollDto.Besluttet>().should {
-                it.behandletAv.navn shouldBe "Donald Duck"
-                it.besluttetAv.navn shouldBe "Mikke Mus"
+                it.behandling.utfortAv.navn shouldBe "Donald Duck"
+                it.beslutning.utfortAv.navn shouldBe "Mikke Mus"
             }
         }
     }
@@ -212,22 +230,26 @@ class TotrinnskontrollQueriesTest : FunSpec({
                     id = UUID.randomUUID(),
                     entityId = entityId,
                     type = TotrinnskontrollType.TILSAGN_OPPRETTELSE,
-                    behandletAv = Tiltaksadministrasjon,
-                    behandletTidspunkt = Instant.now(),
-                    behandletBegrunnelse = null,
-                    behandletAarsaker = emptyList(),
-                    besluttetAv = Arena,
-                    besluttetTidspunkt = Instant.now(),
-                    besluttetBegrunnelse = null,
-                    besluttetAarsaker = emptyList(),
+                    behandling = Totrinnskontroll.Behandling(
+                        utfortAv = Tiltaksadministrasjon,
+                        tidspunkt = Instant.now(),
+                        begrunnelse = null,
+                        aarsaker = emptyList(),
+                    ),
+                    beslutning = Totrinnskontroll.Beslutning(
+                        utfortAv = Arena,
+                        tidspunkt = Instant.now(),
+                        begrunnelse = null,
+                        aarsaker = emptyList(),
+                    ),
                     status = TotrinnskontrollStatus.RETURNERT,
                 ),
             )
 
             val dto = queries.totrinnskontroll.getDtoOrError(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE)
             dto.shouldBeTypeOf<TotrinnskontrollDto.Besluttet>().should {
-                it.behandletAv.navn shouldBe "Tiltaksadministrasjon"
-                it.besluttetAv.navn shouldBe "Arena"
+                it.behandling.utfortAv.navn shouldBe "Tiltaksadministrasjon"
+                it.beslutning.utfortAv.navn shouldBe "Arena"
             }
         }
     }

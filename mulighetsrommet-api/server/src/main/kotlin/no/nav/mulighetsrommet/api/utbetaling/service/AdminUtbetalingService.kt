@@ -50,7 +50,9 @@ class AdminUtbetalingService(
     fun getUtbetalingDetaljer(id: UUID, navIdent: NavIdent): UtbetalingDetaljerDto = db.session {
         val utbetaling = queries.utbetaling.getOrError(id)
         val linjer = queries.utbetalingLinje.getByUtbetalingId(id)
-        val avbrytelse = utbetaling.avbrytelse?.totrinnskontroll?.let { queries.totrinnskontroll.getDtoByIdOrError(it.id) }
+        val avbrytelse = utbetaling.avbrytelse?.totrinnskontroll?.let {
+            queries.totrinnskontroll.getDtoByIdOrError(it.id)
+        }
         val dto = UtbetalingDto.fromUtbetaling(
             utbetaling = utbetaling,
             linjer = linjer,
@@ -94,7 +96,7 @@ class AdminUtbetalingService(
                 opprettelse = opprettelse,
                 handlinger = linjeHandlinger(
                     linje,
-                    opprettelse.behandletAv.agent,
+                    opprettelse.behandling.utfortAv.agent,
                     tilsagn.kostnadssted.enhetsnummer,
                     ansatt,
                 ),
@@ -308,21 +310,13 @@ class AdminUtbetalingService(
             .toSet()
 
         private fun kanGodkjenneAvbrytelse(ansatt: NavAnsatt, tilAvbrytelse: TotrinnskontrollDto?) = when (tilAvbrytelse) {
-            is TotrinnskontrollDto.TilBeslutning ->
-                tilAvbrytelse.behandletAv.agent != ansatt.navIdent
-
-            is TotrinnskontrollDto.Besluttet,
-            null,
-            -> false
+            is TotrinnskontrollDto.TilBeslutning -> tilAvbrytelse.behandling.utfortAv.agent != ansatt.navIdent
+            is TotrinnskontrollDto.Besluttet, null -> false
         }
 
         private fun kanAvslaAvbrytelse(tilAvbrytelse: TotrinnskontrollDto?) = when (tilAvbrytelse) {
-            is TotrinnskontrollDto.TilBeslutning ->
-                true
-
-            is TotrinnskontrollDto.Besluttet,
-            null,
-            -> false
+            is TotrinnskontrollDto.TilBeslutning -> true
+            is TotrinnskontrollDto.Besluttet, null -> false
         }
 
         fun linjeHandlinger(

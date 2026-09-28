@@ -48,6 +48,32 @@ object EregFixtures {
     """.trimIndent()
 
     @Language("JSON")
+    val JURIDISK_ENHET_UTEN_POSTSTED = """
+        {
+          "organisasjonsnummer": "123456781",
+          "navn": {
+            "sammensattnavn": "TENOR TESTFIRMA UTEN POSTSTED AS",
+            "navnelinje1": "TENOR TESTFIRMA UTEN POSTSTED AS"
+          },
+          "type": "JuridiskEnhet",
+          "organisasjonDetaljer": {
+            "enhetstyper": [
+              {
+                "enhetstype": "AS"
+              }
+            ],
+            "forretningsadresser": [
+              {
+                "adresselinje1": "Testveien 1",
+                "postnummer": "7374",
+                "landkode": "NO"
+              }
+            ]
+          }
+        }
+    """.trimIndent()
+
+    @Language("JSON")
     val JURIDISK_ENHET_SLETTET = """
         {
           "organisasjonsnummer": "123456780",

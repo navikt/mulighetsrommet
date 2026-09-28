@@ -116,7 +116,7 @@ class KafkaClients(
     )
     val oppdaterUtbetalingBlokkeringerFraBesluttetTilsagn: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
         id = "oppdater-utbetaling-blokkeringer-fra-besluttet-tilsagn",
-        topic = "team-mulighetsrommet.totrinnskontroll-v1",
+        topic = "team-mulighetsrommet.totrinnskontroll-v2",
         consumerProperties = getConsumerProperties("mulighetsrommet-api.oppdater-utbetaling-blokkeringer-fra-besluttet-tilsagn.v1"),
     )
     val sendTilsagnsbrev: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
@@ -141,7 +141,7 @@ class KafkaClients(
     )
     var utbetalingAvbruttNotifier: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
         id = "utbetaling-avbrutt-notifier",
-        topic = "team-mulighetsrommet.totrinnskontroll-v1",
+        topic = "team-mulighetsrommet.totrinnskontroll-v2",
         consumerProperties = getConsumerProperties("mulighetsrommet-api.utbetaling-avbrutt-notifier.v1"),
     )
     var replicateBestillingStatus: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(

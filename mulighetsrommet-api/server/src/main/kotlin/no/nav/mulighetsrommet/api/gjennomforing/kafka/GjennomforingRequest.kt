@@ -72,6 +72,7 @@ sealed interface GjennomforingRequest {
         @Serializable(with = UUIDSerializer::class)
         val id: UUID,
         val behandletAv: NavIdent,
+        val begrunnelse: String? = null,
     )
 
     @Serializable

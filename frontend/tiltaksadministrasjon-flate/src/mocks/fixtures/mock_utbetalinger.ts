@@ -4,7 +4,7 @@ import {
   TilsagnStatus,
   TilsagnType,
   Tilskuddstype,
-  TotrinnskontrollDtoBeslutning,
+  TotrinnskontrollDtoUtfall,
   UtbetalingBeregningDto,
   UtbetalingBeregningType,
   UtbetalingDto,
@@ -285,13 +285,15 @@ export const mockUtbetalingLinjer: UtbetalingLinjeDto[] = [
     opprettelse: {
       type: "TotrinnskontrollDto.TilBeslutning",
       id: "10000000-0000-0000-0000-000000000001",
-      behandletAv: {
-        agent: "B123456",
-        navn: "Bertil Bengtson",
+      behandling: {
+        utfortAv: {
+          agent: "B123456",
+          navn: "Bertil Bengtson",
+        },
+        tidspunkt: "2024-01-01T22:00:00",
+        begrunnelse: "Utbetaling for tilsagn",
+        aarsaker: ["ANNET"],
       },
-      behandletTidspunkt: "2024-01-01T22:00:00",
-      behandletBegrunnelse: "Utbetaling for tilsagn",
-      behandletAarsaker: ["Utbetaling for første halvår 2024"],
     },
     handlinger: [UtbetalingLinjeHandling.ATTESTER, UtbetalingLinjeHandling.RETURNER],
   },
@@ -333,21 +335,25 @@ export const mockUtbetalingLinjer: UtbetalingLinjeDto[] = [
     gjorOppTilsagn: false,
     opprettelse: {
       type: "TotrinnskontrollDto.Besluttet",
-      behandletAv: {
-        agent: "B123456",
-        navn: "Bertil Bengtson",
+      behandling: {
+        utfortAv: {
+          agent: "B123456",
+          navn: "Bertil Bengtson",
+        },
+        tidspunkt: "2024-01-01T22:00:00",
+        begrunnelse: null,
+        aarsaker: [],
       },
-      behandletTidspunkt: "2024-01-01T22:00:00",
-      behandletBegrunnelse: null,
-      behandletAarsaker: [],
-      besluttetAv: {
-        agent: "P123456",
-        navn: "Per Haraldsen",
+      beslutning: {
+        utfortAv: {
+          agent: "P123456",
+          navn: "Per Haraldsen",
+        },
+        tidspunkt: "2024-01-02T10:00:00",
+        begrunnelse: "Beløpet er feil. Du må justere antall deltakere",
+        aarsaker: ["FEIL_BELOP"],
+        utfall: TotrinnskontrollDtoUtfall.RETURNERT,
       },
-      besluttetTidspunkt: "2024-01-02T10:00:00",
-      besluttetBegrunnelse: "Beløpet er feil. Du må justere antall deltakere",
-      besluttetAarsaker: ["FEIL_BELOP"],
-      beslutning: TotrinnskontrollDtoBeslutning.RETURNERT,
       id: "10000000-0000-0000-0000-000000000002",
     },
   },
@@ -385,21 +391,25 @@ export const mockUtbetalingLinjer: UtbetalingLinjeDto[] = [
     gjorOppTilsagn: true,
     opprettelse: {
       type: "TotrinnskontrollDto.Besluttet",
-      behandletAv: {
-        agent: "B123456",
-        navn: "Bertil Bengtson",
+      behandling: {
+        utfortAv: {
+          agent: "B123456",
+          navn: "Bertil Bengtson",
+        },
+        tidspunkt: "2024-01-01T22:00:00",
+        begrunnelse: null,
+        aarsaker: [],
       },
-      behandletTidspunkt: "2024-01-01T22:00:00",
-      behandletBegrunnelse: null,
-      behandletAarsaker: [],
-      besluttetAv: {
-        agent: "P123456",
-        navn: "Per Haraldsen",
+      beslutning: {
+        utfortAv: {
+          agent: "P123456",
+          navn: "Per Haraldsen",
+        },
+        tidspunkt: "2024-01-02T10:00:00",
+        begrunnelse: "Beløpet er feil, og bør fikses ved å endre antall deltakere",
+        aarsaker: ["FEIL_BELOP"],
+        utfall: TotrinnskontrollDtoUtfall.RETURNERT,
       },
-      besluttetTidspunkt: "2024-01-02T10:00:00",
-      besluttetBegrunnelse: "Beløpet er feil, og bør fikses ved å endre antall deltakere",
-      besluttetAarsaker: ["FEIL_BELOP"],
-      beslutning: TotrinnskontrollDtoBeslutning.RETURNERT,
       id: "10000000-0000-0000-0000-000000000003",
     },
   },
@@ -444,13 +454,15 @@ export const mockUtbetalingLinjer: UtbetalingLinjeDto[] = [
     opprettelse: {
       type: "TotrinnskontrollDto.TilBeslutning",
       id: "10000000-0000-0000-0000-000000000004",
-      behandletAv: {
-        agent: "B123456",
-        navn: "Bertil Bengtson",
+      behandling: {
+        utfortAv: {
+          agent: "B123456",
+          navn: "Bertil Bengtson",
+        },
+        tidspunkt: "2025-01-01T10:00:00",
+        begrunnelse: "Utbetaling for første halvår 2025",
+        aarsaker: [],
       },
-      behandletTidspunkt: "2025-01-01T10:00:00",
-      behandletBegrunnelse: "Utbetaling for første halvår 2025",
-      behandletAarsaker: [],
     },
   },
   {
@@ -492,21 +504,25 @@ export const mockUtbetalingLinjer: UtbetalingLinjeDto[] = [
     opprettelse: {
       type: "TotrinnskontrollDto.Besluttet",
       id: "10000000-0000-0000-0000-000000000005",
-      behandletAv: {
-        agent: "B123456",
-        navn: "Bertil Bengtson",
+      behandling: {
+        utfortAv: {
+          agent: "B123456",
+          navn: "Bertil Bengtson",
+        },
+        tidspunkt: "2025-01-01T10:00:00",
+        begrunnelse: "Utbetaling for første halvår 2025",
+        aarsaker: [],
       },
-      behandletTidspunkt: "2025-01-01T10:00:00",
-      behandletBegrunnelse: "Utbetaling for første halvår 2025",
-      behandletAarsaker: [],
-      besluttetAv: {
-        agent: "P123456",
-        navn: "Per Haraldsen",
+      beslutning: {
+        utfortAv: {
+          agent: "P123456",
+          navn: "Per Haraldsen",
+        },
+        tidspunkt: "2025-01-01T10:00:00",
+        begrunnelse: null,
+        aarsaker: [],
+        utfall: TotrinnskontrollDtoUtfall.GODKJENT,
       },
-      besluttetTidspunkt: "2025-01-01T10:00:00",
-      besluttetBegrunnelse: null,
-      besluttetAarsaker: [],
-      beslutning: TotrinnskontrollDtoBeslutning.GODKJENT,
     },
   },
 ];

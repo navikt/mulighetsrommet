@@ -43,7 +43,7 @@ enum class ArrangorflateUtbetalingStatus {
         }
 
         private fun utledAvbruttStatus(avbrytelse: TotrinnskontrollDto?): ArrangorflateUtbetalingStatus = when {
-            avbrytelse is TotrinnskontrollDto.Besluttet && avbrytelse.beslutning == TotrinnskontrollDto.Beslutning.GODKJENT -> AVBRUTT_AV_NAV
+            avbrytelse is TotrinnskontrollDto.Besluttet && avbrytelse.beslutning.utfall == TotrinnskontrollDto.Utfall.GODKJENT -> AVBRUTT_AV_NAV
             else -> AVBRUTT_AV_ARRANGOR
         }
     }

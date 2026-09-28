@@ -100,6 +100,7 @@ data class UpsertArenaEnkeltplass(
 data class TotrinnskontrollBehandling(
     val id: UUID,
     val behandletAv: NavIdent,
+    val begrunnelse: String?,
 )
 
 class GjennomforingEnkeltplassService(
@@ -435,10 +436,11 @@ class GjennomforingEnkeltplassService(
         publishTiltaksgjennomforingV2ToKafka(oppdatert)
 
         val okonomi = Totrinnskontroll.opprett(
-            behandling.id,
-            gjennomforingId,
-            TotrinnskontrollType.ENKELTPLASS_OKONOMI,
-            behandling.behandletAv,
+            id = behandling.id,
+            entityId = gjennomforingId,
+            type = TotrinnskontrollType.ENKELTPLASS_OKONOMI,
+            behandletAv = behandling.behandletAv,
+            behandletBegrunnelse = behandling.begrunnelse,
         )
         queries.totrinnskontroll.upsert(okonomi)
         outbox.publish(okonomi)
@@ -511,10 +513,11 @@ class GjennomforingEnkeltplassService(
         queries.prismodell.upsert(toPrismodell(prismodellId, prisinformasjon))
 
         val prisendring = Totrinnskontroll.opprett(
-            behandling.id,
-            gjennomforingId,
-            TotrinnskontrollType.ENKELTPLASS_PRISENDRING,
-            behandling.behandletAv,
+            id = behandling.id,
+            entityId = gjennomforingId,
+            type = TotrinnskontrollType.ENKELTPLASS_PRISENDRING,
+            behandletAv = behandling.behandletAv,
+            behandletBegrunnelse = behandling.begrunnelse,
         )
         queries.totrinnskontroll.upsert(prisendring)
         outbox.publish(prisendring)
@@ -652,6 +655,7 @@ class GjennomforingEnkeltplassService(
             entityId = id,
             type = TotrinnskontrollType.ENKELTPLASS_OKONOMI,
             behandletAv = behandling.behandletAv,
+            behandletBegrunnelse = behandling.begrunnelse,
         )
         queries.totrinnskontroll.upsert(totrinnskontroll)
         outbox.publish(totrinnskontroll)
@@ -676,7 +680,7 @@ class GjennomforingEnkeltplassService(
         agent: Agent,
         begrunnelse: String?,
     ): Validated<Enkeltplass> {
-        return okonomi.settPaVent(agent, besluttetBegrunnelse = begrunnelse).mapLeft { it.toFieldErrors() }.map { paVent ->
+        return okonomi.settPaVent(agent, begrunnelse).mapLeft { it.toFieldErrors() }.map { paVent ->
             queries.totrinnskontroll.upsert(paVent)
             outbox.publish(paVent)
             logEndring("Godkjenning ble satt på vent", id, agent)
@@ -712,7 +716,7 @@ class GjennomforingEnkeltplassService(
         agent: Agent,
         begrunnelse: String?,
     ): Validated<Enkeltplass> {
-        return prisendring.settPaVent(agent, besluttetBegrunnelse = begrunnelse).mapLeft { it.toFieldErrors() }.map { paVent ->
+        return prisendring.settPaVent(agent, begrunnelse).mapLeft { it.toFieldErrors() }.map { paVent ->
             queries.totrinnskontroll.upsert(paVent)
             outbox.publish(paVent)
             logEndring("Prisendring ble satt på vent", gjennomforingId, agent)

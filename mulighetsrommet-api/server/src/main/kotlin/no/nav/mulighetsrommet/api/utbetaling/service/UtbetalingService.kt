@@ -732,14 +732,14 @@ class UtbetalingService(
         val opprettelse = getTotrinnskontroll(utbetalingLinjeId)
         val tilsagnTilOppgjor = tilsagnService.setTilOppgjor(
             tilsagn,
-            opprettelse.behandletAv,
+            opprettelse.behandling.utfortAv,
             aarsaker = listOf(),
             begrunnelse = null,
             operation = "Sendt til oppgjør ved behandling av utbetaling",
         )
         tilsagnService.gjorOppTilsagn(
             tilsagnTilOppgjor,
-            requireNotNull(opprettelse.besluttetAv),
+            requireNotNull(opprettelse.beslutning).utfortAv,
             operation = "Tilsagn oppgjort ved attestering av utbetaling",
         ).onLeft { errors ->
             throw UtbetalingException(errors)
@@ -808,9 +808,8 @@ class UtbetalingService(
 
     private fun TransactionalQueryContext.publishOpprettFaktura(linje: UtbetalingLinje) {
         val opprettelse = getTotrinnskontroll(linje.id)
-        val besluttetAv = opprettelse.besluttetAv
-        val besluttetTidspunkt = opprettelse.besluttetTidspunkt
-        check(besluttetAv != null && besluttetTidspunkt != null && opprettelse.status == TotrinnskontrollStatus.GODKJENT) {
+        val beslutning = opprettelse.beslutning
+        check(beslutning != null && opprettelse.status == TotrinnskontrollStatus.GODKJENT) {
             "UtbetalingLinje id=${linje.id} må være besluttet godkjent for å sendes til økonomi"
         }
 
@@ -848,10 +847,10 @@ class UtbetalingService(
             bestillingsnummer = Bestillingsnummer(tilsagn.bestilling.bestillingsnummer),
             betalingsinformasjon = betalingsinformasjon,
             periode = linje.periode,
-            behandletAv = opprettelse.behandletAv.toOkonomiPart(),
-            behandletTidspunkt = opprettelse.behandletTidspunkt,
-            besluttetAv = besluttetAv.toOkonomiPart(),
-            besluttetTidspunkt = besluttetTidspunkt,
+            behandletAv = opprettelse.behandling.utfortAv.toOkonomiPart(),
+            behandletTidspunkt = opprettelse.behandling.tidspunkt,
+            besluttetAv = beslutning.utfortAv.toOkonomiPart(),
+            besluttetTidspunkt = beslutning.tidspunkt,
             gjorOppBestilling = linje.gjorOppTilsagn,
             beskrivelse = beskrivelse,
             belop = linje.pris.belop,

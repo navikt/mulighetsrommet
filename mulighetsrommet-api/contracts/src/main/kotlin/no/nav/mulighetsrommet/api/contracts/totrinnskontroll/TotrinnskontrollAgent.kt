@@ -5,16 +5,16 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.model.NavIdent
 
 @Serializable
-sealed class TotrinnskontrollAgent {
+sealed interface TotrinnskontrollAgent {
     @Serializable
     @SerialName("NAV_ANSATT")
-    data class NavAnsatt(val navIdent: NavIdent) : TotrinnskontrollAgent()
+    data class NavAnsatt(val navIdent: NavIdent) : TotrinnskontrollAgent
 
     @Serializable
     @SerialName("SYSTEM")
-    data class System(val system: String) : TotrinnskontrollAgent()
+    data class System(val system: String) : TotrinnskontrollAgent
 
     @Serializable
     @SerialName("ARRANGOR")
-    data object Arrangor : TotrinnskontrollAgent()
+    data object Arrangor : TotrinnskontrollAgent
 }

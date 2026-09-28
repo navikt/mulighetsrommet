@@ -26,7 +26,12 @@ import {
   TotrinnskontrollDtoBesluttet,
   TotrinnskontrollDtoTilBeslutning,
 } from "@tiltaksadministrasjon/api-client";
-import { erSattPaVent, erTilBeslutning } from "@/utils/totrinnskontroll";
+import {
+  erSattPaVent,
+  erTilBeslutning,
+  utledBehandletAvNavn,
+  utledBesluttetAvNavn,
+} from "@/utils/totrinnskontroll";
 import { formaterDato } from "@mr/frontend-common/utils/date";
 import { useState } from "react";
 import { GjennomforingPageLayout } from "@/pages/gjennomforing/GjennomforingPageLayout";
@@ -223,13 +228,13 @@ function OkonomiStatusSattPaVent({ okonomi }: { okonomi: TotrinnskontrollDtoBesl
       </InfoCard.Header>
       <InfoCard.Content>
         <BodyShort spacing>
-          {okonomi.besluttetAv.navn} satte godkjenning av enkeltplass på vent den{" "}
-          {formaterDato(okonomi.besluttetTidspunkt)}.
+          {utledBesluttetAvNavn(okonomi)} satte godkjenning av enkeltplass på vent den{" "}
+          {formaterDato(okonomi.beslutning.tidspunkt)}.
         </BodyShort>
-        {okonomi.besluttetBegrunnelse && (
+        {okonomi.beslutning.begrunnelse && (
           <MetadataFritekstfelt
             label="Intern kommentar (valgfritt)"
-            value={okonomi.besluttetBegrunnelse}
+            value={okonomi.beslutning.begrunnelse}
           />
         )}
       </InfoCard.Content>
@@ -254,9 +259,15 @@ function PrisendringTilGodkjenning({
       <InfoCard.Content>
         <VStack gap="space-8">
           <BodyShort>
-            {totrinnskontroll.behandletAv.navn || totrinnskontroll.behandletAv.agent} sendte en
-            prisendring til godkjenning den {formaterDato(totrinnskontroll.behandletTidspunkt)}.
+            {utledBehandletAvNavn(totrinnskontroll)} sendte en prisendring til godkjenning den{" "}
+            {formaterDato(totrinnskontroll.behandling.tidspunkt)}.
           </BodyShort>
+          {totrinnskontroll.behandling.begrunnelse && (
+            <MetadataFritekstfelt
+              label="Begrunnelse fra veileder"
+              value={totrinnskontroll.behandling.begrunnelse}
+            />
+          )}
           <Betalingsbetingelser prismodell={prismodell} />
         </VStack>
       </InfoCard.Content>
@@ -278,13 +289,19 @@ function PrisendringPaVent({ totrinnskontroll, prismodell }: PrisendringPaVentPr
       <InfoCard.Content>
         <VStack gap="space-8">
           <BodyShort>
-            {totrinnskontroll.besluttetAv.navn} satte godkjenning av prisendring på vent den{" "}
-            {formaterDato(totrinnskontroll.besluttetTidspunkt)}.
+            {utledBesluttetAvNavn(totrinnskontroll)} satte godkjenning av prisendring på vent den{" "}
+            {formaterDato(totrinnskontroll.beslutning.tidspunkt)}.
           </BodyShort>
-          {totrinnskontroll.besluttetBegrunnelse && (
+          {totrinnskontroll.behandling.begrunnelse && (
+            <MetadataFritekstfelt
+              label="Begrunnelse fra veileder"
+              value={totrinnskontroll.behandling.begrunnelse}
+            />
+          )}
+          {totrinnskontroll.beslutning.begrunnelse && (
             <MetadataFritekstfelt
               label="Intern kommentar (valgfritt)"
-              value={totrinnskontroll.besluttetBegrunnelse}
+              value={totrinnskontroll.beslutning.begrunnelse}
             />
           )}
           <Betalingsbetingelser prismodell={prismodell} />

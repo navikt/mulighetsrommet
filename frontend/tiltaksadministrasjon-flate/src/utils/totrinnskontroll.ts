@@ -1,6 +1,8 @@
 import {
   TotrinnskontrollDto,
-  TotrinnskontrollDtoBeslutning,
+  TotrinnskontrollDtoBesluttet,
+  TotrinnskontrollDtoTilBeslutning,
+  TotrinnskontrollDtoUtfall,
 } from "@tiltaksadministrasjon/api-client";
 
 type TotrinnskontrollBesluttet = Extract<
@@ -16,15 +18,15 @@ type TotrinnskontrollTilBeslutning = Extract<
 >;
 
 type TotrinnskontrollSattPaVent = TotrinnskontrollBesluttet & {
-  beslutning: TotrinnskontrollDtoBeslutning.SATT_PA_VENT;
+  beslutning: { utfall: TotrinnskontrollDtoUtfall.SATT_PA_VENT };
 };
 
 type TotrinnskontrollGodkjent = TotrinnskontrollBesluttet & {
-  beslutning: TotrinnskontrollDtoBeslutning.GODKJENT;
+  beslutning: { utfall: TotrinnskontrollDtoUtfall.GODKJENT };
 };
 
 type TotrinnskontrollReturnert = TotrinnskontrollBesluttet & {
-  beslutning: TotrinnskontrollDtoBeslutning.RETURNERT;
+  beslutning: { utfall: TotrinnskontrollDtoUtfall.RETURNERT };
 };
 
 export function erSattPaVent(
@@ -32,7 +34,7 @@ export function erSattPaVent(
 ): totrinnskontroll is TotrinnskontrollSattPaVent {
   return (
     erBesluttet(totrinnskontroll) &&
-    totrinnskontroll.beslutning === TotrinnskontrollDtoBeslutning.SATT_PA_VENT
+    totrinnskontroll.beslutning.utfall === TotrinnskontrollDtoUtfall.SATT_PA_VENT
   );
 }
 
@@ -41,7 +43,7 @@ export function erGodkjent(
 ): totrinnskontroll is TotrinnskontrollGodkjent {
   return (
     erBesluttet(totrinnskontroll) &&
-    totrinnskontroll.beslutning === TotrinnskontrollDtoBeslutning.GODKJENT
+    totrinnskontroll.beslutning.utfall === TotrinnskontrollDtoUtfall.GODKJENT
   );
 }
 
@@ -50,7 +52,7 @@ export function erReturnert(
 ): totrinnskontroll is TotrinnskontrollReturnert {
   return (
     erBesluttet(totrinnskontroll) &&
-    totrinnskontroll.beslutning === TotrinnskontrollDtoBeslutning.RETURNERT
+    totrinnskontroll.beslutning.utfall === TotrinnskontrollDtoUtfall.RETURNERT
   );
 }
 
@@ -64,4 +66,14 @@ export function erTilBeslutning(
   totrinnskontroll: TotrinnskontrollDto | null,
 ): totrinnskontroll is TotrinnskontrollTilBeslutning {
   return totrinnskontroll?.type === "TotrinnskontrollDto.TilBeslutning";
+}
+
+export function utledBehandletAvNavn(
+  totrinnskontroll: TotrinnskontrollDtoTilBeslutning | TotrinnskontrollDtoBesluttet,
+) {
+  return totrinnskontroll.behandling.utfortAv.navn ?? totrinnskontroll.behandling.utfortAv.agent;
+}
+
+export function utledBesluttetAvNavn(totrinnskontroll: TotrinnskontrollDtoBesluttet) {
+  return totrinnskontroll.beslutning.utfortAv.navn ?? totrinnskontroll.beslutning.utfortAv.agent;
 }

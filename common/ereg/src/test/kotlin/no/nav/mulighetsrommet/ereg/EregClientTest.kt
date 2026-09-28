@@ -120,6 +120,31 @@ class EregClientTest : FunSpec({
             )
         }
 
+        test("utleder poststed fra postnummerregisteret når Ereg ikke oppgir poststed") {
+            val eregClient = EregClient(
+                baseUrl = "https://ereg-services",
+                clientEngine = createMockEngine {
+                    get("/v2/organisasjon/123456781") {
+                        respondJson(EregFixtures.JURIDISK_ENHET_UTEN_POSTSTED)
+                    }
+                },
+            )
+
+            eregClient.getHovedenhet(Organisasjonsnummer("123456781")) shouldBeRight EregHovedenhetDto(
+                organisasjonsnummer = Organisasjonsnummer("123456781"),
+                organisasjonsform = "AS",
+                navn = "TENOR TESTFIRMA UTEN POSTSTED AS",
+                postadresse = null,
+                forretningsadresse = EregAdresse(
+                    landkode = "NO",
+                    postnummer = "7374",
+                    poststed = "RØROS",
+                    adresse = listOf("Testveien 1"),
+                ),
+                overordnetEnhet = null,
+            )
+        }
+
         test("skal returnere feil når virksomhet mangler knytning til juridisk enhet") {
             val eregClient = EregClient(
                 baseUrl = "https://ereg-services",

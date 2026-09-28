@@ -2,7 +2,6 @@ import { BodyShort, Box, Heading, HStack, List, VStack } from "@navikt/ds-react"
 import {
   MetadataFritekstfelt,
   MetadataVStack,
-  Separator,
 } from "@mr/frontend-common/components/datadriven/Metadata";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { AvtaltSatsDto, PrismodellDto, PrismodellType } from "@tiltaksadministrasjon/api-client";
@@ -97,6 +96,14 @@ function BetalingsbetingelserTilskudd({ prismodell }: PrismodellDetaljerProps) {
         Tilskudd til en tilgjengelig studie- eller skoleplass
       </Heading>
       <BodyShort>Utbetales basert på dokumenterte utgifter</BodyShort>
+      {prismodell.prisbetingelser && (
+        <>
+          <Heading level="4" size="xsmall">
+            Tilleggsopplysninger om kostnader
+          </Heading>
+          <BodyShort>{prismodell.prisbetingelser}</BodyShort>
+        </>
+      )}
       <Heading level="4" size="xsmall">
         Aktuelle tilskuddstyper
       </Heading>
@@ -115,15 +122,6 @@ function BetalingsbetingelserTilskudd({ prismodell }: PrismodellDetaljerProps) {
       <BodyShort size="small" weight="semibold" className="ml-auto">
         {`Estimert totalsum: ${formaterValutaBelop(totalt)}`}
       </BodyShort>
-      <Separator />
-      {prismodell.prisbetingelser && (
-        <>
-          <Heading level="4" size="xsmall">
-            Tilleggsopplysninger om kostnader
-          </Heading>
-          <BodyShort>{prismodell.prisbetingelser}</BodyShort>
-        </>
-      )}
     </VStack>
   );
 }

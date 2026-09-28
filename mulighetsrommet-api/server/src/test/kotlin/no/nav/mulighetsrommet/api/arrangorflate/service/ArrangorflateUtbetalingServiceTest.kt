@@ -484,8 +484,8 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
 
                 queries.totrinnskontroll.getOrError(linje.id, TotrinnskontrollType.UTBETALING_LINJE_OPPRETTELSE)
                     .should {
-                        it.behandletAv shouldBe Tiltaksadministrasjon
-                        it.besluttetAv shouldBe Tiltaksadministrasjon
+                        it.behandling.utfortAv shouldBe Tiltaksadministrasjon
+                        it.beslutning.shouldNotBeNull().utfortAv shouldBe Tiltaksadministrasjon
                     }
 
                 queries.tilsagn.getOrError(Tilsagn1.id).should {

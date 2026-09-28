@@ -4,7 +4,6 @@ import com.diffplug.selfie.coroutines.expectSelfie
 import io.kotest.core.spec.style.FunSpec
 import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.admin.navenhet.toDto
-import no.nav.mulighetsrommet.admin.totrinnskontroll.AgentDto
 import no.nav.mulighetsrommet.api.domain.arrangor.Arrangor
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhet
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetStatus
@@ -20,7 +19,6 @@ import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.NOK
 import no.nav.mulighetsrommet.model.NavEnhetNummer
-import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
@@ -72,8 +70,8 @@ class TilsagnToPdfDocumentContentMapperTest : FunSpec({
 
     val kontonummer = Kontonummer("12345678910")
 
-    val saksbehandler = AgentDto.fromAgent(NavIdent("Z111111"), "Saksbehandler Navn")
-    val beslutter = AgentDto.fromAgent(NavIdent("Z222222"), "Beslutter Navn")
+    val saksbehandler = "Saksbehandler Navn"
+    val beslutter = "Beslutter Navn"
 
     val arrangor = Arrangor.Norsk.opprett(
         id = UUID.fromString("4d4938fa-d4ad-4697-9e20-0e776f7b0f2f"),
