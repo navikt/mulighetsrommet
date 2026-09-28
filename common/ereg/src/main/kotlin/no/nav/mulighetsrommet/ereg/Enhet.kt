@@ -127,7 +127,7 @@ internal data class Adresse(
     fun toEregAdresse(): EregAdresse = EregAdresse(
         landkode = landkode,
         postnummer = postnummer,
-        poststed = poststed,
+        poststed = poststed ?: postnummer?.let { Postnummerregister.poststed(it) },
         adresse = listOfNotNull(adresselinje1, adresselinje2, adresselinje3),
     )
 }

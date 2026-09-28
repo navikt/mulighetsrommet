@@ -1,0 +1,49 @@
+name: Update Postnummerregister
+
+on:
+  workflow_dispatch:
+  schedule:
+    # 12:00 UTC den 1. i hver måned
+    - cron: "0 12 1 * *"
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update-postnummerregister:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Update
+        run: common/ereg/scripts/update-postnummerregister.sh
+
+      - name: Create PR
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ -z "$(git status --porcelain)" ]; then
+            echo "Ingen endringer i postnummerregisteret."
+            exit 0
+          fi
+
+          branch="update-postnummerregister"
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$branch"
+          git add common/ereg/src/main/resources/postnummerregister.json
+          git commit -m "Oppdater postnummerregister"
+          git push --force origin "$branch"
+
+          if gh pr view "$branch" >/dev/null 2>&1; then
+            echo "PR for $branch finnes allerede."
+          else
+            gh pr create \
+              --title "Oppdater postnummerregister" \
+              --body "Oppdatert fra Posten/Brings postnummerregister." \
+              --base main \
+              --head "$branch"
+          fi
