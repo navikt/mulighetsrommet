@@ -12,6 +12,7 @@ import no.nav.mulighetsrommet.api.contracts.totrinnskontroll.TotrinnskontrollAge
 import no.nav.mulighetsrommet.api.contracts.totrinnskontroll.TotrinnskontrollHendelse
 import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd
+import no.nav.mulighetsrommet.api.domain.testing.fixture.DeltakerFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavAnsattFixture
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
@@ -20,7 +21,7 @@ import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilskuddbehandling.TilskuddBehandlingService
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
-import no.nav.mulighetsrommet.api.tilskuddbehandling.gyldigJournalpostValidator
+import no.nav.mulighetsrommet.api.tilskuddbehandling.gyldigSafClient
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingRequest
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
 import no.nav.mulighetsrommet.api.tilskuddbehandling.task.JournalforVedtaksbrev
@@ -50,6 +51,7 @@ class TilskuddArrangorUtbetalingConsumerTest : FunSpec({
         MulighetsrommetTestDomain(
             ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
             gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
+            deltakere = listOf(DeltakerFixtures.createDeltaker(id = UUID.randomUUID(), gjennomforingId = GjennomforingFixtures.EnkelAmo.id)),
         ).initialize(database.api)
 
         coEvery { betalingsinformasjon.execute(any()) } returns Betalingsinformasjon.BBan(
@@ -133,9 +135,10 @@ class TilskuddArrangorUtbetalingConsumerTest : FunSpec({
         val service = TilskuddBehandlingService(
             database.api,
             journalforVedtaksbrev,
-            mockk(relaxed = true),
-            gyldigJournalpostValidator(),
-            mockk(relaxed = true),
+            pdf = mockk(relaxed = true),
+            safClient = gyldigSafClient(),
+            personaliaService = mockk(relaxed = true),
+            featureToggleService = mockk(relaxed = true),
         )
 
         service.upsert(request, NavAnsattFixture.DonaldDuck.navIdent).shouldBeRight()
@@ -157,8 +160,9 @@ class TilskuddArrangorUtbetalingConsumerTest : FunSpec({
             database.api,
             journalforVedtaksbrev,
             mockk(relaxed = true),
-            gyldigJournalpostValidator(),
-            mockk(relaxed = true),
+            safClient = gyldigSafClient(),
+            personaliaService = mockk(relaxed = true),
+            featureToggleService = mockk(relaxed = true),
         )
         service.upsert(request, NavAnsattFixture.DonaldDuck.navIdent).shouldBeRight()
 
@@ -176,8 +180,9 @@ class TilskuddArrangorUtbetalingConsumerTest : FunSpec({
             database.api,
             journalforVedtaksbrev,
             mockk(relaxed = true),
-            gyldigJournalpostValidator(),
-            mockk(relaxed = true),
+            safClient = gyldigSafClient(),
+            personaliaService = mockk(relaxed = true),
+            featureToggleService = mockk(relaxed = true),
         )
         service.upsert(request, NavAnsattFixture.DonaldDuck.navIdent).shouldBeRight()
 

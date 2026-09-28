@@ -1,6 +1,6 @@
 package no.nav.mulighetsrommet.api.tilskuddbehandling
 
-import arrow.core.left
+import arrow.core.nel
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
@@ -8,14 +8,11 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
-import io.mockk.coEvery
 import io.mockk.mockk
-import no.nav.mulighetsrommet.admin.journalpost.JournalpostValidator
 import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollDto
-import no.nav.mulighetsrommet.api.clients.saf.SafClient
-import no.nav.mulighetsrommet.api.clients.saf.SafError
 import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd
 import no.nav.mulighetsrommet.api.domain.testing.fixture.AvtaleFixtures
+import no.nav.mulighetsrommet.api.domain.testing.fixture.DeltakerFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
@@ -42,6 +39,7 @@ class TilskuddBehandlingServiceTest : FunSpec({
             ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
             avtaler = listOf(AvtaleFixtures.AFT),
             gjennomforinger = listOf(GjennomforingFixtures.AFT1),
+            deltakere = listOf(DeltakerFixtures.createDeltaker(id = UUID.randomUUID(), gjennomforingId = GjennomforingFixtures.AFT1.id)),
         ).initialize(database.api)
     }
 
@@ -80,24 +78,26 @@ class TilskuddBehandlingServiceTest : FunSpec({
         db = database.api,
         journalforVedtaksbrev = mockk(relaxed = true),
         pdf = mockk(relaxed = true),
-        journalpostValidator = gyldigJournalpostValidator(),
+        safClient = gyldigSafClient(),
         personaliaService = mockk(relaxed = true),
+        featureToggleService = mockk(relaxed = true),
     )
 
     context("validering av journalpost") {
         test("upsert feiler når journalpost ikke er gyldig") {
-            val saf = mockk<SafClient> {
-                coEvery { hentJournalpost("12345", any()) } returns SafError.NotFound.left()
-            }
             val service = TilskuddBehandlingService(
                 db = database.api,
                 journalforVedtaksbrev = mockk(relaxed = true),
                 pdf = mockk(relaxed = true),
-                journalpostValidator = JournalpostValidator(saf),
+                safClient = gyldigSafClient(),
                 personaliaService = mockk(relaxed = true),
+                featureToggleService = mockk(relaxed = true),
             )
 
-            service.upsert(request, ansatt1).shouldBeLeft().should {
+            service.upsert(
+                request.copy(tilskudd = request.tilskudd.first().copy(soknadJournalpostId = "asdf").nel()),
+                ansatt1,
+            ).shouldBeLeft().should {
                 it shouldHaveSize 1
                 it.first().pointer shouldBe "/tilskudd/0/soknadJournalpostId"
             }

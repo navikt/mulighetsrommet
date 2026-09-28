@@ -21,10 +21,12 @@ class JournalpostValidatorTest : FunSpec({
     val arrangor = ForventetBruker.Bedrift(Organisasjonsnummer("123456789"))
     val saf = mockk<SafClient>()
 
-    test("journalpost uten bruker er gyldig") {
+    test("journalpost uten bruker er ikke gyldig") {
         coEvery { saf.hentJournalpost(any(), any()) } returns SafJournalpost("453857496").right()
 
-        JournalpostValidator.validerJournalpost("453857496", person, AccessType.M2M, saf).shouldBeRight()
+        JournalpostValidator.validerJournalpost("453857496", person, AccessType.M2M, saf).shouldBeLeft(
+            JournalpostValidator.JournalpostValideringError.IngenTilknytning,
+        )
     }
 
     test("journalpost knyttet til riktig person er gyldig") {

@@ -35,6 +35,8 @@ import no.nav.mulighetsrommet.api.tilskuddbehandling.task.hentForhandsvisningVed
 import no.nav.mulighetsrommet.api.totrinnskontroll.api.toFieldErrors
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingException
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
+import no.nav.mulighetsrommet.featuretoggle.model.FeatureToggle
+import no.nav.mulighetsrommet.featuretoggle.service.FeatureToggleService
 import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.JournalpostId
@@ -51,6 +53,7 @@ class TilskuddBehandlingService(
     private val pdf: PdfGenClient,
     private val personaliaService: PersonaliaService,
     private val safClient: SafClient,
+    private val featureToggleService: FeatureToggleService,
 ) {
     suspend fun upsert(
         request: TilskuddBehandlingRequest,
@@ -68,6 +71,7 @@ class TilskuddBehandlingService(
         val journalpostValidatorFunc = TilskuddBehandlingValidator.createJournalpostValidator(
             forventetBruker = forventetBruker,
             safClient = safClient,
+            valideringEnabled = featureToggleService.isEnabled(FeatureToggle.TILTAKSADMINISTRASJON_JOURNALPOST_VALIDERING),
         )
 
         return TilskuddBehandlingValidator
