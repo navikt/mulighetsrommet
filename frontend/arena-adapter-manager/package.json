@@ -17,7 +17,7 @@
     "@navikt/ds-react": "8.16.2",
     "react": "19.2.8",
     "react-dom": "19.2.8",
-    "react-hot-toast": "2.6.0",
+    "react-hot-toast": "2.6.1",
     "react-router": "8.4.0",
     "uuid": "14.0.2"
   },
@@ -26,7 +26,7 @@
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
     "@vitejs/plugin-react": "6.1.1",
-    "eslint": "10.10.0",
+    "eslint": "10.11.0",
     "typescript": "6.0.3",
     "vite": "8.3.0"
   }
