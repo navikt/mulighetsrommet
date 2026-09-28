@@ -180,6 +180,8 @@ val ApplicationConfigLocal = AppConfig(
             EntraGroupNavAnsattRolleMapping(adGruppeForLokalUtvikling, Rolle.SAKSBEHANDLER_OKONOMI),
             EntraGroupNavAnsattRolleMapping(adGruppeForLokalUtvikling, Rolle.BESLUTTER_TILSAGN),
             EntraGroupNavAnsattRolleMapping(adGruppeForLokalUtvikling, Rolle.ATTESTANT_UTBETALING),
+            EntraGroupNavAnsattRolleMapping(adGruppeForLokalUtvikling, Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS),
+            EntraGroupNavAnsattRolleMapping(adGruppeForLokalUtvikling, Rolle.OKONOMI_BESLUTTER_ENKELTPLASS),
             EntraGroupNavAnsattRolleMapping(adGruppeForLokalUtvikling, Rolle.KONTAKTPERSON),
         ),
         texas = TexasClient.Config(

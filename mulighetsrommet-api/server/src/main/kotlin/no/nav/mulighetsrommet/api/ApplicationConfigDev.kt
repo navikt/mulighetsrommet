@@ -338,6 +338,16 @@ val ApplicationConfigDev = AppConfig(
                 rolle = Rolle.BESLUTTER_TILSAGN,
                 kostnadssteder = setOf(NavEnhetNummer("5700")),
             ),
+            EntraGroupNavAnsattRolleMapping(
+                entraGroupId = "0bc021a8-3a23-40a4-a3d9-e4185e489a4f".toUUID(),
+                kommentar = "0000-CA-Tiltaksadministrasjon_saksbehandler-økonomi-enkeltplass",
+                rolle = Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS,
+            ),
+            EntraGroupNavAnsattRolleMapping(
+                entraGroupId = "29a3c868-24a3-46d1-a8ad-7b55ad88a701".toUUID(),
+                kommentar = "0000-CA-Tiltaksadministrasjon_beslutter-økonomi-enkeltplass",
+                rolle = Rolle.OKONOMI_BESLUTTER_ENKELTPLASS,
+            ),
         ),
     ),
     sanity = SanityClient.Config(

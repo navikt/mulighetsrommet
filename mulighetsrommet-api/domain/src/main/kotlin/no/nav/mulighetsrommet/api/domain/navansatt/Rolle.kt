@@ -61,6 +61,18 @@ enum class Rolle(val visningsnavn: String) {
     ATTESTANT_UTBETALING("Attestant - Utbetaling"),
 
     /**
+     * Gir tilgang til å behandle og sende økonomi (tilsagn, utbetalinger og tilskuddsbehandlinger)
+     * for enkeltplasser til godkjenning.
+     */
+    OKONOMI_SAKSBEHANDLER_ENKELTPLASS("Saksbehandler - Enkeltplass"),
+
+    /**
+     * Gir tilgang til å godkjenne enkeltplasser og tilhørende økonomi (tilsagn, utbetalinger og
+     * tilskuddsbehandlinger).
+     */
+    OKONOMI_BESLUTTER_ENKELTPLASS("Beslutter - Enkeltplass"),
+
+    /**
      * Indikerer Nav-ansatte som kan være kontaktperson (tiltaksansvarlig) for et tiltak.
      *
      * Gir ellers ingen rettigheter.

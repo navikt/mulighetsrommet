@@ -143,6 +143,10 @@ spec:
           - id: "f57989e2-410e-45dd-9285-32c3bacc94d4"
           # 5700-CA-Tiltaksadministrasjon_beslutter-tilsagn
           - id: "34902073-90be-4025-9bb0-da6b71b293ff"
+          # 0000-CA-Tiltaksadministrasjon_saksbehandler-økonomi-enkeltplass
+          - id: "0bc021a8-3a23-40a4-a3d9-e4185e489a4f"
+          # 0000-CA-Tiltaksadministrasjon_beslutter-økonomi-enkeltplass
+          - id: "29a3c868-24a3-46d1-a8ad-7b55ad88a701"
         extra:
           - NAVident
           - azp_name
