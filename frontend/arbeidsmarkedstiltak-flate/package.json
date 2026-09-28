@@ -68,7 +68,7 @@
     "eslint": "10.10.0",
     "msw": "2.15.0",
     "playwright": "1.63.0",
-    "postcss-import": "16.1.1",
+    "postcss-import": "17.0.0",
     "rollup-plugin-visualizer": "7.1.1",
     "sass-embedded": "1.104.1",
     "typescript": "6.0.3",
