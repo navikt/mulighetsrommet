@@ -1,90 +1,99 @@
 package no.nav.mulighetsrommet.admin.journalpost
 
+import arrow.core.Either
 import arrow.core.flatMap
 import arrow.core.left
-import arrow.core.nel
 import arrow.core.right
 import no.nav.mulighetsrommet.api.clients.saf.SafBruker
 import no.nav.mulighetsrommet.api.clients.saf.SafBrukerIdType
 import no.nav.mulighetsrommet.api.clients.saf.SafClient
 import no.nav.mulighetsrommet.api.clients.saf.SafError
-import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.JournalpostId
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.tokenprovider.AccessType
-import no.nav.mulighetsrommet.validation.Validated
 
-/**
- * Validerer en oppgitt journalpostId mot SAF (Sak og arkiv).
- *
- * Sjekker at journalposten finnes, og at parten den gjelder stemmer med forventet identitet:
- * er journalposten knyttet til en person må det være riktig person, er den knyttet til en
- * virksomhet må det være riktig virksomhet.
- */
-class JournalpostValidator(
-    private val saf: SafClient,
-) {
-    /**
-     * @param forventetBruker fødselsnummeret journalposten skal tilhøre dersom den er knyttet til en person.
-     * @param forventetArrangor organisasjonsnummeret journalposten skal tilhøre dersom den er knyttet til en virksomhet.
-     */
+object JournalpostValidator {
     suspend fun validerJournalpost(
         journalpostId: String,
-        forventetBruker: NorskIdent?,
-        forventetArrangor: Organisasjonsnummer?,
-        pointer: String,
+        forventetBruker: ForventetBruker,
         accessType: AccessType,
-    ): Validated<JournalpostId> {
-        val jId = JournalpostId.parse(journalpostId)
-            ?: return FieldError(
-                pointer,
-                "Feil format på Journalpost-ID: $journalpostId",
-            ).nel().left()
+        safClient: SafClient,
+    ): Either<JournalpostValideringError, JournalpostId> {
+        val validatedId = JournalpostId.parse(journalpostId)
+            ?: return JournalpostValideringError.FeilFormat.left()
 
-        return saf.hentJournalpost(journalpostId, accessType)
+        return safClient.hentJournalpost(journalpostId, accessType)
             .mapLeft {
                 when (it) {
-                    SafError.NotFound -> listOf(
-                        FieldError(pointer, "Fant ingen journalpost med id $journalpostId"),
-                    )
-
-                    SafError.Error -> listOf(
-                        FieldError(pointer, "Klarte ikke å slå opp journalpost. Prøv igjen senere."),
-                    )
+                    SafError.NotFound -> JournalpostValideringError.NotFound
+                    SafError.Error -> JournalpostValideringError.SafError
                 }
             }
             .flatMap { journalpost ->
-                validerBruker(journalpost.bruker, forventetBruker, forventetArrangor, pointer)
+                validerBruker(journalpost.bruker, forventetBruker)
             }
-            .map { jId }
+            .map { validatedId }
     }
 
     private fun validerBruker(
         bruker: SafBruker?,
-        forventetBruker: NorskIdent?,
-        forventetArrangor: Organisasjonsnummer?,
-        pointer: String,
-    ): Validated<Unit> = when (bruker?.type) {
-        // Journalposten er ikke knyttet til en part i SAF. Da har vi ingenting å verifisere mot.
-        null -> Unit.right()
+        forventetBruker: ForventetBruker,
+    ): Either<JournalpostValideringError, Unit> = when (bruker?.type) {
+        // TODO: Ikke helt sikker på at dette alltid skal være en feil, men vi kan vel begynne med det
+        null -> JournalpostValideringError.IngenTilknytning.left()
 
         SafBrukerIdType.FNR ->
-            if (bruker.id != null && bruker.id == forventetBruker?.value) {
-                Unit.right()
-            } else {
-                listOf(FieldError(pointer, "Journalposten tilhører en annen person enn deltakeren")).left()
+            when (forventetBruker) {
+                is ForventetBruker.Bedrift -> JournalpostValideringError.TilhorerPerson.left()
+
+                is ForventetBruker.Person -> {
+                    if (bruker.id == forventetBruker.norskIdent.value) {
+                        Unit.right()
+                    } else {
+                        JournalpostValideringError.TilhorerAnnenPerson.left()
+                    }
+                }
             }
 
         SafBrukerIdType.ORGNR ->
-            if (bruker.id != null && bruker.id == forventetArrangor?.value) {
-                Unit.right()
-            } else {
-                listOf(FieldError(pointer, "Journalposten tilhører en annen virksomhet enn arrangøren")).left()
+            when (forventetBruker) {
+                is ForventetBruker.Bedrift -> {
+                    if (bruker.id == forventetBruker.organisasjonsnummer.value) {
+                        Unit.right()
+                    } else {
+                        JournalpostValideringError.TilhorerAnnenVirksomhet.left()
+                    }
+                }
+
+                is ForventetBruker.Person ->
+                    JournalpostValideringError.TilhorerVirksomhet.left()
             }
 
-        // Vi har fødselsnummer, ikke aktørid, og kan derfor ikke sammenligne mot en aktørid.
+        // Jeg tror ikke denne inntreffer, hvis den gjør det må vi veksle aktørId -> fnr i pdl først
         SafBrukerIdType.AKTOERID ->
-            listOf(FieldError(pointer, "Kunne ikke verifisere hvem journalposten tilhører")).left()
+            JournalpostValideringError.AktoerId.left()
+    }
+
+    enum class JournalpostValideringError {
+        NotFound,
+        SafError,
+        FeilFormat,
+        TilhorerVirksomhet,
+        TilhorerPerson,
+        TilhorerAnnenPerson,
+        TilhorerAnnenVirksomhet,
+        AktoerId,
+        IngenTilknytning,
     }
 }
+
+sealed class ForventetBruker {
+    data class Person(val norskIdent: NorskIdent) : ForventetBruker()
+    data class Bedrift(val organisasjonsnummer: Organisasjonsnummer) : ForventetBruker()
+}
+
+/*
+                pointer,
+
+ */

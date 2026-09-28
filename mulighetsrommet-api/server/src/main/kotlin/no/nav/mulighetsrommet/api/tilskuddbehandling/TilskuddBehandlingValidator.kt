@@ -1,5 +1,10 @@
 package no.nav.mulighetsrommet.api.tilskuddbehandling
 
+import arrow.core.nel
+import kotlinx.coroutines.runBlocking
+import no.nav.mulighetsrommet.admin.journalpost.ForventetBruker
+import no.nav.mulighetsrommet.admin.journalpost.JournalpostValidator
+import no.nav.mulighetsrommet.api.clients.saf.SafClient
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandling
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddVedtak
@@ -16,6 +21,7 @@ import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.model.ValutaBelop
+import no.nav.mulighetsrommet.tokenprovider.AccessType
 import no.nav.mulighetsrommet.validation.Validated
 import no.nav.mulighetsrommet.validation.validation
 import kotlin.contracts.ExperimentalContracts
@@ -161,5 +167,79 @@ object TilskuddBehandlingValidator {
             kommentarIntern = req.kommentarIntern,
             kommentarVedtaksbrev = req.kommentarVedtaksbrev,
         )
+    }
+
+    fun createJournalpostValidator(
+        forventetBruker: ForventetBruker,
+        safClient: SafClient,
+    ): (String, Int) -> Validated<JournalpostId> {
+        val journalpostValidatorFunc: (String, Int) -> Validated<JournalpostId> = { journalpostId: String, index: Int ->
+            runBlocking {
+                JournalpostValidator.validerJournalpost(
+                    journalpostId = journalpostId,
+                    forventetBruker = forventetBruker,
+                    accessType = AccessType.M2M,
+                    safClient = safClient,
+                )
+                    .mapLeft {
+                        when (it) {
+                            JournalpostValidator.JournalpostValideringError.NotFound ->
+                                FieldError(
+                                    pointer = "/tilskudd/$index/soknadJournalpostId",
+                                    detail = "Fant ingen journalpost med id $journalpostId",
+                                ).nel()
+
+                            JournalpostValidator.JournalpostValideringError.SafError ->
+                                FieldError(
+                                    pointer = "/tilskudd/$index/soknadJournalpostId",
+                                    detail = "Klarte ikke å slå opp journalpost",
+                                ).nel()
+
+                            JournalpostValidator.JournalpostValideringError.FeilFormat ->
+                                FieldError(
+                                    pointer = "/tilskudd/$index/soknadJournalpostId",
+                                    detail = "Feil format på Journalpost-ID: $journalpostId",
+                                ).nel()
+
+                            JournalpostValidator.JournalpostValideringError.TilhorerVirksomhet ->
+                                FieldError(
+                                    pointer = "/tilskudd/$index/soknadJournalpostId",
+                                    detail = "Journalposten tilhører en virksomhet",
+                                ).nel()
+
+                            JournalpostValidator.JournalpostValideringError.TilhorerPerson ->
+                                FieldError(
+                                    pointer = "/tilskudd/$index/soknadJournalpostId",
+                                    detail = "Journalposten tilhører en person",
+                                ).nel()
+
+                            JournalpostValidator.JournalpostValideringError.TilhorerAnnenPerson ->
+                                FieldError(
+                                    pointer = "/tilskudd/$index/soknadJournalpostId",
+                                    detail = "Journalposten tilhører en annen person enn deltakeren",
+                                ).nel()
+
+                            JournalpostValidator.JournalpostValideringError.TilhorerAnnenVirksomhet ->
+                                FieldError(
+                                    pointer = "/tilskudd/$index/soknadJournalpostId",
+                                    detail = "Journalposten tilhører en annen virksomhet",
+                                ).nel()
+
+                            JournalpostValidator.JournalpostValideringError.AktoerId ->
+                                FieldError(
+                                    pointer = "/tilskudd/$index/soknadJournalpostId",
+                                    detail = "Kunne ikke verifisere hvem journalposten tilhører. Fikk aktør id, forventet fnr",
+                                ).nel()
+
+                            JournalpostValidator.JournalpostValideringError.IngenTilknytning ->
+                                FieldError(
+                                    pointer = "/tilskudd/$index/soknadJournalpostId",
+                                    detail = "Journalposten var ikke tilknyttet en bruker eller virksomhet",
+                                ).nel()
+                        }
+                    }
+            }
+        }
+        return journalpostValidatorFunc
     }
 }

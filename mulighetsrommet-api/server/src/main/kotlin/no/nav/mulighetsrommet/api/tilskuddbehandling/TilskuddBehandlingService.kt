@@ -5,15 +5,15 @@ import arrow.core.getOrElse
 import arrow.core.left
 import arrow.core.nel
 import arrow.core.right
-import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.mulighetsrommet.admin.endringshistorikk.EndringshistorikkType
-import no.nav.mulighetsrommet.admin.journalpost.JournalpostValidator
+import no.nav.mulighetsrommet.admin.journalpost.ForventetBruker
 import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollDto
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.TransactionalQueryContext
+import no.nav.mulighetsrommet.api.clients.saf.SafClient
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.Totrinnskontroll
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
@@ -41,8 +41,6 @@ import no.nav.mulighetsrommet.model.JournalpostId
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.NorskIdent
-import no.nav.mulighetsrommet.tokenprovider.AccessType
-import no.nav.mulighetsrommet.validation.Validated
 import java.time.Instant
 import java.time.LocalDateTime
 import java.util.UUID
@@ -51,8 +49,8 @@ class TilskuddBehandlingService(
     private val db: ApiDatabase,
     private val journalforVedtaksbrev: JournalforVedtaksbrev,
     private val pdf: PdfGenClient,
-    private val journalpostValidator: JournalpostValidator,
     private val personaliaService: PersonaliaService,
+    private val safClient: SafClient,
 ) {
     suspend fun upsert(
         request: TilskuddBehandlingRequest,
@@ -63,22 +61,17 @@ class TilskuddBehandlingService(
         val behandlendeEnhet = db.session { queries.ansatt.get(navIdent) }?.hovedenhet
             ?: throw IllegalArgumentException("Fant ikke enhet for ansatt $navIdent")
 
-        val forventetPerson = hentDeltakerNorskIdent(gjennomforing.id)
-        val forventetArrangor = gjennomforing.arrangor.organisasjonsnummer
-        val journalpostValidatorF: (String, Int) -> Validated<JournalpostId> = { journalpostId: String, index: Int ->
-            runBlocking {
-                journalpostValidator.validerJournalpost(
-                    journalpostId = journalpostId,
-                    forventetBruker = forventetPerson,
-                    forventetArrangor = forventetArrangor,
-                    pointer = "/tilskudd/$index/soknadJournalpostId",
-                    accessType = AccessType.M2M,
-                )
-            }
+        val forventetBruker = hentDeltakerNorskIdentOrError(gjennomforing.id).let {
+            ForventetBruker.Person(it)
         }
 
+        val journalpostValidatorFunc = TilskuddBehandlingValidator.createJournalpostValidator(
+            forventetBruker = forventetBruker,
+            safClient = safClient,
+        )
+
         return TilskuddBehandlingValidator
-            .validate(request, gjennomforing, behandlendeEnhet, journalpostValidatorF)
+            .validate(request, gjennomforing, behandlendeEnhet, journalpostValidatorFunc)
             .map { dbo ->
                 db.transaction {
                     queries.tilskuddBehandling.upsert(dbo)
@@ -104,11 +97,13 @@ class TilskuddBehandlingService(
             }
     }
 
-    private suspend fun hentDeltakerNorskIdent(gjennomforingId: UUID): NorskIdent? {
-        val deltaker = db.session { repository.deltaker.getByGjennomforing(gjennomforingId) }
+    private suspend fun hentDeltakerNorskIdentOrError(gjennomforingId: UUID): NorskIdent {
+        return db.session { repository.deltaker.getByGjennomforing(gjennomforingId) }
             .singleOrNull()
-            ?: return null
-        return personaliaService.getPersonalia(deltaker.id, PersonaliaService.OnBehalfOf.System).norskIdent()
+            ?.let {
+                personaliaService.getPersonalia(it.id, PersonaliaService.OnBehalfOf.System).norskIdent()
+            }
+            ?: throw IllegalStateException("Fant ikke deltaker for enkeltplass")
     }
 
     fun getByGjennomforingId(gjennomforingId: UUID): List<TilskuddBehandlingKompakt> {
