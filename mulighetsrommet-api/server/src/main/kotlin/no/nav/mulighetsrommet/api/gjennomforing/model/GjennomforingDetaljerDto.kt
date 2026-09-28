@@ -86,6 +86,12 @@ data class GjennomforingAvtaleDto(
     val stengt: List<StengtPeriode>,
     val avbrytelse: AvbrytelseDto?,
 ) {
+    val type = Type.AVTALE
+
+    @Serializable
+    enum class Type {
+        AVTALE,
+    }
 
     @Serializable
     data class Administrator(
@@ -125,6 +131,13 @@ data class GjennomforingEnkeltplassDto(
     val status: DataElement.Status,
     val ansvarligEnhet: AnsvarligEnhet,
 ) {
+    val type = Type.ENKELTPLASS
+
+    @Serializable
+    enum class Type {
+        ENKELTPLASS,
+    }
+
     @Serializable
     data class AnsvarligEnhet(
         val enhetsnummer: NavEnhetNummer,

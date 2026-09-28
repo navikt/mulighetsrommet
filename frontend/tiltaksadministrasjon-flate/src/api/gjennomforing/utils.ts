@@ -10,6 +10,10 @@ import {
 
 export type GjennomforingDto = GjennomforingEnkeltplassDto | GjennomforingAvtaleDto;
 
+export function stotterBeskrivelseTilArrangor(type: GjennomforingDto["type"]) {
+  return type === "AVTALE";
+}
+
 export function isEnkeltplassKompakt(gjennomforing: GjennomforingKompaktDto): boolean {
   return gjennomforing.type === GjennomforingType.ENKELTPLASS;
 }

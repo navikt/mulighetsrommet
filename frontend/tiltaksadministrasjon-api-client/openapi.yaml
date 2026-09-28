@@ -6168,6 +6168,8 @@ components:
           oneOf:
           - type: "null"
           - $ref: "#/components/schemas/GjennomforingAvtaleDto.AvbrytelseDto"
+        type:
+          $ref: "#/components/schemas/GjennomforingAvtaleDto.Type"
       required:
       - administratorer
       - antallPlasser
@@ -6187,6 +6189,7 @@ components:
       - stengt
       - tilgjengeligForArrangorDato
       - tiltaksnummer
+      - type
     GjennomforingDtoArrangor:
       type: object
       properties:
@@ -6276,6 +6279,10 @@ components:
       required:
       - aarsaker
       - forklaring
+    GjennomforingAvtaleDto.Type:
+      type: string
+      enum:
+      - AVTALE
     GjennomforingVeilederinfoDto:
       type: object
       properties:
@@ -6413,6 +6420,8 @@ components:
           $ref: "#/components/schemas/DATA_ELEMENT_STATUS"
         ansvarligEnhet:
           $ref: "#/components/schemas/GjennomforingEnkeltplassDto.AnsvarligEnhet"
+        type:
+          $ref: "#/components/schemas/GjennomforingEnkeltplassDto.Type"
       required:
       - ansvarligEnhet
       - arrangor
@@ -6423,6 +6432,7 @@ components:
       - startDato
       - status
       - tiltaksnummer
+      - type
     GjennomforingEnkeltplassDto.AnsvarligEnhet:
       type: object
       properties:
@@ -6433,6 +6443,10 @@ components:
       required:
       - enhetsnummer
       - navn
+    GjennomforingEnkeltplassDto.Type:
+      type: string
+      enum:
+      - ENKELTPLASS
     TotrinnskontrollDto:
       anyOf:
       - $ref: "#/components/schemas/TotrinnskontrollDto.Besluttet"

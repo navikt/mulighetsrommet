@@ -2,6 +2,7 @@ import { nikolineKontaktperson, petrusKontaktperson } from "@/mocks/fixtures/moc
 import { mockAvtaler } from "@/mocks/fixtures/mock_avtaler";
 import {
   DataElementStatusVariant,
+  GjennomforingAvtaleDtoType,
   GjennomforingDetaljerDto,
   GjennomforingDtoArrangor,
   GjennomforingOppstartstype,
@@ -45,6 +46,7 @@ export const mockGjennomforinger: GjennomforingDetaljerDto[] = [
     type: "GjennomforingAvtaleDetaljerDto",
     tiltakstype: getGjennomforingTiltakstype(mockTiltakstyper.AVKLARAG),
     gjennomforing: {
+      type: GjennomforingAvtaleDtoType.AVTALE,
       id: "a7d63fb0-4366-412c-84b7-7c15518ee361",
       navn: "Yrkesnorsk med praksis med en veldig lang tittel som ikke er helt utenkelig at de skriver inn",
       tiltaksnummer: "2023#123456",
@@ -137,6 +139,7 @@ export const mockGjennomforinger: GjennomforingDetaljerDto[] = [
     type: "GjennomforingAvtaleDetaljerDto",
     tiltakstype: getGjennomforingTiltakstype(mockTiltakstyper.ARBFORB),
     gjennomforing: {
+      type: GjennomforingAvtaleDtoType.AVTALE,
       pameldingType: GjennomforingPameldingType.DIREKTE_VEDTAK,
       id: "a7d63fb0-4366-412c-84b7-7c15518ee362",
       navn: "Spillbasert kvalifisering",
@@ -177,6 +180,7 @@ export const mockGjennomforinger: GjennomforingDetaljerDto[] = [
     type: "GjennomforingAvtaleDetaljerDto",
     tiltakstype: getGjennomforingTiltakstype(mockTiltakstyper.GRUFAGYRKE),
     gjennomforing: {
+      type: GjennomforingAvtaleDtoType.AVTALE,
       id: "a7d63fb0-4366-412c-84b7-7c15518ee364",
       navn: "Tiltak hos Kulinarisk akademi",
       tiltaksnummer: "2025#123456",
@@ -216,6 +220,7 @@ export const mockGjennomforinger: GjennomforingDetaljerDto[] = [
     type: "GjennomforingAvtaleDetaljerDto",
     tiltakstype: getGjennomforingTiltakstype(mockTiltakstyper.ARBFORB),
     gjennomforing: {
+      type: GjennomforingAvtaleDtoType.AVTALE,
       id: "a7d63fb0-4366-412c-84b7-7c15518ee399",
       navn: "Gjennomforing uten sluttdato",
       tiltaksnummer: "2025#999999",
