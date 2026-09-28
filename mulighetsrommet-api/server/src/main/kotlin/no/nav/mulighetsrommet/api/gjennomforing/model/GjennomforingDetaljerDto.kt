@@ -1,8 +1,11 @@
+@file:UseSerializers(LocalDateSerializer::class, UUIDSerializer::class)
+
 package no.nav.mulighetsrommet.api.gjennomforing.model
 
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.UseSerializers
 import kotlinx.serialization.json.JsonClassDiscriminator
 import no.nav.mulighetsrommet.admin.navenhet.Kontorstruktur
 import no.nav.mulighetsrommet.admin.navenhet.NavEnhetDto
@@ -62,25 +65,20 @@ data class GjennomforingEnkeltplassDetaljerDto(
 
 @Serializable
 data class GjennomforingAvtaleDto(
-    @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val navn: String,
     val lopenummer: Tiltaksnummer,
     val tiltaksnummer: Tiltaksnummer?,
     val arrangor: GjennomforingDtoArrangor,
-    @Serializable(with = LocalDateSerializer::class)
     val startDato: LocalDate,
-    @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate?,
     val status: DataElement.Status,
     val antallPlasser: Int,
-    @Serializable(with = UUIDSerializer::class)
     val avtaleId: UUID,
     val oppstart: GjennomforingOppstartstype,
     val pameldingType: GjennomforingPameldingType,
     val apentForPamelding: Boolean,
     val deltidsprosent: Double,
-    @Serializable(with = LocalDateSerializer::class)
     val tilgjengeligForArrangorDato: LocalDate?,
     val administratorer: List<Administrator>,
     val stengt: List<StengtPeriode>,
@@ -88,7 +86,6 @@ data class GjennomforingAvtaleDto(
 ) {
     val type = Type.AVTALE
 
-    @Serializable
     enum class Type {
         AVTALE,
     }
@@ -108,9 +105,7 @@ data class GjennomforingAvtaleDto(
     @Serializable
     data class StengtPeriode(
         val id: Int,
-        @Serializable(with = LocalDateSerializer::class)
         val start: LocalDate,
-        @Serializable(with = LocalDateSerializer::class)
         val slutt: LocalDate,
         val beskrivelse: String,
     )
@@ -118,22 +113,18 @@ data class GjennomforingAvtaleDto(
 
 @Serializable
 data class GjennomforingEnkeltplassDto(
-    @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val navn: String,
     val lopenummer: Tiltaksnummer,
     val tiltaksnummer: Tiltaksnummer?,
     val arrangor: GjennomforingDtoArrangor,
-    @Serializable(with = LocalDateSerializer::class)
     val startDato: LocalDate?,
-    @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate?,
     val status: DataElement.Status,
     val ansvarligEnhet: AnsvarligEnhet,
 ) {
     val type = Type.ENKELTPLASS
 
-    @Serializable
     enum class Type {
         ENKELTPLASS,
     }
@@ -175,7 +166,6 @@ data class GjennomforingKontaktpersonDto(
 
 @Serializable
 data class DeltakerDto(
-    @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val navn: String?,
     val norskIdent: NorskIdent?,
@@ -183,9 +173,7 @@ data class DeltakerDto(
     val status: DataElement.Status,
     val innholdAnnet: String?,
     val avvistGrunn: AvvistGrunn?,
-    @Serializable(with = LocalDateSerializer::class)
     val startDato: LocalDate?,
-    @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate?,
     val navVeilederNavn: String?,
     val dagerPerUke: Float?,
@@ -209,7 +197,6 @@ data class DeltakerDto(
 
 @Serializable
 data class GjennomforingDtoArrangor(
-    @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val organisasjonsnummer: Organisasjonsnummer,
     val navn: String,
@@ -219,7 +206,6 @@ data class GjennomforingDtoArrangor(
 
     @Serializable
     data class Kontaktperson(
-        @Serializable(with = UUIDSerializer::class)
         val id: UUID,
         val navn: String,
         val beskrivelse: String?,
