@@ -18,6 +18,11 @@ export function RedaksjoneltInnhold({ tiltakstype, beskrivelse, faneinnhold }: P
 
   return (
     <RedaksjoneltInnholdContainer>
+      {beskrivelse && (
+        <BodyLong style={{ whiteSpace: "pre-wrap" }} textColor="subtle" size="medium">
+          {beskrivelse}
+        </BodyLong>
+      )}
       {veilederinfo?.beskrivelse && (
         <>
           <Heading size="medium" level="2">
@@ -27,13 +32,6 @@ export function RedaksjoneltInnhold({ tiltakstype, beskrivelse, faneinnhold }: P
             {veilederinfo.beskrivelse}
           </BodyLong>
         </>
-      )}
-      {beskrivelse && (
-        <LokalInformasjonContainer>
-          <BodyLong style={{ whiteSpace: "pre-wrap" }} textColor="subtle" size="medium">
-            {beskrivelse}
-          </BodyLong>
-        </LokalInformasjonContainer>
       )}
       <Heading size="medium" level="3">
         Faneinnhold
