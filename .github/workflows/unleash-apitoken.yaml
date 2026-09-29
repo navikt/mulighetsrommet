@@ -30,12 +30,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: deploy to dev
-        uses: nais/deploy/actions/deploy@027a91857992525139798892f2804b0ca21f4af6 # v2
+        uses: nais/deploy/actions/deploy@1de80da70ad26556ecdc5964a8b7ec3bbed98120 # v2
         env:
           CLUSTER: dev-gcp
           RESOURCE: mulighetsrommet-api/.nais/unleash-apitoken-dev.yaml
       - name: deploy to prod
-        uses: nais/deploy/actions/deploy@027a91857992525139798892f2804b0ca21f4af6 # v2
+        uses: nais/deploy/actions/deploy@1de80da70ad26556ecdc5964a8b7ec3bbed98120 # v2
         env:
           CLUSTER: prod-gcp
           RESOURCE: mulighetsrommet-api/.nais/unleash-apitoken-prod.yaml
