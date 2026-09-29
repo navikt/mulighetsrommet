@@ -11,14 +11,17 @@ import { VStack } from "@navikt/ds-react";
 import { CaretDownFillIcon, CaretUpFillIcon } from "@navikt/aksel-icons";
 import { useState } from "react";
 import { Kontorstruktur } from "@tiltaksadministrasjon/api-client";
+import { useTiltakstype } from "@/api/tiltakstyper/useTiltakstype";
 
 export function TiltakDokumentRedaksjoneltInnhold() {
   const { tiltakDokumentId } = useRequiredParams(["tiltakDokumentId"]);
   const { data: tiltakDokument } = useTiltakDokument(tiltakDokumentId);
+  const tiltakstype = useTiltakstype(tiltakDokument.tiltakstype.id);
 
   return (
     <TwoColumnGrid separator>
       <RedaksjoneltInnhold
+        tiltakstype={tiltakstype}
         beskrivelse={tiltakDokument.veilederinfo.beskrivelse ?? null}
         faneinnhold={tiltakDokument.veilederinfo.faneinnhold ?? null}
       />
