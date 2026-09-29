@@ -150,7 +150,7 @@ class BrukerUtbetalingQueries(private val session: Session) {
                 and behandling_id = any(:behandling_ids::int[])
         """.trimIndent()
 
-        session.execute(
+        val endretRader = session.update(
             queryOf(
                 query,
                 mapOf(
@@ -161,6 +161,9 @@ class BrukerUtbetalingQueries(private val session: Session) {
                 ),
             ),
         )
+        require(endretRader > 0) {
+            "Fant ingen rader å oppdatere for id=$id og behandlingIds=$behandlingIds"
+        }
     }
 }
 
