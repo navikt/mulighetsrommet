@@ -21,7 +21,6 @@ import no.nav.mulighetsrommet.api.domain.testing.fixture.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
-import no.nav.mulighetsrommet.api.pdfgen.PdfGenError
 import no.nav.mulighetsrommet.api.tilskuddbehandling.TilskuddBehandlingService
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingRequest
@@ -33,6 +32,7 @@ import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NorskIdent
+import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import java.time.LocalDate
@@ -109,7 +109,16 @@ class VedtaksbrevTaskTest : FunSpec({
         val pdfGenClient = mockk<PdfGenClient>()
         val dokarkClient = mockk<DokarkClient>()
 
-        coEvery { pdfGenClient.getPdfDocument(any()) } returns PdfGenError(500, "").left()
+        coEvery {
+            pdfGenClient.getPdfDocument(any())
+        } returns object : ProblemDetail() {
+            override val type = "urn:pdfgenrs:error:generation-failed"
+            override val title = "Internal Server Error"
+            override val status = 500
+            override val detail = "Generering feilet"
+            override val instance = null
+            override val extensions = null
+        }.left()
 
         val task = JournalforVedtaksbrev(
             db = database.api,
@@ -119,7 +128,7 @@ class VedtaksbrevTaskTest : FunSpec({
             distribuerVedtaksbrev = mockk(relaxed = true),
         )
 
-        task.journalfor(behandlingId).shouldBeLeft("Feil fra pdfgen: PdfGenError(statusCode=500, message=)")
+        task.journalfor(behandlingId).shouldBeLeft("Feil fra pdfgen: Generering feilet")
     }
 
     test("distribuering sender journalpost til dokdist og lagrer bestillingsId") {

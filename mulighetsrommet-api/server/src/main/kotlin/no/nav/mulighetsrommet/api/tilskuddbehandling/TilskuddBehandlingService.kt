@@ -16,7 +16,6 @@ import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.Totrinnskontroll
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
-import no.nav.mulighetsrommet.api.pdfgen.PdfGenError
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandling
 import no.nav.mulighetsrommet.api.tilskuddbehandling.mapper.TilskuddVedtakToPdfDocumentContentMapper
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingDetaljerDto
@@ -36,6 +35,7 @@ import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
+import no.nav.mulighetsrommet.model.ProblemDetail
 import java.time.Instant
 import java.time.LocalDateTime
 import java.util.UUID
@@ -339,11 +339,11 @@ class TilskuddBehandlingService(
             }
     }
 
-    suspend fun vedtaksbrevForhandsvisPdf(id: UUID): Either<PdfGenError, ByteArray> = db.session {
+    suspend fun vedtaksbrevForhandsvisPdf(id: UUID): Either<ProblemDetail, ByteArray> = db.session {
         return vedtaksbrevForhandsvisPdf(queries.tilskuddBehandling.getOrError(id).toDbo())
     }
 
-    private suspend fun vedtaksbrevForhandsvisPdf(tilskuddBehandling: TilskuddBehandling): Either<PdfGenError, ByteArray> = db.transaction {
+    private suspend fun vedtaksbrevForhandsvisPdf(tilskuddBehandling: TilskuddBehandling): Either<ProblemDetail, ByteArray> = db.transaction {
         val gjennomforing =
             queries.gjennomforing.getGjennomforingEnkeltplassOrError(tilskuddBehandling.gjennomforingId)
 

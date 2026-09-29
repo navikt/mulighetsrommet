@@ -24,12 +24,12 @@ import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
-import no.nav.mulighetsrommet.api.pdfgen.PdfGenError
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.JournalpostId
 import no.nav.mulighetsrommet.model.Kontonummer
+import no.nav.mulighetsrommet.model.ProblemDetail
 import java.util.UUID
 
 class JournalforUtbetalingTest : FunSpec({
@@ -74,12 +74,21 @@ class JournalforUtbetalingTest : FunSpec({
     )
 
     test("blir ikke journalført når pdfgen feiler") {
-        coEvery { pdfGenClient.getPdfDocument(any()) } returns PdfGenError(500, "Generering feilet").left()
+        coEvery {
+            pdfGenClient.getPdfDocument(any())
+        } returns object : ProblemDetail() {
+            override val type = "urn:pdfgenrs:error:generation-failed"
+            override val title = "Internal Server Error"
+            override val status = 500
+            override val detail = "Generering feilet"
+            override val instance = null
+            override val extensions = null
+        }.left()
 
         val task = createTask()
 
         task.journalfor(utbetaling.id, emptyList())
-            .shouldBeLeft("Feil fra pdfgen: PdfGenError(statusCode=500, message=Generering feilet)")
+            .shouldBeLeft("Feil fra pdfgen: Generering feilet")
     }
 
     test("blir ikke journalført når dokark feiler") {
