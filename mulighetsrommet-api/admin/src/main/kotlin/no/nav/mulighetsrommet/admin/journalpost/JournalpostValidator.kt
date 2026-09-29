@@ -92,8 +92,3 @@ sealed class ForventetBruker {
     data class Person(val norskIdent: NorskIdent) : ForventetBruker()
     data class Bedrift(val organisasjonsnummer: Organisasjonsnummer) : ForventetBruker()
 }
-
-/*
-                pointer,
-
- */
