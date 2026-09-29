@@ -23,7 +23,7 @@ fun Route.enkeltplassRoutes() {
     val enkeltplasser: GjennomforingEnkeltplassService by inject()
 
     route("enkeltplasser") {
-        authorize(Rolle.BESLUTTER_TILSAGN) {
+        authorize(Rolle.OKONOMI_BESLUTTER_ENKELTPLASS) {
             post("{id}/godkjenn-okonomi", {
                 tags = setOf("Enkeltplass")
                 operationId = "godkjennOkonomi"

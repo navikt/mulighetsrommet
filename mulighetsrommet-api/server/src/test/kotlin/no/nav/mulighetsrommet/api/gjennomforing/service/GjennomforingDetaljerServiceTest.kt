@@ -13,11 +13,16 @@ import io.mockk.coEvery
 import io.mockk.mockk
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
 import no.nav.mulighetsrommet.api.domain.deltaker.Deltaker
+import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsattRolle
+import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.domain.testing.fixture.AvtaleFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.DeltakerFixtures
+import no.nav.mulighetsrommet.api.domain.testing.fixture.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.gjennomforing.api.AdminTiltaksgjennomforingFilter
+import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingHandling
+import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingType
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleDetaljerDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplassDetaljerDto
@@ -29,6 +34,7 @@ import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.DeltakerStatusType
+import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.NorskIdentHasher
@@ -87,6 +93,52 @@ class GjennomforingDetaljerServiceTest : FunSpec({
                 tiltakstyper = tiltakstypeService,
             ),
         )
+    }
+
+    context("tilgang til økonomihandlinger") {
+        val kostnadssted = NavEnhetNummer("0400")
+
+        test("enkeltplass-saksbehandler får ikke tilgang til avtalehandlinger") {
+            val ansatt = NavAnsattFixture.DonaldDuck.medRoller(
+                setOf(NavAnsattRolle.generell(Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS)),
+            )
+
+            GjennomforingDetaljerService.tilgangTilHandling(
+                ansatt,
+                GjennomforingHandling.OPPRETT_UTBETALING,
+                GjennomforingType.ENKELTPLASS,
+            ) shouldBe true
+            GjennomforingDetaljerService.tilgangTilHandling(
+                ansatt,
+                GjennomforingHandling.OPPRETT_UTBETALING,
+                GjennomforingType.AVTALE,
+            ) shouldBe false
+        }
+
+        test("enkeltplass-beslutter må ha rolle ved ansvarlig enhet") {
+            val ansatt = NavAnsattFixture.MikkeMus.medRoller(
+                setOf(NavAnsattRolle.kontorspesifikk(Rolle.OKONOMI_BESLUTTER_ENKELTPLASS, setOf(kostnadssted))),
+            )
+
+            GjennomforingDetaljerService.tilgangTilHandling(
+                ansatt,
+                GjennomforingHandling.GODKJENN_ENKELTPLASS_OKONOMI,
+                GjennomforingType.ENKELTPLASS,
+                setOf(kostnadssted),
+            ) shouldBe true
+            GjennomforingDetaljerService.tilgangTilHandling(
+                ansatt,
+                GjennomforingHandling.GODKJENN_ENKELTPLASS_OKONOMI,
+                GjennomforingType.ENKELTPLASS,
+                setOf(NavEnhetNummer("0502")),
+            ) shouldBe false
+            GjennomforingDetaljerService.tilgangTilHandling(
+                ansatt,
+                GjennomforingHandling.GODKJENN_ENKELTPLASS_OKONOMI,
+                GjennomforingType.ARENA,
+                setOf(kostnadssted),
+            ) shouldBe false
+        }
     }
 
     context("getGjennomforingDetaljerDto") {

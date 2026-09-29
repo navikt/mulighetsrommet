@@ -571,7 +571,7 @@ private fun GjennomforingManglerAdministratorOppgaveData.toOppgave(ansatt: NavAn
     createdAt = oppdatertTidspunkt,
     arrangor = arrangor,
 ).takeIf {
-    GjennomforingDetaljerService.tilgangTilHandling(ansatt, GjennomforingHandling.REDIGER)
+    GjennomforingDetaljerService.tilgangTilHandling(ansatt, GjennomforingHandling.REDIGER, GjennomforingType.AVTALE)
 }
 
 private fun EnkeltplassOppgaveData.toOppgave(ansatt: NavAnsatt): Oppgave? {
@@ -593,6 +593,7 @@ private fun EnkeltplassOppgaveData.toOppgave(ansatt: NavAnsatt): Oppgave? {
         behandletAv != ansatt.navIdent && GjennomforingDetaljerService.tilgangTilHandling(
             ansatt,
             GjennomforingHandling.GODKJENN_ENKELTPLASS_OKONOMI,
+            GjennomforingType.ENKELTPLASS,
             setOf(ansvarligEnhet.nummer),
         )
     }
@@ -617,6 +618,7 @@ private fun EnkeltplassSattPaVentOppgaveData.toOppgave(ansatt: NavAnsatt): Oppga
         GjennomforingDetaljerService.tilgangTilHandling(
             ansatt,
             GjennomforingHandling.SETT_PA_VENT_ENKELTPLASS_OKONOMI,
+            GjennomforingType.ENKELTPLASS,
             setOf(ansvarligEnhet.nummer),
         )
     }

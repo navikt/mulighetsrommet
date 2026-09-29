@@ -367,7 +367,10 @@ class OppgaveQueries(private val session: Session) {
         }
     }
 
-    fun getUtbetalingBehandlingOppgaveData(tiltakskoder: Set<Tiltakskode>?, arrangorer: Set<UUID>?): List<UtbetalingBehandlingOppgaveData> {
+    fun getUtbetalingBehandlingOppgaveData(
+        tiltakskoder: Set<Tiltakskode>?,
+        arrangorer: Set<UUID>?,
+    ): List<UtbetalingBehandlingOppgaveData> {
         @Language("PostgreSQL")
         val utbetalingQuery = """
             select
@@ -438,7 +441,10 @@ class OppgaveQueries(private val session: Session) {
         }
     }
 
-    fun getUtbetalingManglerTilsagnOppgaveData(tiltakskoder: Set<Tiltakskode>?, arrangorer: Set<UUID>?): List<UtbetalingManglerTilsagnOppgaveData> {
+    fun getUtbetalingManglerTilsagnOppgaveData(
+        tiltakskoder: Set<Tiltakskode>?,
+        arrangorer: Set<UUID>?,
+    ): List<UtbetalingManglerTilsagnOppgaveData> {
         @Language("PostgreSQL")
         val utbetalingQuery = """
             select

@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.navansatt
 
+import arrow.core.nonEmptySetOf
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.data.blocking.forAll
 import io.kotest.data.row
@@ -13,6 +14,7 @@ import no.nav.mulighetsrommet.model.NavEnhetNummer
 
 class OkonomiAuthorizationTest : FunSpec({
     val kostnadssted = NavEnhetNummer("0400")
+    val annetKostnadssted = NavEnhetNummer("0500")
 
     fun medGenerellRolle(rolle: Rolle): NavAnsatt {
         return NavAnsattFixture.DonaldDuck.medRoller(setOf(NavAnsattRolle.generell(rolle)))
@@ -86,6 +88,102 @@ class OkonomiAuthorizationTest : FunSpec({
         ) shouldBe false
     }
 
+    test("økonomibeslutter godtar begge beslutningsroller for avtale og egen rolle for enkeltplass") {
+        forAll(
+            row(Rolle.OKONOMI_BESLUTTER_ENKELTPLASS, GjennomforingType.ENKELTPLASS, kostnadssted, true),
+            row(Rolle.OKONOMI_BESLUTTER_ENKELTPLASS, GjennomforingType.ENKELTPLASS, annetKostnadssted, false),
+            row(Rolle.OKONOMI_BESLUTTER_ENKELTPLASS, GjennomforingType.AVTALE, kostnadssted, false),
+            row(Rolle.OKONOMI_BESLUTTER_ENKELTPLASS, GjennomforingType.ARENA, kostnadssted, false),
+            row(Rolle.BESLUTTER_TILSAGN, GjennomforingType.AVTALE, kostnadssted, true),
+            row(Rolle.BESLUTTER_TILSAGN, GjennomforingType.AVTALE, annetKostnadssted, false),
+            row(Rolle.BESLUTTER_TILSAGN, GjennomforingType.ENKELTPLASS, kostnadssted, false),
+            row(Rolle.BESLUTTER_TILSAGN, GjennomforingType.ARENA, kostnadssted, false),
+            row(Rolle.ATTESTANT_UTBETALING, GjennomforingType.AVTALE, kostnadssted, true),
+            row(Rolle.ATTESTANT_UTBETALING, GjennomforingType.AVTALE, annetKostnadssted, false),
+            row(Rolle.ATTESTANT_UTBETALING, GjennomforingType.ENKELTPLASS, kostnadssted, false),
+            row(Rolle.ATTESTANT_UTBETALING, GjennomforingType.ARENA, kostnadssted, false),
+        ) { rolle, type, enhet, forventet ->
+            OkonomiAuthorization.erOkonomiBeslutter(
+                medKontorspesifikkRolle(rolle, kostnadssted),
+                OkonomiBeslutningContext(type, nonEmptySetOf(enhet)),
+            ) shouldBe forventet
+        }
+    }
+
+    test("tilsagnsbeslutter krever riktig rolle og kostnadssted for gjennomføringstypen") {
+        forAll(
+            row(Rolle.OKONOMI_BESLUTTER_ENKELTPLASS, GjennomforingType.ENKELTPLASS, kostnadssted, true),
+            row(Rolle.OKONOMI_BESLUTTER_ENKELTPLASS, GjennomforingType.ENKELTPLASS, annetKostnadssted, false),
+            row(Rolle.OKONOMI_BESLUTTER_ENKELTPLASS, GjennomforingType.AVTALE, kostnadssted, false),
+            row(Rolle.OKONOMI_BESLUTTER_ENKELTPLASS, GjennomforingType.ARENA, kostnadssted, false),
+            row(Rolle.BESLUTTER_TILSAGN, GjennomforingType.AVTALE, kostnadssted, true),
+            row(Rolle.BESLUTTER_TILSAGN, GjennomforingType.AVTALE, annetKostnadssted, false),
+            row(Rolle.BESLUTTER_TILSAGN, GjennomforingType.ENKELTPLASS, kostnadssted, false),
+            row(Rolle.BESLUTTER_TILSAGN, GjennomforingType.ARENA, kostnadssted, false),
+            row(Rolle.ATTESTANT_UTBETALING, GjennomforingType.AVTALE, kostnadssted, false),
+            row(Rolle.ATTESTANT_UTBETALING, GjennomforingType.ENKELTPLASS, kostnadssted, false),
+            row(Rolle.ATTESTANT_UTBETALING, GjennomforingType.ARENA, kostnadssted, false),
+        ) { rolle, type, enhet, forventet ->
+            OkonomiAuthorization.erBeslutterTilsagn(
+                medKontorspesifikkRolle(rolle, kostnadssted),
+                OkonomiBeslutningContext(type, nonEmptySetOf(enhet)),
+            ) shouldBe forventet
+        }
+    }
+
+    test("utbetalingsattestant krever riktig rolle og kostnadssted for gjennomføringstypen") {
+        forAll(
+            row(Rolle.OKONOMI_BESLUTTER_ENKELTPLASS, GjennomforingType.ENKELTPLASS, kostnadssted, true),
+            row(Rolle.OKONOMI_BESLUTTER_ENKELTPLASS, GjennomforingType.ENKELTPLASS, annetKostnadssted, false),
+            row(Rolle.OKONOMI_BESLUTTER_ENKELTPLASS, GjennomforingType.AVTALE, kostnadssted, false),
+            row(Rolle.OKONOMI_BESLUTTER_ENKELTPLASS, GjennomforingType.ARENA, kostnadssted, false),
+            row(Rolle.BESLUTTER_TILSAGN, GjennomforingType.AVTALE, kostnadssted, false),
+            row(Rolle.BESLUTTER_TILSAGN, GjennomforingType.ENKELTPLASS, kostnadssted, false),
+            row(Rolle.BESLUTTER_TILSAGN, GjennomforingType.ARENA, kostnadssted, false),
+            row(Rolle.ATTESTANT_UTBETALING, GjennomforingType.AVTALE, kostnadssted, true),
+            row(Rolle.ATTESTANT_UTBETALING, GjennomforingType.AVTALE, annetKostnadssted, false),
+            row(Rolle.ATTESTANT_UTBETALING, GjennomforingType.ENKELTPLASS, kostnadssted, false),
+            row(Rolle.ATTESTANT_UTBETALING, GjennomforingType.ARENA, kostnadssted, false),
+        ) { rolle, type, enhet, forventet ->
+            OkonomiAuthorization.erAttestantUtbetaling(
+                medKontorspesifikkRolle(rolle, kostnadssted),
+                OkonomiBeslutningContext(type, nonEmptySetOf(enhet)),
+            ) shouldBe forventet
+        }
+    }
+
+    test("beslutning krever tilgang til alle kostnadssteder") {
+        val beggeKostnadssteder = nonEmptySetOf(kostnadssted, annetKostnadssted)
+        val avtale = OkonomiBeslutningContext(GjennomforingType.AVTALE, beggeKostnadssteder)
+        val enkeltplass = OkonomiBeslutningContext(GjennomforingType.ENKELTPLASS, beggeKostnadssteder)
+
+        val tilsagnBeslutter = medKontorspesifikkRolle(Rolle.BESLUTTER_TILSAGN, kostnadssted)
+        val utbetalingAttestant = medKontorspesifikkRolle(Rolle.ATTESTANT_UTBETALING, kostnadssted)
+        val enkeltplassBeslutter = medKontorspesifikkRolle(Rolle.OKONOMI_BESLUTTER_ENKELTPLASS, kostnadssted)
+
+        OkonomiAuthorization.erBeslutterTilsagn(tilsagnBeslutter, avtale) shouldBe false
+        OkonomiAuthorization.erAttestantUtbetaling(utbetalingAttestant, avtale) shouldBe false
+        OkonomiAuthorization.erOkonomiBeslutter(tilsagnBeslutter, avtale) shouldBe false
+        OkonomiAuthorization.erOkonomiBeslutter(utbetalingAttestant, avtale) shouldBe false
+        OkonomiAuthorization.erBeslutterTilsagn(enkeltplassBeslutter, enkeltplass) shouldBe false
+        OkonomiAuthorization.erAttestantUtbetaling(enkeltplassBeslutter, enkeltplass) shouldBe false
+        OkonomiAuthorization.erOkonomiBeslutter(enkeltplassBeslutter, enkeltplass) shouldBe false
+
+        val alleRoller = NavAnsattFixture.DonaldDuck.medRoller(
+            setOf(
+                NavAnsattRolle.kontorspesifikk(Rolle.BESLUTTER_TILSAGN, beggeKostnadssteder),
+                NavAnsattRolle.kontorspesifikk(Rolle.ATTESTANT_UTBETALING, beggeKostnadssteder),
+                NavAnsattRolle.kontorspesifikk(Rolle.OKONOMI_BESLUTTER_ENKELTPLASS, beggeKostnadssteder),
+            ),
+        )
+        OkonomiAuthorization.erBeslutterTilsagn(alleRoller, avtale) shouldBe true
+        OkonomiAuthorization.erAttestantUtbetaling(alleRoller, avtale) shouldBe true
+        OkonomiAuthorization.erOkonomiBeslutter(alleRoller, avtale) shouldBe true
+        OkonomiAuthorization.erBeslutterTilsagn(alleRoller, enkeltplass) shouldBe true
+        OkonomiAuthorization.erAttestantUtbetaling(alleRoller, enkeltplass) shouldBe true
+        OkonomiAuthorization.erOkonomiBeslutter(alleRoller, enkeltplass) shouldBe true
+    }
+
     test("arena har ikke økonomitilgang uansett rolle") {
         val ansatt = NavAnsattFixture.DonaldDuck.medRoller(
             setOf(
@@ -97,8 +195,50 @@ class OkonomiAuthorizationTest : FunSpec({
                 NavAnsattRolle.kontorspesifikk(Rolle.OKONOMI_BESLUTTER_ENKELTPLASS, setOf(kostnadssted)),
             ),
         )
+
         OkonomiAuthorization.kanLeseTilsagn(ansatt, GjennomforingType.ARENA) shouldBe false
         OkonomiAuthorization.kanLeseUtbetaling(ansatt, GjennomforingType.ARENA) shouldBe false
         OkonomiAuthorization.erSaksbehandler(ansatt, GjennomforingType.ARENA) shouldBe false
+
+        val kontekst = OkonomiBeslutningContext(GjennomforingType.ARENA, nonEmptySetOf(kostnadssted))
+        OkonomiAuthorization.erOkonomiBeslutter(ansatt, kontekst) shouldBe false
+        OkonomiAuthorization.erBeslutterTilsagn(ansatt, kontekst) shouldBe false
+        OkonomiAuthorization.erAttestantUtbetaling(ansatt, kontekst) shouldBe false
+    }
+
+    test("beslutter for enkeltplass må ha riktig rolle ved ansvarlig enhet") {
+        val beslutterEnkeltplass = medKontorspesifikkRolle(Rolle.OKONOMI_BESLUTTER_ENKELTPLASS, kostnadssted)
+        OkonomiAuthorization.erBeslutterEnkeltplass(beslutterEnkeltplass, setOf(kostnadssted)) shouldBe true
+        OkonomiAuthorization.erBeslutterEnkeltplass(beslutterEnkeltplass, setOf(annetKostnadssted)) shouldBe false
+
+        OkonomiAuthorization.erBeslutterEnkeltplass(
+            medKontorspesifikkRolle(Rolle.BESLUTTER_TILSAGN, kostnadssted),
+            setOf(kostnadssted),
+        ) shouldBe false
+
+        OkonomiAuthorization.erBeslutterEnkeltplass(
+            medGenerellRolle(Rolle.OKONOMI_BESLUTTER_ENKELTPLASS),
+            setOf(annetKostnadssted),
+        ) shouldBe true
+    }
+
+    test("enkeltplass bruker egne økonomiroller") {
+        OkonomiAuthorization.erSaksbehandlerEnkeltplass(
+            medGenerellRolle(Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS),
+        ) shouldBe true
+
+        OkonomiAuthorization.erSaksbehandlerEnkeltplass(
+            medGenerellRolle(Rolle.SAKSBEHANDLER_OKONOMI),
+        ) shouldBe false
+
+        OkonomiAuthorization.erBeslutterEnkeltplass(
+            medKontorspesifikkRolle(Rolle.ATTESTANT_UTBETALING, kostnadssted),
+            setOf(kostnadssted),
+        ) shouldBe false
+
+        OkonomiAuthorization.erBeslutterEnkeltplass(
+            medKontorspesifikkRolle(Rolle.OKONOMI_BESLUTTER_ENKELTPLASS, kostnadssted),
+            setOf(kostnadssted),
+        ) shouldBe true
     }
 })
