@@ -135,6 +135,15 @@ updates:
           - "sanity"
           - "@sanity/*"
 
+    # Pinnet pga. highcharts#25392 (ESM-modulrekkefølge bryter i Vite/Rolldown).
+    # Fjern når issuet er løst upstream. Kun disse versjonene er blokkert,
+    # så dependabot foreslår neste release automatisk.
+    ignore:
+      - dependency-name: "@highcharts/react"
+        versions: ["5.3.0"]
+      - dependency-name: "highcharts"
+        versions: ["13.1.1"]
+
   # Test versjonsoppdatering av docker images i nais config
   - package-ecosystem: docker
     directory: "/frontend/arena-adapter-manager/.nais/"
