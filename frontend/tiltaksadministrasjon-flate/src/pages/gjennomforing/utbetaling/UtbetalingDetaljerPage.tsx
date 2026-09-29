@@ -62,7 +62,7 @@ import { Handlinger } from "@/components/handlinger/Handlinger";
 import { OpprettKorreksjonModal } from "@/components/utbetaling/OpprettKorreksjonModal";
 import { useUtbetalingLinjeForm } from "@/components/utbetaling/form/useUtbetalingLinjeForm";
 import { UseFormReturn } from "react-hook-form";
-import { SlettKorreksjonModal } from "@/components/utbetaling/SlettKorreksjonModal";
+import { SlettUtbetalingModal } from "@/components/utbetaling/SlettUtbetalingModal";
 import { AvbrytUtbetalingModal } from "@/components/utbetaling/AvbrytUtbetalingModal";
 import { AvslaAvbrytelseUtbetalingModal } from "@/components/utbetaling/AvslaAvbrytelseUtbetalingModal";
 import { ErrorFieldSummary } from "@/components/skjema/ValideringsfeilOppsummering";
@@ -346,7 +346,7 @@ export function UtbetalingDetaljerPage() {
             open={modalVariant === UtbetalingHandling.OPPRETT_KORREKSJON}
             close={() => setModalVariant(null)}
           />
-          <SlettKorreksjonModal
+          <SlettUtbetalingModal
             utbetalingId={utbetaling.id}
             open={modalVariant === UtbetalingHandling.SLETT}
             onClose={() => setModalVariant(null)}

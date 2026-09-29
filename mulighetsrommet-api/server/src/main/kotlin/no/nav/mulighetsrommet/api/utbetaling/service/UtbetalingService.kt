@@ -20,6 +20,7 @@ import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhet
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.Totrinnskontroll
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollStatus
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingTiltaksadministrasjon
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
@@ -261,15 +262,20 @@ class UtbetalingService(
     }
 
     context(tx: TransactionalQueryContext)
-    fun slettKorreksjon(id: UUID): Either<List<FieldError>, Unit> = with(tx) {
+    private fun erEnkeltplass(utbetaling: Utbetaling): Boolean = with(tx) {
+        queries.gjennomforing.getGjennomforing(utbetaling.gjennomforing.id) is GjennomforingEnkeltplass
+    }
+
+    context(tx: TransactionalQueryContext)
+    fun slettUtbetaling(id: UUID): Either<List<FieldError>, Unit> = with(tx) {
         val utbetaling = queries.utbetaling.getAndAcquireLock(id)
         if (!utbetaling.erTilBehandling()) {
             return FieldError.of("Kan ikke slette utbetaling fordi den har status: ${utbetaling.status}")
                 .nel()
                 .left()
         }
-        if (!utbetaling.erKorreksjon()) {
-            return FieldError.of("Kan kun slette korreksjoner").nel().left()
+        if (!utbetaling.erKorreksjon() && !erEnkeltplass(utbetaling)) {
+            return FieldError.of("Kan kun slette korreksjoner og utbetalinger for enkeltplass").nel().left()
         }
         queries.utbetalingLinje.getByUtbetalingId(id).forEach { linje ->
             if (linje.status != UtbetalingLinjeStatus.RETURNERT) {
@@ -289,6 +295,9 @@ class UtbetalingService(
         begrunnelse: String?,
     ): Either<List<FieldError>, Utbetaling> = with(tx) {
         val utbetaling = queries.utbetaling.getAndAcquireLock(id)
+        if (erEnkeltplass(utbetaling)) {
+            return FieldError.of("Utbetaling for enkeltplass kan ikke avbrytes").nel().left()
+        }
         return utbetaling.settTilAbrytelse(agent, aarsaker, begrunnelse).map { utbetalingTilAvbrytelse ->
             queries.utbetaling.save(utbetalingTilAvbrytelse)
 

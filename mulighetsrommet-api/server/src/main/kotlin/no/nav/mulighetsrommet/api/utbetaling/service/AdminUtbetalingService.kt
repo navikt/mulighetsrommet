@@ -11,6 +11,7 @@ import no.nav.mulighetsrommet.api.domain.arrangor.Arrangor
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsatt
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnDeltakerDto
 import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnDto
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
@@ -60,7 +61,8 @@ class AdminUtbetalingService(
         )
 
         val ansatt = queries.ansatt.getOrError(navIdent)
-        val handlinger = utbetalingHandlinger(utbetaling, ansatt, dto.avbrytelse)
+        val erEnkeltplass = queries.gjennomforing.getGjennomforing(utbetaling.gjennomforing.id) is GjennomforingEnkeltplass
+        val handlinger = utbetalingHandlinger(utbetaling, ansatt, dto.avbrytelse, erEnkeltplass)
 
         return UtbetalingDetaljerDto(utbetaling = dto, handlinger = handlinger)
     }
@@ -267,8 +269,8 @@ class AdminUtbetalingService(
         utbetalingService.returnerUtbetalingLinje(id, aarsaker, forklaring, navIdent)
     }
 
-    fun slettKorreksjon(id: UUID): Either<List<FieldError>, Unit> = db.transaction {
-        utbetalingService.slettKorreksjon(id)
+    fun slettUtbetaling(id: UUID): Either<List<FieldError>, Unit> = db.transaction {
+        utbetalingService.slettUtbetaling(id)
     }
 
     fun oppdaterFakturaStatus(
@@ -293,14 +295,17 @@ class AdminUtbetalingService(
             utbetaling: Utbetaling,
             ansatt: NavAnsatt,
             tilAvbrytelse: TotrinnskontrollDto?,
+            erEnkeltplass: Boolean,
         ) = setOfNotNull(
             UtbetalingHandling.SEND_TIL_ATTESTERING.takeIf { utbetaling.erTilBehandling() },
-            UtbetalingHandling.SLETT.takeIf { utbetaling.erTilBehandling() && utbetaling.erKorreksjon() },
+            UtbetalingHandling.SLETT.takeIf {
+                utbetaling.erTilBehandling() && (utbetaling.erKorreksjon() || erEnkeltplass)
+            },
             UtbetalingHandling.OPPRETT_KORREKSJON.takeIf { utbetaling.erFerdigBehandlet() && !utbetaling.erKorreksjon() },
             UtbetalingHandling.REDIGER.takeIf { kanRedigeres(utbetaling) },
             UtbetalingHandling.HENT_GODKJENTE_TILSAGN.takeIf { utbetaling.erTilBehandling() },
             UtbetalingHandling.OPPRETT_TILSAGN.takeIf { utbetaling.erTilBehandling() },
-            UtbetalingHandling.SEND_TIL_AVBRYTELSE.takeIf { utbetaling.kanSettesTilAvbrytelse() },
+            UtbetalingHandling.SEND_TIL_AVBRYTELSE.takeIf { !erEnkeltplass && utbetaling.kanSettesTilAvbrytelse() },
             UtbetalingHandling.GODKJENN_AVBRYTELSE.takeIf { kanGodkjenneAvbrytelse(ansatt, tilAvbrytelse) },
             UtbetalingHandling.AVSLA_AVBRYTELSE.takeIf { kanAvslaAvbrytelse(tilAvbrytelse) },
         )
