@@ -19,7 +19,9 @@ import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.gjennomforing.api.AdminTiltaksgjennomforingFilter
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleDetaljerDto
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplassDetaljerDto
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplassDto
 import no.nav.mulighetsrommet.api.shared.Pagination
 import no.nav.mulighetsrommet.api.utbetaling.service.AvvistGrunn
 import no.nav.mulighetsrommet.api.utbetaling.service.Gradering
@@ -98,6 +100,7 @@ class GjennomforingDetaljerServiceTest : FunSpec({
                 NavIdent("Z123456"),
             ).shouldBeRight().shouldNotBeNull().shouldBeTypeOf<GjennomforingAvtaleDetaljerDto>()
 
+            dto.gjennomforing.type shouldBe GjennomforingAvtaleDto.Type.AVTALE
             dto.gjennomforing.id shouldBe GjennomforingFixtures.Oppfolging1.id
             dto.gjennomforing.navn shouldBe GjennomforingFixtures.Oppfolging1.navn
         }
@@ -117,6 +120,7 @@ class GjennomforingDetaljerServiceTest : FunSpec({
                 NavIdent("Z123456"),
             ).shouldBeRight().shouldNotBeNull().shouldBeTypeOf<GjennomforingEnkeltplassDetaljerDto>()
 
+            dto.gjennomforing.type shouldBe GjennomforingEnkeltplassDto.Type.ENKELTPLASS
             dto.gjennomforing.id shouldBe GjennomforingFixtures.EnkelAmo.id
 
             dto.deltaker.shouldNotBeNull().should {

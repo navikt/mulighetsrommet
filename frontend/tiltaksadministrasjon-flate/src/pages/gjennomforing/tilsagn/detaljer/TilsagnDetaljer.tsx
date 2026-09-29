@@ -40,11 +40,14 @@ import { aarsakTilTekst } from "@/utils/Utils";
 import { TilsagnStengtePerioder } from "@/components/tilsagn/beregning/TilsagnStengtePerioder";
 import { formaterNavEnhet } from "@/utils/nav-enhet";
 import { TotrinnsBegrunnelse } from "@mr/frontend-common/components/TotrinnsBegrunnelse";
+import { useGjennomforing } from "@/api/gjennomforing/useGjennomforing";
+import { stotterBeskrivelseTilArrangor } from "@/api/gjennomforing/utils";
 
 export function TilsagnDetaljer() {
-  const { tilsagnId } = useRequiredParams(["tilsagnId"]);
+  const { gjennomforingId, tilsagnId } = useRequiredParams(["gjennomforingId", "tilsagnId"]);
 
   const { data } = useTilsagn(tilsagnId);
+  const { gjennomforing } = useGjennomforing(gjennomforingId);
   const { tilsagn, deltakere, beregning, annullering, tilOppgjor, opprettelse, handlinger } = data;
 
   const godkjennTilsagnMutation = useGodkjennTilsagn();
@@ -194,7 +197,12 @@ export function TilsagnDetaljer() {
             <Separator />
             <VStack gap="space-16" className="flex-1">
               <MetadataFritekstfelt label={tilsagnTekster.kommentar.label} value={kommentar} />
-              <MetadataFritekstfelt label={tilsagnTekster.beskrivelse.label} value={beskrivelse} />
+              {stotterBeskrivelseTilArrangor(gjennomforing.type) && (
+                <MetadataFritekstfelt
+                  label={tilsagnTekster.beskrivelse.label}
+                  value={beskrivelse}
+                />
+              )}
             </VStack>
             <Show below="lg">
               <Separator />

@@ -32,10 +32,9 @@ import { FormDateInput } from "@/components/skjema/FormDateInput";
 import { FormTextarea } from "@/components/skjema/FormTextarea";
 import { applyValidationErrors } from "@/components/skjema/helpers";
 import { InformationSquareIcon } from "@navikt/aksel-icons";
-import { GjennomforingDto } from "@/api/gjennomforing/utils";
+import { GjennomforingDto, stotterBeskrivelseTilArrangor } from "@/api/gjennomforing/utils";
 import { Betalingsbetingelser } from "@/components/gjennomforing/Betalingsbetingelser";
 import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
-import { stotterBeskrivelseTilArrangor } from "@/utils/prismodell";
 
 interface Props {
   onSuccess: () => void;
@@ -123,7 +122,7 @@ export function TilsagnForm(props: Props) {
                   label={tilsagnTekster.kommentar.label}
                   maxLength={500}
                 />
-                {stotterBeskrivelseTilArrangor(props.prismodell.type) && (
+                {stotterBeskrivelseTilArrangor(gjennomforing.type) && (
                   <FormTextarea<TilsagnRequest>
                     name="beskrivelse"
                     label={tilsagnTekster.beskrivelse.label}
