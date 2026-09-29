@@ -7,10 +7,10 @@ import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakelseFraKomet
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakelserRequest
 import no.nav.mulighetsrommet.api.clients.pdl.GraphqlRequest
+import no.nav.mulighetsrommet.api.clients.pdl.HentHistoriskeIdenterPdlQuery
 import no.nav.mulighetsrommet.api.clients.pdl.IdentGruppe
 import no.nav.mulighetsrommet.api.clients.pdl.PdlError
 import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
-import no.nav.mulighetsrommet.api.pdl.HentHistoriskeIdenterPdlQuery
 import no.nav.mulighetsrommet.api.veilederflate.Deltakelse
 import no.nav.mulighetsrommet.api.veilederflate.Deltakelse.TiltaksadministrasjonDeltakelse.InfoMeldingStatus
 import no.nav.mulighetsrommet.api.veilederflate.DeltakelsePeriode

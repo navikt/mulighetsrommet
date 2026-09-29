@@ -1,14 +1,10 @@
-package no.nav.mulighetsrommet.api.pdl
+package no.nav.mulighetsrommet.api.clients.pdl
 
 import arrow.core.Either
 import arrow.core.right
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.clients.pdl.GraphqlRequest
-import no.nav.mulighetsrommet.api.clients.pdl.IdentInformasjon
-import no.nav.mulighetsrommet.api.clients.pdl.PdlClient
-import no.nav.mulighetsrommet.api.clients.pdl.PdlError
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import java.util.concurrent.TimeUnit
 

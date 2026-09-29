@@ -9,11 +9,11 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.mulighetsrommet.admin.endringshistorikk.EndringshistorikkType
 import no.nav.mulighetsrommet.admin.journalpost.ForventetBruker
+import no.nav.mulighetsrommet.admin.journalpost.JournalpostValidator
 import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollDto
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.TransactionalQueryContext
-import no.nav.mulighetsrommet.api.clients.saf.SafClient
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.Totrinnskontroll
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
@@ -52,7 +52,7 @@ class TilskuddBehandlingService(
     private val journalforVedtaksbrev: JournalforVedtaksbrev,
     private val pdf: PdfGenClient,
     private val personaliaService: PersonaliaService,
-    private val safClient: SafClient,
+    private val journalpostValidator: JournalpostValidator,
     private val featureToggleService: FeatureToggleService,
 ) {
     suspend fun upsert(
@@ -70,7 +70,7 @@ class TilskuddBehandlingService(
 
         val journalpostValidatorFunc = TilskuddBehandlingValidator.createJournalpostValidator(
             forventetBruker = forventetBruker,
-            safClient = safClient,
+            journalpostValidator = journalpostValidator,
             valideringEnabled = featureToggleService.isEnabled(FeatureToggle.TILTAKSADMINISTRASJON_JOURNALPOST_VALIDERING),
         )
 

@@ -4,6 +4,11 @@ import arrow.core.Either
 import arrow.core.flatMap
 import arrow.core.left
 import arrow.core.right
+import no.nav.mulighetsrommet.api.clients.pdl.GraphqlRequest
+import no.nav.mulighetsrommet.api.clients.pdl.HentHistoriskeIdenterPdlQuery
+import no.nav.mulighetsrommet.api.clients.pdl.IdentGruppe
+import no.nav.mulighetsrommet.api.clients.pdl.PdlError
+import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
 import no.nav.mulighetsrommet.api.clients.saf.SafBruker
 import no.nav.mulighetsrommet.api.clients.saf.SafBrukerIdType
 import no.nav.mulighetsrommet.api.clients.saf.SafClient
@@ -13,12 +18,14 @@ import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 
-object JournalpostValidator {
+class JournalpostValidator(
+    private val safClient: SafClient,
+    private val hentIdenterQuery: HentHistoriskeIdenterPdlQuery,
+) {
     suspend fun validerJournalpost(
         journalpostId: String,
         forventetBruker: ForventetBruker,
         accessType: AccessType,
-        safClient: SafClient,
     ): Either<JournalpostValideringError, JournalpostId> {
         val validatedId = JournalpostId.parse(journalpostId)
             ?: return JournalpostValideringError.FeilFormat.left()
@@ -31,14 +38,15 @@ object JournalpostValidator {
                 }
             }
             .flatMap { journalpost ->
-                validerBruker(journalpost.bruker, forventetBruker)
+                validerBruker(journalpost.bruker, forventetBruker, accessType)
             }
             .map { validatedId }
     }
 
-    private fun validerBruker(
+    private suspend fun validerBruker(
         bruker: SafBruker?,
         forventetBruker: ForventetBruker,
+        accessType: AccessType,
     ): Either<JournalpostValideringError, Unit> = when (bruker?.type) {
         // TODO: Ikke helt sikker på at dette alltid skal være en feil, men vi kan vel begynne med det
         null -> JournalpostValideringError.IngenTilknytning.left()
@@ -70,10 +78,41 @@ object JournalpostValidator {
                     JournalpostValideringError.TilhorerVirksomhet.left()
             }
 
-        // Jeg tror ikke denne inntreffer, hvis den gjør det må vi veksle aktørId -> fnr i pdl først
+        // Journalposten er knyttet til en aktørId. Vi veksler den til fnr i PDL og
+        // sammenligner mot forventet bruker.
         SafBrukerIdType.AKTOERID ->
-            JournalpostValideringError.AktoerId.left()
+            when (forventetBruker) {
+                is ForventetBruker.Bedrift -> JournalpostValideringError.TilhorerPerson.left()
+
+                is ForventetBruker.Person ->
+                    validerAktoerIdMotPerson(bruker.id, forventetBruker.norskIdent, accessType)
+            }
     }
+
+    private suspend fun validerAktoerIdMotPerson(
+        aktoerId: String?,
+        forventetNorskIdent: NorskIdent,
+        accessType: AccessType,
+    ): Either<JournalpostValideringError, Unit> = hentIdenterQuery
+        .hentHistoriskeIdenter(
+            GraphqlRequest.HentHistoriskeIdenter(
+                ident = PdlIdent(requireNotNull(aktoerId) { "aktoerId var null" }),
+                grupper = listOf(IdentGruppe.FOLKEREGISTERIDENT),
+            ),
+            accessType,
+        )
+        .mapLeft {
+            when (it) {
+                PdlError.NotFound, PdlError.Error -> JournalpostValideringError.KunneIkkeVeksleAktoerId
+            }
+        }
+        .flatMap { identer ->
+            if (identer.any { it.ident.value == forventetNorskIdent.value }) {
+                Unit.right()
+            } else {
+                JournalpostValideringError.TilhorerAnnenPerson.left()
+            }
+        }
 
     enum class JournalpostValideringError {
         NotFound,
@@ -83,7 +122,7 @@ object JournalpostValidator {
         TilhorerPerson,
         TilhorerAnnenPerson,
         TilhorerAnnenVirksomhet,
-        AktoerId,
+        KunneIkkeVeksleAktoerId,
         IngenTilknytning,
     }
 }

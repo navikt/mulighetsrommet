@@ -23,7 +23,7 @@ import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.tilskuddbehandling.TilskuddBehandlingService
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
-import no.nav.mulighetsrommet.api.tilskuddbehandling.gyldigSafClient
+import no.nav.mulighetsrommet.api.tilskuddbehandling.gyldigJournalpostValidator
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingRequest
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
 import no.nav.mulighetsrommet.api.tilskuddbehandling.task.JournalforVedtaksbrev
@@ -146,7 +146,7 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
             database.api,
             journalforVedtaksbrev,
             mockk(relaxed = true),
-            safClient = gyldigSafClient(),
+            journalpostValidator = gyldigJournalpostValidator(),
             personaliaService = mockk(relaxed = true),
             featureToggleService = mockk(relaxed = true),
         )
@@ -171,7 +171,7 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
             database.api,
             journalforVedtaksbrev,
             mockk(relaxed = true),
-            safClient = gyldigSafClient(),
+            journalpostValidator = gyldigJournalpostValidator(),
             personaliaService = mockk(relaxed = true),
             featureToggleService = mockk(relaxed = true),
         )
@@ -189,7 +189,7 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
             database.api,
             journalforVedtaksbrev,
             mockk(relaxed = true),
-            safClient = gyldigSafClient(),
+            journalpostValidator = gyldigJournalpostValidator(),
             personaliaService = mockk(relaxed = true),
             featureToggleService = mockk(relaxed = true),
         )
@@ -211,7 +211,7 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
             database.api,
             journalforVedtaksbrev,
             mockk(relaxed = true),
-            safClient = gyldigSafClient(),
+            journalpostValidator = gyldigJournalpostValidator(),
             personaliaService = mockk(relaxed = true),
             featureToggleService = mockk(relaxed = true),
         )
@@ -250,7 +250,7 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
             database.api,
             journalforVedtaksbrev,
             mockk(relaxed = true),
-            safClient = gyldigSafClient(),
+            journalpostValidator = gyldigJournalpostValidator(),
             personaliaService = mockk(relaxed = true),
             featureToggleService = mockk(relaxed = true),
         )
@@ -285,7 +285,7 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
             database.api,
             journalforVedtaksbrev,
             mockk(relaxed = true),
-            safClient = gyldigSafClient(),
+            journalpostValidator = gyldigJournalpostValidator(),
             personaliaService = mockk(relaxed = true),
             featureToggleService = mockk(relaxed = true),
         )
