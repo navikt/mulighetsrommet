@@ -58,6 +58,7 @@ data class AppConfig(
     val altinn: AuthenticatedHttpClientConfig,
     val altinnCorrespondence: AuthenticatedHttpClientConfig,
     val dokark: AuthenticatedHttpClientConfig,
+    val saf: AuthenticatedHttpClientConfig,
     val dokdistfordeling: AuthenticatedHttpClientConfig,
     val kontoregisterOrganisasjon: AuthenticatedHttpClientConfig,
     val helvedSimuleringConfig: AuthenticatedHttpClientConfig,

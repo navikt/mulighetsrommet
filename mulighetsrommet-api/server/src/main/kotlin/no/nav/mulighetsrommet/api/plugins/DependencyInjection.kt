@@ -64,6 +64,7 @@ import no.nav.mulighetsrommet.api.clients.msgraph.MsGraphClient
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Client
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClient
 import no.nav.mulighetsrommet.api.clients.pdl.PdlClient
+import no.nav.mulighetsrommet.api.clients.saf.SafClient
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokarkClient
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokdistClient
@@ -354,6 +355,13 @@ private fun services(appConfig: AppConfig) = module {
             clientEngine = appConfig.pdl.engine ?: appConfig.engine,
         )
     }
+    single {
+        SafClient(
+            config = SafClient.Config(appConfig.saf.url, maxRetries = 3),
+            tokenProvider = azureAdTokenProvider.withScope(appConfig.saf.scope),
+            clientEngine = appConfig.saf.engine ?: appConfig.engine,
+        )
+    }
     single { HentAdressebeskyttetPersonBolkPdlQuery(get()) }
     single { HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQuery(get()) }
     single { HentHistoriskeIdenterPdlQuery(get()) }
@@ -597,7 +605,7 @@ private fun services(appConfig: AppConfig) = module {
             navAnsattService = get(),
         )
     }
-    single { TilskuddBehandlingService(get(), get(), get()) }
+    single { TilskuddBehandlingService(get(), get(), get(), get(), get(), get()) }
     single { TilskuddService(get(), get(), get()) }
     single { AltinnRettigheterService(db = get(), altinnClient = get()) }
     single { OppgaverService(get(), get()) }

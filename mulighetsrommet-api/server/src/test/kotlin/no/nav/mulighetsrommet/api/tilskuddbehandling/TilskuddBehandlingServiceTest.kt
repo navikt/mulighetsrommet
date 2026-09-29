@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.tilskuddbehandling
 
+import arrow.core.nel
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
@@ -11,6 +12,7 @@ import io.mockk.mockk
 import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollDto
 import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd
 import no.nav.mulighetsrommet.api.domain.testing.fixture.AvtaleFixtures
+import no.nav.mulighetsrommet.api.domain.testing.fixture.DeltakerFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
@@ -37,6 +39,7 @@ class TilskuddBehandlingServiceTest : FunSpec({
             ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
             avtaler = listOf(AvtaleFixtures.AFT),
             gjennomforinger = listOf(GjennomforingFixtures.AFT1),
+            deltakere = listOf(DeltakerFixtures.createDeltaker(id = UUID.randomUUID(), gjennomforingId = GjennomforingFixtures.AFT1.id)),
         ).initialize(database.api)
     }
 
@@ -52,7 +55,7 @@ class TilskuddBehandlingServiceTest : FunSpec({
                 id = UUID.randomUUID(),
                 tilskuddId = UUID.randomUUID(),
                 tilskuddOpplaeringType = Opplaeringtilskudd.Kode.SKOLEPENGER,
-                soknadJournalpostId = "J-2024-001",
+                soknadJournalpostId = "12345",
                 soknadDato = LocalDate.of(2024, 1, 15),
                 soknadBelop = ValutaBelopRequest(
                     belop = 12,
@@ -75,7 +78,31 @@ class TilskuddBehandlingServiceTest : FunSpec({
         db = database.api,
         journalforVedtaksbrev = mockk(relaxed = true),
         pdf = mockk(relaxed = true),
+        safClient = gyldigSafClient(),
+        personaliaService = mockk(relaxed = true),
+        featureToggleService = mockk(relaxed = true),
     )
+
+    context("validering av journalpost") {
+        test("upsert feiler når journalpost ikke er gyldig") {
+            val service = TilskuddBehandlingService(
+                db = database.api,
+                journalforVedtaksbrev = mockk(relaxed = true),
+                pdf = mockk(relaxed = true),
+                safClient = gyldigSafClient(),
+                personaliaService = mockk(relaxed = true),
+                featureToggleService = mockk(relaxed = true),
+            )
+
+            service.upsert(
+                request.copy(tilskudd = request.tilskudd.first().copy(soknadJournalpostId = "asdf").nel()),
+                ansatt1,
+            ).shouldBeLeft().should {
+                it shouldHaveSize 1
+                it.first().pointer shouldBe "/tilskudd/0/soknadJournalpostId"
+            }
+        }
+    }
 
     context("attester og returner") {
         test("kan ikke attestere sin egen behandling") {

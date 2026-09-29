@@ -17,6 +17,7 @@ import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultatDto
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.samletVedtakResultatStatusTag
 import no.nav.mulighetsrommet.database.datatypes.toDaterange
 import no.nav.mulighetsrommet.database.withTransaction
+import no.nav.mulighetsrommet.model.JournalpostId
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Periode
@@ -189,7 +190,7 @@ class TilskuddBehandlingQueries(private val session: Session) {
             "tilskudd_behandling_id" to behandling.id,
             "periode" to tilskuddVedtak.periode.toDaterange(),
             "kostnadssted" to tilskuddVedtak.kostnadssted.value,
-            "soknad_journalpost_id" to tilskuddVedtak.soknadJournalpostId,
+            "soknad_journalpost_id" to tilskuddVedtak.soknadJournalpostId.value,
             "soknad_dato" to tilskuddVedtak.soknadDato,
             "soknad_belop" to tilskuddVedtak.soknadBelop.belop,
             "soknad_valuta" to tilskuddVedtak.soknadBelop.valuta.name,
@@ -358,7 +359,7 @@ private data class TilskuddVedtakViewRow(
     @SerialName("tilskudd_id")
     val tilskuddId: UUID,
     @SerialName("soknad_journalpost_id")
-    val soknadJournalpostId: String,
+    val soknadJournalpostId: JournalpostId,
     @SerialName("soknad_dato")
     @Serializable(with = LocalDateSerializer::class)
     val soknadDato: LocalDate,

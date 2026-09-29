@@ -8,10 +8,12 @@ import arrow.core.right
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.mulighetsrommet.admin.endringshistorikk.EndringshistorikkType
+import no.nav.mulighetsrommet.admin.journalpost.ForventetBruker
 import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollDto
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.TransactionalQueryContext
+import no.nav.mulighetsrommet.api.clients.saf.SafClient
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.Totrinnskontroll
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
@@ -31,10 +33,15 @@ import no.nav.mulighetsrommet.api.tilskuddbehandling.task.JournalforVedtaksbrev
 import no.nav.mulighetsrommet.api.tilskuddbehandling.task.hentForhandsvisningVedtaksbrevInnhold
 import no.nav.mulighetsrommet.api.totrinnskontroll.api.toFieldErrors
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingException
+import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
+import no.nav.mulighetsrommet.featuretoggle.model.FeatureToggle
+import no.nav.mulighetsrommet.featuretoggle.service.FeatureToggleService
 import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.FieldError
+import no.nav.mulighetsrommet.model.JournalpostId
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
+import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.ProblemDetail
 import java.time.Instant
 import java.time.LocalDateTime
@@ -44,8 +51,11 @@ class TilskuddBehandlingService(
     private val db: ApiDatabase,
     private val journalforVedtaksbrev: JournalforVedtaksbrev,
     private val pdf: PdfGenClient,
+    private val personaliaService: PersonaliaService,
+    private val safClient: SafClient,
+    private val featureToggleService: FeatureToggleService,
 ) {
-    fun upsert(
+    suspend fun upsert(
         request: TilskuddBehandlingRequest,
         navIdent: NavIdent,
     ): Either<List<FieldError>, Unit> {
@@ -54,8 +64,18 @@ class TilskuddBehandlingService(
         val behandlendeEnhet = db.session { queries.ansatt.get(navIdent) }?.hovedenhet
             ?: throw IllegalArgumentException("Fant ikke enhet for ansatt $navIdent")
 
+        val forventetBruker = hentDeltakerNorskIdentOrError(gjennomforing.id).let {
+            ForventetBruker.Person(it)
+        }
+
+        val journalpostValidatorFunc = TilskuddBehandlingValidator.createJournalpostValidator(
+            forventetBruker = forventetBruker,
+            safClient = safClient,
+            valideringEnabled = featureToggleService.isEnabled(FeatureToggle.TILTAKSADMINISTRASJON_JOURNALPOST_VALIDERING),
+        )
+
         return TilskuddBehandlingValidator
-            .validate(request, gjennomforing, behandlendeEnhet)
+            .validate(request, gjennomforing, behandlendeEnhet, journalpostValidatorFunc)
             .map { dbo ->
                 db.transaction {
                     queries.tilskuddBehandling.upsert(dbo)
@@ -81,20 +101,29 @@ class TilskuddBehandlingService(
             }
     }
 
+    private suspend fun hentDeltakerNorskIdentOrError(gjennomforingId: UUID): NorskIdent {
+        return db.session { repository.deltaker.getByGjennomforing(gjennomforingId) }
+            .singleOrNull()
+            ?.let {
+                personaliaService.getPersonalia(it.id, PersonaliaService.OnBehalfOf.System).norskIdent()
+            }
+            ?: throw IllegalStateException("Fant ikke deltaker for enkeltplass")
+    }
+
     fun getByGjennomforingId(gjennomforingId: UUID): List<TilskuddBehandlingKompakt> {
         return db.session {
             queries.tilskuddBehandling.getByGjennomforingId(gjennomforingId)
                 .map {
-                    val førsteTilskudd = it.tilskudd.firstOrNull()
+                    val firstTilskudd = it.tilskudd.firstOrNull()
                         ?: error("Tilskuddsbehandling med id=${it.id} mangler tilskudd")
                     TilskuddBehandlingKompakt(
                         id = it.id,
-                        soknadDato = førsteTilskudd.soknadDato,
-                        periode = førsteTilskudd.periode,
-                        journalpostId = førsteTilskudd.soknadJournalpostId,
+                        soknadDato = firstTilskudd.soknadDato,
+                        periode = firstTilskudd.periode,
+                        journalpostId = firstTilskudd.soknadJournalpostId,
                         tilskuddtyper = it.tilskudd.map { tilskudd -> tilskudd.tilskuddOpplaeringType }
                             .toSet(),
-                        kostnadssted = førsteTilskudd.kostnadssted,
+                        kostnadssted = firstTilskudd.kostnadssted,
                         status = it.status,
                         type = it.type,
                         samletVedtakResultat = it.samletVedtakResultat,
@@ -333,7 +362,8 @@ class TilskuddBehandlingService(
             ?: throw IllegalArgumentException("Fant ikke enhet for ansatt $navIdent")
 
         return TilskuddBehandlingValidator
-            .validate(request, gjennomforing, behandlendeEnhet)
+            // Dummy journalpost validator her
+            .validate(request, gjennomforing, behandlendeEnhet) { _, _ -> JournalpostId("123").right() }
             .map { dbo ->
                 vedtaksbrevForhandsvisPdf(dbo).getOrElse { throw IllegalStateException("Klarte ikke lage vedtaksbrev pdf") }
             }

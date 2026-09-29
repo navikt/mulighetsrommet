@@ -17,6 +17,7 @@ import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingSta
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingType
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
+import no.nav.mulighetsrommet.model.JournalpostId
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Periode
@@ -53,7 +54,7 @@ class TilskuddBehandlingQueriesTest : FunSpec({
                 kommentarVedtaksbrev = "k1",
                 utbetalingMottaker = TilskuddMottaker.BRUKER,
                 kid = null,
-                soknadJournalpostId = "J-2024-001",
+                soknadJournalpostId = JournalpostId("123"),
                 soknadDato = LocalDate.of(2024, 1, 15),
                 periode = Periode(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 7, 1)),
                 kostnadssted = NavEnhetNummer("0502"),
@@ -75,7 +76,7 @@ class TilskuddBehandlingQueriesTest : FunSpec({
                 kommentarVedtaksbrev = "k2",
                 utbetalingMottaker = TilskuddMottaker.ARRANGOR,
                 kid = Kid.parse("116"),
-                soknadJournalpostId = "J-2024-001",
+                soknadJournalpostId = JournalpostId("123"),
                 soknadDato = LocalDate.of(2024, 1, 15),
                 periode = Periode(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 7, 1)),
                 kostnadssted = NavEnhetNummer("0502"),
@@ -94,7 +95,7 @@ class TilskuddBehandlingQueriesTest : FunSpec({
                 kommentarVedtaksbrev = "k2",
                 utbetalingMottaker = TilskuddMottaker.ARRANGOR,
                 kid = null,
-                soknadJournalpostId = "J-2024-001",
+                soknadJournalpostId = JournalpostId("123"),
                 soknadDato = LocalDate.of(2024, 1, 15),
                 periode = Periode(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 7, 1)),
                 kostnadssted = NavEnhetNummer("0502"),
@@ -193,7 +194,7 @@ class TilskuddBehandlingQueriesTest : FunSpec({
             domain.initialize()
 
             queries.tilskuddBehandling.upsert(behandling)
-            val førsteTilskuddsnummer = behandling.tilskudd.map { tilskuddVedtak ->
+            val forsteTilskuddsnummer = behandling.tilskudd.map { tilskuddVedtak ->
                 tilskuddsnummerFor(tilskuddVedtak.tilskuddId)
             }
 
@@ -202,7 +203,7 @@ class TilskuddBehandlingQueriesTest : FunSpec({
                 tilskuddsnummerFor(tilskuddVedtak.tilskuddId)
             }
 
-            andreTilskuddsnummer shouldBe førsteTilskuddsnummer
+            andreTilskuddsnummer shouldBe forsteTilskuddsnummer
         }
     }
 })

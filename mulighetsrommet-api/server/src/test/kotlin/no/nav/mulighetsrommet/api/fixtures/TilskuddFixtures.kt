@@ -9,6 +9,7 @@ import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddVedtak
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatus
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingType
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
+import no.nav.mulighetsrommet.model.JournalpostId
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Valuta
@@ -33,7 +34,7 @@ object TilskuddFixtures {
         kommentarVedtaksbrev = null,
         utbetalingMottaker = TilskuddMottaker.BRUKER,
         kid = Kid.parse("116"),
-        soknadJournalpostId = "J-2024-001",
+        soknadJournalpostId = JournalpostId("123"),
         soknadDato = LocalDate.of(2024, 1, 15),
         periode = Periode(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 7, 1)),
         kostnadssted = NavEnhetFixtures.Innlandet.enhetsnummer,
@@ -56,7 +57,7 @@ object TilskuddFixtures {
         kommentarVedtaksbrev = "Vilkårene for tilskuddet er ikke oppfylt, derfor avslås søknaden.",
         utbetalingMottaker = TilskuddMottaker.ARRANGOR,
         kid = Kid.parse("116"),
-        soknadJournalpostId = "J-2024-002",
+        soknadJournalpostId = JournalpostId("123"),
         soknadDato = LocalDate.of(2024, 1, 15),
         periode = Periode(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 7, 1)),
         kostnadssted = NavEnhetFixtures.Innlandet.enhetsnummer,
