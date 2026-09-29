@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.tilsagn.model
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhet
+import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingType
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
@@ -47,6 +48,7 @@ data class Tilsagn(
         val id: UUID,
         val lopenummer: Tiltaksnummer,
         val navn: String,
+        val type: GjennomforingType,
     )
 
     @Serializable

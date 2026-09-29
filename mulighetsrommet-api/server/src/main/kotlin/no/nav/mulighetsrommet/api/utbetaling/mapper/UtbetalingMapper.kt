@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.utbetaling.mapper
 
+import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingType
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregning
@@ -33,6 +34,7 @@ object UtbetalingMapper {
             gjennomforing = Utbetaling.Gjennomforing(
                 id = gjennomforing.id,
                 lopenummer = gjennomforing.lopenummer,
+                type = GjennomforingType.AVTALE,
             ),
             arrangor = Utbetaling.Arrangor(
                 gjennomforing.arrangor.id,

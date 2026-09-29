@@ -8,6 +8,7 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.Totrinnskontroll
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
+import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingType
 import no.nav.mulighetsrommet.api.totrinnskontroll.api.toFieldErrors
 import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.FieldError
@@ -193,6 +194,7 @@ data class Utbetaling(
         @Serializable(with = UUIDSerializer::class)
         val id: UUID,
         val lopenummer: Tiltaksnummer,
+        val type: GjennomforingType,
     )
 
     @Serializable

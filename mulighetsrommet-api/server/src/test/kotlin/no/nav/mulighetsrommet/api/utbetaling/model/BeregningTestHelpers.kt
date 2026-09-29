@@ -7,6 +7,7 @@ import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetStatus
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetType
 import no.nav.mulighetsrommet.api.domain.tiltak.AvtaltSats
 import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
+import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingType
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleStatus
@@ -161,6 +162,7 @@ object BeregningTestHelpers {
             id = gjennomforing.id,
             lopenummer = gjennomforing.lopenummer,
             navn = gjennomforing.navn,
+            type = GjennomforingType.AVTALE,
         ),
         arrangor = Tilsagn.Arrangor(
             id = gjennomforing.arrangor.id,

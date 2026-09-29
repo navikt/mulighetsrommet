@@ -16,7 +16,6 @@ import io.ktor.server.routing.route
 import io.ktor.server.util.getOrFail
 import io.ktor.server.util.getValue
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.admin.navenhet.Kontorstruktur
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.aarsakerbegrunnelse.AarsakerOgBegrunnelseRequest
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
@@ -28,7 +27,8 @@ import no.nav.mulighetsrommet.api.plugins.queryParameterUuid
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.tilsagn.api.KostnadsstedDto
-import no.nav.mulighetsrommet.api.utbetaling.model.DeltakerAdvarselDto
+import no.nav.mulighetsrommet.api.utbetaling.UtbetalingDtoQuery
+import no.nav.mulighetsrommet.api.utbetaling.UtbetalingDtoQueryError
 import no.nav.mulighetsrommet.api.utbetaling.model.OpprettUtbetalingLinje
 import no.nav.mulighetsrommet.api.utbetaling.model.OpprettUtbetalingLinjer
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningOutputDeltakelse
@@ -38,6 +38,7 @@ import no.nav.mulighetsrommet.api.utbetaling.service.AdminUtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.api.utbetaling.service.UtbetalingValidator
+import no.nav.mulighetsrommet.ktor.exception.Forbidden
 import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
 import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.NavEnhetNummer
@@ -57,7 +58,7 @@ import kotlin.contracts.ExperimentalContracts
 fun Route.utbetalingRoutes() {
     val db: ApiDatabase by inject()
     val utbetalingService: AdminUtbetalingService by inject()
-    val personaliaService: PersonaliaService by inject()
+    val utbetalingDtoQuery: UtbetalingDtoQuery by inject()
 
     get("/utbetaling", {
         description = "Hent alle utbetalinger for gitt gjennomføring"
@@ -227,9 +228,9 @@ fun Route.utbetalingRoutes() {
                 val id: UUID by call.parameters
                 val navIdent = getNavIdent()
 
-                val utbetaling = utbetalingService.getUtbetalingDetaljer(id, navIdent)
+                val result = utbetalingDtoQuery.getDetaljer(id, navIdent).mapLeft { toProblemDetail(it) }
 
-                call.respond(utbetaling)
+                call.respondWithStatusResponse(result)
             }
         }
 
@@ -363,47 +364,15 @@ fun Route.utbetalingRoutes() {
                 }
             }) {
                 val id: UUID by call.parameters
+                val navIdent = getNavIdent()
                 val filter = getBeregningFilter()
+                val onBehalfOf = PersonaliaService.OnBehalfOf.NavAnsatt(call.getAccessType().requireAzureAd())
 
-                val beregning = db.session {
-                    val utbetaling = queries.utbetaling.getOrError(id)
-                    val deltakelser = utbetaling.beregning.deltakelsePerioder().associateBy { it.deltakelseId }
+                val result = utbetalingDtoQuery
+                    .getBeregning(id, navIdent, filter, onBehalfOf)
+                    .mapLeft { toProblemDetail(it) }
 
-                    val personalia = personaliaService.getPersonalia(
-                        deltakelser.keys.toList(),
-                        PersonaliaService.OnBehalfOf.NavAnsatt(call.getAccessType().requireAzureAd()),
-                    )
-
-                    val enheter = personalia.flatMap {
-                        listOfNotNull(
-                            it.oppfolgingEnhet(),
-                            it.region(),
-                        )
-                    }
-                    val kontorstruktur = Kontorstruktur.fromNavEnheter(enheter.toList())
-
-                    val deltakelsePersoner = personalia
-                        .filter { filter.navEnheter.isEmpty() || it.oppfolgingEnhet()?.enhetsnummer in filter.navEnheter }
-                        .associateBy { it.deltakerId }
-
-                    val advarsler = utbetalingService.getAdvarsler(utbetaling)
-
-                    UtbetalingBeregningDto.from(
-                        utbetaling.beregning,
-                        deltakelsePersoner,
-                        kontorstruktur,
-                        utbetalingPeriode = utbetaling.periode,
-                        advarsler = advarsler.map { advarsel ->
-                            DeltakerAdvarselDto.from(
-                                advarsel,
-                                deltakelsePersoner[advarsel.deltakerId]?.navn(),
-                                deltakelsePersoner[advarsel.deltakerId]?.norskIdent(),
-                            )
-                        },
-                    )
-                }
-
-                call.respond(beregning)
+                call.respondWithStatusResponse(result)
             }
         }
 
@@ -429,9 +398,11 @@ fun Route.utbetalingRoutes() {
                 val navIdent = getNavIdent()
                 val onBehalfOf = PersonaliaService.OnBehalfOf.NavAnsatt(call.getAccessType().requireAzureAd())
 
-                val utbetalingsLinjer = utbetalingService.getUtbetalingLinjer(id, navIdent, onBehalfOf)
+                val result = utbetalingDtoQuery
+                    .getLinjer(id, navIdent, onBehalfOf)
+                    .mapLeft { toProblemDetail(it) }
 
-                call.respond(utbetalingsLinjer)
+                call.respondWithStatusResponse(result)
             }
         }
     }
@@ -626,3 +597,7 @@ data class UtbetalingBeregningDeltaker(
     val personalia: Personalia,
     val deltakelse: UtbetalingBeregningOutputDeltakelse,
 )
+
+private fun toProblemDetail(error: UtbetalingDtoQueryError): ProblemDetail = when (error) {
+    is UtbetalingDtoQueryError.ManglerTilgang -> Forbidden(error.message)
+}
