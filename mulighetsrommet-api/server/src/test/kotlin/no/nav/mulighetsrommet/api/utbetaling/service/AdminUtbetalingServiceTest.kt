@@ -79,7 +79,6 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 import java.util.UUID
-import kotlin.collections.emptySet
 
 private val BESTILLING_TOPIC = ApplicationConfigTest.kafka.topics.okonomiBestillingTopic
 
@@ -1522,9 +1521,9 @@ class AdminUtbetalingServiceTest : FunSpec({
 
                 val service = createUtbetalingService()
 
-                val aarsaker = AarsakerOgForklaringRequest(
+                val aarsaker = AarsakerOgBegrunnelseRequest(
                     aarsaker = listOf(UtbetalingStatusAarsak.TILSAGN_GJORT_OPP),
-                    forklaring = null,
+                    begrunnelse = null,
                 )
                 service.sendTilAvbrytelse(enkeltplassUtbetaling.id, navIdent, aarsaker) shouldBeLeft
                     listOf(
