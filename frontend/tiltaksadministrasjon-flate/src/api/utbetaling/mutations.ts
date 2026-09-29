@@ -112,8 +112,8 @@ export function useAvslaAvbrytelseUtbetaling() {
   });
 }
 
-export function useSlettKorreksjon() {
+export function useSlettUtbetaling() {
   return useApiMutation<unknown, ProblemDetail, { id: string }>({
-    mutationFn: ({ id }) => UtbetalingService.slettKorreksjon({ path: { id } }),
+    mutationFn: ({ id }) => UtbetalingService.slettUtbetaling({ path: { id } }),
   });
 }

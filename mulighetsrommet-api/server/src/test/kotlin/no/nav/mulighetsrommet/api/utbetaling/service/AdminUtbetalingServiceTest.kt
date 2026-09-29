@@ -8,7 +8,9 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.data.blocking.forAll
 import io.kotest.data.row
 import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
@@ -33,6 +35,7 @@ import no.nav.mulighetsrommet.api.domain.testing.fixture.NavAnsattFixture
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavEnhetFixtures.Innlandet
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollStatus
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
+import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures.Tilsagn1
@@ -46,6 +49,7 @@ import no.nav.mulighetsrommet.api.fixtures.setUtbetalingLinjeStatus
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAnnenAvtaltPris
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
+import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingHandling
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingStatusDto
 import no.nav.mulighetsrommet.api.utbetaling.model.OpprettUtbetalingLinje
 import no.nav.mulighetsrommet.api.utbetaling.model.OpprettUtbetalingLinjer
@@ -1341,7 +1345,7 @@ class AdminUtbetalingServiceTest : FunSpec({
 
             val service = createUtbetalingService()
 
-            service.slettKorreksjon(utbetaling1.id) shouldBeLeft listOf(
+            service.slettUtbetaling(utbetaling1.id) shouldBeLeft listOf(
                 FieldError.of("Kan ikke slette utbetaling fordi den har status: FERDIG_BEHANDLET"),
             )
         }
@@ -1356,8 +1360,8 @@ class AdminUtbetalingServiceTest : FunSpec({
 
             val service = createUtbetalingService()
 
-            service.slettKorreksjon(utbetaling1.id) shouldBeLeft listOf(
-                FieldError.of("Kan kun slette korreksjoner"),
+            service.slettUtbetaling(utbetaling1.id) shouldBeLeft listOf(
+                FieldError.of("Kan kun slette korreksjoner og utbetalinger for enkeltplass"),
             )
         }
 
@@ -1378,7 +1382,7 @@ class AdminUtbetalingServiceTest : FunSpec({
 
             val service = createUtbetalingService()
 
-            service.slettKorreksjon(korreksjon.id).shouldBeRight()
+            service.slettUtbetaling(korreksjon.id).shouldBeRight()
 
             database.run {
                 queries.utbetaling.get(korreksjon.id) shouldBe null
@@ -1409,7 +1413,7 @@ class AdminUtbetalingServiceTest : FunSpec({
 
             val service = createUtbetalingService()
 
-            service.slettKorreksjon(korreksjon.id).shouldBeRight()
+            service.slettUtbetaling(korreksjon.id).shouldBeRight()
 
             database.run {
                 queries.utbetaling.get(korreksjon.id) shouldBe null
@@ -1441,9 +1445,31 @@ class AdminUtbetalingServiceTest : FunSpec({
 
             val service = createUtbetalingService()
 
-            service.slettKorreksjon(korreksjon.id) shouldBeLeft listOf(
+            service.slettUtbetaling(korreksjon.id) shouldBeLeft listOf(
                 FieldError.of("UtbetalingLinje var i feil status"),
             )
+        }
+
+        test("kan slette utbetaling for enkeltplass med status TIL_BEHANDLING") {
+            val enkeltplassUtbetaling = utbetaling1.copy(
+                id = UUID.randomUUID(),
+                gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
+                status = UtbetalingStatusType.TIL_BEHANDLING,
+            )
+
+            MulighetsrommetTestDomain(
+                ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
+                gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
+                utbetalinger = listOf(enkeltplassUtbetaling),
+            ).initialize(database.api)
+
+            val service = createUtbetalingService()
+
+            service.slettUtbetaling(enkeltplassUtbetaling.id).shouldBeRight()
+
+            database.run {
+                queries.utbetaling.get(enkeltplassUtbetaling.id) shouldBe null
+            }
         }
     }
 
@@ -1479,6 +1505,56 @@ class AdminUtbetalingServiceTest : FunSpec({
                     listOf(
                         FieldError.of("Utbetaling kan ikke settes til avbrytelse"),
                     )
+            }
+
+            test("kan ikke sende utbetaling for enkeltplass til avbrytelse") {
+                val enkeltplassUtbetaling = utbetaling1.copy(
+                    id = UUID.randomUUID(),
+                    gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
+                    status = UtbetalingStatusType.TIL_BEHANDLING,
+                )
+
+                MulighetsrommetTestDomain(
+                    ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
+                    gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
+                    utbetalinger = listOf(enkeltplassUtbetaling),
+                ).initialize(database.api)
+
+                val service = createUtbetalingService()
+
+                val aarsaker = AarsakerOgForklaringRequest(
+                    aarsaker = listOf(UtbetalingStatusAarsak.TILSAGN_GJORT_OPP),
+                    forklaring = null,
+                )
+                service.sendTilAvbrytelse(enkeltplassUtbetaling.id, navIdent, aarsaker) shouldBeLeft
+                    listOf(
+                        FieldError.of("Utbetaling for enkeltplass kan ikke avbrytes"),
+                    )
+            }
+
+            test("enkeltplass gir handling SLETT, men ikke SEND_TIL_AVBRYTELSE") {
+                val enkeltplassUtbetaling = utbetaling1.copy(
+                    id = UUID.randomUUID(),
+                    gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
+                    status = UtbetalingStatusType.TIL_BEHANDLING,
+                )
+
+                MulighetsrommetTestDomain(
+                    ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
+                    gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
+                    utbetalinger = listOf(enkeltplassUtbetaling),
+                ) {
+                    setRoller(
+                        NavAnsattFixture.DonaldDuck,
+                        setOf(NavAnsattRolle.generell(Rolle.SAKSBEHANDLER_OKONOMI)),
+                    )
+                }.initialize(database.api)
+
+                val service = createUtbetalingService()
+
+                val handlinger = service.getUtbetalingDetaljer(enkeltplassUtbetaling.id, navIdent).handlinger
+                handlinger shouldContain UtbetalingHandling.SLETT
+                handlinger shouldNotContain UtbetalingHandling.SEND_TIL_AVBRYTELSE
             }
 
             test("kan avbryte utbetalinger med status GENERTERT, TIL_BEHANDLING og RETURNERT") {

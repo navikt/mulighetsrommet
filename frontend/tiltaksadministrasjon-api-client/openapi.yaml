@@ -2483,8 +2483,8 @@ paths:
     delete:
       tags:
       - Utbetaling
-      description: Slett korreksjon
-      operationId: slettKorreksjon
+      description: Slett utbetaling
+      operationId: slettUtbetaling
       parameters:
       - name: id
         in: path

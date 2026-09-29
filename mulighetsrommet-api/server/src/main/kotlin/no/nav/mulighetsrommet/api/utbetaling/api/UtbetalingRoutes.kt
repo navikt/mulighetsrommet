@@ -235,9 +235,9 @@ fun Route.utbetalingRoutes() {
 
         authorize(Rolle.SAKSBEHANDLER_OKONOMI) {
             delete({
-                description = "Slett korreksjon"
+                description = "Slett utbetaling"
                 tags = setOf("Utbetaling")
-                operationId = "slettKorreksjon"
+                operationId = "slettUtbetaling"
                 request {
                     pathParameterUuid("id")
                 }
@@ -251,7 +251,7 @@ fun Route.utbetalingRoutes() {
             }) {
                 val id: UUID by call.parameters
 
-                utbetalingService.slettKorreksjon(id)
+                utbetalingService.slettUtbetaling(id)
                     .onLeft { call.respondWithProblemDetail(ValidationError(errors = it)) }
                     .onRight { call.respond(HttpStatusCode.OK) }
             }

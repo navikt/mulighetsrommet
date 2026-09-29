@@ -1,20 +1,20 @@
-import { useSlettKorreksjon } from "@/api/utbetaling/mutations";
+import { useSlettUtbetaling } from "@/api/utbetaling/mutations";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 import { BodyShort, Button } from "@navikt/ds-react";
 import { useNavigate } from "react-router";
 
-interface SlettKorreksjonModalProps {
+interface SlettUtbetalingModalProps {
   utbetalingId: string;
   open: boolean;
   onClose: () => void;
 }
 
-export function SlettKorreksjonModal({ utbetalingId, open, onClose }: SlettKorreksjonModalProps) {
+export function SlettUtbetalingModal({ utbetalingId, open, onClose }: SlettUtbetalingModalProps) {
   const navigate = useNavigate();
-  const slettKorreksjonMutation = useSlettKorreksjon();
+  const slettUtbetalingMutation = useSlettUtbetaling();
 
-  function slettKorreksjon() {
-    slettKorreksjonMutation.mutate(
+  function slettUtbetaling() {
+    slettUtbetalingMutation.mutate(
       { id: utbetalingId },
       {
         onSuccess: () => navigate("..", { replace: true }),
@@ -29,8 +29,8 @@ export function SlettKorreksjonModal({ utbetalingId, open, onClose }: SlettKorre
       handleClose={() => onClose()}
       body={
         <BodyShort>
-          Du er i ferd med å slette en korrigeringsutbetaling. Dette vil fjerne den valgte
-          ubetalingen fra løsningen. Er du sikker på at du vil fortsette?
+          Du er i ferd med å slette en utbetaling. Dette vil fjerne den valgte utbetalingen fra
+          løsningen. Er du sikker på at du vil fortsette?
         </BodyShort>
       }
       primaryButton={
@@ -38,7 +38,7 @@ export function SlettKorreksjonModal({ utbetalingId, open, onClose }: SlettKorre
           data-color="danger"
           title="Slett utbetaling"
           variant="primary"
-          onClick={slettKorreksjon}
+          onClick={slettUtbetaling}
         >
           Ja, jeg vil slette utbetalingen
         </Button>
