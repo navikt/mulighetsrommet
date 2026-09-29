@@ -46,6 +46,6 @@ spec:
       access: read
 
     # OBO
-    - team: pto
+    - team: obo
       application: veilarbportefolje
       access: read
