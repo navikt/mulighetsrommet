@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.brukerutbetaling.db
 
 import arrow.core.nonEmptySetOf
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
@@ -111,5 +112,25 @@ class BrukerUtbetalingQueriesTest : FunSpec({
         result.shouldNotBeNull()
         result.helVedStatus shouldBe HelVedStatus.Status.FEILET
         result.helVedStatusError shouldBe error
+    }
+
+    test("setHelVedStatus throws when no rows are updated") {
+        database.api.transaction {
+            queries.brukerUtbetaling.insert(brukerUtbetaling)
+        }
+
+        val status = HelVedStatus(
+            status = HelVedStatus.Status.OK,
+            detaljer = null,
+            error = null,
+        )
+
+        val exception = shouldThrow<IllegalArgumentException> {
+            database.api.session {
+                queries.brukerUtbetaling.setHelVedStatus(brukerUtbetaling.id, nonEmptySetOf(999), status)
+            }
+        }
+
+        exception.message?.contains("Fant ingen rader å oppdatere") shouldBe true
     }
 })
