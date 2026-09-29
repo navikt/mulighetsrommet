@@ -167,7 +167,7 @@ sealed class Avbrytelse {
     data class Nav(
         val avbruttDato: LocalDate,
         val aarsaker: List<String>,
-        val forklaring: String?,
+        val begrunnelse: String?,
     ) : Avbrytelse()
 
     companion object {
@@ -197,7 +197,7 @@ sealed class Avbrytelse {
                     Nav(
                         avbruttDato = it.beslutning.tidspunkt.toLocalDate(),
                         aarsaker = it.behandling.aarsaker,
-                        forklaring = it.behandling.begrunnelse,
+                        begrunnelse = it.behandling.begrunnelse,
                     )
                 } ?: throw IllegalStateException("Forventet besluttet totrinnskontroll når status er AVBRUTT_AV_NAV")
         }

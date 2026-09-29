@@ -2,10 +2,10 @@ import {
   UtbetalingStatusAarsak,
   FieldError,
   ValidationError,
-  AarsakerOgForklaringRequestUtbetalingStatusAarsak,
+  AarsakerOgBegrunnelseRequestUtbetalingStatusAarsak,
 } from "@tiltaksadministrasjon/api-client";
 import { useAvbrytUtbetaling } from "@/api/utbetaling/mutations";
-import { AarsakerOgForklaringModal } from "@/components/modal/AarsakerOgForklaringModal";
+import { AarsakerOgBegrunnelseModal } from "@/components/modal/AarsakerOgBegrunnelseModal";
 import { useState } from "react";
 import { utbetalingTekster } from "./UtbetalingTekster";
 import { BodyShort } from "@navikt/ds-react";
@@ -20,7 +20,7 @@ export function AvbrytUtbetalingModal({ utbetalingId, open, onClose }: AvbrytUtb
   const [errors, setErrors] = useState<FieldError[]>([]);
   const avbrytUtbetalingMutation = useAvbrytUtbetaling();
 
-  function avbrytUtbetaling(body: AarsakerOgForklaringRequestUtbetalingStatusAarsak) {
+  function avbrytUtbetaling(body: AarsakerOgBegrunnelseRequestUtbetalingStatusAarsak) {
     avbrytUtbetalingMutation.mutate(
       { id: utbetalingId, body },
       {
@@ -44,7 +44,7 @@ export function AvbrytUtbetalingModal({ utbetalingId, open, onClose }: AvbrytUtb
     };
   });
   return (
-    <AarsakerOgForklaringModal<UtbetalingStatusAarsak>
+    <AarsakerOgBegrunnelseModal<UtbetalingStatusAarsak>
       width={750}
       open={open}
       onClose={onClose}
@@ -52,7 +52,7 @@ export function AvbrytUtbetalingModal({ utbetalingId, open, onClose }: AvbrytUtb
       ingress={<BodyShort>{utbetalingTekster.avbrutt.modal.sendTilAvbrytning.ingress}</BodyShort>}
       aarsaker={avbrytUtbetalingAarsakValg}
       buttonLabel={utbetalingTekster.avbrutt.modal.sendTilAvbrytning.button.label}
-      textareaLabel="Forklaring til arrangør"
+      textareaLabel="Begrunnelse til arrangør"
       errors={errors}
       onConfirm={(request) => avbrytUtbetaling(request)}
     />

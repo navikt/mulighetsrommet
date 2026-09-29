@@ -340,7 +340,7 @@ class GjennomforingEnkeltplassService(
         id: UUID,
         forventetTotrinnskontrollId: UUID,
         navIdent: NavIdent,
-        forklaring: String?,
+        begrunnelse: String?,
     ): Validated<Enkeltplass> = db.transaction {
         val enkeltplass = getAndAcquireLock(id)
 
@@ -353,7 +353,7 @@ class GjennomforingEnkeltplassService(
                 id,
                 enkeltplass.prisendring.totrinnskontroll,
                 navIdent,
-                forklaring,
+                begrunnelse,
             )
         }
 
@@ -364,7 +364,7 @@ class GjennomforingEnkeltplassService(
             return FieldError.of("Grunnlaget har endret seg siden det ble hentet. Forsøk igjen.").nel().left()
         }
 
-        settOkonomiPaVent(id, okonomi, navIdent, forklaring)
+        settOkonomiPaVent(id, okonomi, navIdent, begrunnelse)
     }
 
     private suspend fun QueryContext.getDeltakerPersonalia(

@@ -11,7 +11,7 @@ import {
   GjennomforingVeilederinfoDto,
   TiltakstypeDto,
 } from "@tiltaksadministrasjon/api-client";
-import { AarsakerOgForklaring } from "@/components/totrinnskontroll/AarsakerOgForklaring";
+import { AarsakerOgBegrunnelse } from "@/components/totrinnskontroll/AarsakerOgBegrunnelse";
 
 interface Props {
   tiltakstype: TiltakstypeDto;
@@ -41,12 +41,12 @@ function getVarighetOgPameldingGruppe(
     gjennomforing.avbrytelse && {
       key: "",
       value: (
-        <AarsakerOgForklaring
+        <AarsakerOgBegrunnelse
           heading="Avbrytelse"
           aarsaker={gjennomforing.avbrytelse.aarsaker.map((aarsak) =>
             avbrytGjennomforingAarsakTilTekst(aarsak),
           )}
-          forklaring={gjennomforing.avbrytelse.forklaring}
+          begrunnelse={gjennomforing.avbrytelse.forklaring}
         />
       ),
     },

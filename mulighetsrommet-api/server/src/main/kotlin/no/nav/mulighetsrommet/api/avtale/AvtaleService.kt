@@ -16,7 +16,7 @@ import no.nav.mulighetsrommet.admin.navenhet.toDto
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
-import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
+import no.nav.mulighetsrommet.api.aarsakerbegrunnelse.AarsakerOgBegrunnelseRequest
 import no.nav.mulighetsrommet.api.avtale.AvtaleValidator.ValidatePrismodellerContext
 import no.nav.mulighetsrommet.api.avtale.api.AvtaleHandling
 import no.nav.mulighetsrommet.api.avtale.api.DetaljerRequest
@@ -291,7 +291,7 @@ class AvtaleService(
         id: UUID,
         avbruttAv: NavIdent,
         tidspunkt: LocalDateTime,
-        aarsakerOgForklaring: AarsakerOgForklaringRequest<AvbrytAvtaleAarsak>,
+        aarsakerOgBegrunnelse: AarsakerOgBegrunnelseRequest<AvbrytAvtaleAarsak>,
     ): Either<List<FieldError>, Avtale> = db.transaction {
         validation {
             val avtale = getOrError(id)
@@ -318,8 +318,8 @@ class AvtaleService(
                 id = id,
                 status = AvtaleStatusType.AVBRUTT,
                 tidspunkt = tidspunkt,
-                aarsaker = aarsakerOgForklaring.aarsaker,
-                forklaring = aarsakerOgForklaring.forklaring,
+                aarsaker = aarsakerOgBegrunnelse.aarsaker,
+                forklaring = aarsakerOgBegrunnelse.begrunnelse,
             )
 
             logEndring("Avtalen ble avbrutt", id, avbruttAv)

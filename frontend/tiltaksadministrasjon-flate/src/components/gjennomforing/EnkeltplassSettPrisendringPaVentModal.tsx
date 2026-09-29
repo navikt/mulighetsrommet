@@ -17,16 +17,16 @@ export function EnkeltplassSettPrisendringPaVentModal({
   totrinnskontrollId,
 }: Props) {
   const settPaVentMutation = useSettOkonomiPaVent();
-  const [forklaring, setForklaring] = useState("");
+  const [begrunnelse, setBegrunnelse] = useState("");
 
   function close() {
     setOpen(false);
-    setForklaring("");
+    setBegrunnelse("");
   }
 
   function settPaVent() {
     settPaVentMutation.mutate(
-      { id: gjennomforingId, forklaring: forklaring || null, totrinnskontrollId },
+      { id: gjennomforingId, begrunnelse: begrunnelse || null, totrinnskontrollId },
       { onSuccess: close },
     );
   }
@@ -53,8 +53,8 @@ export function EnkeltplassSettPrisendringPaVentModal({
           </InfoCard>
           <Textarea
             label="Intern kommentar (valgfritt)"
-            value={forklaring}
-            onChange={(e) => setForklaring(e.target.value)}
+            value={begrunnelse}
+            onChange={(e) => setBegrunnelse(e.target.value)}
             maxLength={500}
           />
         </VStack>

@@ -13,16 +13,16 @@ export function useAvbrytAvtale() {
   return useApiMutation<
     unknown,
     ProblemDetail,
-    { id: string; aarsaker: AvbrytAvtaleAarsak[]; forklaring: string | null }
+    { id: string; aarsaker: AvbrytAvtaleAarsak[]; begrunnelse: string | null }
   >({
     mutationFn: (data: {
       id: string;
       aarsaker: AvbrytAvtaleAarsak[];
-      forklaring: string | null;
+      begrunnelse: string | null;
     }) => {
       return AvtaleService.avbrytAvtale({
         path: { id: data.id },
-        body: { aarsaker: data.aarsaker, forklaring: data.forklaring },
+        body: { aarsaker: data.aarsaker, begrunnelse: data.begrunnelse },
       });
     },
     onSuccess(_, request) {

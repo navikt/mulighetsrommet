@@ -14,7 +14,7 @@ import { useNavigate } from "react-router";
 import { LayersPlusIcon } from "@navikt/aksel-icons";
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { useAvbrytAvtale } from "@/api/avtaler/useAvbrytAvtale";
-import { AarsakerOgForklaringModal } from "@/components/modal/AarsakerOgForklaringModal";
+import { AarsakerOgBegrunnelseModal } from "@/components/modal/AarsakerOgBegrunnelseModal";
 import { OppdaterPrisModal } from "@/components/avtaler/OppdaterPrisModal";
 import { useAvtaleHandlinger } from "@/api/avtaler/useAvtale";
 import { OppdaterRammedetaljerModal } from "@/components/avtaler/OppdaterRammedetaljerModal";
@@ -52,12 +52,12 @@ export function AvtaleHandlinger({ avtale }: Props) {
     });
   }
 
-  function avbrytAvtale(aarsaker: AvbrytAvtaleAarsak[], forklaring: string | null) {
+  function avbrytAvtale(aarsaker: AvbrytAvtaleAarsak[], begrunnelse: string | null) {
     avbrytMutation.mutate(
       {
         id: avtale.id,
         aarsaker,
-        forklaring,
+        begrunnelse,
       },
       {
         onSuccess: () => {
@@ -147,7 +147,7 @@ export function AvtaleHandlinger({ avtale }: Props) {
           },
         ]}
       />
-      <AarsakerOgForklaringModal<AvbrytAvtaleAarsak>
+      <AarsakerOgBegrunnelseModal<AvbrytAvtaleAarsak>
         header="Ønsker du avbryte avtalen?"
         open={avbrytModalOpen}
         buttonLabel="Ja, jeg vil avbryte avtalen"
@@ -162,7 +162,7 @@ export function AvtaleHandlinger({ avtale }: Props) {
           setAvbrytModalOpen(false);
           setAvbrytModalErrors([]);
         }}
-        onConfirm={({ aarsaker, forklaring }) => avbrytAvtale(aarsaker, forklaring)}
+        onConfirm={({ aarsaker, begrunnelse }) => avbrytAvtale(aarsaker, begrunnelse)}
         errors={avbrytModalErrors}
       />
       <RegistrerOpsjonModal modalRef={registrerOpsjonModalRef} avtale={avtale} />

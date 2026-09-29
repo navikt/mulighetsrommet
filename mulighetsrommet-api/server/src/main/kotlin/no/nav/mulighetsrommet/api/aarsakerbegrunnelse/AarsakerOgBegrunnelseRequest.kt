@@ -1,28 +1,28 @@
-package no.nav.mulighetsrommet.api.aarsakerforklaring
+package no.nav.mulighetsrommet.api.aarsakerbegrunnelse
 
 import arrow.core.Either
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.validation.validation
 
-private const val FORKLARING_MAX_LENGTH = 500
+private const val BEGRUNNELSE_MAX_LENGTH = 500
 
 @Serializable
-data class AarsakerOgForklaringRequest<T>(
+data class AarsakerOgBegrunnelseRequest<T>(
     val aarsaker: List<T>,
-    val forklaring: String?,
+    val begrunnelse: String?,
 ) {
-    fun validate(): Either<List<FieldError>, AarsakerOgForklaringRequest<T>> = validation {
+    fun validate(): Either<List<FieldError>, AarsakerOgBegrunnelseRequest<T>> = validation {
         if ("ANNET" in aarsaker.map { it.toString() }) {
-            validate(!forklaring.isNullOrBlank()) {
+            validate(!begrunnelse.isNullOrBlank()) {
                 FieldError("/aarsaker", "Beskrivelse er obligatorisk når “Annet” er valgt som årsak")
             }
         }
 
-        validate(forklaring == null || forklaring.length <= FORKLARING_MAX_LENGTH) {
+        validate(begrunnelse == null || begrunnelse.length <= BEGRUNNELSE_MAX_LENGTH) {
             FieldError(
-                "/forklaring",
-                "Beskrivelse kan ikke inneholde mer enn $FORKLARING_MAX_LENGTH tegn",
+                "/begrunnelse",
+                "Beskrivelse kan ikke inneholde mer enn $BEGRUNNELSE_MAX_LENGTH tegn",
             )
         }
 

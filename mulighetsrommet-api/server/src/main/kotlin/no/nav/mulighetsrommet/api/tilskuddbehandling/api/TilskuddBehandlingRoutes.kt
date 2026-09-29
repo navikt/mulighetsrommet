@@ -15,7 +15,7 @@ import io.ktor.server.routing.route
 import io.ktor.server.util.getOrFail
 import io.ktor.server.util.getValue
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
+import no.nav.mulighetsrommet.api.aarsakerbegrunnelse.AarsakerOgBegrunnelseRequest
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
@@ -157,7 +157,7 @@ fun Route.tilskuddBehandlingRoutes() {
                 operationId = "returnerTilskuddBehandling"
                 request {
                     pathParameterUuid("id")
-                    body<AarsakerOgForklaringRequest<TilskuddBehandlingStatusAarsak>>()
+                    body<AarsakerOgBegrunnelseRequest<TilskuddBehandlingStatusAarsak>>()
                 }
                 response {
                     code(HttpStatusCode.OK) {
@@ -170,11 +170,11 @@ fun Route.tilskuddBehandlingRoutes() {
                 }
             }) {
                 val id = call.parameters.getOrFail<UUID>("id")
-                val request = call.receive<AarsakerOgForklaringRequest<TilskuddBehandlingStatusAarsak>>()
+                val request = call.receive<AarsakerOgBegrunnelseRequest<TilskuddBehandlingStatusAarsak>>()
                 val navIdent = getNavIdent()
 
                 val result = request.validate()
-                    .flatMap { service.returner(id, navIdent, it.aarsaker, it.forklaring) }
+                    .flatMap { service.returner(id, navIdent, it.aarsaker, it.begrunnelse) }
                     .mapLeft { ValidationError(errors = it) }
                     .map { HttpStatusCode.OK }
 

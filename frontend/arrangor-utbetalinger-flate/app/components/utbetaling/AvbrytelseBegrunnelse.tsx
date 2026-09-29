@@ -38,7 +38,7 @@ export function AvbrytelseBegrunnelse({ avbrytelse }: AvbrytelseBegrunnelseProps
           <Heading level="4" size="medium">
             {tittel}
           </Heading>
-          <MetadataFritekstfelt label="Forklaring" value={avbrytelse.begrunnelse} />
+          <MetadataFritekstfelt label="Begrunnelse" value={avbrytelse.begrunnelse} />
         </>
       );
     case "AVBRUTT_AV_NAV":
@@ -46,7 +46,7 @@ export function AvbrytelseBegrunnelse({ avbrytelse }: AvbrytelseBegrunnelseProps
         <TotrinnsBegrunnelse
           title={tittel}
           aarsaker={avbrytelse.aarsaker.map(aarsakTilTekst)}
-          forklaring={avbrytelse.forklaring}
+          begrunnelse={avbrytelse.begrunnelse}
           headerSpacing={false}
           size="medium"
         />

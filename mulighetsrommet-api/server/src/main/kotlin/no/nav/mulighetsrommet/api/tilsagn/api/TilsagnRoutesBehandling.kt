@@ -9,7 +9,7 @@ import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.util.getOrFail
-import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
+import no.nav.mulighetsrommet.api.aarsakerbegrunnelse.AarsakerOgBegrunnelseRequest
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
@@ -61,7 +61,7 @@ fun Route.tilsagnRoutesBehandling() {
             operationId = "tilAnnullering"
             request {
                 pathParameterUuid("id")
-                body<AarsakerOgForklaringRequest<TilsagnStatusAarsak>>()
+                body<AarsakerOgBegrunnelseRequest<TilsagnStatusAarsak>>()
             }
             response {
                 code(HttpStatusCode.OK) {
@@ -73,7 +73,7 @@ fun Route.tilsagnRoutesBehandling() {
                 }
             }
         }) {
-            val request = call.receive<AarsakerOgForklaringRequest<TilsagnStatusAarsak>>()
+            val request = call.receive<AarsakerOgBegrunnelseRequest<TilsagnStatusAarsak>>()
             val id = call.parameters.getOrFail<UUID>("id")
             val navIdent = getNavIdent()
 
@@ -90,7 +90,7 @@ fun Route.tilsagnRoutesBehandling() {
             operationId = "gjorOpp"
             request {
                 pathParameterUuid("id")
-                body<AarsakerOgForklaringRequest<TilsagnStatusAarsak>>()
+                body<AarsakerOgBegrunnelseRequest<TilsagnStatusAarsak>>()
             }
             response {
                 code(HttpStatusCode.OK) {
@@ -102,7 +102,7 @@ fun Route.tilsagnRoutesBehandling() {
                 }
             }
         }) {
-            val request = call.receive<AarsakerOgForklaringRequest<TilsagnStatusAarsak>>()
+            val request = call.receive<AarsakerOgBegrunnelseRequest<TilsagnStatusAarsak>>()
             val id = call.parameters.getOrFail<UUID>("id")
             val navIdent = getNavIdent()
 
@@ -176,7 +176,7 @@ fun Route.tilsagnRoutesBehandling() {
             operationId = "returnerTilsagn"
             request {
                 pathParameterUuid("id")
-                body<AarsakerOgForklaringRequest<TilsagnStatusAarsak>>()
+                body<AarsakerOgBegrunnelseRequest<TilsagnStatusAarsak>>()
             }
             response {
                 code(HttpStatusCode.OK) {
@@ -189,11 +189,11 @@ fun Route.tilsagnRoutesBehandling() {
             }
         }) {
             val id = call.parameters.getOrFail<UUID>("id")
-            val request = call.receive<AarsakerOgForklaringRequest<TilsagnStatusAarsak>>()
+            val request = call.receive<AarsakerOgBegrunnelseRequest<TilsagnStatusAarsak>>()
             val navIdent = getNavIdent()
 
             val result = request.validate()
-                .flatMap { service.returnerTilsagn(id, navIdent, it.aarsaker, it.forklaring) }
+                .flatMap { service.returnerTilsagn(id, navIdent, it.aarsaker, it.begrunnelse) }
                 .mapLeft { ValidationError(errors = it) }
                 .map { HttpStatusCode.OK }
 

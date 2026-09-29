@@ -27,7 +27,7 @@ import no.nav.mulighetsrommet.admin.avtale.GetAvtaleDto
 import no.nav.mulighetsrommet.admin.avtale.GetExcelExport
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.MrExceptions
-import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
+import no.nav.mulighetsrommet.api.aarsakerbegrunnelse.AarsakerOgBegrunnelseRequest
 import no.nav.mulighetsrommet.api.avtale.AvtaleService
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellRequest
 import no.nav.mulighetsrommet.api.domain.avtale.AvbrytAvtaleAarsak
@@ -334,7 +334,7 @@ fun Route.avtaleRoutes() {
                 operationId = "avbrytAvtale"
                 request {
                     pathParameterUuid("id")
-                    body<AarsakerOgForklaringRequest<AvbrytAvtaleAarsak>>()
+                    body<AarsakerOgBegrunnelseRequest<AvbrytAvtaleAarsak>>()
                 }
                 response {
                     code(HttpStatusCode.OK) {
@@ -352,7 +352,7 @@ fun Route.avtaleRoutes() {
             }) {
                 val id: UUID by call.parameters
                 val navIdent = getNavIdent()
-                val request = call.receive<AarsakerOgForklaringRequest<AvbrytAvtaleAarsak>>()
+                val request = call.receive<AarsakerOgBegrunnelseRequest<AvbrytAvtaleAarsak>>()
 
                 request.validate()
                     .flatMap {
@@ -360,7 +360,7 @@ fun Route.avtaleRoutes() {
                             id,
                             avbruttAv = navIdent,
                             tidspunkt = LocalDateTime.now(),
-                            aarsakerOgForklaring = it,
+                            aarsakerOgBegrunnelse = it,
                         )
                     }
                     .onLeft { call.respondWithProblemDetail(ValidationError("Klarte ikke avbryte avtale", it)) }

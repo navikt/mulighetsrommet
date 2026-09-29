@@ -1805,14 +1805,14 @@ components:
           type: array
           items:
             type: string
-        forklaring:
+        begrunnelse:
           type:
           - "null"
           - string
       required:
       - aarsaker
       - avbruttDato
-      - forklaring
+      - begrunnelse
     KAN_AVBRYTES:
       type: object
       properties: {}

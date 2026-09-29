@@ -2,10 +2,10 @@ import {
   UtbetalingStatusAarsak,
   FieldError,
   ValidationError,
-  AarsakerOgForklaringRequestUtbetalingStatusAarsak,
+  AarsakerOgBegrunnelseRequestUtbetalingStatusAarsak,
 } from "@tiltaksadministrasjon/api-client";
 import { useAvslaAvbrytelseUtbetaling } from "@/api/utbetaling/mutations";
-import { AarsakerOgForklaringModal } from "@/components/modal/AarsakerOgForklaringModal";
+import { AarsakerOgBegrunnelseModal } from "@/components/modal/AarsakerOgBegrunnelseModal";
 import { useState } from "react";
 import { utbetalingTekster } from "@/components/utbetaling/UtbetalingTekster";
 
@@ -23,7 +23,7 @@ export function AvslaAvbrytelseUtbetalingModal({
   const [errors, setErrors] = useState<FieldError[]>([]);
   const avslaAvbrytelseMutation = useAvslaAvbrytelseUtbetaling();
 
-  function avslaAvbrytelseUtbetaling(body: AarsakerOgForklaringRequestUtbetalingStatusAarsak) {
+  function avslaAvbrytelseUtbetaling(body: AarsakerOgBegrunnelseRequestUtbetalingStatusAarsak) {
     avslaAvbrytelseMutation.mutate(
       { id: utbetalingId, body },
       {
@@ -45,7 +45,7 @@ export function AvslaAvbrytelseUtbetalingModal({
   });
 
   return (
-    <AarsakerOgForklaringModal<UtbetalingStatusAarsak>
+    <AarsakerOgBegrunnelseModal<UtbetalingStatusAarsak>
       width={750}
       open={open}
       onClose={onClose}

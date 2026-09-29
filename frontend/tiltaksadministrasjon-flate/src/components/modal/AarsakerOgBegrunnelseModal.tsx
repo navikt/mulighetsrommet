@@ -23,12 +23,12 @@ interface Props<T> {
   textareaLabel?: string;
   aarsaker: { label: string; value: T }[];
   errors?: FieldError[];
-  onConfirm: (data: { aarsaker: T[]; forklaring: string | null }) => void;
+  onConfirm: (data: { aarsaker: T[]; begrunnelse: string | null }) => void;
 }
 
-const FORKLARING_MAX_LENGTH = 500;
+const BEGRUNNELSE_MAX_LENGTH = 500;
 
-export function AarsakerOgForklaringModal<T>(props: Props<T>) {
+export function AarsakerOgBegrunnelseModal<T>(props: Props<T>) {
   const {
     errors = [],
     width = 1_000,
@@ -38,11 +38,11 @@ export function AarsakerOgForklaringModal<T>(props: Props<T>) {
     header,
     ingress,
     buttonLabel,
-    textareaLabel = "Forklaring",
+    textareaLabel = "Begrunnelse",
     aarsaker,
   } = props;
   const [valgteAarsaker, setValgteAarsaker] = useState<T[]>([]);
-  const [forklaring, setForklaring] = useState<string | undefined>(undefined);
+  const [begrunnelse, setBegrunnelse] = useState<string | undefined>(undefined);
 
   return (
     <Modal
@@ -75,10 +75,10 @@ export function AarsakerOgForklaringModal<T>(props: Props<T>) {
                 ))}
               </CheckboxGroup>
               <Textarea
-                onChange={(val) => setForklaring(val.currentTarget.value)}
+                onChange={(val) => setBegrunnelse(val.currentTarget.value)}
                 label={textareaLabel}
                 resize
-                maxLength={FORKLARING_MAX_LENGTH}
+                maxLength={BEGRUNNELSE_MAX_LENGTH}
               ></Textarea>
             </HGrid>
           </VStack>
@@ -100,7 +100,7 @@ export function AarsakerOgForklaringModal<T>(props: Props<T>) {
                 variant="primary"
                 onClick={(e) => {
                   e.preventDefault();
-                  onConfirm({ aarsaker: valgteAarsaker, forklaring: forklaring || null });
+                  onConfirm({ aarsaker: valgteAarsaker, begrunnelse: begrunnelse || null });
                 }}
               >
                 {buttonLabel}

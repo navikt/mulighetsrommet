@@ -4,7 +4,7 @@ import { MetadataFritekstfelt, MetadataVStack } from "./datadriven/Metadata";
 interface TotrinnsBegrunnelseProps {
   title: string;
   aarsaker: string[];
-  forklaring?: string | null;
+  begrunnelse?: string | null;
   headerSpacing?: boolean;
   size?: HeadingProps["size"];
 }
@@ -12,11 +12,11 @@ interface TotrinnsBegrunnelseProps {
 export function TotrinnsBegrunnelse({
   title,
   aarsaker,
-  forklaring,
+  begrunnelse,
   headerSpacing = true,
   size = "small",
 }: TotrinnsBegrunnelseProps) {
-  if (aarsaker.length === 0 && !forklaring) {
+  if (aarsaker.length === 0 && !begrunnelse) {
     return null;
   }
 
@@ -27,7 +27,7 @@ export function TotrinnsBegrunnelse({
       </Heading>
       <VStack gap="space-16">
         <MetadataVStack label="Årsaker" value={aarsaker.join(", ")} />
-        <MetadataFritekstfelt label="Forklaring" value={forklaring} />
+        <MetadataFritekstfelt label="Begrunnelse" value={begrunnelse} />
       </VStack>
     </>
   );

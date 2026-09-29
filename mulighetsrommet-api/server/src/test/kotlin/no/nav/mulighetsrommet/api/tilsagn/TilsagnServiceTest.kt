@@ -17,7 +17,7 @@ import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.admin.navansatt.service.NavAnsattService
 import no.nav.mulighetsrommet.api.ApplicationConfigTest
 import no.nav.mulighetsrommet.api.QueryContext
-import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
+import no.nav.mulighetsrommet.api.aarsakerbegrunnelse.AarsakerOgBegrunnelseRequest
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsattRolle
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.domain.testing.fixture.ArrangorFixtures
@@ -277,7 +277,7 @@ class TilsagnServiceTest : FunSpec({
                 id = requestId,
                 navIdent = ansatt2,
                 aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
-                forklaring = null,
+                begrunnelse = null,
             ).shouldBeRight().status shouldBe TilsagnStatus.RETURNERT
 
             service.slettTilsagn(requestId, ansatt1).shouldBeRight()
@@ -295,14 +295,14 @@ class TilsagnServiceTest : FunSpec({
                 id = requestId,
                 navIdent = ansatt2,
                 aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
-                forklaring = null,
+                begrunnelse = null,
             ).shouldBeRight().status shouldBe TilsagnStatus.RETURNERT
 
             service.returnerTilsagn(
                 id = requestId,
                 navIdent = ansatt2,
                 aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
-                forklaring = null,
+                begrunnelse = null,
             ) shouldBeLeft listOf(
                 FieldError.of("Tilsagnet kan ikke returneres fordi det har status Returnert"),
             )
@@ -316,7 +316,7 @@ class TilsagnServiceTest : FunSpec({
                 id = requestId,
                 navIdent = ansatt2,
                 aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
-                forklaring = null,
+                begrunnelse = null,
             ).shouldBeRight().status shouldBe TilsagnStatus.RETURNERT
 
             service.slettTilsagn(requestId, ansatt2).shouldBeRight()
@@ -335,7 +335,7 @@ class TilsagnServiceTest : FunSpec({
                 id = requestId,
                 navIdent = ansatt2,
                 aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
-                forklaring = null,
+                begrunnelse = null,
             ).shouldBeRight().status shouldBe TilsagnStatus.RETURNERT
 
             service.slettTilsagn(requestId, ansatt1).shouldBeRight()
@@ -451,7 +451,7 @@ class TilsagnServiceTest : FunSpec({
                 id = requestId,
                 navIdent = ansatt2,
                 aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
-                forklaring = null,
+                begrunnelse = null,
             ).shouldBeRight().status shouldBe TilsagnStatus.RETURNERT
 
             database.run {
@@ -502,7 +502,7 @@ class TilsagnServiceTest : FunSpec({
                 id = requestId,
                 navIdent = ansatt2,
                 aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
-                forklaring = null,
+                begrunnelse = null,
             ).shouldBeRight().status shouldBe TilsagnStatus.RETURNERT
 
             service.upsert(request, NavIdent("T888888")).shouldBeRight().should {
@@ -525,7 +525,7 @@ class TilsagnServiceTest : FunSpec({
                 id = requestId,
                 navIdent = ansatt1,
                 aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
-                forklaring = null,
+                begrunnelse = null,
             ).shouldBeRight().status shouldBe TilsagnStatus.RETURNERT
         }
 
@@ -541,7 +541,7 @@ class TilsagnServiceTest : FunSpec({
                 id = requestId,
                 navIdent = ansatt1,
                 aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
-                forklaring = null,
+                begrunnelse = null,
             ) shouldBeLeft listOf(
                 FieldError.of("Du kan ikke returnere tilsagnet fordi du mangler tilgang"),
             )
@@ -564,7 +564,7 @@ class TilsagnServiceTest : FunSpec({
                 id = requestId,
                 navIdent = ansatt1,
                 aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
-                forklaring = null,
+                begrunnelse = null,
             ).shouldBeRight().status shouldBe TilsagnStatus.RETURNERT
         }
 
@@ -583,7 +583,7 @@ class TilsagnServiceTest : FunSpec({
                 id = requestId,
                 navIdent = ansatt2,
                 aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
-                forklaring = null,
+                begrunnelse = null,
             ) shouldBeLeft listOf(
                 FieldError.of("Tilsagnet kan ikke returneres fordi det har status Godkjent"),
             )
@@ -601,9 +601,9 @@ class TilsagnServiceTest : FunSpec({
                 service.tilAnnulleringRequest(
                     id = requestId,
                     navIdent = ansatt2,
-                    request = AarsakerOgForklaringRequest(
+                    request = AarsakerOgBegrunnelseRequest(
                         aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
-                        forklaring = "Velg et annet beløp",
+                        begrunnelse = "Velg et annet beløp",
                     ),
                 )
             }.message shouldBe "Kan bare annullere godkjente tilsagn"
@@ -616,9 +616,9 @@ class TilsagnServiceTest : FunSpec({
             service.tilAnnulleringRequest(
                 id = requestId,
                 navIdent = ansatt1,
-                request = AarsakerOgForklaringRequest(
+                request = AarsakerOgBegrunnelseRequest(
                     aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
-                    forklaring = "Velg et annet beløp",
+                    begrunnelse = "Velg et annet beløp",
                 ),
             ).status shouldBe TilsagnStatus.TIL_ANNULLERING
 
@@ -667,9 +667,9 @@ class TilsagnServiceTest : FunSpec({
             service.tilAnnulleringRequest(
                 id = requestId,
                 navIdent = ansatt1,
-                request = AarsakerOgForklaringRequest(
+                request = AarsakerOgBegrunnelseRequest(
                     aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
-                    forklaring = "Velg et annet beløp",
+                    begrunnelse = "Velg et annet beløp",
                 ),
             ).status shouldBe TilsagnStatus.TIL_ANNULLERING
 
@@ -698,9 +698,9 @@ class TilsagnServiceTest : FunSpec({
             service.tilAnnulleringRequest(
                 id = requestId,
                 navIdent = ansatt1,
-                request = AarsakerOgForklaringRequest(
+                request = AarsakerOgBegrunnelseRequest(
                     aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
-                    forklaring = "Velg et annet beløp",
+                    begrunnelse = "Velg et annet beløp",
                 ),
             )
             service.godkjennTilsagn(
@@ -719,9 +719,9 @@ class TilsagnServiceTest : FunSpec({
             service.tilAnnulleringRequest(
                 id = requestId,
                 navIdent = ansatt1,
-                request = AarsakerOgForklaringRequest(
+                request = AarsakerOgBegrunnelseRequest(
                     aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
-                    forklaring = "Velg et annet beløp",
+                    begrunnelse = "Velg et annet beløp",
                 ),
             )
             database.run {
@@ -782,9 +782,9 @@ class TilsagnServiceTest : FunSpec({
             service.tilAnnulleringRequest(
                 id = requestId,
                 navIdent = ansatt1,
-                request = AarsakerOgForklaringRequest(
+                request = AarsakerOgBegrunnelseRequest(
                     aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
-                    forklaring = null,
+                    begrunnelse = null,
                 ),
             ).status shouldBe TilsagnStatus.TIL_ANNULLERING
 
@@ -792,7 +792,7 @@ class TilsagnServiceTest : FunSpec({
                 id = requestId,
                 navIdent = ansatt2,
                 aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
-                forklaring = null,
+                begrunnelse = null,
             ).shouldBeRight().status shouldBe TilsagnStatus.GODKJENT
 
             database.run {
@@ -820,7 +820,7 @@ class TilsagnServiceTest : FunSpec({
             service.tilOppgjorRequest(
                 id = requestId,
                 navIdent = ansatt1,
-                request = AarsakerOgForklaringRequest(aarsaker = emptyList(), forklaring = null),
+                request = AarsakerOgBegrunnelseRequest(aarsaker = emptyList(), begrunnelse = null),
             ).status shouldBe TilsagnStatus.TIL_OPPGJOR
 
             service.godkjennTilsagn(
@@ -844,14 +844,14 @@ class TilsagnServiceTest : FunSpec({
             service.tilOppgjorRequest(
                 id = requestId,
                 navIdent = ansatt1,
-                request = AarsakerOgForklaringRequest(aarsaker = emptyList(), forklaring = null),
+                request = AarsakerOgBegrunnelseRequest(aarsaker = emptyList(), begrunnelse = null),
             ).status shouldBe TilsagnStatus.TIL_OPPGJOR
 
             service.returnerTilsagn(
                 id = requestId,
                 navIdent = ansatt1,
                 aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
-                forklaring = null,
+                begrunnelse = null,
             ).shouldBeRight().status shouldBe TilsagnStatus.GODKJENT
         }
 
@@ -866,9 +866,9 @@ class TilsagnServiceTest : FunSpec({
             service.tilOppgjorRequest(
                 id = requestId,
                 navIdent = ansatt1,
-                request = AarsakerOgForklaringRequest(
+                request = AarsakerOgBegrunnelseRequest(
                     aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
-                    forklaring = null,
+                    begrunnelse = null,
                 ),
             ).status shouldBe TilsagnStatus.TIL_OPPGJOR
 

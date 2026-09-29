@@ -66,7 +66,7 @@ export const utbetalingTekster = {
         },
       },
       avsla: {
-        header: "Avslå avbrytelse med forklaring",
+        header: "Avslå avbrytelse med begrunnelse",
         button: {
           label: "Avslå avbrytelse",
         },
@@ -99,7 +99,7 @@ export const utbetalingTekster = {
     },
     aarsak: {
       modal: {
-        header: "Send i retur med forklaring",
+        header: "Send i retur med begrunnelse",
         ingress: "Ved å sende en linje i retur vil andre linjer også returneres",
         button: {
           label: "Send i retur",

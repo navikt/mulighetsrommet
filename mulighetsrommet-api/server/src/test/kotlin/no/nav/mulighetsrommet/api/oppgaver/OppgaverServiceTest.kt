@@ -668,7 +668,7 @@ class OppgaverServiceTest : FunSpec({
                 utbetaling.settTilAbrytelse(
                     agent = NavAnsattFixture.DonaldDuck.navIdent,
                     aarsaker = listOf("ANNET"),
-                    forklaring = "Skal ikke utbetales",
+                    begrunnelse = "Skal ikke utbetales",
                 ).map { queries.utbetaling.save(it) }.shouldBeRight()
             }.initialize(database.api)
 
