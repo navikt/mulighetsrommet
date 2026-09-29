@@ -151,7 +151,6 @@ val ApplicationConfigTest = AppConfig(
             arenaMigreringGjennomforingTopic = "test.arena-migrering-tiltaksgjennomforinger-v1",
             datavarehusTiltakTopic = "test.datavarehus-tiltak-v1",
             helvedUtbetalingTopic = "test.tilskudd.utbetaling-v1",
-            totrinnskontrollV1Topic = "test.totrinnskontroll-v1",
             totrinnskontrollV2Topic = "test.totrinnskontroll-v2",
         ),
     ),

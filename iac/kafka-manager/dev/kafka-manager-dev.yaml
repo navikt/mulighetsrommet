@@ -102,12 +102,6 @@ spec:
               "valueDeserializerType": "STRING"
             },
             {
-              "name": "team-mulighetsrommet.totrinnskontroll-v1",
-              "location": "AIVEN",
-              "keyDeserializerType": "STRING",
-              "valueDeserializerType": "STRING"
-            },
-            {
               "name": "team-mulighetsrommet.totrinnskontroll-v2",
               "location": "AIVEN",
               "keyDeserializerType": "STRING",

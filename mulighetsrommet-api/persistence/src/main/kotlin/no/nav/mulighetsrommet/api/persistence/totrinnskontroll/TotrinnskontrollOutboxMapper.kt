@@ -2,7 +2,6 @@ package no.nav.mulighetsrommet.api.persistence.totrinnskontroll
 
 import no.nav.mulighetsrommet.api.contracts.totrinnskontroll.TotrinnskontrollAgent
 import no.nav.mulighetsrommet.api.contracts.totrinnskontroll.TotrinnskontrollHendelse
-import no.nav.mulighetsrommet.api.contracts.totrinnskontroll.TotrinnskontrollHendelseV1
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.Totrinnskontroll
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollStatus
 import no.nav.mulighetsrommet.model.Agent
@@ -30,24 +29,6 @@ fun Totrinnskontroll.toTotrinnskontrollHendelse(): TotrinnskontrollHendelse = To
     besluttetBegrunnelse = beslutning?.begrunnelse,
     besluttetAarsaker = beslutning?.aarsaker.orEmpty(),
 )
-
-fun Totrinnskontroll.toTotrinnskontrollHendelseV1(): TotrinnskontrollHendelseV1 {
-    val hendelse = toTotrinnskontrollHendelse()
-    val behandlet = status in setOf(TotrinnskontrollStatus.TIL_BEHANDLING, TotrinnskontrollStatus.GODKJENT)
-
-    return TotrinnskontrollHendelseV1(
-        id = hendelse.id,
-        entityId = hendelse.entityId,
-        type = hendelse.type,
-        status = hendelse.status,
-        behandletAv = hendelse.behandletAv,
-        behandletTidspunkt = hendelse.behandletTidspunkt,
-        besluttetAv = hendelse.besluttetAv,
-        besluttetTidspunkt = hendelse.besluttetTidspunkt,
-        aarsaker = if (behandlet) behandling.aarsaker else requireNotNull(beslutning).aarsaker,
-        forklaring = if (behandlet) behandling.begrunnelse else requireNotNull(beslutning).begrunnelse,
-    )
-}
 
 private fun Agent.toAgentHendelse(): TotrinnskontrollAgent = when (this) {
     is NavIdent -> TotrinnskontrollAgent.NavAnsatt(NavIdent(value))

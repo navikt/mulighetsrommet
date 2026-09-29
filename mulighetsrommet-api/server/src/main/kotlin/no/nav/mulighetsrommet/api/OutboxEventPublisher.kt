@@ -9,7 +9,6 @@ import no.nav.mulighetsrommet.api.domain.tiltak.Tiltakstype
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.Totrinnskontroll
 import no.nav.mulighetsrommet.api.persistence.tiltak.TiltakstypeQueries
 import no.nav.mulighetsrommet.api.persistence.totrinnskontroll.toTotrinnskontrollHendelse
-import no.nav.mulighetsrommet.api.persistence.totrinnskontroll.toTotrinnskontrollHendelseV1
 import no.nav.mulighetsrommet.kafka.KAFKA_CONSUMER_RECORD_PROCESSOR_SCHEDULED_AT
 import no.nav.mulighetsrommet.kafka.KafkaProducerRecordQueries
 import no.nav.tiltak.okonomi.OkonomiBestillingMelding
@@ -36,19 +35,12 @@ class OutboxEventPublisher(session: Session, private val topics: KafkaTopics) {
 
     fun publish(totrinnskontroll: Totrinnskontroll) {
         val key = totrinnskontroll.entityId.toString().toByteArray()
-        val v1Record = StoredProducerRecord(
-            topics.totrinnskontrollV1Topic,
-            key,
-            Json.encodeToString(totrinnskontroll.toTotrinnskontrollHendelseV1()).toByteArray(),
-            null,
-        )
         val v2Record = StoredProducerRecord(
             topics.totrinnskontrollV2Topic,
             key,
             Json.encodeToString(totrinnskontroll.toTotrinnskontrollHendelse()).toByteArray(),
             null,
         )
-        kpr.storeRecord(v1Record)
         kpr.storeRecord(v2Record)
     }
 
