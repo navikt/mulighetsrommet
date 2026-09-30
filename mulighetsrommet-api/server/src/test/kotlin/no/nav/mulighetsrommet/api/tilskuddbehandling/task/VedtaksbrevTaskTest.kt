@@ -6,6 +6,7 @@ import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeInstanceOf
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
@@ -130,6 +131,42 @@ class VedtaksbrevTaskTest : FunSpec({
         )
 
         task.journalfor(behandlingId).shouldBeLeft("Feil fra pdfgen: Generering feilet")
+    }
+
+    test("journalforing noop-er for revurdering") {
+        val pdfGenClient = mockk<PdfGenClient>()
+        val dokarkClient = mockk<DokarkClient>()
+        val task = JournalforVedtaksbrev(
+            db = database.api,
+            dokarkClient = dokarkClient,
+            personaliaService = personaliaService,
+            pdf = pdfGenClient,
+            distribuerVedtaksbrev = mockk(relaxed = true),
+        )
+        val service = TilskuddBehandlingService(
+            db = database.api,
+            journalforVedtaksbrev = mockk(relaxed = true),
+            pdf = mockk(relaxed = true),
+            journalpostValidator = gyldigJournalpostValidator(),
+            personaliaService = mockk(relaxed = true),
+            featureToggleService = mockk(relaxed = true),
+        )
+
+        val revurderingBehandlingId = service
+            .revurderingOpphor(tilskuddVedtakId, behandlingId, NavAnsattFixture.DonaldDuck.navIdent)
+            .shouldBeRight()
+
+        val result = task.journalfor(revurderingBehandlingId).shouldBeRight()
+        val noopResult = result.shouldBeInstanceOf<JournalForResultat.Noop>()
+        noopResult.message shouldBe
+            "Revurdering behandling er ikke implementert, journalføres ikke. BehandlingId: $revurderingBehandlingId"
+
+        database.api.session {
+            queries.tilskuddBehandling.getVedtakJournalpostId(revurderingBehandlingId) shouldBe null
+        }
+
+        coVerify(exactly = 0) { pdfGenClient.getPdfDocument(any()) }
+        coVerify(exactly = 0) { dokarkClient.opprettJournalpost(any(), any()) }
     }
 
     test("distribuering sender journalpost til dokdist og lagrer bestillingsId") {
