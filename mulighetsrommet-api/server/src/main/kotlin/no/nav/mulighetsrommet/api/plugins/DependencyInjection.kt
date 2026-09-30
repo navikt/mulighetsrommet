@@ -23,6 +23,7 @@ import no.nav.mulighetsrommet.admin.deltaker.ReplikerDeltakerForslagUseCase
 import no.nav.mulighetsrommet.admin.deltaker.ReplikerDeltakerUseCase
 import no.nav.mulighetsrommet.admin.enhetsregister.EnhetsregisterGateway
 import no.nav.mulighetsrommet.admin.enhetsregister.EnhetsregisterQuery
+import no.nav.mulighetsrommet.admin.journalpost.JournalpostValidator
 import no.nav.mulighetsrommet.admin.kostnadssted.KostnadsstedQuery
 import no.nav.mulighetsrommet.admin.navansatt.NavAnsattDtoQuery
 import no.nav.mulighetsrommet.admin.navansatt.service.NavAnsattService
@@ -63,6 +64,7 @@ import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.Kontoregiste
 import no.nav.mulighetsrommet.api.clients.msgraph.MsGraphClient
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Client
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClient
+import no.nav.mulighetsrommet.api.clients.pdl.HentHistoriskeIdenterPdlQuery
 import no.nav.mulighetsrommet.api.clients.pdl.PdlClient
 import no.nav.mulighetsrommet.api.clients.saf.SafClient
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
@@ -97,7 +99,6 @@ import no.nav.mulighetsrommet.api.navansatt.task.SynchronizeNavAnsatte
 import no.nav.mulighetsrommet.api.navenhet.task.SynchronizeNorgEnheter
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.pdl.HentBrukerPdlQuery
-import no.nav.mulighetsrommet.api.pdl.HentHistoriskeIdenterPdlQuery
 import no.nav.mulighetsrommet.api.persistence.OutboxTopics
 import no.nav.mulighetsrommet.api.persistence.SqlAdminDatabase
 import no.nav.mulighetsrommet.api.persistence.navenhet.SqlNavEnhetRepository
@@ -364,6 +365,12 @@ private fun services(appConfig: AppConfig) = module {
     single { HentAdressebeskyttetPersonBolkPdlQuery(get()) }
     single { HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQuery(get()) }
     single { HentHistoriskeIdenterPdlQuery(get()) }
+    single {
+        JournalpostValidator(
+            safClient = get(),
+            hentIdenterQuery = get(),
+        )
+    }
     single { HentBrukerPdlQuery(get()) }
     single<PoaoTilgangClient> {
         PoaoTilgangHttpClient(

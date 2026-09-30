@@ -78,7 +78,7 @@ class TilskuddBehandlingServiceTest : FunSpec({
         db = database.api,
         journalforVedtaksbrev = mockk(relaxed = true),
         pdf = mockk(relaxed = true),
-        safClient = gyldigSafClient(),
+        journalpostValidator = gyldigJournalpostValidator(),
         personaliaService = mockk(relaxed = true),
         featureToggleService = mockk(relaxed = true),
     )
@@ -89,7 +89,7 @@ class TilskuddBehandlingServiceTest : FunSpec({
                 db = database.api,
                 journalforVedtaksbrev = mockk(relaxed = true),
                 pdf = mockk(relaxed = true),
-                safClient = gyldigSafClient(),
+                journalpostValidator = gyldigJournalpostValidator(),
                 personaliaService = mockk(relaxed = true),
                 featureToggleService = mockk(relaxed = true),
             )

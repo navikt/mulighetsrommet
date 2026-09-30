@@ -9,12 +9,12 @@ import io.mockk.mockk
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakelseFraKomet
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakelserResponse
+import no.nav.mulighetsrommet.api.clients.pdl.HentHistoriskeIdenterPdlQuery
 import no.nav.mulighetsrommet.api.clients.pdl.IdentGruppe
 import no.nav.mulighetsrommet.api.clients.pdl.IdentInformasjon
 import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
 import no.nav.mulighetsrommet.api.domain.testing.fixture.ArrangorFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.TiltakstypeFixtures
-import no.nav.mulighetsrommet.api.pdl.HentHistoriskeIdenterPdlQuery
 import no.nav.mulighetsrommet.api.veilederflate.Deltakelse
 import no.nav.mulighetsrommet.api.veilederflate.DeltakelsePeriode
 import no.nav.mulighetsrommet.api.veilederflate.DeltakelseStatus

@@ -6,7 +6,6 @@ import arrow.core.right
 import kotlinx.coroutines.runBlocking
 import no.nav.mulighetsrommet.admin.journalpost.ForventetBruker
 import no.nav.mulighetsrommet.admin.journalpost.JournalpostValidator
-import no.nav.mulighetsrommet.api.clients.saf.SafClient
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandling
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddVedtak
@@ -167,7 +166,7 @@ object TilskuddBehandlingValidator {
 
     fun createJournalpostValidator(
         forventetBruker: ForventetBruker,
-        safClient: SafClient,
+        journalpostValidator: JournalpostValidator,
         valideringEnabled: Boolean,
     ): (String, Int) -> Validated<JournalpostId> {
         if (!valideringEnabled) {
@@ -182,11 +181,10 @@ object TilskuddBehandlingValidator {
         }
         val journalpostValidatorFunc: (String, Int) -> Validated<JournalpostId> = { journalpostId: String, index: Int ->
             runBlocking {
-                JournalpostValidator.validerJournalpost(
+                journalpostValidator.validerJournalpost(
                     journalpostId = journalpostId,
                     forventetBruker = forventetBruker,
                     accessType = AccessType.M2M,
-                    safClient = safClient,
                 )
                     .mapLeft {
                         when (it) {
@@ -232,10 +230,10 @@ object TilskuddBehandlingValidator {
                                     detail = "Journalposten tilhører en annen virksomhet",
                                 ).nel()
 
-                            JournalpostValidator.JournalpostValideringError.AktoerId ->
+                            JournalpostValidator.JournalpostValideringError.KunneIkkeVeksleAktoerId ->
                                 FieldError(
                                     pointer = "/tilskudd/$index/soknadJournalpostId",
-                                    detail = "Kunne ikke verifisere hvem journalposten tilhører. Fikk aktør id, forventet fnr",
+                                    detail = "Kunne ikke slå opp person i PDL for å verifisere journalposten",
                                 ).nel()
 
                             JournalpostValidator.JournalpostValideringError.IngenTilknytning ->
