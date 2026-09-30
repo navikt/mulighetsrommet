@@ -24,8 +24,7 @@ export function VelgKostnadssted<T extends FieldValues>({ kostnadssteder, name }
 
   return (
     <FormCombobox<T>
-      className="w-73"
-      placeholder="Velg kostnadssted"
+      placeholder="-- Velg kostnadssted --"
       size="small"
       label={tilsagnTekster.kostnadssted.label}
       name={name}

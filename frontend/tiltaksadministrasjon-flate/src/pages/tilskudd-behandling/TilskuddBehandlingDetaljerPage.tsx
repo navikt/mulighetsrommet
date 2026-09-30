@@ -6,7 +6,6 @@ import { useTilskuddBehandling } from "@/api/tilskudd-behandling/useTilskuddBeha
 import { AarsakerOgBegrunnelseModal } from "@/components/modal/AarsakerOgBegrunnelseModal";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
 import {
-  EndringshistorikkType,
   FieldError,
   TilskuddBehandlingDto,
   TilskuddBehandlingHandling,
@@ -15,7 +14,7 @@ import {
   Valuta,
   VedtakResultat,
 } from "@tiltaksadministrasjon/api-client";
-import { Alert, BodyShort, Box, Button, HStack, List, VStack } from "@navikt/ds-react";
+import { Alert, BodyShort, Box, Button, Heading, HStack, List, VStack } from "@navikt/ds-react";
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import { TilskuddBehandlingLayout } from "@/components/tilskudd-behandling/TilskuddBehandlingLayout";
@@ -32,15 +31,11 @@ import {
   opplaeringTilskuddToString,
   tilskuddMottakerToString,
 } from "@/utils/Utils";
-import { FilePdfIcon, PencilFillIcon } from "@navikt/aksel-icons";
-import { Betalingsbetingelser } from "@/components/gjennomforing/Betalingsbetingelser";
-import { VedtaksbrevPdfModal } from "@/components/tilskudd-behandling/VedtaksbrevPdfModal";
-import { useVedtaksbrevPdfBlob } from "@/api/tilskudd-behandling/useVedtaksbrevPdfBlob";
 import { Saksopplysninger } from "@/components/tilskudd-behandling/Saksopplysninger";
 import { VedtakDetaljer } from "@/components/tilskudd-behandling/VedtakDetaljer";
 import { PrismodellDetaljer } from "@/components/prismodell/PrismodellDetaljer";
 import { TilskuddBehandlingHandlinger } from "./TilskuddBehandlingHandlinger";
-import { formaterPeriode } from "@mr/frontend-common/utils/date";
+import { TilskuddFormGroup } from "@/layouts/TilskuddFormGroup";
 
 export function TilskuddBehandlingDetaljerPage() {
   const { gjennomforingId, behandlingId } = useRequiredParams(["gjennomforingId", "behandlingId"]);
@@ -87,77 +82,67 @@ export function TilskuddBehandlingDetaljerPage() {
   return (
     <TilskuddBehandlingLayout gjennomforingId={gjennomforingId}>
       <TilskuddBehandlingHandlinger tilskuddBehandlingId={behandlingId} />
-      <VStack gap="space-24" marginBlock="space-24">
       {erReturnert(opprettelse) && (
+        <Box marginBlock="space-0 space-16">
           <TotrinnskontrollReturnert
             heading="Behandlingen ble returnert"
             opprettelse={opprettelse}
           />
-        )}
-        <TwoColumnGrid separator>
-          <Box>
-            <VStack gap="space-20">
-              <HStack gap="space-8" align="center">
-                <Heading level="3" size="medium">
-                  Vedtak
-                </Heading>
-                <DataElementStatusTag {...behandling.status.status} />
-              </HStack>
-                {behandling.tilskudd.map((t) => (
-                  <Box
-                    className="w-full"
-                    borderWidth="2"
-                    borderRadius="8"
-                    borderColor="neutral-subtle"
-                    padding="space-8"
-                    key={t.id}
-                  >
-                    <Saksopplysninger
-                      journalpostId={t.soknadJournalpostId}
-                      soknadsdato={t.soknadDato}
-                      periode={t.periode}
-                      kostnadssted={t.kostnadssted}
-                      belop={t.soknadBelop.belop || 0}
-                      tilskuddOpplaeringType={t.tilskuddOpplaeringType}
-                      utbetalingMottaker={t.utbetalingMottaker}
-                    />
-                      <Separator />
-                    <VedtakDetaljer
-                      vedtakResultat={t.vedtakResultat}
-                      utbetalingBelop={t.utbetalingBelop}
-                      kommentarVedtaksbrev={t.kommentarVedtaksbrev}
-                      internKommentar={t.kommentarIntern}
-                    />
-                  </Box>
-                ))}
-              </VStack>
-              <TotaltBelopBox
-                label="Totalt beløp fra søknad"
-                belop={{
-                  belop: behandling.tilskudd.reduce((sum, t) => sum + t.soknadBelop.belop, 0),
-                  valuta: behandling.tilskudd.at(0)?.soknadBelop.valuta ?? Valuta.NOK,
-                }}
-              />
-              <TotaltBelopBox
-                label="Totalt beløp til utbetaling"
-                belop={{
-                  belop: behandling.tilskudd.reduce(
-                    (sum, t) => sum + (t.utbetalingBelop?.belop ?? 0),
-                    0,
-                  ),
-                  valuta: Valuta.NOK,
-                }}
-              />
-            </VStack>
-          </Box>
-          <VStack gap="space-20">
+        </Box>
+      )}
+      <TwoColumnGrid separator>
+        <VStack gap="space-20">
+          <HStack gap="space-8" align="center">
             <Heading level="3" size="medium">
-              Avtalte utgifter
+              Vedtak
             </Heading>
-            <PrismodellDetaljer prismodell={prismodell} />
-          </VStack>
-        </TwoColumnGrid>
-      </VStack>
+            <DataElementStatusTag {...behandling.status.status} />
+          </HStack>
+          {behandling.tilskudd.map((t) => (
+            <TilskuddFormGroup key={t.id}>
+              <Saksopplysninger
+                journalpostId={t.soknadJournalpostId}
+                soknadsdato={t.soknadDato}
+                periode={t.periode}
+                kostnadssted={t.kostnadssted}
+                belop={t.soknadBelop.belop || 0}
+                tilskuddOpplaeringType={t.tilskuddOpplaeringType}
+                utbetalingMottaker={t.utbetalingMottaker}
+              />
+              <Separator />
+              <VedtakDetaljer
+                vedtakResultat={t.vedtakResultat}
+                utbetalingBelop={t.utbetalingBelop}
+                kommentarVedtaksbrev={t.kommentarVedtaksbrev}
+                internKommentar={t.kommentarIntern}
+              />
+            </TilskuddFormGroup>
+          ))}
+          <TotaltBelopBox
+            label="Totalt beløp fra søknad"
+            belop={{
+              belop: behandling.tilskudd.reduce((sum, t) => sum + t.soknadBelop.belop, 0),
+              valuta: behandling.tilskudd.at(0)?.soknadBelop.valuta ?? Valuta.NOK,
+            }}
+          />
+          <TotaltBelopBox
+            label="Totalt beløp til utbetaling"
+            belop={{
+              belop: behandling.tilskudd.reduce(
+                (sum, t) => sum + (t.utbetalingBelop?.belop ?? 0),
+                0,
+              ),
+              valuta: Valuta.NOK,
+            }}
+          />
+        </VStack>
+        <Box>
+          <Heading level="3" size="medium" spacing>
+            Pris og betalingsbetingelser
+          </Heading>
+          <PrismodellDetaljer prismodell={prismodell} />
+        </Box>
+      </TwoColumnGrid>
       <Separator />
       {(kanReturneres || kanAttesteres) && (
         <HStack gap="space-8" marginBlock="space-16" justify="end">

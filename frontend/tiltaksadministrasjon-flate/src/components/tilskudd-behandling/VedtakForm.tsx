@@ -43,7 +43,7 @@ export function VedtakForm() {
       <Heading size="medium" level="3" spacing>
         Vedtak og beregning
       </Heading>
-      <VStack gap="space-32">
+      <VStack gap="space-20">
         {tilskudd.map((t, index) => (
           <TilskuddFormGroup key={index}>
             <Saksopplysninger
@@ -112,10 +112,10 @@ export function VedtakForm() {
           </TilskuddFormGroup>
         ))}
         <TotaltBelopBox
-          label="Totalt beløp fra søknad"
+          label="Totalt beløp fra fakturaer"
           belop={{
             belop: watch("tilskudd").reduce((sum, t) => sum + (t.soknadBelop?.belop ?? 0), 0),
-            valuta: watch("tilskudd").at(0)?.soknadBelop?.valuta ?? Valuta.NOK,
+            valuta: Valuta.NOK,
           }}
         />
         <TotaltBelopBox
