@@ -23,10 +23,9 @@ export function TwoColumnGrid(props: Props) {
           <Hide below="md" asChild>
             <Box
               position="absolute"
-              background="neutral-moderate-pressed"
               marginInline={{ md: "space-4" }}
               width="1px"
-              className="inset-y-0 left-0"
+              className="inset-y-0 left-0 bg-(--ax-bg-neutral-moderate-pressed) "
             />
           </Hide>
         )}
