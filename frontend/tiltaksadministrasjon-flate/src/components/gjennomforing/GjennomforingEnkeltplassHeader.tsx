@@ -29,9 +29,9 @@ export function GjennomforingEnkeltplassHeader({ gjennomforing, deltaker, short 
           <MetadataVStack
             label="Fødselsnummer"
             value={
-              <HStack gap="space-4" wrap={false}>
+              <HStack gap="space-4" align="center" wrap={false}>
                 {deltaker.norskIdent}
-                <CopyButton size="small" copyText={deltaker.norskIdent ?? ""} />
+                <CopyButton size="xsmall" copyText={deltaker.norskIdent ?? ""} />
               </HStack>
             }
           />

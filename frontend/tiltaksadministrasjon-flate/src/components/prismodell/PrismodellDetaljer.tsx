@@ -8,6 +8,7 @@ import { AvtaltSatsDto, PrismodellDto, PrismodellType } from "@tiltaksadministra
 import { formaterDato } from "@mr/frontend-common/utils/date";
 import { formaterValuta, formaterValutaBelop } from "@mr/frontend-common/utils/utils";
 import { ingenKostnaderAarsakToString, opplaeringTilskuddToString } from "@/utils/Utils";
+import { Definisjonsliste } from "@mr/frontend-common/components/definisjonsliste/Definisjonsliste";
 
 interface PrismodellDetaljerProps {
   prismodell: PrismodellDto;
@@ -91,23 +92,28 @@ function BetalingsbetingelserTilskudd({ prismodell }: PrismodellDetaljerProps) {
     valuta: prismodell.valuta,
   };
   return (
-    <VStack gap="space-8">
-      <Heading level="4" size="xsmall">
-        Tilskudd til en tilgjengelig studie- eller skoleplass
-      </Heading>
-      <BodyShort>Utbetales basert på dokumenterte utgifter</BodyShort>
-      {prismodell.prisbetingelser && (
-        <>
-          <Heading level="4" size="xsmall">
-            Tilleggsopplysninger om kostnader
-          </Heading>
-          <BodyShort>{prismodell.prisbetingelser}</BodyShort>
-        </>
-      )}
-      <Heading level="4" size="xsmall">
-        Aktuelle tilskuddstyper
-      </Heading>
-      <BodyShort spacing={true}>Ved flere semester er den estimerte totalsummen oppgitt</BodyShort>
+    <VStack gap="space-16">
+      <Definisjonsliste
+        columns={1}
+        definitions={[
+          {
+            key: "Tilskudd til en tilgjengelig studie- eller skoleplass",
+            value: "Utbetales basert på dokumenterte utgifter",
+          },
+          ...(prismodell.prisbetingelser
+            ? [
+                {
+                  key: "Tilleggsopplysninger om kostnader",
+                  value: prismodell.prisbetingelser,
+                },
+              ]
+            : []),
+          {
+            key: "Aktuelle tilskuddstyper",
+            value: "Ved flere semester er den estimerte totalsummen oppgitt",
+          },
+        ]}
+      />
       <List size="small" as="ul">
         {prismodell.tilskudd.map((t) => (
           <List.Item key={t.type}>
@@ -118,7 +124,6 @@ function BetalingsbetingelserTilskudd({ prismodell }: PrismodellDetaljerProps) {
           </List.Item>
         ))}
       </List>
-      <hr style={{ color: "var(--ax-border-neutral)" }} className="w-xs self-end" />
       <BodyShort size="small" weight="semibold" className="ml-auto">
         {`Estimert totalsum: ${formaterValutaBelop(totalt)}`}
       </BodyShort>

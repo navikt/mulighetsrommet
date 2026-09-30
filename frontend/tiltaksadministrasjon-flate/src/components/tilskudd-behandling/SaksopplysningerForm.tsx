@@ -1,5 +1,5 @@
 import { PlusIcon, TrashIcon } from "@navikt/aksel-icons";
-import { Button, Heading, HStack, Radio, Spacer, TextField, VStack } from "@navikt/ds-react";
+import { Button, Heading, HGrid, HStack, Radio, Spacer, TextField, VStack } from "@navikt/ds-react";
 import { Path, useFieldArray, useFormContext } from "react-hook-form";
 import { FormDateInput } from "@/components/skjema/FormDateInput";
 import { FormSelect } from "@/components/skjema/FormSelect";
@@ -59,18 +59,18 @@ export function SaksopplysningerForm({ arrangorId }: Props) {
             <Heading size="small" level="4" spacing>
               Tilskudd
             </Heading>
-            <VStack gap="space-20" align="start">
-              <FormTextField
-                label="Journalpost-ID i Gosys"
-                name={`tilskudd.${index}.soknadJournalpostId`}
-                rules={{ required: "Journalpost-ID må fylles ut" }}
-              />
-              <FormDateInput
-                name={`tilskudd.${index}.soknadDato`}
-                label="Søknadsdato"
-                rules={{ required: "Søknadsdato må fylles ut" }}
-              />
-              <HStack gap="space-16">
+            <VStack gap="space-24">
+              <HGrid columns="0.8fr 1fr" gap="space-24">
+                <FormTextField
+                  label="Journalpost-ID i Gosys"
+                  name={`tilskudd.${index}.soknadJournalpostId`}
+                  rules={{ required: "Journalpost-ID må fylles ut" }}
+                />
+                <FormDateInput
+                  name={`tilskudd.${index}.soknadDato`}
+                  label="Søknadsdato"
+                  rules={{ required: "Søknadsdato må fylles ut" }}
+                />
                 <FormDateInput
                   name={`tilskudd.${index}.periodeStart`}
                   label="Periodestart"
@@ -81,8 +81,11 @@ export function SaksopplysningerForm({ arrangorId }: Props) {
                   label="Periodeslutt"
                   rules={{ required: "Periodeslutt må fylles ut" }}
                 />
-              </HStack>
-              <HStack gap="space-16" align="start">
+                <VelgKostnadssted
+                  name={`tilskudd.${index}.kostnadssted`}
+                  kostnadssteder={kostnadssteder.flatMap((r) => r.kostnadssteder.map((k) => k))}
+                />
+                <Spacer />
                 <FormSelect
                   label="Tilskuddstype"
                   name={`tilskudd.${index}.tilskuddOpplaeringType`}
@@ -97,33 +100,30 @@ export function SaksopplysningerForm({ arrangorId }: Props) {
                     ),
                   )}
                 </FormSelect>
-                <TextField
-                  size="small"
-                  type="text"
-                  label="Beløp fra søknad"
-                  error={errors.tilskudd?.[index]?.soknadBelop?.belop?.message}
-                  {...register(`tilskudd.${index}.soknadBelop.belop`, {
-                    setValueAs: (t: string) => (t === "" ? null : Number(t)),
-                    validate: (value: number | null) => {
-                      if (!Number.isInteger(value)) return "Beløp må være et heltall";
-                      return true;
-                    },
-                  })}
-                />
-                <FormSelect
-                  size="small"
-                  label="Valuta"
-                  name={`tilskudd.${index}.soknadBelop.valuta`}
-                  readOnly
-                >
-                  <option value={Valuta.NOK}>NOK</option>
-                </FormSelect>
-                <Spacer />
-              </HStack>
-              <VelgKostnadssted
-                name={`tilskudd.${index}.kostnadssted`}
-                kostnadssteder={kostnadssteder.flatMap((r) => r.kostnadssteder.map((k) => k))}
-              />
+                <HStack gap="space-16" align="start">
+                  <TextField
+                    size="small"
+                    type="text"
+                    label="Beløp fra faktura"
+                    error={errors.tilskudd?.[index]?.soknadBelop?.belop?.message}
+                    {...register(`tilskudd.${index}.soknadBelop.belop`, {
+                      setValueAs: (t: string) => (t === "" ? null : Number(t)),
+                      validate: (value: number | null) => {
+                        if (!Number.isInteger(value)) return "Beløp må være et heltall";
+                        return true;
+                      },
+                    })}
+                  />
+                  <FormSelect
+                    size="small"
+                    label="Valuta"
+                    name={`tilskudd.${index}.soknadBelop.valuta`}
+                    readOnly
+                  >
+                    <option value={Valuta.NOK}>NOK</option>
+                  </FormSelect>
+                </HStack>
+              </HGrid>
               <ControlledRadioGroup
                 size="small"
                 name={`tilskudd.${index}.utbetalingMottaker`}
@@ -171,7 +171,7 @@ export function SaksopplysningerForm({ arrangorId }: Props) {
             Legg til tilskudd
           </Button>
         </HStack>
-        <TotaltBelopBox label="Totalt beløp fra søknad" belop={totaltBelop()} />
+        <TotaltBelopBox label="Totalt beløp fra fakturaer" belop={totaltBelop()} />
       </VStack>
     </>
   );

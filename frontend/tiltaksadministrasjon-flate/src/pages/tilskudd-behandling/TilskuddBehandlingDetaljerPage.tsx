@@ -6,7 +6,6 @@ import { useTilskuddBehandling } from "@/api/tilskudd-behandling/useTilskuddBeha
 import { AarsakerOgBegrunnelseModal } from "@/components/modal/AarsakerOgBegrunnelseModal";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
 import {
-  EndringshistorikkType,
   FieldError,
   TilskuddBehandlingDto,
   TilskuddBehandlingHandling,
@@ -15,22 +14,15 @@ import {
   Valuta,
   VedtakResultat,
 } from "@tiltaksadministrasjon/api-client";
-import { Alert, BodyShort, Box, Button, HStack, List, VStack } from "@navikt/ds-react";
+import { Alert, BodyShort, Box, Button, Heading, HStack, List, VStack } from "@navikt/ds-react";
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import { TilskuddBehandlingLayout } from "@/components/tilskudd-behandling/TilskuddBehandlingLayout";
 import { TotrinnskontrollReturnert } from "@/components/totrinnskontroll/TotrinnskontrollReturnert";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
-import {
-  MetadataFritekstfelt,
-  Separator,
-} from "@mr/frontend-common/components/datadriven/Metadata";
+import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
 import { useEnkeltplassGjennomforingOrError } from "@/api/gjennomforing/useGjennomforing";
-import { formaterValutaBelop } from "@mr/frontend-common/utils/utils";
-import { Definisjonsliste } from "@mr/frontend-common/components/definisjonsliste/Definisjonsliste";
-import { Endringshistorikk } from "@/components/endringshistorikk/Endringshistorikk";
-import { Handlinger } from "@/components/handlinger/Handlinger";
-import { erReturnert, erTilBeslutning } from "@/utils/totrinnskontroll";
+import { erReturnert } from "@/utils/totrinnskontroll";
 import { DataElementStatusTag } from "@mr/frontend-common";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 import { TotaltBelopBox } from "@/components/tilskudd-behandling/TotaltBelopBox";
@@ -39,11 +31,11 @@ import {
   opplaeringTilskuddToString,
   tilskuddMottakerToString,
 } from "@/utils/Utils";
-import { FilePdfIcon, PencilFillIcon } from "@navikt/aksel-icons";
-import { Betalingsbetingelser } from "@/components/gjennomforing/Betalingsbetingelser";
-import { VedtaksbrevPdfModal } from "@/components/tilskudd-behandling/VedtaksbrevPdfModal";
-import { useVedtaksbrevPdfBlob } from "@/api/tilskudd-behandling/useVedtaksbrevPdfBlob";
 import { Saksopplysninger } from "@/components/tilskudd-behandling/Saksopplysninger";
+import { VedtakDetaljer } from "@/components/tilskudd-behandling/VedtakDetaljer";
+import { PrismodellDetaljer } from "@/components/prismodell/PrismodellDetaljer";
+import { TilskuddBehandlingHandlinger } from "./TilskuddBehandlingHandlinger";
+import { TilskuddFormGroup } from "@/layouts/TilskuddFormGroup";
 
 export function TilskuddBehandlingDetaljerPage() {
   const { gjennomforingId, behandlingId } = useRequiredParams(["gjennomforingId", "behandlingId"]);
@@ -52,12 +44,7 @@ export function TilskuddBehandlingDetaljerPage() {
   const {
     data: { behandling, handlinger, opprettelse },
   } = useTilskuddBehandling(behandlingId);
-  const [pdfPreviewOpen, setPdfPreviewOpen] = useState(false);
-  const {
-    data: pdfBlob,
-    isLoading: pdfIsLoading,
-    isError: pdfIsError,
-  } = useVedtaksbrevPdfBlob(behandlingId, pdfPreviewOpen);
+
   const [returModalOpen, setReturModalOpen] = useState(false);
   const [attesterModalOpen, setAttesterModalOpen] = useState(false);
   const [errors, setErrors] = useState<FieldError[]>([]);
@@ -94,111 +81,68 @@ export function TilskuddBehandlingDetaljerPage() {
   const kanAttesteres = handlinger.includes(TilskuddBehandlingHandling.ATTESTER);
   return (
     <TilskuddBehandlingLayout gjennomforingId={gjennomforingId}>
+      <TilskuddBehandlingHandlinger tilskuddBehandlingId={behandlingId} />
       {erReturnert(opprettelse) && (
-        <TotrinnskontrollReturnert heading="Behandlingen ble returnert" opprettelse={opprettelse} />
-      )}
-      <Box marginBlock="space-16">
-        <HStack gap="space-8" justify="end">
-          {erTilBeslutning(opprettelse) && (
-            <Button
-              variant="tertiary"
-              size="small"
-              onClick={() => setPdfPreviewOpen(true)}
-              icon={<FilePdfIcon aria-hidden />}
-            >
-              Vis vedtaksbrev
-            </Button>
-          )}
-          <Endringshistorikk id={behandling.id} type={EndringshistorikkType.TILSKUDD_BEHANDLING} />
-          <Handlinger
-            handlinger={handlinger}
-            grupper={[
-              {
-                items: [
-                  {
-                    label: "Rediger tilskuddsbehandling",
-                    href: "rediger",
-                    handling: TilskuddBehandlingHandling.REDIGER,
-                    icon: <PencilFillIcon />,
-                  },
-                ],
-              },
-            ]}
+        <Box marginBlock="space-0 space-16">
+          <TotrinnskontrollReturnert
+            heading="Behandlingen ble returnert"
+            opprettelse={opprettelse}
           />
-        </HStack>
-        <TwoColumnGrid separator>
-          <>
-            <VStack gap="space-16">
-              <Definisjonsliste
-                definitions={[
-                  { key: "Status", value: <DataElementStatusTag {...behandling.status.status} /> },
-                ]}
+        </Box>
+      )}
+      <TwoColumnGrid separator>
+        <VStack gap="space-20">
+          <HStack gap="space-8" align="center">
+            <Heading level="3" size="medium">
+              Vedtak
+            </Heading>
+            <DataElementStatusTag {...behandling.status.status} />
+          </HStack>
+          {behandling.tilskudd.map((t) => (
+            <TilskuddFormGroup key={t.id}>
+              <Saksopplysninger
+                journalpostId={t.soknadJournalpostId}
+                soknadsdato={t.soknadDato}
+                periode={t.periode}
+                kostnadssted={t.kostnadssted}
+                belop={t.soknadBelop.belop || 0}
+                tilskuddOpplaeringType={t.tilskuddOpplaeringType}
+                utbetalingMottaker={t.utbetalingMottaker}
               />
-              <VStack gap="space-20" align="start">
-                {behandling.tilskudd.map((t) => (
-                  <Box
-                    className="w-full"
-                    borderWidth="2"
-                    borderRadius="8"
-                    borderColor="neutral-subtle"
-                    padding="space-8"
-                    key={t.id}
-                  >
-                    <Saksopplysninger
-                      journalpostId={t.soknadJournalpostId}
-                      soknadsdato={t.soknadDato}
-                      periode={t.periode}
-                      kostnadssted={t.kostnadssted}
-                      belop={t.soknadBelop.belop || 0}
-                      tilskuddOpplaeringType={t.tilskuddOpplaeringType}
-                      utbetalingMottaker={t.utbetalingMottaker}
-                    />
-                    <VStack gap="space-8">
-                      <Separator />
-                      <Definisjonsliste
-                        columns={1}
-                        definitions={[
-                          {
-                            key: "Vedtaksresultat",
-                            value: <DataElementStatusTag {...t.vedtakResultat.status} />,
-                          },
-                          {
-                            key: "Beløp til utbetaling",
-                            value: t.utbetalingBelop ? formaterValutaBelop(t.utbetalingBelop) : "-",
-                          },
-                          { key: "Kommentar til brukeren", value: t.kommentarVedtaksbrev },
-                        ]}
-                      />
-                    </VStack>
-                    <MetadataFritekstfelt
-                      label="Kommentar (internt i Nav)"
-                      value={t.kommentarIntern}
-                    />
-                  </Box>
-                ))}
-              </VStack>
-              <TotaltBelopBox
-                label="Totalt beløp fra søknad"
-                belop={{
-                  belop: behandling.tilskudd.reduce((sum, t) => sum + t.soknadBelop.belop, 0),
-                  valuta: behandling.tilskudd.at(0)?.soknadBelop.valuta ?? Valuta.NOK,
-                }}
+              <Separator />
+              <VedtakDetaljer
+                vedtakResultat={t.vedtakResultat}
+                utbetalingBelop={t.utbetalingBelop}
+                kommentarVedtaksbrev={t.kommentarVedtaksbrev}
+                internKommentar={t.kommentarIntern}
               />
-              <TotaltBelopBox
-                label="Totalt beløp til utbetaling"
-                belop={{
-                  belop: behandling.tilskudd.reduce(
-                    (sum, t) => sum + (t.utbetalingBelop?.belop ?? 0),
-                    0,
-                  ),
-                  valuta: Valuta.NOK,
-                }}
-              />
-            </VStack>
-          </>
-          <Betalingsbetingelser prismodell={prismodell} />
-        </TwoColumnGrid>
-      </Box>
+            </TilskuddFormGroup>
+          ))}
+          <TotaltBelopBox
+            label="Totalt beløp fra søknad"
+            belop={{
+              belop: behandling.tilskudd.reduce((sum, t) => sum + t.soknadBelop.belop, 0),
+              valuta: behandling.tilskudd.at(0)?.soknadBelop.valuta ?? Valuta.NOK,
+            }}
+          />
+          <TotaltBelopBox
+            label="Totalt beløp til utbetaling"
+            belop={{
+              belop: behandling.tilskudd.reduce(
+                (sum, t) => sum + (t.utbetalingBelop?.belop ?? 0),
+                0,
+              ),
+              valuta: Valuta.NOK,
+            }}
+          />
+        </VStack>
+        <Box>
+          <Heading level="3" size="medium" spacing>
+            Pris og betalingsbetingelser
+          </Heading>
+          <PrismodellDetaljer prismodell={prismodell} />
+        </Box>
+      </TwoColumnGrid>
       <Separator />
       {(kanReturneres || kanAttesteres) && (
         <HStack gap="space-8" marginBlock="space-16" justify="end">
@@ -267,13 +211,6 @@ export function TilskuddBehandlingDetaljerPage() {
             Ja, attester behandling
           </Button>
         }
-      />
-      <VedtaksbrevPdfModal
-        blob={pdfBlob}
-        isLoading={pdfIsLoading}
-        isError={pdfIsError}
-        open={pdfPreviewOpen}
-        onClose={() => setPdfPreviewOpen(false)}
       />
     </TilskuddBehandlingLayout>
   );

@@ -52,7 +52,7 @@ export function Saksopplysninger({
           value: tilskuddOpplaeringType ? opplaeringTilskuddToString(tilskuddOpplaeringType) : "-",
         },
         {
-          key: "Beløp fra søknad",
+          key: "Beløp fra faktura",
           value: formaterValuta(belop || 0, Valuta.NOK),
         },
         {

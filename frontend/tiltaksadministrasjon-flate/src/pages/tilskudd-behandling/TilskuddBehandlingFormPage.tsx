@@ -6,7 +6,7 @@ import { SaksopplysningerForm } from "@/components/tilskudd-behandling/Saksopply
 import { VedtakForm } from "@/components/tilskudd-behandling/VedtakForm";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
 import { TilskuddBehandlingRequest, ValidationError } from "@tiltaksadministrasjon/api-client";
-import { Box, Button, HStack, Tabs } from "@navikt/ds-react";
+import { Box, Button, Heading, HStack, Tabs } from "@navikt/ds-react";
 import { ReactElement, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { useNavigate, useParams } from "react-router";
@@ -23,9 +23,9 @@ import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
 import { applyValidationErrors } from "@/components/skjema/helpers";
 import { CalculatorIcon, FilePdfIcon, PersonRectangleIcon } from "@navikt/aksel-icons";
-import { Betalingsbetingelser } from "@/components/gjennomforing/Betalingsbetingelser";
 import { VedtaksbrevPdfModal } from "@/components/tilskudd-behandling/VedtaksbrevPdfModal";
 import { useVedtaksbrevPdfBlobPost } from "@/api/tilskudd-behandling/useVedtaksbrevPdfBlob";
+import { PrismodellDetaljer } from "@/components/prismodell/PrismodellDetaljer";
 
 interface Tab {
   key: TilskuddBehandlingTab;
@@ -154,92 +154,91 @@ export function TilskuddBehandlingFormPage() {
       />
       <form onSubmit={onSubmit}>
         <TilskuddBehandlingLayout gjennomforingId={gjennomforingId}>
-          <>
-            {data?.opprettelse && (
+          {data?.opprettelse && (
+            <Box marginBlock="space-0 space-16">
               <TotrinnskontrollReturnert
                 heading="Behandlingen ble returnert"
                 opprettelse={data.opprettelse}
               />
-            )}
-            <Tabs
-              value={currentTab}
-              onChange={(value) => setCurrentTab(value as TilskuddBehandlingTab)}
-            >
-              <Tabs.List>
-                {tabs.map((tab) => (
-                  <TabWithErrorBorder
-                    key={tab.key}
-                    onClick={() => {}}
-                    value={tab.key}
-                    label={tab.label}
-                    hasError={tabHasErrors(tab)}
-                    icon={tab.icon}
-                  />
-                ))}
-                {currentTab === "vedtak" && (
-                  <Button
-                    className="ml-auto"
-                    variant="tertiary"
-                    size="small"
-                    type="button"
-                    onClick={onVisVedtaksbrev}
-                    disabled={vedtaksbrevMutation.isPending}
-                    icon={<FilePdfIcon aria-hidden />}
-                  >
-                    Vis vedtaksbrev
-                  </Button>
-                )}
-              </Tabs.List>
-              <Box marginBlock="space-16">
-                <TwoColumnGrid separator>
-                  <Box>
-                    <Tabs.Panel value="saksopplysninger">
-                      <SaksopplysningerForm arrangorId={gjennomforing.arrangor.id} />
-                    </Tabs.Panel>
-                    <Tabs.Panel value="vedtak">
-                      <VedtakForm />
-                    </Tabs.Panel>
-                  </Box>
-                  <Betalingsbetingelser prismodell={prismodell} />
-                </TwoColumnGrid>
-              </Box>
-            </Tabs>
-
-            <Separator />
-            <HStack gap="space-8" marginBlock="space-16" justify="end">
-              {isFirstTab ? (
+            </Box>
+          )}
+          <Tabs
+            value={currentTab}
+            onChange={(value) => setCurrentTab(value as TilskuddBehandlingTab)}
+          >
+            <Tabs.List>
+              {tabs.map((tab) => (
+                <TabWithErrorBorder
+                  key={tab.key}
+                  onClick={() => {}}
+                  value={tab.key}
+                  label={tab.label}
+                  hasError={tabHasErrors(tab)}
+                  icon={tab.icon}
+                />
+              ))}
+              {currentTab === "vedtak" && (
                 <Button
+                  className="ml-auto"
                   variant="tertiary"
                   size="small"
                   type="button"
-                  onClick={() => navigate(listUrl)}
+                  onClick={onVisVedtaksbrev}
+                  disabled={vedtaksbrevMutation.isPending}
+                  icon={<FilePdfIcon aria-hidden />}
                 >
-                  Avbryt
-                </Button>
-              ) : (
-                <Button variant="tertiary" size="small" type="button" onClick={goToPreviousTab}>
-                  Tilbake
+                  Vis vedtaksbrev
                 </Button>
               )}
-              {isLastTab ? (
-                <HStack gap="space-4" align="center">
-                  <ValideringsfeilOppsummering />
-                  <Button
-                    variant="primary"
-                    size="small"
-                    type="submit"
-                    disabled={mutation.isPending}
-                  >
-                    {mutation.isPending ? "Sender til attestering..." : "Send til attestering"}
-                  </Button>
-                </HStack>
-              ) : (
-                <Button variant="primary" size="small" type="button" onClick={goToNextTab}>
-                  Neste
+            </Tabs.List>
+            <Box marginBlock="space-16">
+              <TwoColumnGrid separator>
+                <Box>
+                  <Tabs.Panel value="saksopplysninger">
+                    <SaksopplysningerForm arrangorId={gjennomforing.arrangor.id} />
+                  </Tabs.Panel>
+                  <Tabs.Panel value="vedtak">
+                    <VedtakForm />
+                  </Tabs.Panel>
+                </Box>
+                <Box>
+                  <Heading level="3" size="medium" spacing>
+                    Pris og betalingsbetingelser
+                  </Heading>
+                  <PrismodellDetaljer prismodell={prismodell} />
+                </Box>
+              </TwoColumnGrid>
+            </Box>
+          </Tabs>
+          <Separator />
+          <HStack gap="space-8" marginBlock="space-16" justify="end">
+            {isFirstTab ? (
+              <Button
+                variant="tertiary"
+                size="small"
+                type="button"
+                onClick={() => navigate(listUrl)}
+              >
+                Avbryt
+              </Button>
+            ) : (
+              <Button variant="tertiary" size="small" type="button" onClick={goToPreviousTab}>
+                Tilbake
+              </Button>
+            )}
+            {isLastTab ? (
+              <HStack gap="space-4" align="center">
+                <ValideringsfeilOppsummering />
+                <Button variant="primary" size="small" type="submit" disabled={mutation.isPending}>
+                  {mutation.isPending ? "Sender til attestering..." : "Send til attestering"}
                 </Button>
-              )}
-            </HStack>
-          </>
+              </HStack>
+            ) : (
+              <Button variant="primary" size="small" type="button" onClick={goToNextTab}>
+                Neste
+              </Button>
+            )}
+          </HStack>
         </TilskuddBehandlingLayout>
       </form>
     </FormProvider>
