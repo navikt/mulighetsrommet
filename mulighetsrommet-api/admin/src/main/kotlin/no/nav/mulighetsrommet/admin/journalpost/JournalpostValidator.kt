@@ -62,11 +62,27 @@ class JournalpostValidator(
                         JournalpostValideringError.TilhorerAnnenPerson.left()
                     }
                 }
+
+                is ForventetBruker.PersonEllerBedrift -> {
+                    if (bruker.id == forventetBruker.norskIdent.value) {
+                        Unit.right()
+                    } else {
+                        JournalpostValideringError.TilhorerAnnenPerson.left()
+                    }
+                }
             }
 
         SafBrukerIdType.ORGNR ->
             when (forventetBruker) {
                 is ForventetBruker.Bedrift -> {
+                    if (bruker.id == forventetBruker.organisasjonsnummer.value) {
+                        Unit.right()
+                    } else {
+                        JournalpostValideringError.TilhorerAnnenVirksomhet.left()
+                    }
+                }
+
+                is ForventetBruker.PersonEllerBedrift -> {
                     if (bruker.id == forventetBruker.organisasjonsnummer.value) {
                         Unit.right()
                     } else {
@@ -85,6 +101,9 @@ class JournalpostValidator(
                 is ForventetBruker.Bedrift -> JournalpostValideringError.TilhorerPerson.left()
 
                 is ForventetBruker.Person ->
+                    validerAktoerIdMotPerson(bruker.id, forventetBruker.norskIdent, accessType)
+
+                is ForventetBruker.PersonEllerBedrift ->
                     validerAktoerIdMotPerson(bruker.id, forventetBruker.norskIdent, accessType)
             }
     }
@@ -130,4 +149,8 @@ class JournalpostValidator(
 sealed class ForventetBruker {
     data class Person(val norskIdent: NorskIdent) : ForventetBruker()
     data class Bedrift(val organisasjonsnummer: Organisasjonsnummer) : ForventetBruker()
+    data class PersonEllerBedrift(
+        val norskIdent: NorskIdent,
+        val organisasjonsnummer: Organisasjonsnummer,
+    ) : ForventetBruker()
 }
