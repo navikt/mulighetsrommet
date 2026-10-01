@@ -8,12 +8,14 @@ import io.ktor.server.routing.route
 import io.ktor.server.util.getValue
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
+import no.nav.mulighetsrommet.api.gjennomforing.service.EnkeltplassBeslutningError
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingEnkeltplassService
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
+import no.nav.mulighetsrommet.ktor.exception.Forbidden
 import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
@@ -46,7 +48,7 @@ fun Route.enkeltplassRoutes() {
                 val navIdent = getNavIdent()
 
                 val result = enkeltplasser.settOkonomiGodkjent(id, request.totrinnskontrollId, navIdent)
-                    .mapLeft { ValidationError(errors = it) }
+                    .mapLeft(::toProblemDetail)
                     .map { HttpStatusCode.OK }
 
                 call.respondWithStatusResponse(result)
@@ -75,13 +77,18 @@ fun Route.enkeltplassRoutes() {
 
                 val result = enkeltplasser
                     .settOkonomiPaVent(id, request.totrinnskontrollId, navIdent, request.begrunnelse)
-                    .mapLeft { ValidationError(errors = it) }
+                    .mapLeft(::toProblemDetail)
                     .map { HttpStatusCode.OK }
 
                 call.respondWithStatusResponse(result)
             }
         }
     }
+}
+
+private fun toProblemDetail(error: EnkeltplassBeslutningError): ProblemDetail = when (error) {
+    is EnkeltplassBeslutningError.ManglerTilgang -> Forbidden(error.message)
+    is EnkeltplassBeslutningError.Valideringsfeil -> ValidationError(errors = error.errors)
 }
 
 @Serializable

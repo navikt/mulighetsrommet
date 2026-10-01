@@ -4,6 +4,7 @@ import arrow.core.Either
 import arrow.core.getOrElse
 import arrow.core.left
 import arrow.core.nel
+import arrow.core.nonEmptySetOf
 import arrow.core.right
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
@@ -33,6 +34,8 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplassStatus
+import no.nav.mulighetsrommet.api.navansatt.OkonomiAuthorization
+import no.nav.mulighetsrommet.api.navansatt.OkonomiBeslutningContext
 import no.nav.mulighetsrommet.api.totrinnskontroll.api.toFieldErrors
 import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
@@ -314,26 +317,36 @@ class GjennomforingEnkeltplassService(
     fun settOkonomiGodkjent(
         id: UUID,
         forventetTotrinnskontrollId: UUID,
-        agent: Agent,
-    ): Validated<Enkeltplass> = db.transaction {
+        navIdent: NavIdent,
+    ): Either<EnkeltplassBeslutningError, Enkeltplass> = db.transaction {
         val enkeltplass = getAndAcquireLock(id)
+        if (!kanBeslutteEnkeltplass(enkeltplass, navIdent)) {
+            return EnkeltplassBeslutningError.ManglerTilgang("Du mangler tilgang til å beslutte økonomi for enkeltplassen").left()
+        }
 
         if (enkeltplass.prisendring?.totrinnskontroll?.kanBesluttes() == true) {
             if (enkeltplass.prisendring.totrinnskontroll.id != forventetTotrinnskontrollId) {
-                return FieldError.of("Grunnlaget har endret seg siden det ble hentet. Forsøk igjen.").nel().left()
+                return EnkeltplassBeslutningError.Valideringsfeil(
+                    FieldError.of("Grunnlaget har endret seg siden det ble hentet. Forsøk igjen.").nel(),
+                ).left()
             }
 
-            return godkjennPrisendring(id, enkeltplass.prisendring.totrinnskontroll, agent)
+            return godkjennPrisendring(id, enkeltplass.prisendring.totrinnskontroll, navIdent)
+                .mapLeft(EnkeltplassBeslutningError::Valideringsfeil)
         }
 
         val okonomi = enkeltplass.okonomi
-            ?: return FieldError.of("Økonomi har ikke blitt sendt til godkjenning").nel().left()
+            ?: return EnkeltplassBeslutningError.Valideringsfeil(
+                FieldError.of("Økonomi har ikke blitt sendt til godkjenning").nel(),
+            ).left()
 
         if (okonomi.id != forventetTotrinnskontrollId) {
-            return FieldError.of("Grunnlaget har endret seg siden det ble hentet. Forsøk igjen.").nel().left()
+            return EnkeltplassBeslutningError.Valideringsfeil(
+                FieldError.of("Grunnlaget har endret seg siden det ble hentet. Forsøk igjen.").nel(),
+            ).left()
         }
 
-        return settOkonomiGodkjent(id, okonomi, agent)
+        return settOkonomiGodkjent(id, okonomi, navIdent).mapLeft(EnkeltplassBeslutningError::Valideringsfeil)
     }
 
     fun settOkonomiPaVent(
@@ -341,12 +354,17 @@ class GjennomforingEnkeltplassService(
         forventetTotrinnskontrollId: UUID,
         navIdent: NavIdent,
         begrunnelse: String?,
-    ): Validated<Enkeltplass> = db.transaction {
+    ): Either<EnkeltplassBeslutningError, Enkeltplass> = db.transaction {
         val enkeltplass = getAndAcquireLock(id)
+        if (!kanBeslutteEnkeltplass(enkeltplass, navIdent)) {
+            return EnkeltplassBeslutningError.ManglerTilgang("Du mangler tilgang til å beslutte økonomi for enkeltplassen").left()
+        }
 
         if (enkeltplass.prisendring?.totrinnskontroll?.kanBesluttes() == true) {
             if (enkeltplass.prisendring.totrinnskontroll.id != forventetTotrinnskontrollId) {
-                return FieldError.of("Grunnlaget har endret seg siden det ble hentet. Forsøk igjen.").nel().left()
+                return EnkeltplassBeslutningError.Valideringsfeil(
+                    FieldError.of("Grunnlaget har endret seg siden det ble hentet. Forsøk igjen.").nel(),
+                ).left()
             }
 
             return settPrisendringPaVent(
@@ -354,17 +372,30 @@ class GjennomforingEnkeltplassService(
                 enkeltplass.prisendring.totrinnskontroll,
                 navIdent,
                 begrunnelse,
-            )
+            ).mapLeft(EnkeltplassBeslutningError::Valideringsfeil)
         }
 
         val okonomi = enkeltplass.okonomi
-            ?: return FieldError.of("Økonomi har ikke blitt sendt til godkjenning").nel().left()
+            ?: return EnkeltplassBeslutningError.Valideringsfeil(
+                FieldError.of("Økonomi har ikke blitt sendt til godkjenning").nel(),
+            ).left()
 
         if (okonomi.id != forventetTotrinnskontrollId) {
-            return FieldError.of("Grunnlaget har endret seg siden det ble hentet. Forsøk igjen.").nel().left()
+            return EnkeltplassBeslutningError.Valideringsfeil(
+                FieldError.of("Grunnlaget har endret seg siden det ble hentet. Forsøk igjen.").nel(),
+            ).left()
         }
 
-        settOkonomiPaVent(id, okonomi, navIdent, begrunnelse)
+        settOkonomiPaVent(id, okonomi, navIdent, begrunnelse).mapLeft(EnkeltplassBeslutningError::Valideringsfeil)
+    }
+
+    private fun TransactionalQueryContext.kanBeslutteEnkeltplass(enkeltplass: Enkeltplass, navIdent: NavIdent): Boolean {
+        val ansatt = queries.ansatt.getOrError(navIdent)
+        val kontekst = OkonomiBeslutningContext(
+            GjennomforingType.ENKELTPLASS,
+            nonEmptySetOf(enkeltplass.gjennomforing.ansvarligEnhet.enhetsnummer),
+        )
+        return OkonomiAuthorization.erOkonomiBeslutter(ansatt, kontekst)
     }
 
     private suspend fun QueryContext.getDeltakerPersonalia(
