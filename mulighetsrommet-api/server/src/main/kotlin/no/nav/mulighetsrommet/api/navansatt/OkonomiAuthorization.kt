@@ -11,6 +11,7 @@ object OkonomiAuthorization {
             Rolle.OKONOMI_LES,
             Rolle.SAKSBEHANDLER_OKONOMI,
             Rolle.BESLUTTER_TILSAGN,
+            Rolle.ATTESTANT_UTBETALING,
         )
 
         GjennomforingType.ENKELTPLASS -> hasAnyRole(
@@ -28,6 +29,7 @@ object OkonomiAuthorization {
             ansatt,
             Rolle.OKONOMI_LES,
             Rolle.SAKSBEHANDLER_OKONOMI,
+            Rolle.BESLUTTER_TILSAGN,
             Rolle.ATTESTANT_UTBETALING,
         )
 

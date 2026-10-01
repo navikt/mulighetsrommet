@@ -27,7 +27,7 @@ class OkonomiAuthorizationTest : FunSpec({
             row(Rolle.OKONOMI_LES, GjennomforingType.AVTALE, true),
             row(Rolle.SAKSBEHANDLER_OKONOMI, GjennomforingType.AVTALE, true),
             row(Rolle.BESLUTTER_TILSAGN, GjennomforingType.AVTALE, true),
-            row(Rolle.ATTESTANT_UTBETALING, GjennomforingType.AVTALE, false),
+            row(Rolle.ATTESTANT_UTBETALING, GjennomforingType.AVTALE, true),
             row(Rolle.OKONOMI_BESLUTTER_ENKELTPLASS, GjennomforingType.AVTALE, false),
             row(Rolle.OKONOMI_LES, GjennomforingType.ENKELTPLASS, true),
             row(Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS, GjennomforingType.ENKELTPLASS, true),
@@ -45,8 +45,8 @@ class OkonomiAuthorizationTest : FunSpec({
         forAll(
             row(Rolle.OKONOMI_LES, GjennomforingType.AVTALE, true),
             row(Rolle.SAKSBEHANDLER_OKONOMI, GjennomforingType.AVTALE, true),
+            row(Rolle.BESLUTTER_TILSAGN, GjennomforingType.AVTALE, true),
             row(Rolle.ATTESTANT_UTBETALING, GjennomforingType.AVTALE, true),
-            row(Rolle.BESLUTTER_TILSAGN, GjennomforingType.AVTALE, false),
             row(Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS, GjennomforingType.AVTALE, false),
             row(Rolle.OKONOMI_LES, GjennomforingType.ENKELTPLASS, true),
             row(Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS, GjennomforingType.ENKELTPLASS, true),
