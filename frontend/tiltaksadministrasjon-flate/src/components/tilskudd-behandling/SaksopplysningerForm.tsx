@@ -60,7 +60,7 @@ export function SaksopplysningerForm({ arrangorId }: Props) {
               Tilskudd
             </Heading>
             <VStack gap="space-24">
-              <HGrid columns="0.8fr 1fr" gap="space-24">
+              <HGrid columns="0.8fr 1fr" gap="space-24" align="start">
                 <FormTextField
                   label="Journalpost-ID i Gosys"
                   name={`tilskudd.${index}.soknadJournalpostId`}
