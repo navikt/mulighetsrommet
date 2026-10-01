@@ -65,7 +65,10 @@ class TilskuddBehandlingService(
             ?: throw IllegalArgumentException("Fant ikke enhet for ansatt $navIdent")
 
         val forventetBruker = hentDeltakerNorskIdentOrError(gjennomforing.id).let {
-            ForventetBruker.Person(it)
+            ForventetBruker.PersonEllerBedrift(
+                norskIdent = it,
+                organisasjonsnummer = gjennomforing.arrangor.organisasjonsnummer,
+            )
         }
 
         val journalpostValidatorFunc = TilskuddBehandlingValidator.createJournalpostValidator(
