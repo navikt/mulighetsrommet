@@ -60,22 +60,22 @@ enum class OppgaveType(val navn: String, val rolle: Rolle, val kategori: Kategor
     ),
     ENKELTPLASS_TIL_GODKJENNING(
         navn = "Enkeltplass til godkjenning",
-        rolle = Rolle.BESLUTTER_TILSAGN,
+        rolle = Rolle.OKONOMI_BESLUTTER_ENKELTPLASS,
         kategori = Kategori.ENKELTPLASS,
     ),
     ENKELTPLASS_SATT_PA_VENT(
         navn = "Enkeltplass satt på vent",
-        rolle = Rolle.BESLUTTER_TILSAGN,
+        rolle = Rolle.OKONOMI_BESLUTTER_ENKELTPLASS,
         kategori = Kategori.ENKELTPLASS,
     ),
     TILSKUDDBEHANDLING_TIL_ATTESTERING(
         navn = "Tilskuddsbehandling til attestering",
-        rolle = Rolle.ATTESTANT_UTBETALING,
+        rolle = Rolle.OKONOMI_BESLUTTER_ENKELTPLASS,
         kategori = Kategori.TILSKUDDBEHANDLING,
     ),
     TILSKUDDBEHANDLING_RETURNERT(
         navn = "Tilskuddsbehandling returnert av attestant",
-        rolle = Rolle.SAKSBEHANDLER_OKONOMI,
+        rolle = Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS,
         kategori = Kategori.TILSKUDDBEHANDLING,
     ),
 }

@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.oppgaver
 
+import arrow.core.toNonEmptySetOrThrow
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.avtale.AvtaleService
@@ -9,6 +10,8 @@ import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingHandling
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingType
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingDetaljerService
+import no.nav.mulighetsrommet.api.navansatt.OkonomiAuthorization
+import no.nav.mulighetsrommet.api.navansatt.OkonomiBeslutningContext
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnHandling
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
@@ -638,7 +641,7 @@ private fun toTilskuddBehandlingOppgave(data: TilskuddBehandlingOppgaveData, ans
                 id = data.id,
                 type = OppgaveType.TILSKUDDBEHANDLING_TIL_ATTESTERING,
                 navn = OppgaveType.TILSKUDDBEHANDLING_TIL_ATTESTERING.navn,
-                enhet = data.kostnadssted,
+                enhet = data.kostnadssteder.first(),
                 title = title,
                 description = "Tilskuddsbehandling for perioden ${data.periode.formatPeriode()} er sendt til attestering",
                 tiltakstype = data.tiltakstype,
@@ -646,7 +649,13 @@ private fun toTilskuddBehandlingOppgave(data: TilskuddBehandlingOppgaveData, ans
                 createdAt = data.opprettelse.behandletTidspunkt,
                 arrangor = data.arrangor,
             ).takeIf {
-                data.opprettelse.behandletAv != ansatt.navIdent
+                data.opprettelse.behandletAv != ansatt.navIdent && OkonomiAuthorization.erOkonomiBeslutter(
+                    ansatt,
+                    OkonomiBeslutningContext(
+                        data.gjennomforing.type,
+                        data.kostnadssteder.map { it.nummer }.toNonEmptySetOrThrow(),
+                    ),
+                )
             }
         }
 
@@ -656,14 +665,16 @@ private fun toTilskuddBehandlingOppgave(data: TilskuddBehandlingOppgaveData, ans
                 id = data.id,
                 type = OppgaveType.TILSKUDDBEHANDLING_RETURNERT,
                 navn = OppgaveType.TILSKUDDBEHANDLING_RETURNERT.navn,
-                enhet = data.kostnadssted,
+                enhet = data.kostnadssteder.first(),
                 title = title,
                 description = "Tilskuddsbehandling for perioden ${data.periode.formatPeriode()} er returnert av attestant",
                 tiltakstype = data.tiltakstype,
                 link = link,
                 createdAt = data.opprettelse.besluttetTidspunkt,
                 arrangor = data.arrangor,
-            )
+            ).takeIf {
+                OkonomiAuthorization.erSaksbehandler(ansatt, data.gjennomforing.type)
+            }
         }
 
         TilskuddBehandlingStatus.FERDIG_BEHANDLET -> null
