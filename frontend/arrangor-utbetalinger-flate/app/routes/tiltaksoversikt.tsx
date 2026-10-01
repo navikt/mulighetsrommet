@@ -117,7 +117,6 @@ function TiltaksOversiktContent({ type }: { type: ArrangorflateFilterType }) {
   function filterToSortState({ orderBy, direction }: ArrangorflateTiltakFilter): SortState {
     const newOrderBy: SortState["orderBy"] = (orderBy && paramToSortKey[orderBy]) || "tiltaksNavn";
     const newDirection: SortState["direction"] =
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       (direction && paramToSortDirection[direction]) || "ascending";
 
     return {
