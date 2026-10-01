@@ -9527,7 +9527,10 @@ components:
     TilskuddBehandlingKompakt:
       type: object
       properties:
-        id:
+        tilskuddId:
+          type: string
+          format: uuid
+        behandlingId:
           type: string
           format: uuid
         soknadDato:
@@ -9535,11 +9538,8 @@ components:
           format: date
         journalpostId:
           type: string
-        tilskuddtyper:
-          type: array
-          items:
-            $ref: "#/components/schemas/Opplaeringtilskudd.Kode"
-          uniqueItems: true
+        tilskuddtype:
+          $ref: "#/components/schemas/Opplaeringtilskudd.Kode"
         periode:
           $ref: "#/components/schemas/Periode"
         kostnadssted:
@@ -9548,18 +9548,19 @@ components:
           $ref: "#/components/schemas/TilskuddBehandlingStatusDto"
         type:
           $ref: "#/components/schemas/TilskuddBehandlingType"
-        samletVedtakResultat:
-          $ref: "#/components/schemas/SamletVedtakResultat"
+        vedtakResultat:
+          $ref: "#/components/schemas/VedtakResultatDto"
       required:
-      - id
+      - behandlingId
       - journalpostId
       - kostnadssted
       - periode
-      - samletVedtakResultat
       - soknadDato
       - status
-      - tilskuddtyper
+      - tilskuddId
+      - tilskuddtype
       - type
+      - vedtakResultat
     TilskuddBehandlingRequest.TilskuddRequest:
       type: object
       properties:
