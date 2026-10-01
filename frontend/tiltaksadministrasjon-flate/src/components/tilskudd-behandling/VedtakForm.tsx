@@ -7,12 +7,17 @@ import {
   Valuta,
   VedtakResultat,
 } from "@tiltaksadministrasjon/api-client";
-import { addDuration, yyyyMMddSafeFormatting } from "@mr/frontend-common/utils/date";
+import {
+  addDuration,
+  formaterPeriode,
+  yyyyMMddSafeFormatting,
+} from "@mr/frontend-common/utils/date";
 import { TotaltBelopBox } from "./TotaltBelopBox";
 import { useKostnadssteder } from "@/api/enhet/useKostnadssteder";
 import { TilskuddFormGroup } from "@/layouts/TilskuddFormGroup";
 import { Saksopplysninger } from "./Saksopplysninger";
 import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
+import { opplaeringTilskuddToString } from "@/utils/Utils";
 
 export function VedtakForm() {
   const {
@@ -38,79 +43,91 @@ export function VedtakForm() {
     kostnadssteder
       .flatMap((region) => region.kostnadssteder)
       .find((k) => k.enhetsnummer === kostnadsted) || null;
+
   return (
     <>
       <Heading size="medium" level="3" spacing>
         Vedtak og beregning
       </Heading>
       <VStack gap="space-20">
-        {tilskudd.map((t, index) => (
-          <TilskuddFormGroup key={index}>
-            <Saksopplysninger
-              journalpostId={t.soknadJournalpostId}
-              soknadsdato={t.soknadDato}
-              periode={valgtPeriode(t.periodeStart, t.periodeSlutt)}
-              kostnadssted={valgtKostnadsted(t.kostnadssted)}
-              belop={t.soknadBelop?.belop ?? 0}
-              utbetalingMottaker={t.utbetalingMottaker}
-              tilskuddOpplaeringType={t.tilskuddOpplaeringType}
-            />
-            <Separator />
-            <Heading size="small" level="3" spacing>
-              Vedtak
-            </Heading>
-            <VStack gap="space-20">
-              <HStack gap="space-24" align="start" justify="space-between">
-                <ControlledRadioGroup
-                  size="small"
-                  name={`tilskudd.${index}.vedtakResultat`}
-                  legend="Vedtaksresultat"
-                  horisontal
-                >
-                  <Radio value={VedtakResultat.INNVILGELSE}>Innvilgelse</Radio>
-                  <Radio value={VedtakResultat.AVSLAG}>Avslag</Radio>
-                </ControlledRadioGroup>
-              </HStack>
-              {watch("tilskudd")[index].vedtakResultat === VedtakResultat.INNVILGELSE && (
-                <HStack align="start" gap="space-8">
-                  <TextField
-                    className="w-40"
-                    size="small"
-                    type="text"
-                    label="Beløp til utbetaling"
-                    error={errors.tilskudd?.[index]?.belop?.message}
-                    {...register(`tilskudd.${index}.belop`, {
-                      setValueAs: (v: string) => (v === "" ? null : Number(v)),
-                      validate: (value: number | null) => {
-                        if (!Number.isInteger(value)) return "Beløp må være et heltall";
-                        return true;
-                      },
-                    })}
-                  />
-                  <Select size="small" readOnly value={Valuta.NOK} label="Valuta">
-                    <option value={Valuta.NOK}>NOK</option>
-                  </Select>
-                </HStack>
+        {tilskudd.map((t, index) => {
+          const periode = valgtPeriode(t.periodeStart, t.periodeSlutt) ?? null;
+          return (
+            <TilskuddFormGroup key={index}>
+              {t.tilskuddOpplaeringType && periode && (
+                <>
+                  <Heading size="small" level="3" spacing>
+                    {`${opplaeringTilskuddToString(t.tilskuddOpplaeringType)} for perioden ${formaterPeriode(periode)}`}
+                  </Heading>
+                  <Separator />
+                </>
               )}
-              <FormTextarea
-                label="Kommentar til deltaker (vil vises i vedtaksbrev)"
-                name={`tilskudd.${index}.kommentarVedtaksbrev`}
-                rules={{
-                  validate: (value: string | null) => {
-                    if (t.vedtakResultat === VedtakResultat.AVSLAG && !value?.trim()) {
-                      return "Kommentar til deltaker må fylles ut ved avslag";
-                    }
-                    return true;
-                  },
-                }}
+              <Saksopplysninger
+                journalpostId={t.soknadJournalpostId}
+                soknadsdato={t.soknadDato}
+                periode={periode}
+                kostnadssted={valgtKostnadsted(t.kostnadssted)}
+                belop={t.soknadBelop?.belop ?? 0}
+                utbetalingMottaker={t.utbetalingMottaker}
+                tilskuddOpplaeringType={t.tilskuddOpplaeringType}
               />
-              <FormTextarea
-                label="Kommentar (internt i Nav)"
-                name={`tilskudd.${index}.kommentarIntern`}
-              />
-            </VStack>
-          </TilskuddFormGroup>
-        ))}
+              <Separator />
+              <Heading size="small" level="3" spacing>
+                Vedtak
+              </Heading>
+              <VStack gap="space-20">
+                <HStack gap="space-24" align="start" justify="space-between">
+                  <ControlledRadioGroup
+                    size="small"
+                    name={`tilskudd.${index}.vedtakResultat`}
+                    legend="Vedtaksresultat"
+                    horisontal
+                  >
+                    <Radio value={VedtakResultat.INNVILGELSE}>Innvilgelse</Radio>
+                    <Radio value={VedtakResultat.AVSLAG}>Avslag</Radio>
+                  </ControlledRadioGroup>
+                </HStack>
+                {watch("tilskudd")[index].vedtakResultat === VedtakResultat.INNVILGELSE && (
+                  <HStack align="start" gap="space-8">
+                    <TextField
+                      className="w-40"
+                      size="small"
+                      type="text"
+                      label="Beløp til utbetaling"
+                      error={errors.tilskudd?.[index]?.belop?.message}
+                      {...register(`tilskudd.${index}.belop`, {
+                        setValueAs: (v: string) => (v === "" ? null : Number(v)),
+                        validate: (value: number | null) => {
+                          if (!Number.isInteger(value)) return "Beløp må være et heltall";
+                          return true;
+                        },
+                      })}
+                    />
+                    <Select size="small" readOnly value={Valuta.NOK} label="Valuta">
+                      <option value={Valuta.NOK}>NOK</option>
+                    </Select>
+                  </HStack>
+                )}
+                <FormTextarea
+                  label="Kommentar til deltaker (vil vises i vedtaksbrev)"
+                  name={`tilskudd.${index}.kommentarVedtaksbrev`}
+                  rules={{
+                    validate: (value: string | null) => {
+                      if (t.vedtakResultat === VedtakResultat.AVSLAG && !value?.trim()) {
+                        return "Kommentar til deltaker må fylles ut ved avslag";
+                      }
+                      return true;
+                    },
+                  }}
+                />
+                <FormTextarea
+                  label="Kommentar (internt i Nav)"
+                  name={`tilskudd.${index}.kommentarIntern`}
+                />
+              </VStack>
+            </TilskuddFormGroup>
+          );
+        })}
         <TotaltBelopBox
           label="Totalt beløp fra fakturaer"
           belop={{

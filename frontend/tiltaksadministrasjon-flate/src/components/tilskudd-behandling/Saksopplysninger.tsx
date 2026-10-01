@@ -32,7 +32,6 @@ export function Saksopplysninger({
 }: SaksopplysningerProps) {
   return (
     <Definisjonsliste
-      title="Saksopplysninger"
       definitions={[
         { key: "Journalpost-ID i Gosys", value: journalpostId },
         {
