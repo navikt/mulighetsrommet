@@ -43,6 +43,7 @@ class DokdistClient(
         journalpostId: String,
         accessType: AccessType,
         distribusjonstype: DokdistRequest.DistribusjonsType,
+        distribusjonstidspunkt: DokdistRequest.Distribusjonstidspunkt? = null,
         adresse: DokdistRequest.Adresse?,
         batchId: String? = null,
     ): Either<DokdistError, DokdistResponse> {
@@ -51,11 +52,7 @@ class DokdistClient(
             batchId = batchId,
             adresse = adresse,
             distribusjonstype = distribusjonstype,
-            distribusjonstidspunkt = if (accessType == AccessType.M2M) {
-                DokdistRequest.Distribusjonstidspunkt.KJERNETID
-            } else {
-                DokdistRequest.Distribusjonstidspunkt.UMIDDELBART
-            },
+            distribusjonstidspunkt = distribusjonstidspunkt ?: DokdistRequest.Distribusjonstidspunkt.KJERNETID,
             bestillendeFagsystem = "TILTADM",
             dokumentProdApp = "TILTADM",
         )
