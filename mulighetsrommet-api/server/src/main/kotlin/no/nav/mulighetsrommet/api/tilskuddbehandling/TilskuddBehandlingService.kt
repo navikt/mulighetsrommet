@@ -115,23 +115,22 @@ class TilskuddBehandlingService(
 
     fun getByGjennomforingId(gjennomforingId: UUID): List<TilskuddBehandlingKompakt> {
         return db.session {
-            queries.tilskuddBehandling.getByGjennomforingId(gjennomforingId)
-                .map {
-                    val firstTilskudd = it.tilskudd.firstOrNull()
-                        ?: error("Tilskuddsbehandling med id=${it.id} mangler tilskudd")
+            queries.tilskuddBehandling.getByGjennomforingId(gjennomforingId).flatMap {
+                it.tilskudd.map { tilskudd ->
                     TilskuddBehandlingKompakt(
-                        id = it.id,
-                        soknadDato = firstTilskudd.soknadDato,
-                        periode = firstTilskudd.periode,
-                        journalpostId = firstTilskudd.soknadJournalpostId,
-                        tilskuddtyper = it.tilskudd.map { tilskudd -> tilskudd.tilskuddOpplaeringType }
-                            .toSet(),
-                        kostnadssted = firstTilskudd.kostnadssted,
+                        tilskuddId = tilskudd.id,
+                        behandlingId = it.id,
+                        soknadDato = tilskudd.soknadDato,
+                        periode = tilskudd.periode,
+                        journalpostId = tilskudd.soknadJournalpostId,
+                        tilskuddtype = tilskudd.tilskuddOpplaeringType,
+                        kostnadssted = tilskudd.kostnadssted,
                         status = it.status,
                         type = it.type,
-                        samletVedtakResultat = it.samletVedtakResultat,
+                        vedtakResultat = tilskudd.vedtakResultat,
                     )
                 }
+            }
         }
     }
 

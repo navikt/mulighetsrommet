@@ -46,16 +46,18 @@ data class TilskuddBehandlingDetaljerDto(
 @Serializable
 data class TilskuddBehandlingKompakt(
     @Serializable(with = UUIDSerializer::class)
-    val id: UUID,
+    val tilskuddId: UUID,
+    @Serializable(with = UUIDSerializer::class)
+    val behandlingId: UUID,
     @Serializable(with = LocalDateSerializer::class)
     val soknadDato: LocalDate,
     val journalpostId: JournalpostId,
-    val tilskuddtyper: Set<Opplaeringtilskudd.Kode>,
+    val tilskuddtype: Opplaeringtilskudd.Kode,
     val periode: Periode,
     val kostnadssted: KostnadsstedDto,
     val status: TilskuddBehandlingStatusDto,
     val type: TilskuddBehandlingType,
-    val samletVedtakResultat: SamletVedtakResultat,
+    val vedtakResultat: VedtakResultatDto,
 )
 
 @Serializable

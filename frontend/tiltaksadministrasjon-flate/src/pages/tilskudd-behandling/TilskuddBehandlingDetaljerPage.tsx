@@ -36,6 +36,7 @@ import { VedtakDetaljer } from "@/components/tilskudd-behandling/VedtakDetaljer"
 import { PrismodellDetaljer } from "@/components/prismodell/PrismodellDetaljer";
 import { TilskuddBehandlingHandlinger } from "./TilskuddBehandlingHandlinger";
 import { TilskuddFormGroup } from "@/layouts/TilskuddFormGroup";
+import { formaterPeriode } from "@mr/frontend-common/utils/date";
 
 export function TilskuddBehandlingDetaljerPage() {
   const { gjennomforingId, behandlingId } = useRequiredParams(["gjennomforingId", "behandlingId"]);
@@ -100,6 +101,12 @@ export function TilskuddBehandlingDetaljerPage() {
           </HStack>
           {behandling.tilskudd.map((t) => (
             <TilskuddFormGroup key={t.id}>
+              <>
+                <Heading size="small" level="3" spacing>
+                  {`${opplaeringTilskuddToString(t.tilskuddOpplaeringType)} for perioden ${formaterPeriode(t.periode)}`}
+                </Heading>
+                <Separator />
+              </>
               <Saksopplysninger
                 journalpostId={t.soknadJournalpostId}
                 soknadsdato={t.soknadDato}

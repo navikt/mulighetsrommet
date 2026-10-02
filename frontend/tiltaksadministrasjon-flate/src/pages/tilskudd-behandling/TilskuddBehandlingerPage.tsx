@@ -4,7 +4,7 @@ import { useRequiredParams } from "@/hooks/useRequiredParams";
 import { KnapperadContainer } from "@/layouts/KnapperadContainer";
 import { DataElementStatusTag, useSortableData } from "@mr/frontend-common";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
-import { Alert, Table, Tag } from "@navikt/ds-react";
+import { Alert, Table } from "@navikt/ds-react";
 import {
   formaterDato,
   formaterPeriodeSlutt,
@@ -12,18 +12,13 @@ import {
 } from "@mr/frontend-common/utils/date";
 import { opplaeringTilskuddToString } from "@/utils/Utils";
 import { TableColumnHeader } from "@navikt/ds-react/Table";
-import { SamletVedtakResultat, TilskuddBehandlingKompakt } from "@tiltaksadministrasjon/api-client";
-import { GavelSoundBlockIcon, PiggybankIcon } from "@navikt/aksel-icons";
+import { TilskuddBehandlingKompakt } from "@tiltaksadministrasjon/api-client";
 
 export function TilskuddBehandlingerPage() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
   const { data: behandlinger } = useTilskuddBehandlinger(gjennomforingId);
   const { sortedData, sort, toggleSort } = useSortableData(behandlinger, undefined, (item, key) => {
-    if (key === "tilskuddtyper") {
-      return item[key].sort().at(0);
-    } else {
-      return key.split(".").reduce((obj: any, k) => obj?.[k], item);
-    }
+    return key.split(".").reduce((obj: any, k) => obj?.[k], item);
   });
 
   return (
@@ -77,22 +72,20 @@ export function TilskuddBehandlingerPage() {
           </Table.Header>
           <Table.Body>
             {sortedData.map((b: TilskuddBehandlingKompakt) => (
-              <Table.Row key={b.id}>
+              <Table.Row key={b.tilskuddId}>
                 <Table.DataCell>{formaterDato(b.soknadDato)}</Table.DataCell>
                 <Table.DataCell>{b.journalpostId}</Table.DataCell>
                 <Table.DataCell>{formaterPeriodeStart(b.periode)}</Table.DataCell>
                 <Table.DataCell>{formaterPeriodeSlutt(b.periode)}</Table.DataCell>
+                <Table.DataCell>{opplaeringTilskuddToString(b.tilskuddtype)}</Table.DataCell>
                 <Table.DataCell>
-                  {b.tilskuddtyper.map((t) => opplaeringTilskuddToString(t)).join(", ")}
-                </Table.DataCell>
-                <Table.DataCell>
-                  <SamletVedtakResultatStatusTag status={b.samletVedtakResultat} />
+                  <DataElementStatusTag {...b.vedtakResultat.status} />
                 </Table.DataCell>
                 <Table.DataCell>
                   <DataElementStatusTag {...b.status.status} />
                 </Table.DataCell>
                 <Table.DataCell>
-                  <Lenke to={b.id}> Detaljer </Lenke>
+                  <Lenke to={b.behandlingId}> Detaljer </Lenke>
                 </Table.DataCell>
               </Table.Row>
             ))}
@@ -101,27 +94,4 @@ export function TilskuddBehandlingerPage() {
       )}
     </>
   );
-}
-
-function SamletVedtakResultatStatusTag({ status }: { status: SamletVedtakResultat }) {
-  switch (status) {
-    case SamletVedtakResultat.INNVILGELSE:
-      return (
-        <Tag size="small" data-color="success" icon={<PiggybankIcon fontSize="1rem" />}>
-          Innvilgelse
-        </Tag>
-      );
-    case SamletVedtakResultat.DELVIS_INNVILGELSE:
-      return (
-        <Tag size="small" data-color="warning" icon={<GavelSoundBlockIcon fontSize="1rem" />}>
-          Delvis innvilgelse
-        </Tag>
-      );
-    case SamletVedtakResultat.AVSLAG:
-      return (
-        <Tag size="small" data-color="danger" icon={<PiggybankIcon fontSize="1rem" />}>
-          Avslag
-        </Tag>
-      );
-  }
 }

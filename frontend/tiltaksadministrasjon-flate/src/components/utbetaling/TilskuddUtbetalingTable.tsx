@@ -5,10 +5,9 @@ import {
   UtbetalingStatusDto,
 } from "@tiltaksadministrasjon/api-client";
 import { formaterValutaBelop } from "@mr/frontend-common/utils/utils";
-import { Table, Link } from "@navikt/ds-react";
+import { Table } from "@navikt/ds-react";
 import { TableColumnHeader } from "@navikt/ds-react/Table";
 import { useMemo } from "react";
-import { Link as ReactRouterLink } from "react-router";
 import { utbetalingTekster } from "@/components/utbetaling/UtbetalingTekster";
 import { DataElementStatusTag, useSortableData } from "@mr/frontend-common";
 import { formaterPeriodeSlutt, formaterPeriodeStart } from "@mr/frontend-common/utils/date";
@@ -25,7 +24,7 @@ interface UtbetalingRow {
   kostnadssteder: KostnadsstedDto[];
 }
 
-export function TilskuddUtbetalingTable({ gjennomforingId, utbetalinger }: Props) {
+export function TilskuddUtbetalingTable({ utbetalinger }: Props) {
   const { sortedData, sort, toggleSort } = useSortableData(
     useMemo(() => {
       return utbetalinger.map((u) => ({
@@ -66,49 +65,26 @@ export function TilskuddUtbetalingTable({ gjennomforingId, utbetalinger }: Props
           <TableColumnHeader sortKey="status" sortable>
             Status
           </TableColumnHeader>
-          <TableColumnHeader></TableColumnHeader>
         </Table.Row>
       </Table.Header>
       <Table.Body>
-        {sortedData.map(
-          ({
-            belopUtbetalt,
-            periode,
-            id,
-            status,
-            kostnadssted,
-            type,
-            mottaker,
-            tilskuddBehandlingId,
-          }) => {
-            return (
-              <Table.Row key={id}>
-                <Table.DataCell>{formaterPeriodeStart(periode)}</Table.DataCell>
-                <Table.DataCell>{formaterPeriodeSlutt(periode)}</Table.DataCell>
-                <Table.DataCell>{opplaeringTilskuddToString(type)}</Table.DataCell>
-                <Table.DataCell> {kostnadssted?.navn ?? "-"} </Table.DataCell>
-                <Table.DataCell>{tilskuddMottakerToString(mottaker)}</Table.DataCell>
-                <Table.DataCell align="right">
-                  {belopUtbetalt ? formaterValutaBelop(belopUtbetalt) : ""}
-                </Table.DataCell>
-                <Table.DataCell width="min-content">
-                  <DataElementStatusTag
-                    value={status.status.value}
-                    variant={status.status.variant}
-                  />
-                </Table.DataCell>
-                <Table.DataCell>
-                  <Link
-                    as={ReactRouterLink}
-                    to={`/gjennomforinger/${gjennomforingId}/tilskudd-behandling/${tilskuddBehandlingId}`}
-                  >
-                    Detaljer
-                  </Link>
-                </Table.DataCell>
-              </Table.Row>
-            );
-          },
-        )}
+        {sortedData.map(({ belopUtbetalt, periode, id, status, kostnadssted, type, mottaker }) => {
+          return (
+            <Table.Row key={id}>
+              <Table.DataCell>{formaterPeriodeStart(periode)}</Table.DataCell>
+              <Table.DataCell>{formaterPeriodeSlutt(periode)}</Table.DataCell>
+              <Table.DataCell>{opplaeringTilskuddToString(type)}</Table.DataCell>
+              <Table.DataCell> {kostnadssted?.navn ?? "-"} </Table.DataCell>
+              <Table.DataCell>{tilskuddMottakerToString(mottaker)}</Table.DataCell>
+              <Table.DataCell align="right">
+                {belopUtbetalt ? formaterValutaBelop(belopUtbetalt) : ""}
+              </Table.DataCell>
+              <Table.DataCell width="min-content">
+                <DataElementStatusTag value={status.status.value} variant={status.status.variant} />
+              </Table.DataCell>
+            </Table.Row>
+          );
+        })}
       </Table.Body>
     </Table>
   );
