@@ -117,6 +117,8 @@ class AdminUtbetalingServiceTest : FunSpec({
 
     val navIdent = NavAnsattFixture.DonaldDuck.navIdent
 
+    val utbetalingsDato = LocalDate.of(2025, 1, 12)
+
     context("opprett og rediger utbetaling") {
         val upsert = UpsertUtbetaling.Anskaffelse(
             id = UUID.randomUUID(),
@@ -125,6 +127,7 @@ class AdminUtbetalingServiceTest : FunSpec({
             journalpostId = JournalpostId("123123123"),
             kid = null,
             beregning = UtbetalingBeregningFri.from(10.NOK),
+            utbetalingsDato = utbetalingsDato,
             kommentar = "Arrangør trenger penger",
             tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
         )
@@ -172,6 +175,29 @@ class AdminUtbetalingServiceTest : FunSpec({
             )
         }
 
+        test("utbetalingsDato er påkrevd for norsk arrangør") {
+            val service = createUtbetalingService()
+
+            service.opprettUtbetaling(
+                upsert.copy(utbetalingsDato = null),
+                navIdent,
+            ) shouldBeLeft listOf(
+                FieldError("/utbetalingsDato", "Utbetalingsdato er påkrevd"),
+            )
+        }
+
+        test("journalpostId og utbetalingsDato er påkrevd for norsk arrangør") {
+            val service = createUtbetalingService()
+
+            service.opprettUtbetaling(
+                upsert.copy(journalpostId = null, utbetalingsDato = null),
+                navIdent,
+            ) shouldBeLeft listOf(
+                FieldError("/journalpostId", "Journalpost-ID er påkrevd"),
+                FieldError("/utbetalingsDato", "Utbetalingsdato er påkrevd"),
+            )
+        }
+
         test("journalpostId er ikke påkrevd for utenlandsk arrangør") {
             val utenlandskArrangor = ArrangorFixtures.Utenlandsk.hovedenhet
             val gjennomforingMedUtenlandskArrangor = AFT1.copy(arrangorId = utenlandskArrangor.id)
@@ -184,6 +210,22 @@ class AdminUtbetalingServiceTest : FunSpec({
 
             service.opprettUtbetaling(
                 upsert.copy(gjennomforingId = gjennomforingMedUtenlandskArrangor.id, journalpostId = null),
+                navIdent,
+            ).shouldBeRight()
+        }
+
+        test("utbetalingsDato er ikke påkrevd for utenlandsk arrangør") {
+            val utenlandskArrangor = ArrangorFixtures.Utenlandsk.hovedenhet
+            val gjennomforingMedUtenlandskArrangor = AFT1.copy(arrangorId = utenlandskArrangor.id)
+            MulighetsrommetTestDomain(
+                arrangorer = listOf(utenlandskArrangor),
+                gjennomforinger = listOf(gjennomforingMedUtenlandskArrangor),
+            ).initialize(database.api)
+
+            val service = createUtbetalingService()
+
+            service.opprettUtbetaling(
+                upsert.copy(gjennomforingId = gjennomforingMedUtenlandskArrangor.id, utbetalingsDato = null),
                 navIdent,
             ).shouldBeRight()
         }

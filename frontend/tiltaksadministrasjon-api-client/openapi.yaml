@@ -8232,6 +8232,11 @@ components:
           type:
           - "null"
           - string
+        utbetalingsDato:
+          type:
+          - "null"
+          - string
+          format: date
         korreksjonBegrunnelse:
           type:
           - "null"
@@ -8259,6 +8264,7 @@ components:
       - periodeSlutt
       - periodeStart
       - pris
+      - utbetalingsDato
     UtbetalingDto:
       type: object
       properties:
