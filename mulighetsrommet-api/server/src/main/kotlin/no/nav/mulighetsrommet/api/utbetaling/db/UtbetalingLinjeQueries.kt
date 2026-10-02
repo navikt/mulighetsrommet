@@ -111,6 +111,22 @@ class UtbetalingLinjeQueries(private val session: Session) {
         session.execute(queryOf(query, params))
     }
 
+    fun setGjorOppTilsagn(id: UUID, gjorOppTilsagn: Boolean) {
+        @Language("PostgreSQL")
+        val query = """
+            update utbetaling_linje
+            set gjor_opp_tilsagn = :gjor_opp_tilsagn
+            where id = :id::uuid
+        """.trimIndent()
+
+        val params = mapOf(
+            "id" to id,
+            "gjor_opp_tilsagn" to gjorOppTilsagn,
+        )
+
+        session.execute(queryOf(query, params))
+    }
+
     fun setStatus(fakturanummer: String, status: UtbetalingLinjeStatus) {
         @Language("PostgreSQL")
         val query = """

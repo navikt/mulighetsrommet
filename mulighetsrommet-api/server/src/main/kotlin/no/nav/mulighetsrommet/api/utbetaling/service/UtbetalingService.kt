@@ -727,14 +727,27 @@ class UtbetalingService(
             val benyttetBelop = tilsagn.belopBrukt + linje.pris
             queries.tilsagn.setBruktBelop(tilsagn.id, benyttetBelop)
 
-            if (linje.gjorOppTilsagn || benyttetBelop == tilsagn.beregning.output.pris) {
+            val oppdatertLinje = gjorOppTilsagnHvisBruktOpp(linje, tilsagn, benyttetBelop)
+            if (oppdatertLinje.gjorOppTilsagn) {
                 gjorOppTilsagnForUtbetalingLinje(linje.id, tilsagn)
             }
-            publishOpprettFaktura(linje)
+            publishOpprettFaktura(oppdatertLinje)
         }
 
         queries.utbetaling.setStatus(id, UtbetalingStatusType.FERDIG_BEHANDLET)
         return logEndring("Overført til utbetaling", id, Tiltaksadministrasjon)
+    }
+
+    private fun TransactionalQueryContext.gjorOppTilsagnHvisBruktOpp(
+        linje: UtbetalingLinje,
+        tilsagn: Tilsagn,
+        benyttetBelop: ValutaBelop,
+    ): UtbetalingLinje {
+        if (linje.gjorOppTilsagn || benyttetBelop != tilsagn.beregning.output.pris) {
+            return linje
+        }
+        queries.utbetalingLinje.setGjorOppTilsagn(linje.id, true)
+        return linje.copy(gjorOppTilsagn = true)
     }
 
     private fun TransactionalQueryContext.gjorOppTilsagnForUtbetalingLinje(utbetalingLinjeId: UUID, tilsagn: Tilsagn) {
