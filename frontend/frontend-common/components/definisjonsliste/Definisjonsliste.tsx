@@ -1,10 +1,12 @@
 import { ReactNode } from "react";
 import { BodyShort, Heading, HeadingProps, HGrid, Label, VStack } from "@navikt/ds-react";
+import { MetadataFritekstfelt } from "../datadriven/Metadata";
 
 export interface Definition {
   key: string;
   value: string | ReactNode;
   spanColumns?: boolean;
+  fritekst?: boolean;
 }
 
 export function Definisjonsliste({
@@ -32,8 +34,14 @@ export function Definisjonsliste({
             key={index}
             style={definition.spanColumns ? { gridColumn: "span 2" } : undefined}
           >
-            <Label as="dt">{definition.key}</Label>
-            <BodyShort as="dd">{definition.value ?? "-"}</BodyShort>
+            {definition.fritekst ? (
+              <MetadataFritekstfelt label={definition.key} value={definition.value} />
+            ) : (
+              <>
+                <Label as="dt">{definition.key}</Label>
+                <BodyShort as="dd">{definition.value ?? "-"}</BodyShort>
+              </>
+            )}
           </VStack>
         ))}
       </HGrid>
