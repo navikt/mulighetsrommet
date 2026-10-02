@@ -6,6 +6,7 @@ import kotliquery.Session
 import kotliquery.TransactionalSession
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsinformasjon
+import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingType
 import no.nav.mulighetsrommet.api.persistence.totrinnskontroll.TotrinnskontrollQueries
 import no.nav.mulighetsrommet.api.tilsagn.api.KostnadsstedDto
 import no.nav.mulighetsrommet.api.utbetaling.api.InnsendingKompaktDto
@@ -718,6 +719,7 @@ class UtbetalingQueries(private val session: Session) {
             gjennomforing = Utbetaling.Gjennomforing(
                 id = uuid("gjennomforing_id"),
                 lopenummer = Tiltaksnummer(string("gjennomforing_lopenummer")),
+                type = GjennomforingType.valueOf(string("gjennomforing_type")),
             ),
             arrangor = Utbetaling.Arrangor(
                 id = uuid("arrangor_id"),

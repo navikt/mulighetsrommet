@@ -8,6 +8,7 @@ import no.nav.mulighetsrommet.api.domain.testing.fixture.NavAnsattFixture
 import no.nav.mulighetsrommet.api.domain.testing.fixture.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
+import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingType
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingLinjeDbo
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
@@ -56,6 +57,7 @@ object UtbetalingFixtures {
         gjennomforing = Gjennomforing(
             id = AFT1.id,
             lopenummer = Tiltaksnummer("2025/10000"),
+            type = GjennomforingType.AVTALE,
         ),
         korreksjon = null,
         innsending = null,

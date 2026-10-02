@@ -2,27 +2,26 @@ package no.nav.mulighetsrommet.api.tilsagn.api
 
 import io.github.smiley4.ktoropenapi.get
 import io.ktor.http.HttpStatusCode
-import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.util.getOrFail
-import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
-import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.plugins.getAccessType
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
-import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
+import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
+import no.nav.mulighetsrommet.api.tilsagn.TilsagnDtoQuery
+import no.nav.mulighetsrommet.api.tilsagn.TilsagnDtoQueryError
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
+import no.nav.mulighetsrommet.ktor.exception.Forbidden
+import no.nav.mulighetsrommet.ktor.exception.NotFound
 import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.tokenprovider.requireAzureAd
 import org.koin.ktor.ext.inject
 import java.util.UUID
 
 fun Route.tilsagnRoutesGet() {
-    val db: ApiDatabase by inject()
-    val service: TilsagnService by inject()
-    val personaliaService: PersonaliaService by inject()
+    val tilsagnDtoQuery: TilsagnDtoQuery by inject()
 
     authorize(anyOf = setOf(Rolle.OKONOMI_LES, Rolle.SAKSBEHANDLER_OKONOMI, Rolle.BESLUTTER_TILSAGN)) {
         get("{id}", {
@@ -45,35 +44,18 @@ fun Route.tilsagnRoutesGet() {
         }) {
             val id = call.parameters.getOrFail<UUID>("id")
             val navIdent = getNavIdent()
+            val onBehalfOf = PersonaliaService.OnBehalfOf.NavAnsatt(call.getAccessType().requireAzureAd())
 
-            val result = db.session {
-                val tilsagn = queries.tilsagn.get(id) ?: return@get call.respond(HttpStatusCode.NotFound)
+            val result = tilsagnDtoQuery
+                .getDetaljer(id, navIdent, onBehalfOf)
+                .mapLeft { toProblemDetail(it) }
 
-                val ansatt = queries.ansatt.getOrError(navIdent)
-
-                val opprettelse = queries.totrinnskontroll.getDtoOrError(id, TotrinnskontrollType.TILSAGN_OPPRETTELSE)
-                val annullering = queries.totrinnskontroll.getDto(id, TotrinnskontrollType.TILSAGN_ANNULLERING)
-                val tilOppgjor = queries.totrinnskontroll.getDto(id, TotrinnskontrollType.TILSAGN_OPPGJOR)
-
-                val personalia = personaliaService.getPersonalia(
-                    tilsagn.deltakere.map { it.deltakerId },
-                    PersonaliaService.OnBehalfOf.NavAnsatt(call.getAccessType().requireAzureAd()),
-                )
-                val deltakere = tilsagn.deltakere.map {
-                    TilsagnDeltakerDto.from(it, personalia.find { p -> p.deltakerId == it.deltakerId })
-                }
-                TilsagnDetaljerDto(
-                    tilsagn = TilsagnDto.from(tilsagn),
-                    beregning = TilsagnBeregningDto.from(tilsagn.beregning),
-                    opprettelse = opprettelse,
-                    annullering = annullering,
-                    tilOppgjor = tilOppgjor,
-                    handlinger = service.handlinger(tilsagn, ansatt),
-                    deltakere = deltakere,
-                )
-            }
-
-            call.respond(result)
+            call.respondWithStatusResponse(result)
         }
     }
+}
+
+private fun toProblemDetail(error: TilsagnDtoQueryError): ProblemDetail = when (error) {
+    is TilsagnDtoQueryError.IkkeFunnet -> NotFound(error.message)
+    is TilsagnDtoQueryError.ManglerTilgang -> Forbidden(error.message)
 }

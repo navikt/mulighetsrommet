@@ -7,6 +7,7 @@ import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangforflateUtbetalingLinj
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateTilsagnSummary
 import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
+import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingType
 import no.nav.mulighetsrommet.api.pdfgen.PdfDocumentContent
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelseDeltakelsesprosentPerioder
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsePeriode
@@ -62,6 +63,7 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
         gjennomforing = Utbetaling.Gjennomforing(
             id = gjennomforing.id,
             lopenummer = gjennomforing.lopenummer,
+            type = GjennomforingType.AVTALE,
         ),
         arrangor = Utbetaling.Arrangor(
             id = UUID.randomUUID(),
@@ -221,6 +223,7 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
         gjennomforing = Utbetaling.Gjennomforing(
             id = gjennomforing.id,
             lopenummer = gjennomforing.lopenummer,
+            type = GjennomforingType.AVTALE,
         ),
         arrangor = Utbetaling.Arrangor(
             id = UUID.randomUUID(),

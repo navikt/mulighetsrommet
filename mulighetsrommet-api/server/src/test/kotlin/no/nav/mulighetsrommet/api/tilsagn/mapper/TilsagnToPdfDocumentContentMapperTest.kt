@@ -9,6 +9,7 @@ import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhet
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetStatus
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetType
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavEnhetFixtures
+import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingType
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAnnenAvtaltPris
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
@@ -91,6 +92,7 @@ class TilsagnToPdfDocumentContentMapperTest : FunSpec({
             id = UUID.fromString("cdc50d11-7d86-4a4b-a8d0-1f8a1be575d0"),
             lopenummer = Tiltaksnummer("2025/11457"),
             navn = "Truckførerkurs",
+            type = GjennomforingType.AVTALE,
         ),
         belopBrukt = 0.NOK,
         periode = Periode.of(LocalDate.of(2026, 1, 1), LocalDate.of(2026, 2, 1))!!,

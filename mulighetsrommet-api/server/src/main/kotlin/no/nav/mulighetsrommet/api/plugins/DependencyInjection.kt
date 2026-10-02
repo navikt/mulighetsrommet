@@ -107,6 +107,7 @@ import no.nav.mulighetsrommet.api.sanity.SanityService
 import no.nav.mulighetsrommet.api.sanity.VeilederflateSanityService
 import no.nav.mulighetsrommet.api.sanity.task.MigrerSanityTiltaksgjennomforinger
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
+import no.nav.mulighetsrommet.api.tilsagn.TilsagnDtoQuery
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.kafka.ReplikerBestillingStatusConsumer
 import no.nav.mulighetsrommet.api.tilsagn.kafka.SendTilsagnsbrevConsumer
@@ -119,6 +120,7 @@ import no.nav.mulighetsrommet.api.tilskuddbehandling.task.DistribuerVedtaksbrev
 import no.nav.mulighetsrommet.api.tilskuddbehandling.task.JournalforVedtaksbrev
 import no.nav.mulighetsrommet.api.tiltakshistorikk.TiltakshistorikkService
 import no.nav.mulighetsrommet.api.tiltakstype.task.InitialLoadTiltakstyper
+import no.nav.mulighetsrommet.api.utbetaling.UtbetalingDtoQuery
 import no.nav.mulighetsrommet.api.utbetaling.kafka.HelvedStatusV1KafkaConsumer
 import no.nav.mulighetsrommet.api.utbetaling.kafka.OppdaterUtbetalingBeregningForGjennomforingConsumer
 import no.nav.mulighetsrommet.api.utbetaling.kafka.OppdaterUtbetalingBlokkeringerFraBesluttetTilsagnConsumer
@@ -591,7 +593,8 @@ private fun services(appConfig: AppConfig) = module {
             get(),
         )
     }
-    single { AdminUtbetalingService(get(), get(), get()) }
+    single { AdminUtbetalingService(get(), get()) }
+    single { UtbetalingDtoQuery(get(), get()) }
     single {
         BrukerUtbetalingService(
             BrukerUtbetalingService.Config(appConfig.kafka.topics.helvedUtbetalingTopic),
@@ -611,6 +614,7 @@ private fun services(appConfig: AppConfig) = module {
             navAnsattService = get(),
         )
     }
+    single { TilsagnDtoQuery(get(), get(), get()) }
     single { TilskuddBehandlingService(get(), get(), get(), get(), get(), get()) }
     single { TilskuddService(get(), get(), get()) }
     single { AltinnRettigheterService(db = get(), altinnClient = get()) }

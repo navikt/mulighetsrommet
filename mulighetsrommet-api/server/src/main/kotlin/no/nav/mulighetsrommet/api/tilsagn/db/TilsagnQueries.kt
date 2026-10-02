@@ -8,6 +8,7 @@ import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhet
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetStatus
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetType
+import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingType
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregning
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAnnenAvtaltPris
@@ -491,6 +492,7 @@ class TilsagnQueries(private val session: Session) {
                 id = uuid("gjennomforing_id"),
                 lopenummer = Tiltaksnummer(string("gjennomforing_lopenummer")),
                 navn = string("gjennomforing_navn"),
+                type = GjennomforingType.valueOf(string("gjennomforing_type")),
             ),
             belopBrukt = int("belop_brukt").withValuta(valuta),
             periode = periode("periode"),

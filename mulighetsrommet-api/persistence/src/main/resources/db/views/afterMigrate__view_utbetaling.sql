@@ -34,7 +34,8 @@ select utbetaling.id,
        arrangor.slettet_dato is not null as arrangor_slettet,
        tiltakstype.navn                  as tiltakstype_navn,
        tiltakstype.id                    as tiltakstype_id,
-       tiltakstype.tiltakskode
+       tiltakstype.tiltakskode,
+       gjennomforing.gjennomforing_type  as gjennomforing_type
 from utbetaling
          inner join gjennomforing on gjennomforing.id = utbetaling.gjennomforing_id
          inner join arrangor on gjennomforing.arrangor_id = arrangor.id

@@ -7,6 +7,7 @@ import no.nav.mulighetsrommet.api.avtale.api.AvtaleHandling
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsatt
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingHandling
+import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingType
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingDetaljerService
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnHandling
@@ -478,7 +479,13 @@ private fun toOppgave(data: UtbetalingBehandlingOppgaveData, ansatt: NavAnsatt):
                 ),
                 createdAt = data.godkjentAvArrangorTidspunkt ?: data.createdAt,
                 arrangor = data.arrangor,
-            ).takeIf { AdminUtbetalingService.tilgangTilHandling(UtbetalingHandling.SEND_TIL_ATTESTERING, ansatt) }
+            ).takeIf {
+                AdminUtbetalingService.tilgangTilHandling(
+                    handling = UtbetalingHandling.SEND_TIL_ATTESTERING,
+                    ansatt = ansatt,
+                    gjennomforingType = data.gjennomforing.type,
+                )
+            }
     }
 }
 
@@ -512,7 +519,13 @@ private fun tilAvbrytelseOppgave(data: UtbetalingBehandlingOppgaveData, ansatt: 
     ),
     createdAt = data.avbrytelseBehandletTidspunkt ?: data.createdAt,
     arrangor = data.arrangor,
-).takeIf { AdminUtbetalingService.tilgangTilHandling(UtbetalingHandling.GODKJENN_AVBRYTELSE, ansatt) }
+).takeIf {
+    AdminUtbetalingService.tilgangTilHandling(
+        handling = UtbetalingHandling.GODKJENN_AVBRYTELSE,
+        ansatt = ansatt,
+        gjennomforingType = data.gjennomforing.type,
+    )
+}
     .takeIf { !isSame(ansatt.navIdent, data.avbrytelseBehandletAv) }
 
 private fun AvtaleManglerAdministratorOppgaveData.toOppgave(ansatt: NavAnsatt) = Oppgave(
@@ -661,6 +674,12 @@ private fun getOkonomiOppgaveTitle(tiltakstype: OppgaveTiltakstype, gjennomforin
         is OppgaveGjennomforing.Enkeltplass -> "${tiltakstype.navn} (${gjennomforing.lopenummer})"
     }
 }
+
+private val OppgaveGjennomforing.type: GjennomforingType
+    get() = when (this) {
+        is OppgaveGjennomforing.Gruppetiltak -> GjennomforingType.AVTALE
+        is OppgaveGjennomforing.Enkeltplass -> GjennomforingType.ENKELTPLASS
+    }
 
 private fun isSame(ansatt: NavIdent, behandletAv: Agent?): Boolean {
     return behandletAv is NavIdent && ansatt == behandletAv

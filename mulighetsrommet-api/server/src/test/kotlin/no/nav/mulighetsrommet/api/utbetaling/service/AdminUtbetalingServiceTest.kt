@@ -8,9 +8,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.data.blocking.forAll
 import io.kotest.data.row
 import io.kotest.matchers.collections.shouldBeEmpty
-import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldHaveSize
-import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
@@ -21,7 +19,6 @@ import kotlinx.serialization.json.Json
 import no.nav.common.kafka.util.KafkaUtils
 import no.nav.mulighetsrommet.admin.arrangor.BetalingsinformasjonQuery
 import no.nav.mulighetsrommet.admin.endringshistorikk.EndringshistorikkType
-import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollDto
 import no.nav.mulighetsrommet.api.ApplicationConfigTest
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.aarsakerbegrunnelse.AarsakerOgBegrunnelseRequest
@@ -49,8 +46,6 @@ import no.nav.mulighetsrommet.api.fixtures.setUtbetalingLinjeStatus
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAnnenAvtaltPris
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
-import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingHandling
-import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingStatusDto
 import no.nav.mulighetsrommet.api.utbetaling.model.OpprettUtbetalingLinje
 import no.nav.mulighetsrommet.api.utbetaling.model.OpprettUtbetalingLinjer
 import no.nav.mulighetsrommet.api.utbetaling.model.UpsertUtbetaling
@@ -117,7 +112,6 @@ class AdminUtbetalingServiceTest : FunSpec({
         return AdminUtbetalingService(
             db = database.api,
             utbetalingService = utbetalingService,
-            personaliaService = mockk(),
         )
     }
 
@@ -1531,31 +1525,6 @@ class AdminUtbetalingServiceTest : FunSpec({
                     )
             }
 
-            test("enkeltplass gir handling SLETT, men ikke SEND_TIL_AVBRYTELSE") {
-                val enkeltplassUtbetaling = utbetaling1.copy(
-                    id = UUID.randomUUID(),
-                    gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
-                    status = UtbetalingStatusType.TIL_BEHANDLING,
-                )
-
-                MulighetsrommetTestDomain(
-                    ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
-                    gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
-                    utbetalinger = listOf(enkeltplassUtbetaling),
-                ) {
-                    setRoller(
-                        NavAnsattFixture.DonaldDuck,
-                        setOf(NavAnsattRolle.generell(Rolle.SAKSBEHANDLER_OKONOMI)),
-                    )
-                }.initialize(database.api)
-
-                val service = createUtbetalingService()
-
-                val handlinger = service.getUtbetalingDetaljer(enkeltplassUtbetaling.id, navIdent).handlinger
-                handlinger shouldContain UtbetalingHandling.SLETT
-                handlinger shouldNotContain UtbetalingHandling.SEND_TIL_AVBRYTELSE
-            }
-
             test("kan avbryte utbetalinger med status GENERTERT, TIL_BEHANDLING og RETURNERT") {
                 val service = createUtbetalingService()
 
@@ -1603,17 +1572,9 @@ class AdminUtbetalingServiceTest : FunSpec({
                     aarsaker = listOf(UtbetalingStatusAarsak.TILSAGN_GJORT_OPP),
                     begrunnelse = null,
                 )
-                service.sendTilAvbrytelse(utbetaling1.id, navIdent, aarsakerOgBegrunnelse).shouldBeRight()
-
-                val utbetalingDetaljer = service.getUtbetalingDetaljer(utbetaling1.id, navIdent)
-
-                utbetalingDetaljer.utbetaling.status shouldBe UtbetalingStatusDto.fromUtbetalingStatus(
-                    UtbetalingStatusType.TIL_AVBRYTELSE,
-                    emptySet(),
-                    null,
-                )
-                utbetalingDetaljer.utbetaling.avbrytelse shouldNotBeNull {
-                    this.shouldBeTypeOf<TotrinnskontrollDto.TilBeslutning>()
+                service.sendTilAvbrytelse(utbetaling1.id, navIdent, aarsakerOgBegrunnelse).shouldBeRight().also {
+                    it.status shouldBe UtbetalingStatusType.TIL_AVBRYTELSE
+                    it.avbrytelse.shouldNotBeNull().totrinnskontroll.status shouldBe TotrinnskontrollStatus.TIL_BEHANDLING
                 }
             }
         }
@@ -1707,21 +1668,14 @@ class AdminUtbetalingServiceTest : FunSpec({
                     utbetaling1.id,
                     navIdent,
                     AarsakerOgBegrunnelseRequest(listOf(UtbetalingStatusAarsak.TILSAGN_GJORT_OPP), null),
-                ).shouldBeRight()
-
-                service.getUtbetalingDetaljer(utbetaling1.id, navIdent).utbetaling.status.shouldBe(
-                    UtbetalingStatusDto.fromUtbetalingStatus(UtbetalingStatusType.TIL_AVBRYTELSE, emptySet(), null),
-                )
+                ).shouldBeRight().status shouldBe UtbetalingStatusType.TIL_AVBRYTELSE
 
                 val aarsakerOgBegrunnelse = AarsakerOgBegrunnelseRequest(
                     aarsaker = listOf(UtbetalingStatusAarsak.ANNET),
                     begrunnelse = "Det er masse igjen på tilsagnet",
                 )
-                service.avslaAvbrytelse(utbetaling1.id, navIdent, aarsakerOgBegrunnelse).shouldBeRight()
-
-                service.getUtbetalingDetaljer(utbetaling1.id, navIdent).utbetaling.status.shouldBe(
-                    UtbetalingStatusDto.fromUtbetalingStatus(originalStatus, emptySet(), null),
-                )
+                service.avslaAvbrytelse(utbetaling1.id, navIdent, aarsakerOgBegrunnelse)
+                    .shouldBeRight().status shouldBe originalStatus
             }
         }
     }
