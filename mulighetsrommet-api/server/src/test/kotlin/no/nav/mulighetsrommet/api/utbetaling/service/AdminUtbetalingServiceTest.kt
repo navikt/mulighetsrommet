@@ -949,7 +949,7 @@ class AdminUtbetalingServiceTest : FunSpec({
 
             val service = createUtbetalingService()
 
-            val linje = createUtbetalingLinje(tilsagn.id, 10.NOK)
+            val linje = createUtbetalingLinje(tilsagn.id, 10.NOK, gjorOppTilsagn = false)
             val opprett = createOpprettUtbetalingLinjer(utbetaling1.id, listOf(linje))
             service.sendTilAttestering(opprett, navIdent).shouldBeRight()
 
@@ -959,8 +959,18 @@ class AdminUtbetalingServiceTest : FunSpec({
             ).shouldBeRight().status shouldBe UtbetalingStatusType.FERDIG_BEHANDLET
 
             database.run {
-                queries.utbetalingLinje.getOrError(linje.id).status shouldBe UtbetalingLinjeStatus.OVERFORT_TIL_UTBETALING
+                queries.utbetalingLinje.getOrError(linje.id).should {
+                    it.status shouldBe UtbetalingLinjeStatus.OVERFORT_TIL_UTBETALING
+                    it.gjorOppTilsagn shouldBe true
+                }
                 queries.tilsagn.getOrError(Tilsagn1.id).status shouldBe TilsagnStatus.OPPGJORT
+
+                val records = queries.kafkaProducerRecord.getRecords(10, listOf(BESTILLING_TOPIC))
+                val faktura = records
+                    .map { Json.decodeFromString<OkonomiBestillingMelding>(it.value.decodeToString()) }
+                    .filterIsInstance<OkonomiBestillingMelding.Faktura>()
+                    .single()
+                faktura.payload.gjorOppBestilling shouldBe true
             }
         }
 

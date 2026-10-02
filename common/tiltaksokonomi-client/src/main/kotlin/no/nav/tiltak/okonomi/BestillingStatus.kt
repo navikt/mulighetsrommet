@@ -14,32 +14,33 @@ data class BestillingStatus(
 
 enum class BestillingStatusType {
     /**
-     * Sendt til OeBS, venter på kvittering
+     * Sendt til OeBS, venter på kvittering.
      */
     SENDT,
 
     /**
-     * OK kvittering fra OeBS
+     * OK kvittering fra OeBS.
      */
     AKTIV,
 
     /**
-     * Sendt annullering til OeBS
+     * Sendt annullering til OeBS.
      */
     ANNULLERING_SENDT,
 
     /**
-     * Mottatt kvittering på annullering fra OeBS
+     * Mottatt kvittering på annullering fra OeBS.
      */
     ANNULLERT,
 
     /**
-     * Bestillingen er markert som oppgjort
+     * Bestillingen er markert som oppgjort. OeBS sender ikke kvittering på oppgjorte bestillinger,
+     * så dette er en best effort på å holde kontroll på tilstanden selv.
      */
     OPPGJORT,
 
     /**
-     * Krever manuell oppfølging
+     * Krever manuell oppfølging.
      */
     FEILET,
 }
