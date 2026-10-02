@@ -871,7 +871,7 @@ class TilsagnService(
     }
 
     companion object {
-        fun tilgangTilHandling(
+        private fun tilgangTilHandling(
             handling: TilsagnHandling,
             ansatt: NavAnsatt,
             gjennomforingType: GjennomforingType,
@@ -898,11 +898,14 @@ class TilsagnService(
                 TilsagnHandling.AVSLA_ANNULLERING,
                 -> erSaksbehandler || erBeslutter
 
-                TilsagnHandling.GODKJENN -> erBeslutter && opprettelse.behandling.utfortAv != ansatt.navIdent
+                TilsagnHandling.GODKJENN,
+                -> erBeslutter && opprettelse.behandling.utfortAv != ansatt.navIdent
 
-                TilsagnHandling.GODKJENN_OPPGJOR -> erBeslutter && tilOppgjor?.behandling?.utfortAv != ansatt.navIdent
+                TilsagnHandling.GODKJENN_OPPGJOR,
+                -> erBeslutter && tilOppgjor?.behandling?.utfortAv != ansatt.navIdent
 
-                TilsagnHandling.GODKJENN_ANNULLERING -> erBeslutter && annullering?.behandling?.utfortAv != ansatt.navIdent
+                TilsagnHandling.GODKJENN_ANNULLERING,
+                -> erBeslutter && annullering?.behandling?.utfortAv != ansatt.navIdent
             }
         }
     }
