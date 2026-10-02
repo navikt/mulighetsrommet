@@ -30,6 +30,6 @@ class DokdistClientTest : FunSpec({
                 )
             },
         )
-        client.distribuerJournalpost("123", AccessType.M2M, DokdistRequest.DistribusjonsType.VIKTIG, null).shouldBeRight()
+        client.distribuerJournalpost("123", AccessType.M2M, DokdistRequest.DistribusjonsType.VIKTIG, adresse = null, distribusjonstidspunkt = null).shouldBeRight()
     }
 })

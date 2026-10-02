@@ -47,9 +47,9 @@ object TilskuddVedtakToPdfDocumentContentMapper {
                 }
             }
 
+            klagerettSection()
             innsynsrettSection()
             personopplysningerSection()
-            klagerettSection()
             sporsmalSection()
 
             signature(
@@ -117,7 +117,7 @@ object TilskuddVedtakToPdfDocumentContentMapper {
         section(
             "Ditt krav om ${tilskudd.tilskuddType} er avslått for perioden ${tilskudd.periode.formatPeriode()}.",
         ) {
-            paragraph { regular("Søknaden er avslått fordi det ikke er dokumentert at vilkårene for tilskuddet er oppfylt. ") }
+            paragraph { regular("Nav har avslått tilskuddet fordi det ikke er dokumentert at vilkårene er oppfylt. ") }
             paragraph { regular(tilskudd.begrunnelse) }
             paragraph { regular(HJEMMEL) }
         }

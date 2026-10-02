@@ -125,7 +125,7 @@
           "type": "paragraph",
           "words": [
             {
-              "text": "Søknaden er avslått fordi det ikke er dokumentert at vilkårene for tilskuddet er oppfylt. "
+              "text": "Nav har avslått tilskuddet fordi det ikke er dokumentert at vilkårene er oppfylt. "
             }
           ]
         },
@@ -142,38 +142,6 @@
           "words": [
             {
               "text": "Vedtaket er fattet med hjemmel i forskrift om arbeidsmarkedstiltak (tiltaksforskriften) § 7-5, jf. lov om arbeidsmarkedstjenester (arbeidsmarkedsloven) § 13."
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "title": {
-        "text": "Du har rett til innsyn i saken din",
-        "level": 2
-      },
-      "blocks": [
-        {
-          "type": "paragraph",
-          "words": [
-            {
-              "text": "Du har rett til å se dokumentene i saken din. Dette følger av forvaltningsloven § 18. Kontakt oss om du vil se dokumentene i saken din. Ta kontakt på nav.no/kontakt eller på telefon 55 55 33 33. Du kan lese mer om innsynsretten på nav.no/personvernerklaering."
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "title": {
-        "text": "Du har rettigheter knyttet til personopplysningene dine",
-        "level": 2
-      },
-      "blocks": [
-        {
-          "type": "paragraph",
-          "words": [
-            {
-              "text": "Du finner informasjon om hvordan Nav behandler personopplysningene dine, og hvilke rettigheter du har, på nav.no/personvernerklaering. Nav kan veilede deg på telefon 55 55 33 33 om hvordan Nav behandler personopplysninger."
             }
           ]
         }
@@ -230,6 +198,38 @@
           "words": [
             {
               "text": "Mer informasjon om klagerettigheter finner du på nav.no/klagerettigheter."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": {
+        "text": "Du har rett til innsyn i saken din",
+        "level": 2
+      },
+      "blocks": [
+        {
+          "type": "paragraph",
+          "words": [
+            {
+              "text": "Du har rett til å se dokumentene i saken din. Dette følger av forvaltningsloven § 18. Kontakt oss om du vil se dokumentene i saken din. Ta kontakt på nav.no/kontakt eller på telefon 55 55 33 33. Du kan lese mer om innsynsretten på nav.no/personvernerklaering."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": {
+        "text": "Du har rettigheter knyttet til personopplysningene dine",
+        "level": 2
+      },
+      "blocks": [
+        {
+          "type": "paragraph",
+          "words": [
+            {
+              "text": "Du finner informasjon om hvordan Nav behandler personopplysningene dine, og hvilke rettigheter du har, på nav.no/personvernerklaering. Nav kan veilede deg på telefon 55 55 33 33 om hvordan Nav behandler personopplysninger."
             }
           ]
         }
