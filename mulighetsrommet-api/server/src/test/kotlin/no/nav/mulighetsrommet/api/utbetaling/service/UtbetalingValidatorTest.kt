@@ -23,12 +23,14 @@ class UtbetalingValidatorTest : FunSpec({
         val periodeSlutt = periodeStart.plusDays(1)
 
         test("validere forespørsel om oppretting av utbetaling") {
+            val utbetalingsDato = LocalDate.now()
             val request = UtbetalingRequest(
                 id = UUID.randomUUID(),
                 gjennomforingId = UUID.randomUUID(),
                 periodeStart = periodeStart,
                 periodeSlutt = periodeSlutt,
                 journalpostId = "123",
+                utbetalingsDato = utbetalingsDato,
                 pris = ValutaBelopRequest(150, Valuta.NOK),
                 kommentar = "",
                 korreksjonBegrunnelse = "Begrunnelse som kun gjelder for korreksjoner",
@@ -42,6 +44,7 @@ class UtbetalingValidatorTest : FunSpec({
                 kommentar = null,
                 beregning = UtbetalingBeregningFri.from(ValutaBelop(150, Valuta.NOK)),
                 kid = null,
+                utbetalingsDato = utbetalingsDato,
                 tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
             )
         }
@@ -120,6 +123,7 @@ class UtbetalingValidatorTest : FunSpec({
                 periodeStart = periodeStart.plusDays(5),
                 periodeSlutt = periodeSlutt,
                 journalpostId = "123",
+                utbetalingsDato = LocalDate.now(),
                 pris = ValutaBelopRequest(150, Valuta.NOK),
             )
 
@@ -136,11 +140,47 @@ class UtbetalingValidatorTest : FunSpec({
                 periodeStart = periodeStart,
                 periodeSlutt = periodeSlutt,
                 journalpostId = "foo",
+                utbetalingsDato = LocalDate.now(),
                 pris = ValutaBelopRequest(150, Valuta.NOK),
             )
 
             UtbetalingValidator.validateUpsertUtbetaling(request) shouldBeLeft listOf(
                 FieldError.of(detail = "Journalpost-ID er på ugyldig format", UtbetalingRequest::journalpostId),
+            )
+        }
+
+        test("utbetalingsdato må være i dag eller innen 3 måneder for anskaffelse") {
+            val today = LocalDate.of(2026, 10, 2)
+
+            val nullDato = UtbetalingRequest(
+                id = UUID.randomUUID(),
+                gjennomforingId = UUID.randomUUID(),
+                periodeStart = periodeStart,
+                periodeSlutt = periodeSlutt,
+                journalpostId = "123",
+                pris = ValutaBelopRequest(150, Valuta.NOK),
+            )
+
+            val tidligereEnnIdag = nullDato.copy(utbetalingsDato = today.minusDays(1))
+            UtbetalingValidator.validateUpsertUtbetaling(tidligereEnnIdag, today) shouldBeLeft listOf(
+                FieldError.of(
+                    "Utbetalingsdato må være mellom i dag og 3 måneder frem i tid",
+                    UtbetalingRequest::utbetalingsDato,
+                ),
+            )
+
+            UtbetalingValidator.validateUpsertUtbetaling(nullDato.copy(utbetalingsDato = today), today).shouldBeRight()
+            UtbetalingValidator.validateUpsertUtbetaling(
+                nullDato.copy(utbetalingsDato = today.plusMonths(3)),
+                today,
+            ).shouldBeRight()
+
+            val etterTreMåneder = nullDato.copy(utbetalingsDato = today.plusMonths(3).plusDays(1))
+            UtbetalingValidator.validateUpsertUtbetaling(etterTreMåneder, today) shouldBeLeft listOf(
+                FieldError.of(
+                    "Utbetalingsdato må være mellom i dag og 3 måneder frem i tid",
+                    UtbetalingRequest::utbetalingsDato,
+                ),
             )
         }
     }

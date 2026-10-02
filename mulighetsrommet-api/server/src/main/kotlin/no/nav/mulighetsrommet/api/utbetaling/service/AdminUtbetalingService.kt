@@ -42,12 +42,16 @@ class AdminUtbetalingService(
         agent: NavIdent,
     ): Either<List<FieldError>, Utbetaling> = db.transaction {
         when (opprett) {
-            is UpsertUtbetaling.Anskaffelse if opprett.journalpostId == null -> {
+            is UpsertUtbetaling.Anskaffelse if (opprett.journalpostId == null || opprett.utbetalingsDato == null) -> {
                 val gjennomforing = queries.gjennomforing.getGjennomforingTiltaksadministrasjon(opprett.gjennomforingId)
                 val arrangor = repository.arrangor.get(gjennomforing.arrangor.id)
                 if (arrangor is Arrangor.Norsk) {
-                    return FieldError.of("Journalpost-ID er påkrevd", UpsertUtbetaling.Anskaffelse::journalpostId)
-                        .nel()
+                    return listOfNotNull(
+                        FieldError.of("Journalpost-ID er påkrevd", UpsertUtbetaling.Anskaffelse::journalpostId)
+                            .takeIf { opprett.journalpostId == null },
+                        FieldError.of("Utbetalingsdato er påkrevd", UpsertUtbetaling.Anskaffelse::utbetalingsDato)
+                            .takeIf { opprett.utbetalingsDato == null },
+                    )
                         .left()
                 }
             }
