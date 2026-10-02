@@ -476,7 +476,7 @@ class GjennomforingEnkeltplassService(
         queries.totrinnskontroll.upsert(okonomi)
         outbox.publish(okonomi)
 
-        return logEndring("Pris- og betalingsbetingelser endret", gjennomforingId, behandling.behandletAv).right()
+        return logEndring("Pris og betalingsbetingelser endret", gjennomforingId, behandling.behandletAv).right()
     }
 
     private fun TransactionalQueryContext.haandterAvsluttendeStatus(
