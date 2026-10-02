@@ -15,7 +15,6 @@ import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.TransactionalQueryContext
 import no.nav.mulighetsrommet.api.aarsakerbegrunnelse.AarsakerOgBegrunnelseRequest
 import no.nav.mulighetsrommet.api.domain.arrangor.Arrangor
-import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsatt
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.Totrinnskontroll
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingType
@@ -24,7 +23,6 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingTiltaksadministrasjon
 import no.nav.mulighetsrommet.api.navansatt.OkonomiAuthorization
 import no.nav.mulighetsrommet.api.navansatt.OkonomiBeslutningContext
-import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnHandling
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
 import no.nav.mulighetsrommet.api.tilsagn.model.BeregnTilsagnRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
@@ -48,7 +46,6 @@ import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.Arena
 import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.NOK
-import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
@@ -835,79 +832,6 @@ class TilsagnService(
             kostnadssteder = nonEmptySetOf(tilsagn.kostnadssted.enhetsnummer),
         )
         return OkonomiAuthorization.erBeslutterTilsagn(ansatt, kontekst)
-    }
-
-    fun handlinger(tilsagn: Tilsagn, ansatt: NavAnsatt): Set<TilsagnHandling> = db.session {
-        val status = tilsagn.status
-
-        val opprettelse = queries.totrinnskontroll.getOrError(tilsagn.id, TotrinnskontrollType.TILSAGN_OPPRETTELSE)
-        val annullering = queries.totrinnskontroll.get(tilsagn.id, TotrinnskontrollType.TILSAGN_ANNULLERING)
-        val oppgjor = queries.totrinnskontroll.get(tilsagn.id, TotrinnskontrollType.TILSAGN_OPPGJOR)
-
-        return setOfNotNull(
-            TilsagnHandling.REDIGER.takeIf { status == TilsagnStatus.RETURNERT },
-            TilsagnHandling.SLETT.takeIf { status == TilsagnStatus.RETURNERT },
-            TilsagnHandling.ANNULLER.takeIf { status == TilsagnStatus.GODKJENT && tilsagn.belopBrukt.belop == 0 },
-            TilsagnHandling.GJOR_OPP.takeIf { status == TilsagnStatus.GODKJENT && tilsagn.belopBrukt.belop > 0 },
-            TilsagnHandling.GODKJENN.takeIf { status == TilsagnStatus.TIL_GODKJENNING },
-            TilsagnHandling.RETURNER.takeIf { status == TilsagnStatus.TIL_GODKJENNING },
-            TilsagnHandling.AVSLA_ANNULLERING.takeIf { status == TilsagnStatus.TIL_ANNULLERING },
-            TilsagnHandling.GODKJENN_ANNULLERING.takeIf { status == TilsagnStatus.TIL_ANNULLERING },
-            TilsagnHandling.AVSLA_OPPGJOR.takeIf { status == TilsagnStatus.TIL_OPPGJOR },
-            TilsagnHandling.GODKJENN_OPPGJOR.takeIf { status == TilsagnStatus.TIL_OPPGJOR },
-        )
-            .filter {
-                tilgangTilHandling(
-                    handling = it,
-                    ansatt = ansatt,
-                    gjennomforingType = tilsagn.gjennomforing.type,
-                    kostnadssted = tilsagn.kostnadssted.enhetsnummer,
-                    opprettelse = opprettelse,
-                    annullering = annullering,
-                    tilOppgjor = oppgjor,
-                )
-            }
-            .toSet()
-    }
-
-    companion object {
-        private fun tilgangTilHandling(
-            handling: TilsagnHandling,
-            ansatt: NavAnsatt,
-            gjennomforingType: GjennomforingType,
-            kostnadssted: NavEnhetNummer,
-            opprettelse: Totrinnskontroll,
-            annullering: Totrinnskontroll?,
-            tilOppgjor: Totrinnskontroll?,
-        ): Boolean {
-            val erBeslutter = OkonomiAuthorization.erBeslutterTilsagn(
-                ansatt,
-                OkonomiBeslutningContext(gjennomforingType, nonEmptySetOf(kostnadssted)),
-            )
-            val erSaksbehandler = OkonomiAuthorization.erSaksbehandler(ansatt, gjennomforingType)
-
-            return when (handling) {
-                TilsagnHandling.REDIGER,
-                TilsagnHandling.SLETT,
-                TilsagnHandling.GJOR_OPP,
-                TilsagnHandling.ANNULLER,
-                -> erSaksbehandler
-
-                TilsagnHandling.RETURNER,
-                TilsagnHandling.AVSLA_OPPGJOR,
-                TilsagnHandling.AVSLA_ANNULLERING,
-                -> erSaksbehandler || erBeslutter
-
-                TilsagnHandling.GODKJENN,
-                -> erBeslutter && opprettelse.behandling.utfortAv != ansatt.navIdent
-
-                TilsagnHandling.GODKJENN_OPPGJOR,
-                -> erBeslutter && tilOppgjor?.behandling?.utfortAv != ansatt.navIdent
-
-                TilsagnHandling.GODKJENN_ANNULLERING,
-                -> erBeslutter && annullering?.behandling?.utfortAv != ansatt.navIdent
-            }
-        }
     }
 
     private fun QueryContext.updateFreeTextSearch(tilsagn: TilsagnDbo) {

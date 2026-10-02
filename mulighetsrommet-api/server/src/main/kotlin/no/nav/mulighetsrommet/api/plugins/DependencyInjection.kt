@@ -614,7 +614,7 @@ private fun services(appConfig: AppConfig) = module {
             navAnsattService = get(),
         )
     }
-    single { TilsagnDtoQuery(get(), get(), get()) }
+    single { TilsagnDtoQuery(get(), get()) }
     single { TilskuddBehandlingService(get(), get(), get(), get(), get(), get()) }
     single { TilskuddService(get(), get(), get()) }
     single { AltinnRettigheterService(db = get(), altinnClient = get()) }
