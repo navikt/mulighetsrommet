@@ -65,27 +65,28 @@ object TilskuddBehandlingValidator {
         }
         val periodeStart = req.periodeStart?.parseOrNull()
         validateNotNull(periodeStart) {
-            FieldError("/tilskudd/$index/periodeStart", "Periodestart må være satt")
+            FieldError("/tilskudd/$index/periodeStart", "Periodestart er påkrevd")
         }
         val periodeSlutt = req.periodeSlutt?.parseOrNull()
         validateNotNull(periodeSlutt) {
-            FieldError("/tilskudd/$index/periodeSlutt", "Periodeslutt må være satt")
+            FieldError("/tilskudd/$index/periodeSlutt", "Periodeslutt er påkrevd")
+        }
+        if (periodeStart != null && periodeSlutt != null) {
+            validate(!periodeStart.isAfter(periodeSlutt)) {
+                FieldError("/tilskudd/$index/periodeStart", "Periodestart må være før sluttdato")
+            }
+            validate(gjennomforing.sluttDato == null || !periodeSlutt.isAfter(gjennomforing.sluttDato)) {
+                FieldError(
+                    "/tilskudd/$index/periodeSlutt",
+                    "Periodeslutt kan ikke være etter gjennomføringsperioden",
+                )
+            }
         }
         validateNotNull(req.soknadDato) {
-            FieldError("/tilskudd/$index/soknadDato", "Søknadsdato må være satt")
+            FieldError("/tilskudd/$index/soknadDato", "Søknadsdato er påkrevd")
         }
         validateNotNull(req.soknadJournalpostId) {
-            FieldError("/tilskudd/$index/soknadJournalpostId", "JournalpostId må være satt")
-        }
-        requireValid(req.soknadDato != null && req.soknadJournalpostId != null && req.kostnadssted != null && periodeStart != null && periodeSlutt != null)
-        requireValid(!periodeStart.isAfter(periodeSlutt)) {
-            FieldError("/tilskudd/$index/periodeStart", "Periodestart må være før slutt")
-        }
-        validate(gjennomforing.sluttDato == null || !periodeSlutt.isAfter(gjennomforing.sluttDato)) {
-            FieldError(
-                "/tilskudd/$index/periodeSlutt",
-                "Sluttdato kan ikke være etter gjennomføringsperioden",
-            )
+            FieldError("/tilskudd/$index/soknadJournalpostId", "JournalpostId er påkrevd")
         }
         validateNotNull(req.tilskuddOpplaeringType) {
             FieldError(
@@ -122,20 +123,27 @@ object TilskuddBehandlingValidator {
         validate(req.soknadBelop?.belop != null && req.soknadBelop.belop > 0) {
             FieldError(
                 "/tilskudd/$index/soknadBelop/belop",
-                "Søknadsbeløp må være positivt",
+                "Beløp fra faktura må være positivt",
             )
         }
         if (req.vedtakResultat == VedtakResultat.INNVILGELSE) {
             validate(req.belop != null && req.belop > 0) {
                 FieldError(
                     "/tilskudd/$index/belop",
-                    "Beløp må være positivt",
+                    "Beløp til utbetaling må være positivt",
                 )
             }
         }
-        requireValid(req.soknadBelop?.belop != null && req.soknadBelop.valuta != null && req.vedtakResultat != null && req.utbetalingMottaker != null && req.tilskuddOpplaeringType != null)
-        requireValid(req.vedtakResultat != VedtakResultat.INNVILGELSE || req.belop != null)
+
         val periode = Periode.fromInclusiveDates(requireNotNull(periodeStart), requireNotNull(periodeSlutt))
+
+        requireNotNull(req.soknadDato)
+        requireNotNull(req.soknadJournalpostId)
+        requireNotNull(req.kostnadssted)
+        requireNotNull(req.tilskuddOpplaeringType)
+        requireNotNull(req.vedtakResultat)
+        requireNotNull(req.utbetalingMottaker)
+        requireNotNull(req.soknadBelop?.belop)
 
         val jId = journalpostValidator(req.soknadJournalpostId, index).bind()
 
@@ -145,7 +153,7 @@ object TilskuddBehandlingValidator {
             tilskuddOpplaeringType = req.tilskuddOpplaeringType,
             soknadJournalpostId = jId,
             soknadDato = req.soknadDato,
-            soknadBelop = ValutaBelop(req.soknadBelop.belop, req.soknadBelop.valuta),
+            soknadBelop = ValutaBelop(req.soknadBelop.belop, Valuta.NOK),
             periode = periode,
             kostnadssted = req.kostnadssted,
             vedtakResultat = req.vedtakResultat,
