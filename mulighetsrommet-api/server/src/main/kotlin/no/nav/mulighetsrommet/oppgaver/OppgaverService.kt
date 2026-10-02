@@ -87,6 +87,7 @@ class OppgaverService(val db: ApiDatabase, private val features: FeatureToggleSe
                         tiltakskoder = tiltakskoder,
                         kostnadssteder = navEnheter,
                         arrangorer = arrangorer,
+                        ansatt = ansatt,
                     ),
                 )
             }
@@ -192,6 +193,7 @@ class OppgaverService(val db: ApiDatabase, private val features: FeatureToggleSe
         tiltakskoder: Set<Tiltakskode>,
         kostnadssteder: Set<NavEnhetNummer>,
         arrangorer: Set<UUID>,
+        ansatt: NavAnsatt,
     ): List<Oppgave> {
         return queries.oppgave
             .getUtbetalingManglerTilsagnOppgaveData(
@@ -200,7 +202,7 @@ class OppgaverService(val db: ApiDatabase, private val features: FeatureToggleSe
             )
             .asSequence()
             .filter { utbetaling -> byKostnadssted(utbetaling.gjennomforingNavEnheter, kostnadssteder) }
-            .map { toOppgave(it) }
+            .mapNotNull { toOppgave(it, ansatt) }
             .toList()
     }
 
@@ -492,7 +494,7 @@ private fun toOppgave(data: UtbetalingBehandlingOppgaveData, ansatt: NavAnsatt):
     }
 }
 
-private fun toOppgave(data: UtbetalingManglerTilsagnOppgaveData) = Oppgave(
+private fun toOppgave(data: UtbetalingManglerTilsagnOppgaveData, ansatt: NavAnsatt) = Oppgave(
     id = data.id,
     type = OppgaveType.UTBETALING_MANGLER_TILSAGN,
     navn = OppgaveType.UTBETALING_MANGLER_TILSAGN.navn,
@@ -506,7 +508,9 @@ private fun toOppgave(data: UtbetalingManglerTilsagnOppgaveData) = Oppgave(
     ),
     createdAt = data.godkjentAvArrangorTidspunkt ?: data.createdAt,
     arrangor = data.arrangor,
-)
+).takeIf {
+    OkonomiAuthorization.erSaksbehandler(ansatt, data.gjennomforing.type)
+}
 
 private fun tilAvbrytelseOppgave(data: UtbetalingBehandlingOppgaveData, ansatt: NavAnsatt): Oppgave? = Oppgave(
     id = data.id,
