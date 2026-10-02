@@ -35,7 +35,7 @@ class OppgaverService(val db: ApiDatabase, private val features: FeatureToggleSe
         val roller = ansatt.roller.map { it.rolle }.toSet()
 
         return OppgaveType.entries
-            .filter { it.rolle in roller }
+            .filter { it.roller.intersect(roller).isNotEmpty() }
             .filter {
                 isEnkeltplassEnabled() || it.kategori !in setOf(
                     Kategori.ENKELTPLASS,
