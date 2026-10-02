@@ -43,7 +43,7 @@ class TilskuddRoutesTest : FunSpec({
     }
 
     val generellRolle = EntraGroupNavAnsattRolleMapping(UUID.randomUUID(), Rolle.TILTAKADMINISTRASJON_GENERELL)
-    val saksbehandlerOkonomiRolle = EntraGroupNavAnsattRolleMapping(UUID.randomUUID(), Rolle.SAKSBEHANDLER_OKONOMI)
+    val saksbehandlerRolle = EntraGroupNavAnsattRolleMapping(UUID.randomUUID(), Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS)
     val teamMulighetsrommetRolle = EntraGroupNavAnsattRolleMapping(UUID.randomUUID(), Rolle.TEAM_MULIGHETSROMMET)
     val ansattUtenTeamrolle = NavAnsattFixture.DonaldDuck
     val ansattMedTeamrolle = NavAnsattFixture.MikkeMus.medRoller(
@@ -53,7 +53,7 @@ class TilskuddRoutesTest : FunSpec({
     fun appConfig() = ApplicationConfigTest.copy(
         auth = createAuthConfig(
             oauth,
-            roles = setOf(generellRolle, saksbehandlerOkonomiRolle, teamMulighetsrommetRolle),
+            roles = setOf(generellRolle, saksbehandlerRolle, teamMulighetsrommetRolle),
         ),
         engine = createMockEngine {
             mockKontoregisterOrganisasjon()
@@ -91,23 +91,25 @@ class TilskuddRoutesTest : FunSpec({
         database.truncateAll()
     }
 
+    val innvilgelse = TilskuddFixtures.TilskuddVedtakInnvilgelse
+
     test("henter tilskudd med OPPHOR når siste vedtak er innvilget og ansatt har team-rolle") {
         initData(lagBehandling())
 
         withTestApplication(appConfig()) {
             val navAnsattClaims = getAnsattClaims(
                 ansattMedTeamrolle,
-                setOf(generellRolle, saksbehandlerOkonomiRolle, teamMulighetsrommetRolle),
+                setOf(generellRolle, saksbehandlerRolle, teamMulighetsrommetRolle),
             )
 
-            val response = client.get("/api/tiltaksadministrasjon/tilskudd/${TilskuddFixtures.TilskuddVedtakInnvilgelse.tilskuddId}") {
+            val response = client.get("/api/tiltaksadministrasjon/tilskudd/${innvilgelse.tilskuddId}") {
                 bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
             }
 
             response.status shouldBe HttpStatusCode.OK
 
             val body = response.body<TilskuddDto>()
-            body.tilskudd.id shouldBe TilskuddFixtures.TilskuddVedtakInnvilgelse.tilskuddId
+            body.tilskudd.id shouldBe innvilgelse.tilskuddId
             body.handlinger shouldBe setOf(TilskuddHandling.OPPHOR)
         }
     }
@@ -116,16 +118,16 @@ class TilskuddRoutesTest : FunSpec({
         initData(lagBehandling())
 
         withTestApplication(appConfig()) {
-            val navAnsattClaims = getAnsattClaims(ansattUtenTeamrolle, setOf(generellRolle, saksbehandlerOkonomiRolle))
+            val navAnsattClaims = getAnsattClaims(ansattUtenTeamrolle, setOf(generellRolle, saksbehandlerRolle))
 
-            val response = client.get("/api/tiltaksadministrasjon/tilskudd/${TilskuddFixtures.TilskuddVedtakInnvilgelse.tilskuddId}") {
+            val response = client.get("/api/tiltaksadministrasjon/tilskudd/${innvilgelse.tilskuddId}") {
                 bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
             }
 
             response.status shouldBe HttpStatusCode.OK
 
             val body = response.body<TilskuddDto>()
-            body.handlinger shouldBe emptySet<TilskuddHandling>()
+            body.handlinger shouldBe emptySet()
         }
     }
 
@@ -141,17 +143,17 @@ class TilskuddRoutesTest : FunSpec({
         withTestApplication(appConfig()) {
             val navAnsattClaims = getAnsattClaims(
                 ansattMedTeamrolle,
-                setOf(generellRolle, saksbehandlerOkonomiRolle, teamMulighetsrommetRolle),
+                setOf(generellRolle, saksbehandlerRolle, teamMulighetsrommetRolle),
             )
 
-            val response = client.get("/api/tiltaksadministrasjon/tilskudd/${TilskuddFixtures.TilskuddVedtakInnvilgelse.tilskuddId}") {
+            val response = client.get("/api/tiltaksadministrasjon/tilskudd/${innvilgelse.tilskuddId}") {
                 bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
             }
 
             response.status shouldBe HttpStatusCode.OK
 
             val body = response.body<TilskuddDto>()
-            body.handlinger shouldBe emptySet<TilskuddHandling>()
+            body.handlinger shouldBe emptySet()
         }
     }
 
@@ -167,17 +169,17 @@ class TilskuddRoutesTest : FunSpec({
         withTestApplication(appConfig()) {
             val navAnsattClaims = getAnsattClaims(
                 ansattMedTeamrolle,
-                setOf(generellRolle, saksbehandlerOkonomiRolle, teamMulighetsrommetRolle),
+                setOf(generellRolle, saksbehandlerRolle, teamMulighetsrommetRolle),
             )
 
-            val response = client.get("/api/tiltaksadministrasjon/tilskudd/${TilskuddFixtures.TilskuddVedtakInnvilgelse.tilskuddId}") {
+            val response = client.get("/api/tiltaksadministrasjon/tilskudd/${innvilgelse.tilskuddId}") {
                 bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
             }
 
             response.status shouldBe HttpStatusCode.OK
 
             val body = response.body<TilskuddDto>()
-            body.handlinger shouldBe emptySet<TilskuddHandling>()
+            body.handlinger shouldBe emptySet()
         }
     }
 
@@ -204,7 +206,7 @@ class TilskuddRoutesTest : FunSpec({
         withTestApplication(appConfig()) {
             val navAnsattClaims = getAnsattClaims(
                 ansattMedTeamrolle,
-                setOf(generellRolle, saksbehandlerOkonomiRolle, teamMulighetsrommetRolle),
+                setOf(generellRolle, saksbehandlerRolle, teamMulighetsrommetRolle),
             )
 
             val response = client.get("/api/tiltaksadministrasjon/tilskudd/$tilskuddId") {
@@ -214,7 +216,7 @@ class TilskuddRoutesTest : FunSpec({
             response.status shouldBe HttpStatusCode.OK
 
             val body = response.body<TilskuddDto>()
-            body.handlinger shouldBe emptySet<TilskuddHandling>()
+            body.handlinger shouldBe emptySet()
         }
     }
 })
