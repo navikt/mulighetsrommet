@@ -23,7 +23,15 @@ import java.util.UUID
 fun Route.tilsagnRoutesGet() {
     val tilsagnDtoQuery: TilsagnDtoQuery by inject()
 
-    authorize(anyOf = setOf(Rolle.OKONOMI_LES, Rolle.SAKSBEHANDLER_OKONOMI, Rolle.BESLUTTER_TILSAGN)) {
+    authorize(
+        anyOf = setOf(
+            Rolle.OKONOMI_LES,
+            Rolle.SAKSBEHANDLER_OKONOMI,
+            Rolle.BESLUTTER_TILSAGN,
+            Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS,
+            Rolle.OKONOMI_BESLUTTER_ENKELTPLASS,
+        ),
+    ) {
         get("{id}", {
             description = "Hent tilsagn"
             tags = setOf("Tilsagn")

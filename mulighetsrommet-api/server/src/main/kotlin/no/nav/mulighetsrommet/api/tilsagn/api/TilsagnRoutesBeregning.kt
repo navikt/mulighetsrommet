@@ -11,11 +11,13 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.AppConfig
 import no.nav.mulighetsrommet.api.OkonomiConfig
+import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingTiltaksadministrasjon
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingDetaljerService
+import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.plugins.getAccessType
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
@@ -58,164 +60,175 @@ fun Route.tilsagnRoutesBeregning() {
     val gjennomforinger: GjennomforingDetaljerService by inject()
     val personaliaService: PersonaliaService by inject()
 
-    get("/{id}/defaults", {
-        description = "Hent standardverdier for tilsagn utledet fra gitt tilsagn"
-        tags = setOf("Tilsagn")
-        operationId = "getTilsagnRequest"
-        request {
-            pathParameterUuid("id")
-        }
-        response {
-            code(HttpStatusCode.OK) {
-                description = "Standardverdier for tilsagn"
-                body<TilsagnRequest>()
+    authorize(
+        anyOf = setOf(Rolle.SAKSBEHANDLER_OKONOMI, Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS),
+    ) {
+        get("/{id}/defaults", {
+            description = "Hent standardverdier for tilsagn utledet fra gitt tilsagn"
+            tags = setOf("Tilsagn")
+            operationId = "getTilsagnRequest"
+            request {
+                pathParameterUuid("id")
             }
-            default {
-                description = "Problem details"
-                body<ProblemDetail>()
-            }
-        }
-    }) {
-        val id: UUID by call.parameters
-
-        val tilsagn = db.session { queries.tilsagn.get(id) }
-            ?: return@get call.respond(HttpStatusCode.NotFound)
-
-        val prismodell = db.session { queries.gjennomforing.getPrismodell(tilsagn.gjennomforing.id) }
-            ?: throw StatusException(
-                HttpStatusCode.BadRequest,
-                "Tilsagn kan ikke opprettes fordi gjennomføring mangler prismodell",
-            )
-
-        val defaults = resolveTilsagnRequest(tilsagn, prismodell)
-
-        call.respond(defaults)
-    }
-
-    post("/defaults", {
-        description = "Hent standardverdier for tilsagn utledet av systemet"
-        tags = setOf("Tilsagn")
-        operationId = "getTilsagnDefaults"
-        request {
-            body<TilsagnRequest>()
-        }
-        response {
-            code(HttpStatusCode.OK) {
-                description = "Standardverdier for tilsagn"
-                body<TilsagnRequest>()
-            }
-            default {
-                description = "Problem details"
-                body<ProblemDetail>()
-            }
-        }
-    }) {
-        val request = call.receive<TilsagnRequest>()
-
-        val gjennomforing = gjennomforinger.getGjennomforingTiltaksadministrasjon(request.gjennomforingId)
-            ?: return@post call.respond(HttpStatusCode.BadRequest, "Ugyldig gjennomforingId=${request.gjennomforingId}")
-
-        val defaults = when (request.type) {
-            TilsagnType.TILSAGN -> db.session {
-                val sisteTilsagn = queries.tilsagn
-                    .getAll(typer = listOf(TilsagnType.TILSAGN), gjennomforingId = request.gjennomforingId)
-                    .firstOrNull()
-
-                resolveTilsagnDefaults(config.okonomi, gjennomforing, sisteTilsagn)
-            }
-
-            TilsagnType.INVESTERING, TilsagnType.EKSTRATILSAGN -> db.session {
-                resolveEkstraTilsagnInvesteringDefaults(request, gjennomforing)
-            }
-        }
-
-        call.respond(HttpStatusCode.OK, defaults)
-    }
-
-    post("/valgbare-deltakere", {
-        description = "Hent valgbare deltakere for tilsagn"
-        tags = setOf("Tilsagn")
-        operationId = "getTilsagnValgbareDeltakere"
-        request {
-            body<TilsagnDeltakereRequest>()
-        }
-        response {
-            code(HttpStatusCode.OK) {
-                description = "Valgbare deltakere for tilsagn"
-                body<TilsagnDeltakereResponse>()
-            }
-            default {
-                description = "Problem details"
-                body<ProblemDetail>()
-            }
-        }
-    }) {
-        val request = call.receive<TilsagnDeltakereRequest>()
-
-        val gjennomforing = gjennomforinger.getGjennomforingTiltaksadministrasjon(request.gjennomforingId)
-            ?: return@post call.respond(HttpStatusCode.BadRequest, "Ugyldig gjennomforingId=${request.gjennomforingId}")
-
-        val tilsagnPerDeltaker = (gjennomforing.prismodell as? Prismodell.AnnenAvtaltPris)?.tilsagnPerDeltaker ?: false
-
-        val deltakere = if (tilsagnPerDeltaker) {
-            val deltakelser = db.session { repository.deltaker.getByGjennomforing(gjennomforing.id) }
-                .filter {
-                    when (it.status.type) {
-                        DeltakerStatusType.AVBRUTT_UTKAST,
-                        DeltakerStatusType.FEILREGISTRERT,
-                        DeltakerStatusType.UTKAST_TIL_PAMELDING,
-                        DeltakerStatusType.KLADD,
-                        -> false
-
-                        else -> true
-                    }
+            response {
+                code(HttpStatusCode.OK) {
+                    description = "Standardverdier for tilsagn"
+                    body<TilsagnRequest>()
                 }
-            val personalia = personaliaService.getPersonalia(
-                deltakelser.map { it.id },
-                PersonaliaService.OnBehalfOf.NavAnsatt(call.getAccessType().requireAzureAd()),
+                default {
+                    description = "Problem details"
+                    body<ProblemDetail>()
+                }
+            }
+        }) {
+            val id: UUID by call.parameters
+
+            val tilsagn = db.session { queries.tilsagn.get(id) }
+                ?: return@get call.respond(HttpStatusCode.NotFound)
+
+            val prismodell = db.session { queries.gjennomforing.getPrismodell(tilsagn.gjennomforing.id) }
+                ?: throw StatusException(
+                    HttpStatusCode.BadRequest,
+                    "Tilsagn kan ikke opprettes fordi gjennomføring mangler prismodell",
+                )
+
+            val defaults = resolveTilsagnRequest(tilsagn, prismodell)
+
+            call.respond(defaults)
+        }
+
+        post("/defaults", {
+            description = "Hent standardverdier for tilsagn utledet av systemet"
+            tags = setOf("Tilsagn")
+            operationId = "getTilsagnDefaults"
+            request {
+                body<TilsagnRequest>()
+            }
+            response {
+                code(HttpStatusCode.OK) {
+                    description = "Standardverdier for tilsagn"
+                    body<TilsagnRequest>()
+                }
+                default {
+                    description = "Problem details"
+                    body<ProblemDetail>()
+                }
+            }
+        }) {
+            val request = call.receive<TilsagnRequest>()
+
+            val gjennomforing = gjennomforinger.getGjennomforingTiltaksadministrasjon(request.gjennomforingId)
+                ?: return@post call.respond(
+                    HttpStatusCode.BadRequest,
+                    "Ugyldig gjennomforingId=${request.gjennomforingId}",
+                )
+
+            val defaults = when (request.type) {
+                TilsagnType.TILSAGN -> db.session {
+                    val sisteTilsagn = queries.tilsagn
+                        .getAll(typer = listOf(TilsagnType.TILSAGN), gjennomforingId = request.gjennomforingId)
+                        .firstOrNull()
+
+                    resolveTilsagnDefaults(config.okonomi, gjennomforing, sisteTilsagn)
+                }
+
+                TilsagnType.INVESTERING, TilsagnType.EKSTRATILSAGN -> db.session {
+                    resolveEkstraTilsagnInvesteringDefaults(request, gjennomforing)
+                }
+            }
+
+            call.respond(HttpStatusCode.OK, defaults)
+        }
+
+        post("/valgbare-deltakere", {
+            description = "Hent valgbare deltakere for tilsagn"
+            tags = setOf("Tilsagn")
+            operationId = "getTilsagnValgbareDeltakere"
+            request {
+                body<TilsagnDeltakereRequest>()
+            }
+            response {
+                code(HttpStatusCode.OK) {
+                    description = "Valgbare deltakere for tilsagn"
+                    body<TilsagnDeltakereResponse>()
+                }
+                default {
+                    description = "Problem details"
+                    body<ProblemDetail>()
+                }
+            }
+        }) {
+            val request = call.receive<TilsagnDeltakereRequest>()
+
+            val gjennomforing = gjennomforinger.getGjennomforingTiltaksadministrasjon(request.gjennomforingId)
+                ?: return@post call.respond(
+                    HttpStatusCode.BadRequest,
+                    "Ugyldig gjennomforingId=${request.gjennomforingId}",
+                )
+
+            val tilsagnPerDeltaker =
+                (gjennomforing.prismodell as? Prismodell.AnnenAvtaltPris)?.tilsagnPerDeltaker ?: false
+
+            val deltakere = if (tilsagnPerDeltaker) {
+                val deltakelser = db.session { repository.deltaker.getByGjennomforing(gjennomforing.id) }
+                    .filter {
+                        when (it.status.type) {
+                            DeltakerStatusType.AVBRUTT_UTKAST,
+                            DeltakerStatusType.FEILREGISTRERT,
+                            DeltakerStatusType.UTKAST_TIL_PAMELDING,
+                            DeltakerStatusType.KLADD,
+                            -> false
+
+                            else -> true
+                        }
+                    }
+                val personalia = personaliaService.getPersonalia(
+                    deltakelser.map { it.id },
+                    PersonaliaService.OnBehalfOf.NavAnsatt(call.getAccessType().requireAzureAd()),
+                )
+                deltakelser.map {
+                    TilsagnDeltakerDto.from(it, personalia.find { p -> p.deltakerId == it.id })
+                }
+            } else {
+                emptyList()
+            }
+
+            call.respond(TilsagnDeltakereResponse(tilsagnPerDeltaker, deltakere))
+        }
+
+        post("/beregn", {
+            description = "Beregn tilsagn"
+            tags = setOf("Tilsagn")
+            operationId = "beregnTilsagn"
+            request {
+                body<BeregnTilsagnRequest>()
+            }
+            response {
+                code(HttpStatusCode.OK) {
+                    description = "Beregnet tilsagn"
+                    body<BeregnTilsagnResponse>()
+                }
+                default {
+                    description = "Problem details"
+                    body<ProblemDetail>()
+                }
+            }
+        }) {
+            val request = try {
+                call.receive<BeregnTilsagnRequest>()
+            } catch (_: Throwable) {
+                call.respond(BeregnTilsagnResponse(beregning = null))
+                return@post
+            }
+            val beregning = service.beregnTilsagnUnvalidated(request)?.let {
+                TilsagnBeregningDto.from(it)
+            }
+            call.respond(
+                BeregnTilsagnResponse(
+                    beregning = beregning,
+                ),
             )
-            deltakelser.map {
-                TilsagnDeltakerDto.from(it, personalia.find { p -> p.deltakerId == it.id })
-            }
-        } else {
-            emptyList()
         }
-
-        call.respond(TilsagnDeltakereResponse(tilsagnPerDeltaker, deltakere))
-    }
-
-    post("/beregn", {
-        description = "Beregn tilsagn"
-        tags = setOf("Tilsagn")
-        operationId = "beregnTilsagn"
-        request {
-            body<BeregnTilsagnRequest>()
-        }
-        response {
-            code(HttpStatusCode.OK) {
-                description = "Beregnet tilsagn"
-                body<BeregnTilsagnResponse>()
-            }
-            default {
-                description = "Problem details"
-                body<ProblemDetail>()
-            }
-        }
-    }) {
-        val request = try {
-            call.receive<BeregnTilsagnRequest>()
-        } catch (_: Throwable) {
-            call.respond(BeregnTilsagnResponse(beregning = null))
-            return@post
-        }
-        val beregning = service.beregnTilsagnUnvalidated(request)?.let {
-            TilsagnBeregningDto.from(it)
-        }
-        call.respond(
-            BeregnTilsagnResponse(
-                beregning = beregning,
-            ),
-        )
     }
 }
 

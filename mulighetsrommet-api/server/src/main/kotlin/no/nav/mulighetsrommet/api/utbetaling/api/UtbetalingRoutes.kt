@@ -115,7 +115,7 @@ fun Route.utbetalingRoutes() {
     }
 
     route("/utbetaling") {
-        authorize(Rolle.SAKSBEHANDLER_OKONOMI) {
+        authorize(anyOf = setOf(Rolle.SAKSBEHANDLER_OKONOMI, Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS)) {
             post("/opprett", {
                 tags = setOf("Utbetaling")
                 operationId = "opprettUtbetaling"
@@ -206,7 +206,15 @@ fun Route.utbetalingRoutes() {
     }
 
     route("/utbetaling/{id}") {
-        authorize(anyOf = setOf(Rolle.OKONOMI_LES, Rolle.SAKSBEHANDLER_OKONOMI, Rolle.ATTESTANT_UTBETALING)) {
+        authorize(
+            anyOf = setOf(
+                Rolle.OKONOMI_LES,
+                Rolle.SAKSBEHANDLER_OKONOMI,
+                Rolle.ATTESTANT_UTBETALING,
+                Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS,
+                Rolle.OKONOMI_BESLUTTER_ENKELTPLASS,
+            ),
+        ) {
             get({
                 description = "Hent detaljer om utbetaling"
                 tags = setOf("Utbetaling")
@@ -232,9 +240,69 @@ fun Route.utbetalingRoutes() {
 
                 call.respondWithStatusResponse(result)
             }
+
+            get("/beregning", {
+                tags = setOf("Utbetaling")
+                operationId = "getUtbetalingBeregning"
+                request {
+                    pathParameterUuid("id")
+                    queryParameter<List<String>>("navEnheter") {
+                        explode = true
+                    }
+                }
+                response {
+                    code(HttpStatusCode.OK) {
+                        description = "Utbetalingen ble opprettet"
+                        body<UtbetalingBeregningDto>()
+                    }
+                    default {
+                        description = "Problem details"
+                        body<ProblemDetail>()
+                    }
+                }
+            }) {
+                val id: UUID by call.parameters
+                val navIdent = getNavIdent()
+                val filter = getBeregningFilter()
+                val onBehalfOf = PersonaliaService.OnBehalfOf.NavAnsatt(call.getAccessType().requireAzureAd())
+
+                val result = utbetalingDtoQuery
+                    .getBeregning(id, navIdent, filter, onBehalfOf)
+                    .mapLeft { toProblemDetail(it) }
+
+                call.respondWithStatusResponse(result)
+            }
+
+            get("/linjer", {
+                tags = setOf("Utbetaling")
+                operationId = "getUtbetalingsLinjer"
+                request {
+                    pathParameterUuid("id")
+                }
+                response {
+                    code(HttpStatusCode.OK) {
+                        description = "Utbetalingslinjer til utbetaling"
+                        body<List<UtbetalingLinjeDto>>()
+                    }
+                    default {
+                        description = "Problem details"
+                        body<ProblemDetail>()
+                    }
+                }
+            }) {
+                val id: UUID by call.parameters
+                val navIdent = getNavIdent()
+                val onBehalfOf = PersonaliaService.OnBehalfOf.NavAnsatt(call.getAccessType().requireAzureAd())
+
+                val result = utbetalingDtoQuery
+                    .getLinjer(id, navIdent, onBehalfOf)
+                    .mapLeft { toProblemDetail(it) }
+
+                call.respondWithStatusResponse(result)
+            }
         }
 
-        authorize(Rolle.SAKSBEHANDLER_OKONOMI) {
+        authorize(anyOf = setOf(Rolle.SAKSBEHANDLER_OKONOMI, Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS)) {
             delete({
                 description = "Slett utbetaling"
                 tags = setOf("Utbetaling")
@@ -287,7 +355,9 @@ fun Route.utbetalingRoutes() {
                         call.respond(HttpStatusCode.OK)
                     }
             }
+        }
 
+        authorize(anyOf = setOf(Rolle.ATTESTANT_UTBETALING, Rolle.OKONOMI_BESLUTTER_ENKELTPLASS)) {
             put("/avbryt/godkjenn", {
                 description = "Godkjenn avbrytelse av utbetaling"
                 tags = setOf("Utbetaling")
@@ -341,74 +411,10 @@ fun Route.utbetalingRoutes() {
                     .onRight { call.respond(HttpStatusCode.OK) }
             }
         }
-
-        authorize(anyOf = setOf(Rolle.OKONOMI_LES, Rolle.SAKSBEHANDLER_OKONOMI, Rolle.ATTESTANT_UTBETALING)) {
-            get("/beregning", {
-                tags = setOf("Utbetaling")
-                operationId = "getUtbetalingBeregning"
-                request {
-                    pathParameterUuid("id")
-                    queryParameter<List<String>>("navEnheter") {
-                        explode = true
-                    }
-                }
-                response {
-                    code(HttpStatusCode.OK) {
-                        description = "Utbetalingen ble opprettet"
-                        body<UtbetalingBeregningDto>()
-                    }
-                    default {
-                        description = "Problem details"
-                        body<ProblemDetail>()
-                    }
-                }
-            }) {
-                val id: UUID by call.parameters
-                val navIdent = getNavIdent()
-                val filter = getBeregningFilter()
-                val onBehalfOf = PersonaliaService.OnBehalfOf.NavAnsatt(call.getAccessType().requireAzureAd())
-
-                val result = utbetalingDtoQuery
-                    .getBeregning(id, navIdent, filter, onBehalfOf)
-                    .mapLeft { toProblemDetail(it) }
-
-                call.respondWithStatusResponse(result)
-            }
-        }
-
-        authorize(anyOf = setOf(Rolle.OKONOMI_LES, Rolle.SAKSBEHANDLER_OKONOMI, Rolle.ATTESTANT_UTBETALING)) {
-            get("/linjer", {
-                tags = setOf("Utbetaling")
-                operationId = "getUtbetalingsLinjer"
-                request {
-                    pathParameterUuid("id")
-                }
-                response {
-                    code(HttpStatusCode.OK) {
-                        description = "Utbetalingslinjer til utbetaling"
-                        body<List<UtbetalingLinjeDto>>()
-                    }
-                    default {
-                        description = "Problem details"
-                        body<ProblemDetail>()
-                    }
-                }
-            }) {
-                val id: UUID by call.parameters
-                val navIdent = getNavIdent()
-                val onBehalfOf = PersonaliaService.OnBehalfOf.NavAnsatt(call.getAccessType().requireAzureAd())
-
-                val result = utbetalingDtoQuery
-                    .getLinjer(id, navIdent, onBehalfOf)
-                    .mapLeft { toProblemDetail(it) }
-
-                call.respondWithStatusResponse(result)
-            }
-        }
     }
 
     route("/utbetalingslinjer") {
-        authorize(Rolle.SAKSBEHANDLER_OKONOMI) {
+        authorize(anyOf = setOf(Rolle.SAKSBEHANDLER_OKONOMI, Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS)) {
             put({
                 tags = setOf("Utbetaling")
                 operationId = "opprettUtbetalingLinjer"
@@ -438,7 +444,7 @@ fun Route.utbetalingRoutes() {
             }
         }
 
-        authorize(Rolle.ATTESTANT_UTBETALING) {
+        authorize(anyOf = setOf(Rolle.ATTESTANT_UTBETALING, Rolle.OKONOMI_BESLUTTER_ENKELTPLASS)) {
             post("/{id}/attester", {
                 tags = setOf("Utbetaling")
                 operationId = "attesterUtbetalingLinje"
@@ -466,7 +472,14 @@ fun Route.utbetalingRoutes() {
             }
         }
 
-        authorize(anyOf = setOf(Rolle.SAKSBEHANDLER_OKONOMI, Rolle.BESLUTTER_TILSAGN)) {
+        authorize(
+            anyOf = setOf(
+                Rolle.SAKSBEHANDLER_OKONOMI,
+                Rolle.BESLUTTER_TILSAGN,
+                Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS,
+                Rolle.OKONOMI_BESLUTTER_ENKELTPLASS,
+            ),
+        ) {
             post("/{id}/returner", {
                 tags = setOf("Utbetaling")
                 operationId = "returnerUtbetalingLinje"

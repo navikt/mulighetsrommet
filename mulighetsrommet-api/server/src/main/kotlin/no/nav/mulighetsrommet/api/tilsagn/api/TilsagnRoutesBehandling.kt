@@ -27,7 +27,9 @@ import java.util.UUID
 fun Route.tilsagnRoutesBehandling() {
     val service: TilsagnService by inject()
 
-    authorize(Rolle.SAKSBEHANDLER_OKONOMI) {
+    authorize(
+        anyOf = setOf(Rolle.SAKSBEHANDLER_OKONOMI, Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS),
+    ) {
         put({
             description = "Opprett tilsagn"
             tags = setOf("Tilsagn")
@@ -142,7 +144,9 @@ fun Route.tilsagnRoutesBehandling() {
         }
     }
 
-    authorize(Rolle.BESLUTTER_TILSAGN) {
+    authorize(
+        anyOf = setOf(Rolle.BESLUTTER_TILSAGN, Rolle.OKONOMI_BESLUTTER_ENKELTPLASS),
+    ) {
         post("/{id}/godkjenn", {
             tags = setOf("Tilsagn")
             operationId = "godkjennTilsagn"
@@ -170,7 +174,14 @@ fun Route.tilsagnRoutesBehandling() {
         }
     }
 
-    authorize(anyOf = setOf(Rolle.SAKSBEHANDLER_OKONOMI, Rolle.BESLUTTER_TILSAGN)) {
+    authorize(
+        anyOf = setOf(
+            Rolle.SAKSBEHANDLER_OKONOMI,
+            Rolle.BESLUTTER_TILSAGN,
+            Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS,
+            Rolle.OKONOMI_BESLUTTER_ENKELTPLASS,
+        ),
+    ) {
         post("/{id}/returner", {
             tags = setOf("Tilsagn")
             operationId = "returnerTilsagn"
