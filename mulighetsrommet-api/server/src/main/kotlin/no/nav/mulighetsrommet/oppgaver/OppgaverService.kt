@@ -313,6 +313,7 @@ private fun QueryContext.toOppgave(data: TilsagnOppgaveData, ansatt: NavAnsatt):
                 TilsagnService.tilgangTilHandling(
                     TilsagnHandling.GODKJENN,
                     ansatt = ansatt,
+                    gjennomforingType = data.gjennomforing.type,
                     kostnadssted = data.kostnadssted.nummer,
                     opprettelse = opprettelse,
                     annullering = annullering,
@@ -338,6 +339,7 @@ private fun QueryContext.toOppgave(data: TilsagnOppgaveData, ansatt: NavAnsatt):
                 TilsagnService.tilgangTilHandling(
                     TilsagnHandling.REDIGER,
                     ansatt = ansatt,
+                    gjennomforingType = data.gjennomforing.type,
                     kostnadssted = data.kostnadssted.nummer,
                     opprettelse = opprettelse,
                     annullering = annullering,
@@ -363,6 +365,7 @@ private fun QueryContext.toOppgave(data: TilsagnOppgaveData, ansatt: NavAnsatt):
                 TilsagnService.tilgangTilHandling(
                     TilsagnHandling.GODKJENN_ANNULLERING,
                     ansatt = ansatt,
+                    gjennomforingType = data.gjennomforing.type,
                     kostnadssted = data.kostnadssted.nummer,
                     opprettelse = opprettelse,
                     annullering = annullering,
@@ -388,6 +391,7 @@ private fun QueryContext.toOppgave(data: TilsagnOppgaveData, ansatt: NavAnsatt):
                 TilsagnService.tilgangTilHandling(
                     TilsagnHandling.GODKJENN_OPPGJOR,
                     ansatt = ansatt,
+                    gjennomforingType = data.gjennomforing.type,
                     kostnadssted = data.kostnadssted.nummer,
                     opprettelse = opprettelse,
                     annullering = annullering,

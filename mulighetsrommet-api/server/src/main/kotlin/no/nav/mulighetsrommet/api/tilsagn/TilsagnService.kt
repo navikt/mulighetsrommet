@@ -4,6 +4,7 @@ import arrow.core.Either
 import arrow.core.left
 import arrow.core.nel
 import arrow.core.nonEmptyListOf
+import arrow.core.nonEmptySetOf
 import arrow.core.right
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
@@ -15,11 +16,14 @@ import no.nav.mulighetsrommet.api.TransactionalQueryContext
 import no.nav.mulighetsrommet.api.aarsakerbegrunnelse.AarsakerOgBegrunnelseRequest
 import no.nav.mulighetsrommet.api.domain.arrangor.Arrangor
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsatt
-import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.Totrinnskontroll
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
+import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingType
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingTiltaksadministrasjon
+import no.nav.mulighetsrommet.api.navansatt.OkonomiAuthorization
+import no.nav.mulighetsrommet.api.navansatt.OkonomiBeslutningContext
 import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnHandling
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
 import no.nav.mulighetsrommet.api.tilsagn.model.BeregnTilsagnRequest
@@ -40,8 +44,6 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.totrinnskontroll.api.toFieldErrors
 import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingInputHelper
-import no.nav.mulighetsrommet.api.utbetaling.service.erBeslutter
-import no.nav.mulighetsrommet.api.utbetaling.service.erSaksbehandler
 import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.Arena
 import no.nav.mulighetsrommet.model.FieldError
@@ -76,17 +78,24 @@ class TilsagnService(
         val gyldigTilsagnPeriode: Map<Tiltakskode, Periode>,
     )
 
-    fun upsert(request: TilsagnRequest, agent: Agent): Either<List<FieldError>, Tilsagn> = db.transaction {
+    fun upsert(request: TilsagnRequest, agent: Agent): Either<TilsagnError, Tilsagn> = db.transaction {
         upsertInTx(request, agent)
     }
 
     context(tx: TransactionalQueryContext)
-    fun upsertInTx(request: TilsagnRequest, agent: Agent): Either<List<FieldError>, Tilsagn> = with(tx) {
+    fun upsertInTx(request: TilsagnRequest, agent: Agent): Either<TilsagnError, Tilsagn> = with(tx) {
         requireNotNull(request.id) { "id mangler" }
 
         val gjennomforing = queries.gjennomforing.getGjennomforingTiltaksadministrasjon(request.gjennomforingId)
+        if (!kanOppretteTilsagn(agent, gjennomforing)) {
+            val message = when (agent) {
+                is NavIdent -> "Du mangler saksbehandlertilgang til tilsagnet"
+                else -> "$agent kan ikke opprette tilsagn"
+            }
+            return TilsagnError.ManglerTilgang(message).left()
+        }
 
-        val previous = queries.tilsagn.get(request.id)
+        val previous = queries.tilsagn.getAndAcquireLockOrNull(request.id)
         val stengt = when (gjennomforing) {
             is GjennomforingAvtale -> gjennomforing.stengt
             is GjennomforingEnkeltplass -> listOf()
@@ -102,6 +111,7 @@ class TilsagnService(
                 prismodell = gjennomforing.prismodell,
                 stengt = stengt,
             )
+            .mapLeft(TilsagnError::Valideringsfeil)
             .map { validated ->
                 val lopenummer = previous?.lopenummer
                     ?: queries.tilsagn.getNextLopenummeByGjennomforing(gjennomforing.id)
@@ -143,10 +153,13 @@ class TilsagnService(
             }
     }
 
-    fun slettTilsagn(id: UUID, navIdent: NavIdent): Either<List<FieldError>, Unit> = db.transaction {
+    fun slettTilsagn(id: UUID, navIdent: NavIdent): Either<TilsagnError, Unit> = db.transaction {
         val tilsagn = queries.tilsagn.getAndAcquireLock(id)
+        if (!erSaksbehandler(navIdent, tilsagn)) {
+            return TilsagnError.ManglerTilgang("Du mangler saksbehandlertilgang til tilsagnet").left()
+        }
         if (tilsagn.status != TilsagnStatus.RETURNERT) {
-            return FieldError.of("Kan ikke slette tilsagn som er godkjent").nel().left()
+            return TilsagnError.Valideringsfeil(FieldError.of("Kan ikke slette tilsagn som er godkjent").nel()).left()
         }
 
         val opprettelse = queries.totrinnskontroll.getOrError(id, TotrinnskontrollType.TILSAGN_OPPRETTELSE)
@@ -164,24 +177,36 @@ class TilsagnService(
         id: UUID,
         navIdent: NavIdent,
         request: AarsakerOgBegrunnelseRequest<TilsagnStatusAarsak>,
-    ): Tilsagn = db.transaction {
+    ): Either<TilsagnError, Tilsagn> = db.transaction {
         val tilsagn = queries.tilsagn.getAndAcquireLock(id)
-        setTilAnnullering(tilsagn, navIdent, request.aarsaker.map { it.name }, request.begrunnelse)
+        if (!erSaksbehandler(navIdent, tilsagn)) {
+            return TilsagnError.ManglerTilgang("Du mangler saksbehandlertilgang til tilsagnet").left()
+        }
+        if (tilsagn.status != TilsagnStatus.GODKJENT) {
+            return TilsagnError.Valideringsfeil(FieldError.of("Kan bare annullere godkjente tilsagn").nel()).left()
+        }
+        setTilAnnullering(tilsagn, navIdent, request.aarsaker.map { it.name }, request.begrunnelse).right()
     }
 
     fun tilOppgjorRequest(
         id: UUID,
         navIdent: NavIdent,
         request: AarsakerOgBegrunnelseRequest<TilsagnStatusAarsak>,
-    ): Tilsagn = db.transaction {
+    ): Either<TilsagnError, Tilsagn> = db.transaction {
         val tilsagn = queries.tilsagn.getAndAcquireLock(id)
+        if (!erSaksbehandler(navIdent, tilsagn)) {
+            return TilsagnError.ManglerTilgang("Du mangler saksbehandlertilgang til tilsagnet").left()
+        }
+        if (tilsagn.status != TilsagnStatus.GODKJENT) {
+            return TilsagnError.Valideringsfeil(FieldError.of("Kan bare gjøre opp godkjente tilsagn").nel()).left()
+        }
         setTilOppgjor(
             tilsagn,
             navIdent,
             aarsaker = request.aarsaker.map { it.name },
             begrunnelse = request.begrunnelse,
             operation = "Sendt til oppgjør",
-        )
+        ).right()
     }
 
     fun beregnTilsagnUnvalidated(request: BeregnTilsagnRequest): TilsagnBeregning? = db.session {
@@ -317,30 +342,21 @@ class TilsagnService(
     fun godkjennTilsagn(
         id: UUID,
         agent: Agent,
-    ): Either<List<FieldError>, Tilsagn> = db.transaction { godkjennTilsagnInTx(id, agent) }
+    ): Either<TilsagnError, Tilsagn> = db.transaction { godkjennTilsagnInTx(id, agent) }
 
     context(tx: TransactionalQueryContext)
     fun godkjennTilsagnInTx(
         id: UUID,
         agent: Agent,
-    ): Either<List<FieldError>, Tilsagn> = with(tx) {
+    ): Either<TilsagnError, Tilsagn> = with(tx) {
         val tilsagn = queries.tilsagn.getAndAcquireLock(id)
 
-        when (agent) {
-            Tiltaksadministrasjon -> Unit
-
-            Arena,
-            no.nav.mulighetsrommet.model.Arrangor,
-            -> return FieldError.of("$agent kan ikke beslutte tilsagn").nel().left()
-
-            is NavIdent -> {
-                val ansatt = queries.ansatt.getOrError(agent)
-                if (!erBeslutter(ansatt, tilsagn.kostnadssted)) {
-                    return FieldError.of("Du kan ikke beslutte tilsagnet fordi du mangler budsjettmyndighet ved tilsagnets kostnadssted (${tilsagn.kostnadssted.navn})")
-                        .nel()
-                        .left()
-                }
+        if (!kanBeslutteTilsagn(agent, tilsagn)) {
+            val message = when (agent) {
+                is NavIdent -> "Du kan ikke beslutte tilsagnet fordi du mangler budsjettmyndighet ved tilsagnets kostnadssted (${tilsagn.kostnadssted.navn})"
+                else -> "$agent kan ikke beslutte tilsagn"
             }
+            return TilsagnError.ManglerTilgang(message).left()
         }
 
         when (tilsagn.status) {
@@ -360,7 +376,7 @@ class TilsagnService(
             TilsagnStatus.TIL_OPPGJOR -> gjorOppTilsagn(tilsagn, agent, "Tilsagn oppgjort").onRight {
                 publishGjorOppBestilling(it)
             }
-        }
+        }.mapLeft(TilsagnError::Valideringsfeil)
     }
 
     fun returnerTilsagn(
@@ -368,12 +384,11 @@ class TilsagnService(
         navIdent: NavIdent,
         aarsaker: List<TilsagnStatusAarsak>,
         begrunnelse: String?,
-    ): Either<List<FieldError>, Tilsagn> = db.transaction {
+    ): Either<TilsagnError, Tilsagn> = db.transaction {
         val tilsagn = queries.tilsagn.getAndAcquireLock(id)
 
-        val ansatt = queries.ansatt.getOrError(navIdent)
-        if (!(erSaksbehandler(ansatt) || erBeslutter(ansatt, tilsagn.kostnadssted))) {
-            return FieldError.of("Du kan ikke returnere tilsagnet fordi du mangler tilgang").nel().left()
+        if (!erSaksbehandler(navIdent, tilsagn) && !erBeslutter(navIdent, tilsagn)) {
+            return TilsagnError.ManglerTilgang("Du kan ikke returnere tilsagnet fordi du mangler tilgang").left()
         }
 
         when (tilsagn.status) {
@@ -387,7 +402,7 @@ class TilsagnService(
             TilsagnStatus.TIL_ANNULLERING -> avvisAnnullering(tilsagn, navIdent, aarsaker, begrunnelse)
 
             TilsagnStatus.TIL_OPPGJOR -> avvisOppgjor(tilsagn, navIdent, aarsaker, begrunnelse)
-        }
+        }.mapLeft(TilsagnError::Valideringsfeil)
     }
 
     fun republishOpprettBestilling(bestillingsnummer: String): Tilsagn = db.transaction {
@@ -784,6 +799,44 @@ class TilsagnService(
         return tilsagn
     }
 
+    private fun QueryContext.kanOppretteTilsagn(
+        agent: Agent,
+        gjennomforing: GjennomforingTiltaksadministrasjon,
+    ): Boolean {
+        val type = when (gjennomforing) {
+            is GjennomforingAvtale -> GjennomforingType.AVTALE
+            is GjennomforingEnkeltplass -> GjennomforingType.ENKELTPLASS
+        }
+        return when (agent) {
+            Tiltaksadministrasjon -> true
+            Arena, is no.nav.mulighetsrommet.model.Arrangor -> false
+            is NavIdent -> OkonomiAuthorization.erSaksbehandler(queries.ansatt.getOrError(agent), type)
+        }
+    }
+
+    private fun QueryContext.erSaksbehandler(navIdent: NavIdent, tilsagn: Tilsagn): Boolean {
+        val ansatt = queries.ansatt.getOrError(navIdent)
+        return OkonomiAuthorization.erSaksbehandler(ansatt, tilsagn.gjennomforing.type)
+    }
+
+    private fun QueryContext.kanBeslutteTilsagn(agent: Agent, tilsagn: Tilsagn): Boolean = when (agent) {
+        Tiltaksadministrasjon -> true
+        Arena, is no.nav.mulighetsrommet.model.Arrangor -> false
+        is NavIdent -> erBeslutter(agent, tilsagn)
+    }
+
+    private fun QueryContext.erBeslutter(
+        navIdent: NavIdent,
+        tilsagn: Tilsagn,
+    ): Boolean {
+        val ansatt = queries.ansatt.getOrError(navIdent)
+        val kontekst = OkonomiBeslutningContext(
+            gjennomforingType = tilsagn.gjennomforing.type,
+            kostnadssteder = nonEmptySetOf(tilsagn.kostnadssted.enhetsnummer),
+        )
+        return OkonomiAuthorization.erBeslutterTilsagn(ansatt, kontekst)
+    }
+
     fun handlinger(tilsagn: Tilsagn, ansatt: NavAnsatt): Set<TilsagnHandling> = db.session {
         val status = tilsagn.status
 
@@ -807,6 +860,7 @@ class TilsagnService(
                 tilgangTilHandling(
                     handling = it,
                     ansatt = ansatt,
+                    gjennomforingType = tilsagn.gjennomforing.type,
                     kostnadssted = tilsagn.kostnadssted.enhetsnummer,
                     opprettelse = opprettelse,
                     annullering = annullering,
@@ -820,24 +874,34 @@ class TilsagnService(
         fun tilgangTilHandling(
             handling: TilsagnHandling,
             ansatt: NavAnsatt,
+            gjennomforingType: GjennomforingType,
             kostnadssted: NavEnhetNummer,
             opprettelse: Totrinnskontroll,
             annullering: Totrinnskontroll?,
             tilOppgjor: Totrinnskontroll?,
         ): Boolean {
-            val erBeslutter = ansatt.hasKontorspesifikkRolle(Rolle.BESLUTTER_TILSAGN, setOf(kostnadssted))
-            val erSaksbehandler = ansatt.hasGenerellRolle(Rolle.SAKSBEHANDLER_OKONOMI)
+            val erBeslutter = OkonomiAuthorization.erBeslutterTilsagn(
+                ansatt,
+                OkonomiBeslutningContext(gjennomforingType, nonEmptySetOf(kostnadssted)),
+            )
+            val erSaksbehandler = OkonomiAuthorization.erSaksbehandler(ansatt, gjennomforingType)
 
             return when (handling) {
-                TilsagnHandling.REDIGER -> erSaksbehandler
+                TilsagnHandling.REDIGER,
+                TilsagnHandling.SLETT,
+                TilsagnHandling.GJOR_OPP,
+                TilsagnHandling.ANNULLER,
+                -> erSaksbehandler
+
+                TilsagnHandling.RETURNER,
+                TilsagnHandling.AVSLA_OPPGJOR,
+                TilsagnHandling.AVSLA_ANNULLERING,
+                -> erSaksbehandler || erBeslutter
+
                 TilsagnHandling.GODKJENN -> erBeslutter && opprettelse.behandling.utfortAv != ansatt.navIdent
-                TilsagnHandling.RETURNER -> erSaksbehandler || erBeslutter
-                TilsagnHandling.SLETT -> erSaksbehandler
-                TilsagnHandling.GJOR_OPP -> erSaksbehandler
+
                 TilsagnHandling.GODKJENN_OPPGJOR -> erBeslutter && tilOppgjor?.behandling?.utfortAv != ansatt.navIdent
-                TilsagnHandling.AVSLA_OPPGJOR -> erBeslutter
-                TilsagnHandling.ANNULLER -> erSaksbehandler
-                TilsagnHandling.AVSLA_ANNULLERING -> erBeslutter
+
                 TilsagnHandling.GODKJENN_ANNULLERING -> erBeslutter && annullering?.behandling?.utfortAv != ansatt.navIdent
             }
         }

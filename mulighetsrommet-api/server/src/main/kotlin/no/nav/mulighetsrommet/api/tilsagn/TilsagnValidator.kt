@@ -68,6 +68,12 @@ object TilsagnValidator {
         validate(previous == null || previous.status == TilsagnStatus.RETURNERT) {
             FieldError.of("Tilsagnet kan ikke endres")
         }
+        validate(previous == null || previous.gjennomforing.id == next.gjennomforingId) {
+            FieldError.of(
+                "Tilsagnet kan ikke flyttes til en annen gjennomføring",
+                TilsagnRequest::gjennomforingId,
+            )
+        }
         validate((next.kommentar?.length ?: 0) <= 500) {
             FieldError.of("Kommentar kan ikke inneholde mer enn 500 tegn", TilsagnRequest::kommentar)
         }
