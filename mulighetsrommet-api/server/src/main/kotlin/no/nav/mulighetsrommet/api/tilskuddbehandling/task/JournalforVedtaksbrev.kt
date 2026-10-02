@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.tilskuddbehandling.task
 
 import arrow.core.Either
 import arrow.core.flatMap
+import arrow.core.right
 import com.github.kagkarlsson.scheduler.task.FailureHandler
 import com.github.kagkarlsson.scheduler.task.helper.OneTimeTask
 import com.github.kagkarlsson.scheduler.task.helper.Tasks
@@ -12,6 +13,7 @@ import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokarkClient
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.Journalpost
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.tilskuddbehandling.mapper.TilskuddVedtakToPdfDocumentContentMapper
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingType
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.tasks.executeSuspend
@@ -44,9 +46,17 @@ class JournalforVedtaksbrev(
         .executeSuspend { inst, _ ->
             journalfor(inst.data.behandlingId).onLeft { message ->
                 throw Exception("Feil ved journalføring av tilskuddsbehandling med id=${inst.data.behandlingId}: $message")
-            }.onRight { response ->
-                logger.info("Skedulerer distribusjon av vedtaksbrev journalpostId: $response, behandlingId: ${inst.data.behandlingId}")
-                distribuerVedtaksbrev.schedule(inst.data.behandlingId)
+            }.onRight { resultat ->
+                when (resultat) {
+                    is JournalForResultat.Success -> {
+                        logger.info("Skedulerer distribusjon av vedtaksbrev journalpostId: ${resultat.vedtakJournalpostId}, behandlingId: ${inst.data.behandlingId}")
+                        distribuerVedtaksbrev.schedule(inst.data.behandlingId)
+                    }
+
+                    is JournalForResultat.Noop -> {
+                        logger.info(resultat.message)
+                    }
+                }
             }
         }
 
@@ -56,11 +66,16 @@ class JournalforVedtaksbrev(
         client.scheduleIfNotExists(instance, startTime)
     }
 
-    suspend fun journalfor(behandlingId: UUID): Either<String, String> = db.transaction {
+    suspend fun journalfor(behandlingId: UUID): Either<String, JournalForResultat> = db.transaction {
+        val behandling = queries.tilskuddBehandling.getOrError(behandlingId)
+        if (behandling.type == TilskuddBehandlingType.REVURDERING) {
+            return@transaction JournalForResultat.Noop("Revurdering behandling er ikke implementert, journalføres ikke. BehandlingId: $behandlingId").right()
+        }
+
         val vedtakJournalpostId = queries.tilskuddBehandling.getVedtakJournalpostId(behandlingId)
         if (vedtakJournalpostId != null) {
             logger.info("Vedtak om tilskudd er allerede journalført med id $vedtakJournalpostId")
-            return@transaction Either.Right(vedtakJournalpostId)
+            return@transaction JournalForResultat.Success(vedtakJournalpostId).right()
         }
 
         logger.info("Journalfører vedtak med id: $behandlingId")
@@ -80,7 +95,7 @@ class JournalforVedtaksbrev(
                 }
                 .map { response ->
                     queries.tilskuddBehandling.setJournalpostId(behandlingId, response.journalpostId)
-                    response.journalpostId
+                    JournalForResultat.Success(response.journalpostId)
                 }
         }
     }
@@ -140,3 +155,8 @@ fun vedtakJournalpost(
     ),
     kanal = "NAV_NO",
 )
+
+sealed interface JournalForResultat {
+    data class Success(val vedtakJournalpostId: String) : JournalForResultat
+    data class Noop(val message: String) : JournalForResultat
+}
