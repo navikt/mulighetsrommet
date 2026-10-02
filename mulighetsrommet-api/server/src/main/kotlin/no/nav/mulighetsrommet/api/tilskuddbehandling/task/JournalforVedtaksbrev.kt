@@ -69,6 +69,8 @@ class JournalforVedtaksbrev(
     suspend fun journalfor(behandlingId: UUID): Either<String, JournalForResultat> = db.transaction {
         val behandling = queries.tilskuddBehandling.getOrError(behandlingId)
         if (behandling.type == TilskuddBehandlingType.REVURDERING) {
+            // TODO: Noop burde fjernes når en implementerer opphør og/eller revurdering
+            // Brukes til testing av opphør
             return@transaction JournalForResultat.Noop("Revurdering behandling er ikke implementert, journalføres ikke. BehandlingId: $behandlingId").right()
         }
 
@@ -158,5 +160,8 @@ fun vedtakJournalpost(
 
 sealed interface JournalForResultat {
     data class Success(val vedtakJournalpostId: String) : JournalForResultat
+
+    // TODO: Brukes midlertidig til håndtering av opphørsbehandling av tilskudd
+    // Bør fjernes når man vurderer implementasjon av opphør eller revurdering av tilskudd
     data class Noop(val message: String) : JournalForResultat
 }
