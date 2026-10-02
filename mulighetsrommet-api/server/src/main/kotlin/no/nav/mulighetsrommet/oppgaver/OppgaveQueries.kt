@@ -367,7 +367,10 @@ class OppgaveQueries(private val session: Session) {
         }
     }
 
-    fun getUtbetalingBehandlingOppgaveData(tiltakskoder: Set<Tiltakskode>?, arrangorer: Set<UUID>?): List<UtbetalingBehandlingOppgaveData> {
+    fun getUtbetalingBehandlingOppgaveData(
+        tiltakskoder: Set<Tiltakskode>?,
+        arrangorer: Set<UUID>?,
+    ): List<UtbetalingBehandlingOppgaveData> {
         @Language("PostgreSQL")
         val utbetalingQuery = """
             select
@@ -438,7 +441,10 @@ class OppgaveQueries(private val session: Session) {
         }
     }
 
-    fun getUtbetalingManglerTilsagnOppgaveData(tiltakskoder: Set<Tiltakskode>?, arrangorer: Set<UUID>?): List<UtbetalingManglerTilsagnOppgaveData> {
+    fun getUtbetalingManglerTilsagnOppgaveData(
+        tiltakskoder: Set<Tiltakskode>?,
+        arrangorer: Set<UUID>?,
+    ): List<UtbetalingManglerTilsagnOppgaveData> {
         @Language("PostgreSQL")
         val utbetalingQuery = """
             select
@@ -567,8 +573,7 @@ class OppgaveQueries(private val session: Session) {
                 tb.id,
                 tb.status,
                 tv.periode,
-                tv.kostnadssted,
-                nav_enhet.navn as kostnadssted_navn,
+                ks.kostnadssteder_json,
                 gjennomforing.id as gjennomforing_id,
                 gjennomforing.lopenummer as gjennomforing_lopenummer,
                 gjennomforing.navn as gjennomforing_navn,
@@ -588,13 +593,20 @@ class OppgaveQueries(private val session: Session) {
                         kostnadssted
                     from tilskudd_vedtak
                     where tilskudd_behandling_id = tb.id
-                    order by lopenummer asc
+                    order by lopenummer
                     limit 1
                 ) tv on true
+                inner join lateral (
+                    select jsonb_agg(
+                        jsonb_build_object('nummer', v.kostnadssted, 'navn', enhet.navn)
+                    ) as kostnadssteder_json
+                    from tilskudd_vedtak v
+                    inner join nav_enhet enhet on enhet.enhetsnummer = v.kostnadssted
+                    where v.tilskudd_behandling_id = tb.id
+                ) ks on true
                 inner join gjennomforing on gjennomforing.id = tb.gjennomforing_id
                 inner join arrangor on gjennomforing.arrangor_id = arrangor.id
                 inner join tiltakstype on tiltakstype.id = gjennomforing.tiltakstype_id
-                inner join nav_enhet on nav_enhet.enhetsnummer = tv.kostnadssted
                 inner join (
                     select distinct on (entity_id) *
                     from totrinnskontroll
@@ -619,10 +631,7 @@ class OppgaveQueries(private val session: Session) {
                 id = row.uuid("id"),
                 status = TilskuddBehandlingStatus.valueOf(row.string("status")),
                 periode = row.periode("periode"),
-                kostnadssted = OppgaveEnhet(
-                    navn = row.string("kostnadssted_navn"),
-                    nummer = NavEnhetNummer(row.string("kostnadssted")),
-                ),
+                kostnadssteder = Json.decodeFromString<List<OppgaveEnhet>>(row.string("kostnadssteder_json")),
                 opprettelse = TilskuddBehandlingOppgaveData.Opprettelse(
                     behandletAv = row.string("behandlet_av").toAgent(),
                     behandletTidspunkt = row.localDateTime("behandlet_tidspunkt"),
@@ -740,7 +749,7 @@ data class TilskuddBehandlingOppgaveData(
     val id: UUID,
     val status: TilskuddBehandlingStatus,
     val periode: Periode,
-    val kostnadssted: OppgaveEnhet,
+    val kostnadssteder: List<OppgaveEnhet>,
     val opprettelse: Opprettelse,
     val tiltakstype: OppgaveTiltakstype,
     val gjennomforing: OppgaveGjennomforing,

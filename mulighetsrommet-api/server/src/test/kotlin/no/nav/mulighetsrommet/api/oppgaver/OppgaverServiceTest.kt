@@ -875,6 +875,38 @@ class OppgaverServiceTest : FunSpec({
     }
 
     context("enkeltplasser") {
+        val beslutterEnkeltplass = NavAnsattRolle.kontorspesifikk(
+            Rolle.OKONOMI_BESLUTTER_ENKELTPLASS,
+            setOf(NavEnhetFixtures.Innlandet.enhetsnummer),
+        )
+        val saksbehandlerEnkeltplass = NavAnsattRolle.generell(Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS)
+
+        test("oppgavetyper følger rollene for enkeltplass") {
+            val service = OppgaverService(database.api, features())
+
+            service.getOppgavetyper(
+                NavAnsattFixture.DonaldDuck.medRoller(setOf(saksbehandlerEnkeltplass)),
+            ).map { it.type } shouldBe listOf(
+                OppgaveType.TILSAGN_RETURNERT,
+                OppgaveType.UTBETALING_TIL_BEHANDLING,
+                OppgaveType.UTBETALING_RETURNERT,
+                OppgaveType.UTBETALING_TIL_AVBRYTELSE,
+                OppgaveType.TILSKUDDBEHANDLING_RETURNERT,
+            )
+
+            service.getOppgavetyper(
+                NavAnsattFixture.MikkeMus.medRoller(setOf(beslutterEnkeltplass)),
+            ).map { it.type } shouldBe listOf(
+                OppgaveType.TILSAGN_TIL_GODKJENNING,
+                OppgaveType.TILSAGN_TIL_ANNULLERING,
+                OppgaveType.TILSAGN_TIL_OPPGJOR,
+                OppgaveType.UTBETALING_TIL_ATTESTERING,
+                OppgaveType.ENKELTPLASS_TIL_GODKJENNING,
+                OppgaveType.ENKELTPLASS_SATT_PA_VENT,
+                OppgaveType.TILSKUDDBEHANDLING_TIL_ATTESTERING,
+            )
+        }
+
         test("beslutter som ikke har opprettet enkeltplass ser oppgave for enkeltplass til godkjenning") {
             val service = OppgaverService(database.api, features())
 
@@ -893,9 +925,7 @@ class OppgaverServiceTest : FunSpec({
                 tiltakskoder = setOf(),
                 navEnheter = setOf(),
                 arrangorer = setOf(),
-                ansatt = NavAnsattFixture.MikkeMus.medRoller(
-                    roller = setOf(NavAnsattRolle.generell(Rolle.BESLUTTER_TILSAGN)),
-                ),
+                ansatt = NavAnsattFixture.MikkeMus.medRoller(setOf(beslutterEnkeltplass)),
             ) shouldMatchAllOppgaver listOf(
                 PartialOppgave(GjennomforingFixtures.EnkelAmo.id, OppgaveType.ENKELTPLASS_TIL_GODKJENNING),
             )
@@ -920,7 +950,7 @@ class OppgaverServiceTest : FunSpec({
                 navEnheter = setOf(),
                 arrangorer = setOf(),
                 ansatt = NavAnsattFixture.DonaldDuck.medRoller(
-                    roller = setOf(NavAnsattRolle.generell(Rolle.BESLUTTER_TILSAGN)),
+                    roller = setOf(beslutterEnkeltplass),
                 ),
             ).shouldBeEmpty()
         }
@@ -949,6 +979,35 @@ class OppgaverServiceTest : FunSpec({
             ).shouldBeEmpty()
         }
 
+        test("beslutter uten tilgang til ansvarlig enhet ser ikke enkeltplass til godkjenning") {
+            val service = OppgaverService(database.api, features())
+
+            MulighetsrommetTestDomain(
+                gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
+            ) {
+                setTilBehandling(
+                    GjennomforingFixtures.EnkelAmo.id,
+                    TotrinnskontrollType.ENKELTPLASS_OKONOMI,
+                    behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
+                )
+            }.initialize(database.api)
+
+            service.oppgaver(
+                oppgavetyper = setOf(OppgaveType.ENKELTPLASS_TIL_GODKJENNING),
+                tiltakskoder = setOf(),
+                navEnheter = setOf(),
+                arrangorer = setOf(),
+                ansatt = NavAnsattFixture.MikkeMus.medRoller(
+                    roller = setOf(
+                        NavAnsattRolle.kontorspesifikk(
+                            Rolle.OKONOMI_BESLUTTER_ENKELTPLASS,
+                            setOf(NavEnhetFixtures.Gjovik.enhetsnummer),
+                        ),
+                    ),
+                ),
+            ).shouldBeEmpty()
+        }
+
         test("allerede godkjent enkeltplass gir ikke oppgave") {
             val service = OppgaverService(database.api, features())
 
@@ -969,12 +1028,12 @@ class OppgaverServiceTest : FunSpec({
                 navEnheter = setOf(),
                 arrangorer = setOf(),
                 ansatt = NavAnsattFixture.MikkeMus.medRoller(
-                    roller = setOf(NavAnsattRolle.generell(Rolle.BESLUTTER_TILSAGN)),
+                    roller = setOf(beslutterEnkeltplass),
                 ),
             ).shouldBeEmpty()
         }
 
-        test("saksbehandler ser oppgave når enkeltplass er satt på vent") {
+        test("beslutter ser oppgave når enkeltplass er satt på vent") {
             val service = OppgaverService(database.api, features())
 
             MulighetsrommetTestDomain(
@@ -993,21 +1052,21 @@ class OppgaverServiceTest : FunSpec({
                 tiltakskoder = setOf(),
                 navEnheter = setOf(),
                 arrangorer = setOf(),
-                ansatt = NavAnsattFixture.DonaldDuck.medRoller(
-                    roller = setOf(NavAnsattRolle.generell(Rolle.BESLUTTER_TILSAGN)),
+                ansatt = NavAnsattFixture.MikkeMus.medRoller(
+                    roller = setOf(beslutterEnkeltplass),
                 ),
             ) shouldMatchAllOppgaver listOf(
                 PartialOppgave(GjennomforingFixtures.EnkelAmo.id, OppgaveType.ENKELTPLASS_SATT_PA_VENT),
             )
         }
 
-        test("ansatt uten saksbehandler-rolle ser ikke satt-på-vent oppgave") {
+        test("ansatt uten beslutter-rolle ser ikke satt-på-vent oppgave") {
             val service = OppgaverService(database.api, features())
 
             MulighetsrommetTestDomain(
                 gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
             ) {
-                setReturnert(
+                setPaVent(
                     GjennomforingFixtures.EnkelAmo.id,
                     TotrinnskontrollType.ENKELTPLASS_OKONOMI,
                     behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
@@ -1020,9 +1079,7 @@ class OppgaverServiceTest : FunSpec({
                 tiltakskoder = setOf(),
                 navEnheter = setOf(),
                 arrangorer = setOf(),
-                ansatt = NavAnsattFixture.DonaldDuck.medRoller(
-                    roller = setOf(NavAnsattRolle.generell(Rolle.BESLUTTER_TILSAGN)),
-                ),
+                ansatt = NavAnsattFixture.DonaldDuck.medRoller(setOf(saksbehandlerEnkeltplass)),
             ).shouldBeEmpty()
         }
 
@@ -1045,9 +1102,7 @@ class OppgaverServiceTest : FunSpec({
                 tiltakskoder = setOf(),
                 navEnheter = setOf(),
                 arrangorer = setOf(),
-                ansatt = NavAnsattFixture.MikkeMus.medRoller(
-                    roller = setOf(NavAnsattRolle.generell(Rolle.BESLUTTER_TILSAGN)),
-                ),
+                ansatt = NavAnsattFixture.MikkeMus.medRoller(setOf(beslutterEnkeltplass)),
             ).shouldBeEmpty()
         }
 
@@ -1075,9 +1130,7 @@ class OppgaverServiceTest : FunSpec({
                 tiltakskoder = setOf(),
                 navEnheter = setOf(),
                 arrangorer = setOf(),
-                ansatt = NavAnsattFixture.MikkeMus.medRoller(
-                    roller = setOf(NavAnsattRolle.generell(Rolle.BESLUTTER_TILSAGN)),
-                ),
+                ansatt = NavAnsattFixture.MikkeMus.medRoller(setOf(beslutterEnkeltplass)),
             ) shouldMatchAllOppgaver listOf(
                 PartialOppgave(GjennomforingFixtures.EnkelAmo.id, OppgaveType.ENKELTPLASS_TIL_GODKJENNING),
             )
@@ -1109,7 +1162,7 @@ class OppgaverServiceTest : FunSpec({
                 navEnheter = setOf(),
                 arrangorer = setOf(),
                 ansatt = NavAnsattFixture.MikkeMus.medRoller(
-                    roller = setOf(NavAnsattRolle.generell(Rolle.BESLUTTER_TILSAGN)),
+                    roller = setOf(beslutterEnkeltplass),
                 ),
             ) shouldMatchAllOppgaver listOf(
                 PartialOppgave(GjennomforingFixtures.EnkelAmo.id, OppgaveType.ENKELTPLASS_SATT_PA_VENT),
@@ -1132,9 +1185,7 @@ class OppgaverServiceTest : FunSpec({
                 tiltakskoder = setOf(),
                 navEnheter = setOf(),
                 arrangorer = setOf(),
-                ansatt = NavAnsattFixture.MikkeMus.medRoller(
-                    roller = setOf(NavAnsattRolle.generell(Rolle.BESLUTTER_TILSAGN)),
-                ),
+                ansatt = NavAnsattFixture.MikkeMus.medRoller(setOf(beslutterEnkeltplass)),
             ).shouldBeEmpty()
         }
 
@@ -1170,9 +1221,7 @@ class OppgaverServiceTest : FunSpec({
                 tiltakskoder = setOf(),
                 navEnheter = setOf(NavEnhetFixtures.Innlandet.enhetsnummer),
                 arrangorer = setOf(),
-                ansatt = NavAnsattFixture.MikkeMus.medRoller(
-                    roller = setOf(NavAnsattRolle.generell(Rolle.BESLUTTER_TILSAGN)),
-                ),
+                ansatt = NavAnsattFixture.MikkeMus.medRoller(setOf(beslutterEnkeltplass)),
             ) shouldMatchAllOppgaver listOf(
                 PartialOppgave(enkeltplassInnlandet.id, OppgaveType.ENKELTPLASS_TIL_GODKJENNING),
             )
@@ -1180,7 +1229,13 @@ class OppgaverServiceTest : FunSpec({
     }
 
     context("tilskuddsbehandlinger") {
-        test("attestant som ikke har opprettet behandling ser oppgave til attestering") {
+        val beslutterEnkeltplass = NavAnsattRolle.kontorspesifikk(
+            Rolle.OKONOMI_BESLUTTER_ENKELTPLASS,
+            setOf(NavEnhetFixtures.Innlandet.enhetsnummer),
+        )
+        val saksbehandlerEnkeltplass = NavAnsattRolle.generell(Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS)
+
+        test("beslutter som ikke har opprettet behandling ser oppgave til attestering") {
             val service = OppgaverService(database.api, features())
 
             MulighetsrommetTestDomain(
@@ -1199,15 +1254,69 @@ class OppgaverServiceTest : FunSpec({
                 tiltakskoder = setOf(),
                 navEnheter = setOf(),
                 arrangorer = setOf(),
-                ansatt = NavAnsattFixture.MikkeMus.medRoller(
-                    roller = setOf(NavAnsattRolle.generell(Rolle.ATTESTANT_UTBETALING)),
-                ),
+                ansatt = NavAnsattFixture.MikkeMus.medRoller(setOf(beslutterEnkeltplass)),
             ) shouldMatchAllOppgaver listOf(
                 PartialOppgave(TilskuddFixtures.Behandling.id, OppgaveType.TILSKUDDBEHANDLING_TIL_ATTESTERING),
             )
         }
 
-        test("attestant som selv har opprettet behandling ser ikke oppgave") {
+        test("beslutter må ha tilgang til alle kostnadssteder for å se tilskuddsbehandling") {
+            val service = OppgaverService(database.api, features())
+            val behandling = TilskuddFixtures.Behandling.copy(
+                tilskudd = listOf(
+                    TilskuddFixtures.TilskuddVedtakInnvilgelse.copy(
+                        kostnadssted = NavEnhetFixtures.Innlandet.enhetsnummer,
+                    ),
+                    TilskuddFixtures.TilskuddVedtakAvslag.copy(
+                        kostnadssted = NavEnhetFixtures.Oslo.enhetsnummer,
+                    ),
+                ),
+            )
+
+            MulighetsrommetTestDomain(
+                navEnheter = listOf(NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik, NavEnhetFixtures.Oslo),
+                gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
+            ) {
+                queries.tilskuddBehandling.upsert(behandling)
+                setTilBehandling(
+                    behandling.id,
+                    TotrinnskontrollType.TILSKUDD_OPPRETTELSE,
+                    behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
+                )
+            }.initialize(database.api)
+
+            fun oppgaverFor(roller: Set<NavAnsattRolle>) = service.oppgaver(
+                oppgavetyper = setOf(OppgaveType.TILSKUDDBEHANDLING_TIL_ATTESTERING),
+                tiltakskoder = setOf(),
+                navEnheter = setOf(),
+                arrangorer = setOf(),
+                ansatt = NavAnsattFixture.MikkeMus.medRoller(roller),
+            )
+
+            oppgaverFor(
+                setOf(
+                    NavAnsattRolle.kontorspesifikk(
+                        Rolle.OKONOMI_BESLUTTER_ENKELTPLASS,
+                        setOf(NavEnhetFixtures.Oslo.enhetsnummer),
+                    ),
+                ),
+            ).shouldBeEmpty()
+
+            oppgaverFor(setOf(beslutterEnkeltplass)).shouldBeEmpty()
+
+            oppgaverFor(
+                setOf(
+                    NavAnsattRolle.kontorspesifikk(
+                        Rolle.OKONOMI_BESLUTTER_ENKELTPLASS,
+                        setOf(NavEnhetFixtures.Innlandet.enhetsnummer, NavEnhetFixtures.Oslo.enhetsnummer),
+                    ),
+                ),
+            ) shouldMatchAllOppgaver listOf(
+                PartialOppgave(behandling.id, OppgaveType.TILSKUDDBEHANDLING_TIL_ATTESTERING),
+            )
+        }
+
+        test("beslutter som selv har opprettet behandling ser ikke oppgave") {
             val service = OppgaverService(database.api, features())
 
             MulighetsrommetTestDomain(
@@ -1226,13 +1335,11 @@ class OppgaverServiceTest : FunSpec({
                 tiltakskoder = setOf(),
                 navEnheter = setOf(),
                 arrangorer = setOf(),
-                ansatt = NavAnsattFixture.DonaldDuck.medRoller(
-                    roller = setOf(NavAnsattRolle.generell(Rolle.ATTESTANT_UTBETALING)),
-                ),
+                ansatt = NavAnsattFixture.DonaldDuck.medRoller(setOf(beslutterEnkeltplass)),
             ).shouldBeEmpty()
         }
 
-        test("saksbehandler ser returnert tilskuddsbehandling") {
+        test("saksbehandler for enkeltplasser ser returnert tilskuddsbehandling") {
             val service = OppgaverService(database.api, features())
 
             MulighetsrommetTestDomain(
@@ -1256,12 +1363,18 @@ class OppgaverServiceTest : FunSpec({
                 tiltakskoder = setOf(),
                 navEnheter = setOf(),
                 arrangorer = setOf(),
-                ansatt = NavAnsattFixture.DonaldDuck.medRoller(
-                    roller = setOf(NavAnsattRolle.generell(Rolle.SAKSBEHANDLER_OKONOMI)),
-                ),
+                ansatt = NavAnsattFixture.DonaldDuck.medRoller(setOf(saksbehandlerEnkeltplass)),
             ) shouldMatchAllOppgaver listOf(
                 PartialOppgave(TilskuddFixtures.Behandling.id, OppgaveType.TILSKUDDBEHANDLING_RETURNERT),
             )
+
+            service.oppgaver(
+                oppgavetyper = setOf(OppgaveType.TILSKUDDBEHANDLING_RETURNERT),
+                tiltakskoder = setOf(),
+                navEnheter = setOf(),
+                arrangorer = setOf(),
+                ansatt = NavAnsattFixture.DonaldDuck.medRoller(setOf(NavAnsattRolle.generell(Rolle.SAKSBEHANDLER_OKONOMI))),
+            ).shouldBeEmpty()
         }
 
         test("ferdig behandlet tilskuddsbehandling gir ingen oppgave") {
@@ -1289,12 +1402,7 @@ class OppgaverServiceTest : FunSpec({
                 tiltakskoder = setOf(),
                 navEnheter = setOf(),
                 arrangorer = setOf(),
-                ansatt = NavAnsattFixture.MikkeMus.medRoller(
-                    roller = setOf(
-                        NavAnsattRolle.generell(Rolle.ATTESTANT_UTBETALING),
-                        NavAnsattRolle.generell(Rolle.SAKSBEHANDLER_OKONOMI),
-                    ),
-                ),
+                ansatt = NavAnsattFixture.MikkeMus.medRoller(setOf(beslutterEnkeltplass, saksbehandlerEnkeltplass)),
             ).shouldBeEmpty()
         }
 
@@ -1309,9 +1417,7 @@ class OppgaverServiceTest : FunSpec({
                 tiltakskoder = setOf(),
                 navEnheter = setOf(),
                 arrangorer = setOf(),
-                ansatt = NavAnsattFixture.MikkeMus.medRoller(
-                    roller = setOf(NavAnsattRolle.generell(Rolle.ATTESTANT_UTBETALING)),
-                ),
+                ansatt = NavAnsattFixture.MikkeMus.medRoller(setOf(beslutterEnkeltplass)),
             ).shouldBeEmpty()
         }
 
@@ -1351,9 +1457,7 @@ class OppgaverServiceTest : FunSpec({
                 tiltakskoder = setOf(),
                 navEnheter = setOf(NavEnhetFixtures.Innlandet.enhetsnummer),
                 arrangorer = setOf(),
-                ansatt = NavAnsattFixture.MikkeMus.medRoller(
-                    roller = setOf(NavAnsattRolle.generell(Rolle.ATTESTANT_UTBETALING)),
-                ),
+                ansatt = NavAnsattFixture.MikkeMus.medRoller(setOf(beslutterEnkeltplass)),
             ) shouldMatchAllOppgaver listOf(
                 PartialOppgave(TilskuddFixtures.Behandling.id, OppgaveType.TILSKUDDBEHANDLING_TIL_ATTESTERING),
             )
@@ -1391,9 +1495,7 @@ class OppgaverServiceTest : FunSpec({
                 tiltakskoder = setOf(),
                 navEnheter = setOf(),
                 arrangorer = setOf(underenhet1.id),
-                ansatt = NavAnsattFixture.MikkeMus.medRoller(
-                    roller = setOf(NavAnsattRolle.generell(Rolle.ATTESTANT_UTBETALING)),
-                ),
+                ansatt = NavAnsattFixture.MikkeMus.medRoller(setOf(beslutterEnkeltplass)),
             ) shouldMatchAllOppgaver listOf(
                 PartialOppgave(TilskuddFixtures.Behandling.id, OppgaveType.TILSKUDDBEHANDLING_TIL_ATTESTERING),
             )

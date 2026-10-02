@@ -2505,6 +2505,77 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
+  /api/tiltaksadministrasjon/utbetaling/{id}/beregning:
+    get:
+      tags:
+      - Utbetaling
+      operationId: getUtbetalingBeregning
+      parameters:
+      - name: id
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      - name: navEnheter
+        in: query
+        required: false
+        deprecated: false
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+      responses:
+        "200":
+          description: Utbetalingen ble opprettet
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UtbetalingBeregningDto"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/tiltaksadministrasjon/utbetaling/{id}/linjer:
+    get:
+      tags:
+      - Utbetaling
+      operationId: getUtbetalingsLinjer
+      parameters:
+      - name: id
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: Utbetalingslinjer til utbetaling
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/UtbetalingLinjeDto"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
   /api/tiltaksadministrasjon/utbetaling/{id}/avbryt:
     put:
       tags:
@@ -2590,77 +2661,6 @@ paths:
         "200":
           description: "Avbrytelse av utbetaling ble avslått, returnert til saksbehandling"
           headers: {}
-        default:
-          description: Problem details
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ProblemDetail"
-      deprecated: false
-  /api/tiltaksadministrasjon/utbetaling/{id}/beregning:
-    get:
-      tags:
-      - Utbetaling
-      operationId: getUtbetalingBeregning
-      parameters:
-      - name: id
-        in: path
-        required: true
-        deprecated: false
-        explode: false
-        schema:
-          type: string
-          format: uuid
-      - name: navEnheter
-        in: query
-        required: false
-        deprecated: false
-        explode: true
-        schema:
-          type: array
-          items:
-            type: string
-      responses:
-        "200":
-          description: Utbetalingen ble opprettet
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/UtbetalingBeregningDto"
-        default:
-          description: Problem details
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ProblemDetail"
-      deprecated: false
-  /api/tiltaksadministrasjon/utbetaling/{id}/linjer:
-    get:
-      tags:
-      - Utbetaling
-      operationId: getUtbetalingsLinjer
-      parameters:
-      - name: id
-        in: path
-        required: true
-        deprecated: false
-        explode: false
-        schema:
-          type: string
-          format: uuid
-      responses:
-        "200":
-          description: Utbetalingslinjer til utbetaling
-          headers: {}
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/UtbetalingLinjeDto"
         default:
           description: Problem details
           headers: {}
@@ -8428,25 +8428,6 @@ components:
       required:
       - handlinger
       - utbetaling
-    UtbetalingStatusAarsak:
-      type: string
-      enum:
-      - TILSAGN_GJORT_OPP
-      - ANNET
-    AarsakerOgBegrunnelseRequest_UtbetalingStatusAarsak:
-      type: object
-      properties:
-        aarsaker:
-          type: array
-          items:
-            $ref: "#/components/schemas/UtbetalingStatusAarsak"
-        begrunnelse:
-          type:
-          - "null"
-          - string
-      required:
-      - aarsaker
-      - begrunnelse
     UtbetalingBeregningType:
       type: string
       enum:
@@ -8628,6 +8609,25 @@ components:
       - ATTESTER
       - RETURNER
       - SEND_TIL_ATTESTERING
+    UtbetalingStatusAarsak:
+      type: string
+      enum:
+      - TILSAGN_GJORT_OPP
+      - ANNET
+    AarsakerOgBegrunnelseRequest_UtbetalingStatusAarsak:
+      type: object
+      properties:
+        aarsaker:
+          type: array
+          items:
+            $ref: "#/components/schemas/UtbetalingStatusAarsak"
+        begrunnelse:
+          type:
+          - "null"
+          - string
+      required:
+      - aarsaker
+      - begrunnelse
     InnsendingKompaktDto:
       type: object
       properties:

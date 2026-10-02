@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.gjennomforing.service
 import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
+import arrow.core.toNonEmptySetOrThrow
 import no.nav.common.audit_log.cef.CefMessage
 import no.nav.common.audit_log.cef.CefMessageEvent
 import no.nav.common.audit_log.cef.CefMessageSeverity
@@ -35,6 +36,8 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplassKo
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKompakt
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKompaktDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingTiltaksadministrasjon
+import no.nav.mulighetsrommet.api.navansatt.OkonomiAuthorization
+import no.nav.mulighetsrommet.api.navansatt.OkonomiBeslutningContext
 import no.nav.mulighetsrommet.api.responses.PaginatedResponse
 import no.nav.mulighetsrommet.api.shared.Pagination
 import no.nav.mulighetsrommet.api.utbetaling.service.AvvistGrunn
@@ -240,7 +243,9 @@ class GjennomforingDetaljerService(
             GjennomforingHandling.OPPRETT_TILSAGN,
             GjennomforingHandling.OPPRETT_EKSTRATILSAGN,
         )
-            .filter { tilgangTilHandling(ansatt, it) }
+            .filter { handling ->
+                tilgangTilHandling(ansatt, handling, GjennomforingType.AVTALE)
+            }
             .toSet()
     }
 
@@ -269,7 +274,10 @@ class GjennomforingDetaljerService(
                 prisendringKanBehandlesAvNavAnsatt && enkeltplass.prisendring.totrinnskontroll.kanBesluttes()
             },
         )
-            .filter { tilgangTilHandling(ansatt, it, setOf(gjennomforing.ansvarligEnhet.enhetsnummer)) }
+            .filter { handling ->
+                val kostnadssted = setOf(gjennomforing.ansvarligEnhet.enhetsnummer)
+                tilgangTilHandling(ansatt, handling, GjennomforingType.ENKELTPLASS, kostnadssted)
+            }
             .toSet()
     }
 
@@ -277,11 +285,11 @@ class GjennomforingDetaljerService(
         fun tilgangTilHandling(
             ansatt: NavAnsatt,
             handling: GjennomforingHandling,
+            gjennomforingType: GjennomforingType,
             enheter: Set<NavEnhetNummer> = setOf(),
         ): Boolean {
             val skrivGjennomforing = ansatt.hasGenerellRolle(Rolle.TILTAKSGJENNOMFORINGER_SKRIV)
             val oppfolgerGjennomforing = ansatt.hasGenerellRolle(Rolle.OPPFOLGER_GJENNOMFORING)
-            val saksbehandlerOkonomi = ansatt.hasGenerellRolle(Rolle.SAKSBEHANDLER_OKONOMI)
 
             return when (handling) {
                 GjennomforingHandling.FORHANDSVIS_I_MODIA -> true
@@ -303,13 +311,16 @@ class GjennomforingDetaljerService(
                 GjennomforingHandling.OPPRETT_EKSTRATILSAGN,
                 GjennomforingHandling.OPPRETT_TILSAGN_FOR_INVESTERINGER,
                 GjennomforingHandling.OPPRETT_UTBETALING,
-                -> saksbehandlerOkonomi
+                -> OkonomiAuthorization.erSaksbehandler(ansatt, gjennomforingType)
 
                 GjennomforingHandling.SETT_PA_VENT_ENKELTPLASS_OKONOMI,
                 GjennomforingHandling.GODKJENN_ENKELTPLASS_OKONOMI,
                 GjennomforingHandling.SETT_PA_VENT_ENKELTPLASS_PRISENDRING,
                 GjennomforingHandling.GODKJENN_ENKELTPLASS_PRISENDRING,
-                -> ansatt.hasKontorspesifikkRolle(Rolle.BESLUTTER_TILSAGN, enheter)
+                -> OkonomiAuthorization.erOkonomiBeslutter(
+                    ansatt,
+                    OkonomiBeslutningContext(gjennomforingType, enheter.toNonEmptySetOrThrow()),
+                )
             }
         }
     }
@@ -385,7 +396,10 @@ private fun auditLogVisEnkeltplass(gjennomforingId: UUID, navIdent: NavIdent, no
         .sourceUserId(navIdent.value)
         .destinationUserId(norskIdent.value)
         .timeEnded(System.currentTimeMillis())
-        .extension("msg", "Nav-ansatt har hentet informasjon om tiltaksdeltaker på tiltaksgjennomføring med id=$gjennomforingId'.")
+        .extension(
+            "msg",
+            "Nav-ansatt har hentet informasjon om tiltaksdeltaker på tiltaksgjennomføring med id=$gjennomforingId'.",
+        )
         .build()
     auditLogger.log(message)
 }

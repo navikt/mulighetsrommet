@@ -40,7 +40,7 @@ fun Route.tilskuddRoutes() {
     val tilskuddService: TilskuddService by inject()
 
     route("tilskudd") {
-        authorize(Rolle.SAKSBEHANDLER_OKONOMI) {
+        authorize(Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS) {
             get({
                 description = "Hent alle tilskudds for en gjennomføring"
                 tags = setOf("Tilskudd")

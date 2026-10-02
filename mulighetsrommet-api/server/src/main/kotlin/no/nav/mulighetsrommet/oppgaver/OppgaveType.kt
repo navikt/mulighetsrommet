@@ -2,80 +2,84 @@ package no.nav.mulighetsrommet.oppgaver
 
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 
-enum class OppgaveType(val navn: String, val rolle: Rolle, val kategori: Kategori) {
+enum class OppgaveType(
+    val navn: String,
+    val roller: Set<Rolle>,
+    val kategori: Kategori,
+) {
     TILSAGN_TIL_GODKJENNING(
         navn = "Tilsagn til godkjenning",
-        rolle = Rolle.BESLUTTER_TILSAGN,
+        roller = setOf(Rolle.BESLUTTER_TILSAGN, Rolle.OKONOMI_BESLUTTER_ENKELTPLASS),
         kategori = Kategori.TILSAGN,
     ),
     TILSAGN_TIL_ANNULLERING(
         navn = "Tilsagn til annullering",
-        rolle = Rolle.BESLUTTER_TILSAGN,
+        roller = setOf(Rolle.BESLUTTER_TILSAGN, Rolle.OKONOMI_BESLUTTER_ENKELTPLASS),
         kategori = Kategori.TILSAGN,
     ),
     TILSAGN_TIL_OPPGJOR(
         navn = "Tilsagn til oppgjør",
-        rolle = Rolle.BESLUTTER_TILSAGN,
+        roller = setOf(Rolle.BESLUTTER_TILSAGN, Rolle.OKONOMI_BESLUTTER_ENKELTPLASS),
         kategori = Kategori.TILSAGN,
     ),
     TILSAGN_RETURNERT(
         navn = "Tilsagn returnert av beslutter",
-        rolle = Rolle.SAKSBEHANDLER_OKONOMI,
+        roller = setOf(Rolle.SAKSBEHANDLER_OKONOMI, Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS),
         kategori = Kategori.TILSAGN,
     ),
     UTBETALING_TIL_BEHANDLING(
         navn = "Utbetaling til behandling",
-        rolle = Rolle.SAKSBEHANDLER_OKONOMI,
+        roller = setOf(Rolle.SAKSBEHANDLER_OKONOMI, Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS),
         kategori = Kategori.UTBETALING,
     ),
     UTBETALING_TIL_ATTESTERING(
         navn = "Utbetaling til attestering",
-        rolle = Rolle.ATTESTANT_UTBETALING,
+        roller = setOf(Rolle.ATTESTANT_UTBETALING, Rolle.OKONOMI_BESLUTTER_ENKELTPLASS),
         kategori = Kategori.UTBETALING_LINJE,
     ),
     UTBETALING_RETURNERT(
         navn = "Utbetaling returnert av attestant",
-        rolle = Rolle.SAKSBEHANDLER_OKONOMI,
+        roller = setOf(Rolle.SAKSBEHANDLER_OKONOMI, Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS),
         kategori = Kategori.UTBETALING_LINJE,
     ),
     UTBETALING_TIL_AVBRYTELSE(
         navn = "Utbetaling til avbrytelse",
-        rolle = Rolle.SAKSBEHANDLER_OKONOMI,
+        roller = setOf(Rolle.SAKSBEHANDLER_OKONOMI, Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS),
         kategori = Kategori.UTBETALING,
     ),
     UTBETALING_MANGLER_TILSAGN(
         navn = "Utbetaling mangler tilsagn",
-        rolle = Rolle.SAKSBEHANDLER_OKONOMI,
+        roller = setOf(Rolle.SAKSBEHANDLER_OKONOMI),
         kategori = Kategori.UTBETALING,
     ),
     AVTALE_MANGLER_ADMINISTRATOR(
         navn = "Avtale mangler administrator",
-        rolle = Rolle.AVTALER_SKRIV,
+        roller = setOf(Rolle.AVTALER_SKRIV),
         kategori = Kategori.AVTALE,
     ),
     GJENNOMFORING_MANGLER_ADMINISTRATOR(
         navn = "Gjennomføring mangler administrator",
-        rolle = Rolle.TILTAKSGJENNOMFORINGER_SKRIV,
+        roller = setOf(Rolle.TILTAKSGJENNOMFORINGER_SKRIV),
         kategori = Kategori.GJENNOMFORING,
     ),
     ENKELTPLASS_TIL_GODKJENNING(
         navn = "Enkeltplass til godkjenning",
-        rolle = Rolle.BESLUTTER_TILSAGN,
+        roller = setOf(Rolle.OKONOMI_BESLUTTER_ENKELTPLASS),
         kategori = Kategori.ENKELTPLASS,
     ),
     ENKELTPLASS_SATT_PA_VENT(
         navn = "Enkeltplass satt på vent",
-        rolle = Rolle.BESLUTTER_TILSAGN,
+        roller = setOf(Rolle.OKONOMI_BESLUTTER_ENKELTPLASS),
         kategori = Kategori.ENKELTPLASS,
     ),
     TILSKUDDBEHANDLING_TIL_ATTESTERING(
         navn = "Tilskuddsbehandling til attestering",
-        rolle = Rolle.ATTESTANT_UTBETALING,
+        roller = setOf(Rolle.OKONOMI_BESLUTTER_ENKELTPLASS),
         kategori = Kategori.TILSKUDDBEHANDLING,
     ),
     TILSKUDDBEHANDLING_RETURNERT(
         navn = "Tilskuddsbehandling returnert av attestant",
-        rolle = Rolle.SAKSBEHANDLER_OKONOMI,
+        roller = setOf(Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS),
         kategori = Kategori.TILSKUDDBEHANDLING,
     ),
 }

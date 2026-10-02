@@ -42,7 +42,7 @@ fun Route.tilskuddBehandlingRoutes() {
     val service: TilskuddBehandlingService by inject()
 
     route("tilskudd-behandling") {
-        authorize(Rolle.SAKSBEHANDLER_OKONOMI) {
+        authorize(Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS) {
             get("/{tilskuddBehandlingId}", {
                 description = "Hent tilskuddsbehandling gitt id"
                 tags = setOf("TilskuddBehandling")
@@ -123,7 +123,7 @@ fun Route.tilskuddBehandlingRoutes() {
             }
         }
 
-        authorize(Rolle.BESLUTTER_TILSAGN) {
+        authorize(Rolle.OKONOMI_BESLUTTER_ENKELTPLASS) {
             post("/{id}/attester", {
                 tags = setOf("TilskuddBehandling")
                 operationId = "attesterTilskuddBehandling"
@@ -151,7 +151,12 @@ fun Route.tilskuddBehandlingRoutes() {
             }
         }
 
-        authorize(anyOf = setOf(Rolle.BESLUTTER_TILSAGN, Rolle.SAKSBEHANDLER_OKONOMI)) {
+        authorize(
+            anyOf = setOf(
+                Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS,
+                Rolle.OKONOMI_BESLUTTER_ENKELTPLASS,
+            ),
+        ) {
             post("/{id}/returner", {
                 tags = setOf("TilskuddBehandling")
                 operationId = "returnerTilskuddBehandling"
@@ -290,7 +295,8 @@ fun Route.tilskuddBehandlingRoutes() {
                         "Opphørsvedtak er kun tillatt i dev-gcp miljøet",
                     )
                 } else {
-                    val saksbehandler = NavIdent("Z993637") // Midlertidig saksbehandler, slik at vi kan beslutte med 079 brukeren
+                    // Midlertidig saksbehandler, slik at vi kan beslutte med 079 brukeren
+                    val saksbehandler = NavIdent("Z993637")
                     service.revurderingOpphor(tilskuddVedtakId, tilskuddBehandlingId, saksbehandler)
                         .onRight { call.respond(TilskuddBehandlingOpphorResponse(it)) }
                         .onLeft {

@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.oppgaver
 
+import arrow.core.toNonEmptySetOrThrow
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.avtale.AvtaleService
@@ -9,6 +10,8 @@ import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingHandling
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingType
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingDetaljerService
+import no.nav.mulighetsrommet.api.navansatt.OkonomiAuthorization
+import no.nav.mulighetsrommet.api.navansatt.OkonomiBeslutningContext
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnHandling
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
@@ -32,7 +35,7 @@ class OppgaverService(val db: ApiDatabase, private val features: FeatureToggleSe
         val roller = ansatt.roller.map { it.rolle }.toSet()
 
         return OppgaveType.entries
-            .filter { it.rolle in roller }
+            .filter { it.roller.intersect(roller).isNotEmpty() }
             .filter {
                 isEnkeltplassEnabled() || it.kategori !in setOf(
                     Kategori.ENKELTPLASS,
@@ -84,6 +87,7 @@ class OppgaverService(val db: ApiDatabase, private val features: FeatureToggleSe
                         tiltakskoder = tiltakskoder,
                         kostnadssteder = navEnheter,
                         arrangorer = arrangorer,
+                        ansatt = ansatt,
                     ),
                 )
             }
@@ -189,6 +193,7 @@ class OppgaverService(val db: ApiDatabase, private val features: FeatureToggleSe
         tiltakskoder: Set<Tiltakskode>,
         kostnadssteder: Set<NavEnhetNummer>,
         arrangorer: Set<UUID>,
+        ansatt: NavAnsatt,
     ): List<Oppgave> {
         return queries.oppgave
             .getUtbetalingManglerTilsagnOppgaveData(
@@ -197,7 +202,7 @@ class OppgaverService(val db: ApiDatabase, private val features: FeatureToggleSe
             )
             .asSequence()
             .filter { utbetaling -> byKostnadssted(utbetaling.gjennomforingNavEnheter, kostnadssteder) }
-            .map { toOppgave(it) }
+            .mapNotNull { toOppgave(it, ansatt) }
             .toList()
     }
 
@@ -489,7 +494,7 @@ private fun toOppgave(data: UtbetalingBehandlingOppgaveData, ansatt: NavAnsatt):
     }
 }
 
-private fun toOppgave(data: UtbetalingManglerTilsagnOppgaveData) = Oppgave(
+private fun toOppgave(data: UtbetalingManglerTilsagnOppgaveData, ansatt: NavAnsatt) = Oppgave(
     id = data.id,
     type = OppgaveType.UTBETALING_MANGLER_TILSAGN,
     navn = OppgaveType.UTBETALING_MANGLER_TILSAGN.navn,
@@ -503,7 +508,9 @@ private fun toOppgave(data: UtbetalingManglerTilsagnOppgaveData) = Oppgave(
     ),
     createdAt = data.godkjentAvArrangorTidspunkt ?: data.createdAt,
     arrangor = data.arrangor,
-)
+).takeIf {
+    OkonomiAuthorization.erSaksbehandler(ansatt, data.gjennomforing.type)
+}
 
 private fun tilAvbrytelseOppgave(data: UtbetalingBehandlingOppgaveData, ansatt: NavAnsatt): Oppgave? = Oppgave(
     id = data.id,
@@ -571,7 +578,7 @@ private fun GjennomforingManglerAdministratorOppgaveData.toOppgave(ansatt: NavAn
     createdAt = oppdatertTidspunkt,
     arrangor = arrangor,
 ).takeIf {
-    GjennomforingDetaljerService.tilgangTilHandling(ansatt, GjennomforingHandling.REDIGER)
+    GjennomforingDetaljerService.tilgangTilHandling(ansatt, GjennomforingHandling.REDIGER, GjennomforingType.AVTALE)
 }
 
 private fun EnkeltplassOppgaveData.toOppgave(ansatt: NavAnsatt): Oppgave? {
@@ -593,6 +600,7 @@ private fun EnkeltplassOppgaveData.toOppgave(ansatt: NavAnsatt): Oppgave? {
         behandletAv != ansatt.navIdent && GjennomforingDetaljerService.tilgangTilHandling(
             ansatt,
             GjennomforingHandling.GODKJENN_ENKELTPLASS_OKONOMI,
+            GjennomforingType.ENKELTPLASS,
             setOf(ansvarligEnhet.nummer),
         )
     }
@@ -617,6 +625,7 @@ private fun EnkeltplassSattPaVentOppgaveData.toOppgave(ansatt: NavAnsatt): Oppga
         GjennomforingDetaljerService.tilgangTilHandling(
             ansatt,
             GjennomforingHandling.SETT_PA_VENT_ENKELTPLASS_OKONOMI,
+            GjennomforingType.ENKELTPLASS,
             setOf(ansvarligEnhet.nummer),
         )
     }
@@ -636,7 +645,7 @@ private fun toTilskuddBehandlingOppgave(data: TilskuddBehandlingOppgaveData, ans
                 id = data.id,
                 type = OppgaveType.TILSKUDDBEHANDLING_TIL_ATTESTERING,
                 navn = OppgaveType.TILSKUDDBEHANDLING_TIL_ATTESTERING.navn,
-                enhet = data.kostnadssted,
+                enhet = data.kostnadssteder.first(),
                 title = title,
                 description = "Tilskuddsbehandling for perioden ${data.periode.formatPeriode()} er sendt til attestering",
                 tiltakstype = data.tiltakstype,
@@ -644,7 +653,13 @@ private fun toTilskuddBehandlingOppgave(data: TilskuddBehandlingOppgaveData, ans
                 createdAt = data.opprettelse.behandletTidspunkt,
                 arrangor = data.arrangor,
             ).takeIf {
-                data.opprettelse.behandletAv != ansatt.navIdent
+                data.opprettelse.behandletAv != ansatt.navIdent && OkonomiAuthorization.erOkonomiBeslutter(
+                    ansatt,
+                    OkonomiBeslutningContext(
+                        data.gjennomforing.type,
+                        data.kostnadssteder.map { it.nummer }.toNonEmptySetOrThrow(),
+                    ),
+                )
             }
         }
 
@@ -654,14 +669,16 @@ private fun toTilskuddBehandlingOppgave(data: TilskuddBehandlingOppgaveData, ans
                 id = data.id,
                 type = OppgaveType.TILSKUDDBEHANDLING_RETURNERT,
                 navn = OppgaveType.TILSKUDDBEHANDLING_RETURNERT.navn,
-                enhet = data.kostnadssted,
+                enhet = data.kostnadssteder.first(),
                 title = title,
                 description = "Tilskuddsbehandling for perioden ${data.periode.formatPeriode()} er returnert av attestant",
                 tiltakstype = data.tiltakstype,
                 link = link,
                 createdAt = data.opprettelse.besluttetTidspunkt,
                 arrangor = data.arrangor,
-            )
+            ).takeIf {
+                OkonomiAuthorization.erSaksbehandler(ansatt, data.gjennomforing.type)
+            }
         }
 
         TilskuddBehandlingStatus.FERDIG_BEHANDLET -> null

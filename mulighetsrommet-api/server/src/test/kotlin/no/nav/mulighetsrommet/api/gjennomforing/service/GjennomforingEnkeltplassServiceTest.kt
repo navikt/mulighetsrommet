@@ -20,6 +20,9 @@ import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
 import no.nav.mulighetsrommet.api.amo.OpplaringKategoriseringRequest
 import no.nav.mulighetsrommet.api.contracts.gjennomforing.TiltaksgjennomforingV2Dto
 import no.nav.mulighetsrommet.api.domain.deltaker.Deltakelsesmengde
+import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsatt
+import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsattRolle
+import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd
 import no.nav.mulighetsrommet.api.domain.opplaring.Sertifisering
 import no.nav.mulighetsrommet.api.domain.testing.fixture.BransjeFixtures
@@ -27,6 +30,7 @@ import no.nav.mulighetsrommet.api.domain.testing.fixture.DeltakerFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.ForerkortFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.KurstypeFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavAnsattFixture
+import no.nav.mulighetsrommet.api.domain.testing.fixture.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.PrismodellFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.UtdanningFixtures
 import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
@@ -42,6 +46,7 @@ import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.NOK
+import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.NorskIdentHasher
@@ -54,8 +59,33 @@ import java.util.UUID
 class GjennomforingEnkeltplassServiceTest : FunSpec({
     val database = extension(ApiDatabaseTestListener())
 
+    val beslutterRolle = NavAnsattRolle.kontorspesifikk(
+        Rolle.OKONOMI_BESLUTTER_ENKELTPLASS,
+        setOf(GjennomforingFixtures.EnkelAmo.ansvarligEnhet!!),
+    )
+    val utenRolle = NavAnsattFixture.FetterAnton
+    val feilEnhet = NavAnsatt.opprett(
+        entraObjectId = UUID.randomUUID(),
+        navIdent = NavIdent("DD4"),
+        fornavn = "Feil",
+        etternavn = "Enhet",
+        hovedenhet = NavEnhetNummer("0400"),
+        mobilnummer = null,
+        epost = "feil.enhet@nav.no",
+        roller = setOf(
+            NavAnsattRolle.kontorspesifikk(
+                Rolle.OKONOMI_BESLUTTER_ENKELTPLASS,
+                setOf(NavEnhetFixtures.Gjovik.enhetsnummer),
+            ),
+        ),
+    )
     val domain = MulighetsrommetTestDomain(
-        ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
+        ansatte = listOf(
+            NavAnsattFixture.DonaldDuck.medRoller(setOf(beslutterRolle)),
+            NavAnsattFixture.MikkeMus.medRoller(setOf(beslutterRolle)),
+            utenRolle,
+            feilEnhet,
+        ),
         prismodeller = listOf(PrismodellFixtures.AnskaffetEnkeltplass.copy(totalbelop = 1000.NOK)),
         gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
         utdanningsprogram = listOf(UtdanningFixtures.Utdanningsprogrammer.byggOgAnlegg),
@@ -92,7 +122,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
         id = UUID.randomUUID(),
         tiltakskode = Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
         arrangorId = GjennomforingFixtures.EnkelAmo.arrangorId,
-        ansvarligEnhet = GjennomforingFixtures.EnkelAmo.ansvarligEnhet!!,
+        ansvarligEnhet = GjennomforingFixtures.EnkelAmo.ansvarligEnhet,
         prismodell = UpsertEnkeltplass.Prismodell.Anskaffelse(1000),
         kategorisering = kategorisering,
     )
@@ -380,7 +410,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
             startDato = LocalDate.of(2025, 1, 1),
             sluttDato = LocalDate.of(2025, 6, 1),
             status = GjennomforingEnkeltplassStatus.Deltar,
-            ansvarligEnhet = GjennomforingFixtures.EnkelAmo.ansvarligEnhet!!,
+            ansvarligEnhet = GjennomforingFixtures.EnkelAmo.ansvarligEnhet,
             prismodell = UpsertEnkeltplass.Prismodell.Anskaffelse(1000),
             navn = navn,
         )
@@ -424,6 +454,36 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
     context("behandling av økonomi for enkeltplasser") {
         val service = createService()
 
+        test("nekter godkjenning og venting uten beslutterrolle") {
+            val soktInn = createRequest()
+            val behandling = behandling(opprettetAv)
+            service.soktInn(soktInn, behandling).shouldBeRight()
+
+            service.settOkonomiGodkjent(soktInn.id, behandling.id, utenRolle.navIdent)
+                .shouldBeLeft()
+                .shouldBeTypeOf<EnkeltplassBeslutningError.ManglerTilgang>()
+            service.settOkonomiPaVent(soktInn.id, behandling.id, utenRolle.navIdent, "Feil")
+                .shouldBeLeft()
+                .shouldBeTypeOf<EnkeltplassBeslutningError.ManglerTilgang>()
+            service.get(soktInn.id)
+                .shouldNotBeNull().okonomi.shouldNotBeNull().status shouldBe TotrinnskontrollStatus.TIL_BEHANDLING
+        }
+
+        test("nekter godkjenning og venting når beslutteren ikke har ansvarlig enhet") {
+            val soktInn = createRequest()
+            val behandling = behandling(opprettetAv)
+            service.soktInn(soktInn, behandling).shouldBeRight()
+
+            service.settOkonomiGodkjent(soktInn.id, behandling.id, feilEnhet.navIdent)
+                .shouldBeLeft()
+                .shouldBeTypeOf<EnkeltplassBeslutningError.ManglerTilgang>()
+            service.settOkonomiPaVent(soktInn.id, behandling.id, feilEnhet.navIdent, "Feil")
+                .shouldBeLeft()
+                .shouldBeTypeOf<EnkeltplassBeslutningError.ManglerTilgang>()
+            service.get(soktInn.id)
+                .shouldNotBeNull().okonomi.shouldNotBeNull().status shouldBe TotrinnskontrollStatus.TIL_BEHANDLING
+        }
+
         test("godkjenner økonomi og setter besluttelse til GODKJENT") {
             val soktInn = createRequest()
 
@@ -445,7 +505,8 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
             service.settOkonomiGodkjent(soktInn.id, behandling.id, opprettetAv)
                 .shouldBeLeft()
-                .first().detail shouldBe "Du kan ikke beslutte noe du selv har behandlet"
+                .shouldBeTypeOf<EnkeltplassBeslutningError.Valideringsfeil>()
+                .errors.first().detail shouldBe "Du kan ikke beslutte noe du selv har behandlet"
         }
 
         test("kan sette økonomi på vent") {
@@ -496,11 +557,13 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
             service.settOkonomiGodkjent(soktInn.id, behandling.id, besluttetAv)
                 .shouldBeLeft()
-                .first().detail shouldBe "Totrinnskontrollen er allerede godkjent"
+                .shouldBeTypeOf<EnkeltplassBeslutningError.Valideringsfeil>()
+                .errors.first().detail shouldBe "Totrinnskontrollen er allerede godkjent"
 
             service.settOkonomiPaVent(soktInn.id, behandling.id, besluttetAv, begrunnelse = "Angret")
                 .shouldBeLeft()
-                .first().detail shouldBe "Totrinnskontrollen er allerede godkjent"
+                .shouldBeTypeOf<EnkeltplassBeslutningError.Valideringsfeil>()
+                .errors.first().detail shouldBe "Totrinnskontrollen er allerede godkjent"
         }
 
         test("returnerer feil når totrinnskontrollId ikke stemmer med gjeldende økonomi") {
@@ -509,11 +572,13 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
             service.settOkonomiGodkjent(soktInn.id, UUID.randomUUID(), besluttetAv)
                 .shouldBeLeft()
-                .first().detail shouldBe "Grunnlaget har endret seg siden det ble hentet. Forsøk igjen."
+                .shouldBeTypeOf<EnkeltplassBeslutningError.Valideringsfeil>()
+                .errors.first().detail shouldBe "Grunnlaget har endret seg siden det ble hentet. Forsøk igjen."
 
             service.settOkonomiPaVent(soktInn.id, UUID.randomUUID(), besluttetAv, begrunnelse = "Angret")
                 .shouldBeLeft()
-                .first().detail shouldBe "Grunnlaget har endret seg siden det ble hentet. Forsøk igjen."
+                .shouldBeTypeOf<EnkeltplassBeslutningError.Valideringsfeil>()
+                .errors.first().detail shouldBe "Grunnlaget har endret seg siden det ble hentet. Forsøk igjen."
         }
     }
 
@@ -1185,6 +1250,29 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
         context("behandling av prisendring for enkeltplasser") {
             val service = createService()
 
+            test("nekter godkjenning og venting av prisendring uten tilgang til ansvarlig enhet") {
+                val soktInn = createRequest()
+                val opprettelse = behandling(opprettetAv)
+                service.soktInn(soktInn, opprettelse).shouldBeRight()
+                service.settOkonomiGodkjent(soktInn.id, opprettelse.id, besluttetAv).shouldBeRight()
+
+                val prisendring = behandling(opprettetAv)
+                service.endrePrisinformasjon(
+                    soktInn.id,
+                    UpsertEnkeltplass.Prismodell.Anskaffelse(5000),
+                    prisendring,
+                ).shouldBeRight()
+
+                service.settOkonomiGodkjent(soktInn.id, prisendring.id, feilEnhet.navIdent)
+                    .shouldBeLeft()
+                    .shouldBeTypeOf<EnkeltplassBeslutningError.ManglerTilgang>()
+                service.settOkonomiPaVent(soktInn.id, prisendring.id, feilEnhet.navIdent, "Feil")
+                    .shouldBeLeft()
+                    .shouldBeTypeOf<EnkeltplassBeslutningError.ManglerTilgang>()
+                service.get(soktInn.id).shouldNotBeNull().prisendring.shouldNotBeNull()
+                    .totrinnskontroll.status shouldBe TotrinnskontrollStatus.TIL_BEHANDLING
+            }
+
             test("settOkonomiGodkjent godkjenner prisendring og oppdaterer prismodell") {
                 val soktInn = createRequest()
                 val opprettelse = behandling(opprettetAv)
@@ -1296,7 +1384,8 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
                 service.settOkonomiGodkjent(utkast.id, UUID.randomUUID(), besluttetAv)
                     .shouldBeLeft()
-                    .first().detail shouldBe "Økonomi har ikke blitt sendt til godkjenning"
+                    .shouldBeTypeOf<EnkeltplassBeslutningError.Valideringsfeil>()
+                    .errors.first().detail shouldBe "Økonomi har ikke blitt sendt til godkjenning"
             }
 
             test("settOkonomiPaVent returnerer feil dersom ingen okonomi finnes") {
@@ -1305,7 +1394,8 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
                 service.settOkonomiPaVent(utkast.id, UUID.randomUUID(), besluttetAv, begrunnelse = null)
                     .shouldBeLeft()
-                    .first().detail shouldBe "Økonomi har ikke blitt sendt til godkjenning"
+                    .shouldBeTypeOf<EnkeltplassBeslutningError.Valideringsfeil>()
+                    .errors.first().detail shouldBe "Økonomi har ikke blitt sendt til godkjenning"
             }
         }
 

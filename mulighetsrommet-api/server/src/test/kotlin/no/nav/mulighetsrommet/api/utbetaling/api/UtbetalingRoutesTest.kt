@@ -113,7 +113,10 @@ class UtbetalingRoutesTest : FunSpec({
                 }
 
                 response.status shouldBe HttpStatusCode.Forbidden
-                response.body<NavAnsattManglerTilgang>().missingRoles shouldBe setOf(Rolle.SAKSBEHANDLER_OKONOMI)
+                response.body<NavAnsattManglerTilgang>().missingRoles shouldBe setOf(
+                    Rolle.SAKSBEHANDLER_OKONOMI,
+                    Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS,
+                )
             }
         }
 
@@ -176,7 +179,10 @@ class UtbetalingRoutesTest : FunSpec({
                 }
 
                 response.status shouldBe HttpStatusCode.Forbidden
-                response.body<NavAnsattManglerTilgang>().missingRoles shouldBe setOf(Rolle.ATTESTANT_UTBETALING)
+                response.body<NavAnsattManglerTilgang>().missingRoles shouldBe setOf(
+                    Rolle.ATTESTANT_UTBETALING,
+                    Rolle.OKONOMI_BESLUTTER_ENKELTPLASS,
+                )
             }
         }
     }
@@ -196,6 +202,8 @@ class UtbetalingRoutesTest : FunSpec({
                 response.body<NavAnsattManglerTilgang>().missingRoles shouldBe setOf(
                     Rolle.SAKSBEHANDLER_OKONOMI,
                     Rolle.BESLUTTER_TILSAGN,
+                    Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS,
+                    Rolle.OKONOMI_BESLUTTER_ENKELTPLASS,
                 )
             }
         }
@@ -526,7 +534,7 @@ class UtbetalingRoutesTest : FunSpec({
                 ).initialize(database.api)
 
                 withTestApplication(appConfig()) {
-                    val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, saksbehandlerOkonomiRolle))
+                    val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, attestantUtbetalingRolle))
                     val response = client.put(avslaAbrytelseUrl(UtbetalingFixtures.utbetaling1.id)) {
                         bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                         setBody(

@@ -4,12 +4,16 @@ import arrow.core.nel
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
 import io.mockk.mockk
 import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollDto
+import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsattRolle
+import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd
 import no.nav.mulighetsrommet.api.domain.testing.fixture.AvtaleFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.DeltakerFixtures
@@ -17,6 +21,7 @@ import no.nav.mulighetsrommet.api.domain.testing.fixture.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingHandling
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingRequest
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatus
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatusAarsak
@@ -36,10 +41,27 @@ class TilskuddBehandlingServiceTest : FunSpec({
 
     beforeEach {
         MulighetsrommetTestDomain(
-            ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
+            ansatte = listOf(
+                NavAnsattFixture.DonaldDuck.medRoller(
+                    setOf(NavAnsattRolle.generell(Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS)),
+                ),
+                NavAnsattFixture.MikkeMus.medRoller(
+                    setOf(
+                        NavAnsattRolle.kontorspesifikk(
+                            Rolle.OKONOMI_BESLUTTER_ENKELTPLASS,
+                            setOf(NavEnhetNummer("0502")),
+                        ),
+                    ),
+                ),
+            ),
             avtaler = listOf(AvtaleFixtures.AFT),
             gjennomforinger = listOf(GjennomforingFixtures.AFT1),
-            deltakere = listOf(DeltakerFixtures.createDeltaker(id = UUID.randomUUID(), gjennomforingId = GjennomforingFixtures.AFT1.id)),
+            deltakere = listOf(
+                DeltakerFixtures.createDeltaker(
+                    id = UUID.randomUUID(),
+                    gjennomforingId = GjennomforingFixtures.AFT1.id,
+                ),
+            ),
         ).initialize(database.api)
     }
 
@@ -82,6 +104,32 @@ class TilskuddBehandlingServiceTest : FunSpec({
         personaliaService = mockk(relaxed = true),
         featureToggleService = mockk(relaxed = true),
     )
+
+    test("tilskuddsbehandling krever besluttertilgang ved alle tilskuddenes kostnadssteder") {
+        val service = createService()
+        service.upsert(request, ansatt1).shouldBeRight()
+
+        val detaljer = service.getDetaljerDto(request.id, ansatt2)!!
+
+        val behandling = detaljer.behandling
+        service.handlinger(behandling, ansatt2, detaljer.opprettelse) shouldContain TilskuddBehandlingHandling.ATTESTER
+
+        val tilskudd = behandling.tilskudd.single()
+        val toKostnadssteder = behandling.copy(
+            tilskudd = listOf(
+                tilskudd,
+                tilskudd.copy(
+                    id = UUID.randomUUID(),
+                    kostnadssted = tilskudd.kostnadssted.copy(enhetsnummer = NavEnhetNummer("0301")),
+                ),
+            ),
+        )
+        service.handlinger(
+            toKostnadssteder,
+            ansatt2,
+            detaljer.opprettelse,
+        ) shouldNotContain TilskuddBehandlingHandling.ATTESTER
+    }
 
     context("validering av journalpost") {
         test("upsert feiler når journalpost ikke er gyldig") {

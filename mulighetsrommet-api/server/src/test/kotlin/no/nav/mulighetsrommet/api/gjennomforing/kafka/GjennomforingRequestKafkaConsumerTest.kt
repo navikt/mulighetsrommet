@@ -19,7 +19,10 @@ import no.nav.mulighetsrommet.admin.arrangor.SyncArrangorIfMissing
 import no.nav.mulighetsrommet.admin.arrangor.SyncArrangorUseCase
 import no.nav.mulighetsrommet.admin.enhetsregister.EnhetsregisterError
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
+import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsattRolle
+import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.domain.testing.fixture.ArrangorFixtures
+import no.nav.mulighetsrommet.api.domain.testing.fixture.NavAnsattFixture
 import no.nav.mulighetsrommet.api.domain.testing.fixture.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
 import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeFeature
@@ -31,7 +34,6 @@ import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.NOK
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
-import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
 import no.nav.mulighetsrommet.model.Tiltakskode
 import java.util.UUID
 
@@ -41,6 +43,16 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
     val domain = MulighetsrommetTestDomain(
         arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
         tiltakstyper = listOf(TiltakstypeFixtures.Amo),
+        ansatte = listOf(
+            NavAnsattFixture.MikkeMus.medRoller(
+                setOf(
+                    NavAnsattRolle.kontorspesifikk(
+                        Rolle.OKONOMI_BESLUTTER_ENKELTPLASS,
+                        setOf(NavEnhetNummer("0400")),
+                    ),
+                ),
+            ),
+        ),
     )
 
     beforeEach {
@@ -313,7 +325,8 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
         }
 
         test("ignorerer tilbakekalling uten å kaste feil når totrinnskontroll allerede er godkjent") {
-            service.settOkonomiGodkjent(gjennomforingId, totrinnskontroll.id, Tiltaksadministrasjon).shouldBeRight()
+            service.settOkonomiGodkjent(gjennomforingId, totrinnskontroll.id, NavAnsattFixture.MikkeMus.navIdent)
+                .shouldBeRight()
 
             val request = GjennomforingRequest.EnkeltplassTilbakekallPrisinformasjon(
                 gjennomforingId = gjennomforingId,

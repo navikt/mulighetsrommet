@@ -1,10 +1,12 @@
 package no.nav.mulighetsrommet.api.tilskuddbehandling
 
 import arrow.core.Either
+import arrow.core.NonEmptySet
 import arrow.core.getOrElse
 import arrow.core.left
 import arrow.core.nel
 import arrow.core.right
+import arrow.core.toNonEmptySetOrNull
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.mulighetsrommet.admin.endringshistorikk.EndringshistorikkType
@@ -14,9 +16,11 @@ import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollDto
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.TransactionalQueryContext
-import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.Totrinnskontroll
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
+import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingType
+import no.nav.mulighetsrommet.api.navansatt.OkonomiAuthorization
+import no.nav.mulighetsrommet.api.navansatt.OkonomiBeslutningContext
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandling
 import no.nav.mulighetsrommet.api.tilskuddbehandling.mapper.TilskuddVedtakToPdfDocumentContentMapper
@@ -235,19 +239,20 @@ class TilskuddBehandlingService(
         navIdent: NavIdent,
         totrinnskontroll: TotrinnskontrollDto,
     ): Set<TilskuddBehandlingHandling> = db.session {
+        val kostnadssteder = behandling.tilskudd.map { it.kostnadssted.enhetsnummer }.toNonEmptySetOrNull()
+            ?: error("Tilskuddsbehandling med id=${behandling.id} mangler tilskudd")
         return setOfNotNull(
             TilskuddBehandlingHandling.REDIGER.takeIf { behandling.status.type == TilskuddBehandlingStatus.RETURNERT },
             TilskuddBehandlingHandling.ATTESTER.takeIf { behandling.status.type == TilskuddBehandlingStatus.TIL_ATTESTERING },
             TilskuddBehandlingHandling.RETURNER.takeIf { behandling.status.type == TilskuddBehandlingStatus.TIL_ATTESTERING },
         )
-            .filter {
-                val kostnadssted = behandling.tilskudd.firstOrNull()?.kostnadssted?.enhetsnummer
-                    ?: error("Tilskuddsbehandling med id=${behandling.id} mangler tilskudd")
+            .filter { handling ->
                 tilgangTilHandling(
-                    handling = it,
+                    handling = handling,
                     navIdent = navIdent,
-                    kostnadssted = kostnadssted,
+                    kostnadssteder = kostnadssteder,
                     totrinnskontroll = totrinnskontroll,
+                    gjennomforingType = GjennomforingType.ENKELTPLASS,
                 )
             }
             .toSet()
@@ -256,13 +261,17 @@ class TilskuddBehandlingService(
     fun tilgangTilHandling(
         handling: TilskuddBehandlingHandling,
         navIdent: NavIdent,
-        kostnadssted: NavEnhetNummer,
+        kostnadssteder: NonEmptySet<NavEnhetNummer>,
         totrinnskontroll: TotrinnskontrollDto,
+        gjennomforingType: GjennomforingType,
     ): Boolean {
         val ansatt = db.session { queries.ansatt.getOrError(navIdent) }
 
-        val attestant = ansatt.hasKontorspesifikkRolle(Rolle.ATTESTANT_UTBETALING, setOf(kostnadssted))
-        val saksbehandler = ansatt.hasGenerellRolle(Rolle.SAKSBEHANDLER_OKONOMI)
+        val attestant = OkonomiAuthorization.erOkonomiBeslutter(
+            ansatt,
+            OkonomiBeslutningContext(gjennomforingType, kostnadssteder),
+        )
+        val saksbehandler = OkonomiAuthorization.erSaksbehandler(ansatt, gjennomforingType)
         val erIkkeBehandletAvAnsatt = totrinnskontroll.behandling.utfortAv.agent != ansatt.navIdent
 
         return when (handling) {
