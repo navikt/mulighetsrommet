@@ -61,7 +61,7 @@ fun Route.tilsagnRoutesBeregning() {
     val personaliaService: PersonaliaService by inject()
 
     authorize(
-        anyOf = setOf(Rolle.SAKSBEHANDLER_OKONOMI, Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS),
+        anyOf = setOf(Rolle.OKONOMI_SAKSBEHANDLER_GRUPPETILTAK, Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS),
     ) {
         get("/{id}/defaults", {
             description = "Hent standardverdier for tilsagn utledet fra gitt tilsagn"

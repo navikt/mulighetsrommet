@@ -27,15 +27,15 @@ class OkonomiAuthorizationTest : FunSpec({
     test("lesetilgang til tilsagn krever rolle for riktig gjennomføringstype") {
         forAll(
             row(Rolle.OKONOMI_LES, GjennomforingType.AVTALE, true),
-            row(Rolle.SAKSBEHANDLER_OKONOMI, GjennomforingType.AVTALE, true),
-            row(Rolle.BESLUTTER_TILSAGN, GjennomforingType.AVTALE, true),
-            row(Rolle.ATTESTANT_UTBETALING, GjennomforingType.AVTALE, true),
+            row(Rolle.OKONOMI_SAKSBEHANDLER_GRUPPETILTAK, GjennomforingType.AVTALE, true),
+            row(Rolle.OKONOMI_BESLUTTER_GRUPPETILTAK, GjennomforingType.AVTALE, true),
+            row(Rolle.OKONOMI_ATTESTANT_GRUPPETILTAK, GjennomforingType.AVTALE, true),
             row(Rolle.OKONOMI_BESLUTTER_ENKELTPLASS, GjennomforingType.AVTALE, false),
             row(Rolle.OKONOMI_LES, GjennomforingType.ENKELTPLASS, true),
             row(Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS, GjennomforingType.ENKELTPLASS, true),
             row(Rolle.OKONOMI_BESLUTTER_ENKELTPLASS, GjennomforingType.ENKELTPLASS, true),
-            row(Rolle.BESLUTTER_TILSAGN, GjennomforingType.ENKELTPLASS, false),
-            row(Rolle.SAKSBEHANDLER_OKONOMI, GjennomforingType.ENKELTPLASS, false),
+            row(Rolle.OKONOMI_BESLUTTER_GRUPPETILTAK, GjennomforingType.ENKELTPLASS, false),
+            row(Rolle.OKONOMI_SAKSBEHANDLER_GRUPPETILTAK, GjennomforingType.ENKELTPLASS, false),
         ) { rolle, type, forventet ->
             OkonomiAuthorization.kanLeseTilsagn(medGenerellRolle(rolle), type) shouldBe forventet
         }
@@ -46,15 +46,15 @@ class OkonomiAuthorizationTest : FunSpec({
     test("lesetilgang til utbetaling krever rolle for riktig gjennomføringstype") {
         forAll(
             row(Rolle.OKONOMI_LES, GjennomforingType.AVTALE, true),
-            row(Rolle.SAKSBEHANDLER_OKONOMI, GjennomforingType.AVTALE, true),
-            row(Rolle.BESLUTTER_TILSAGN, GjennomforingType.AVTALE, true),
-            row(Rolle.ATTESTANT_UTBETALING, GjennomforingType.AVTALE, true),
+            row(Rolle.OKONOMI_SAKSBEHANDLER_GRUPPETILTAK, GjennomforingType.AVTALE, true),
+            row(Rolle.OKONOMI_BESLUTTER_GRUPPETILTAK, GjennomforingType.AVTALE, true),
+            row(Rolle.OKONOMI_ATTESTANT_GRUPPETILTAK, GjennomforingType.AVTALE, true),
             row(Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS, GjennomforingType.AVTALE, false),
             row(Rolle.OKONOMI_LES, GjennomforingType.ENKELTPLASS, true),
             row(Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS, GjennomforingType.ENKELTPLASS, true),
             row(Rolle.OKONOMI_BESLUTTER_ENKELTPLASS, GjennomforingType.ENKELTPLASS, true),
-            row(Rolle.ATTESTANT_UTBETALING, GjennomforingType.ENKELTPLASS, false),
-            row(Rolle.SAKSBEHANDLER_OKONOMI, GjennomforingType.ENKELTPLASS, false),
+            row(Rolle.OKONOMI_ATTESTANT_GRUPPETILTAK, GjennomforingType.ENKELTPLASS, false),
+            row(Rolle.OKONOMI_SAKSBEHANDLER_GRUPPETILTAK, GjennomforingType.ENKELTPLASS, false),
         ) { rolle, type, forventet ->
             OkonomiAuthorization.kanLeseUtbetaling(medGenerellRolle(rolle), type) shouldBe forventet
         }
@@ -67,11 +67,11 @@ class OkonomiAuthorizationTest : FunSpec({
 
     test("saksbehandler krever generell rolle i riktig saksområde") {
         OkonomiAuthorization.erSaksbehandler(
-            medGenerellRolle(Rolle.SAKSBEHANDLER_OKONOMI),
+            medGenerellRolle(Rolle.OKONOMI_SAKSBEHANDLER_GRUPPETILTAK),
             GjennomforingType.AVTALE,
         ) shouldBe true
         OkonomiAuthorization.erSaksbehandler(
-            medGenerellRolle(Rolle.SAKSBEHANDLER_OKONOMI),
+            medGenerellRolle(Rolle.OKONOMI_SAKSBEHANDLER_GRUPPETILTAK),
             GjennomforingType.ENKELTPLASS,
         ) shouldBe false
         OkonomiAuthorization.erSaksbehandler(
@@ -94,14 +94,14 @@ class OkonomiAuthorizationTest : FunSpec({
             row(Rolle.OKONOMI_BESLUTTER_ENKELTPLASS, GjennomforingType.ENKELTPLASS, annetKostnadssted, false),
             row(Rolle.OKONOMI_BESLUTTER_ENKELTPLASS, GjennomforingType.AVTALE, kostnadssted, false),
             row(Rolle.OKONOMI_BESLUTTER_ENKELTPLASS, GjennomforingType.ARENA, kostnadssted, false),
-            row(Rolle.BESLUTTER_TILSAGN, GjennomforingType.AVTALE, kostnadssted, true),
-            row(Rolle.BESLUTTER_TILSAGN, GjennomforingType.AVTALE, annetKostnadssted, false),
-            row(Rolle.BESLUTTER_TILSAGN, GjennomforingType.ENKELTPLASS, kostnadssted, false),
-            row(Rolle.BESLUTTER_TILSAGN, GjennomforingType.ARENA, kostnadssted, false),
-            row(Rolle.ATTESTANT_UTBETALING, GjennomforingType.AVTALE, kostnadssted, true),
-            row(Rolle.ATTESTANT_UTBETALING, GjennomforingType.AVTALE, annetKostnadssted, false),
-            row(Rolle.ATTESTANT_UTBETALING, GjennomforingType.ENKELTPLASS, kostnadssted, false),
-            row(Rolle.ATTESTANT_UTBETALING, GjennomforingType.ARENA, kostnadssted, false),
+            row(Rolle.OKONOMI_BESLUTTER_GRUPPETILTAK, GjennomforingType.AVTALE, kostnadssted, true),
+            row(Rolle.OKONOMI_BESLUTTER_GRUPPETILTAK, GjennomforingType.AVTALE, annetKostnadssted, false),
+            row(Rolle.OKONOMI_BESLUTTER_GRUPPETILTAK, GjennomforingType.ENKELTPLASS, kostnadssted, false),
+            row(Rolle.OKONOMI_BESLUTTER_GRUPPETILTAK, GjennomforingType.ARENA, kostnadssted, false),
+            row(Rolle.OKONOMI_ATTESTANT_GRUPPETILTAK, GjennomforingType.AVTALE, kostnadssted, true),
+            row(Rolle.OKONOMI_ATTESTANT_GRUPPETILTAK, GjennomforingType.AVTALE, annetKostnadssted, false),
+            row(Rolle.OKONOMI_ATTESTANT_GRUPPETILTAK, GjennomforingType.ENKELTPLASS, kostnadssted, false),
+            row(Rolle.OKONOMI_ATTESTANT_GRUPPETILTAK, GjennomforingType.ARENA, kostnadssted, false),
         ) { rolle, type, enhet, forventet ->
             OkonomiAuthorization.erOkonomiBeslutter(
                 medKontorspesifikkRolle(rolle, kostnadssted),
@@ -116,13 +116,13 @@ class OkonomiAuthorizationTest : FunSpec({
             row(Rolle.OKONOMI_BESLUTTER_ENKELTPLASS, GjennomforingType.ENKELTPLASS, annetKostnadssted, false),
             row(Rolle.OKONOMI_BESLUTTER_ENKELTPLASS, GjennomforingType.AVTALE, kostnadssted, false),
             row(Rolle.OKONOMI_BESLUTTER_ENKELTPLASS, GjennomforingType.ARENA, kostnadssted, false),
-            row(Rolle.BESLUTTER_TILSAGN, GjennomforingType.AVTALE, kostnadssted, true),
-            row(Rolle.BESLUTTER_TILSAGN, GjennomforingType.AVTALE, annetKostnadssted, false),
-            row(Rolle.BESLUTTER_TILSAGN, GjennomforingType.ENKELTPLASS, kostnadssted, false),
-            row(Rolle.BESLUTTER_TILSAGN, GjennomforingType.ARENA, kostnadssted, false),
-            row(Rolle.ATTESTANT_UTBETALING, GjennomforingType.AVTALE, kostnadssted, false),
-            row(Rolle.ATTESTANT_UTBETALING, GjennomforingType.ENKELTPLASS, kostnadssted, false),
-            row(Rolle.ATTESTANT_UTBETALING, GjennomforingType.ARENA, kostnadssted, false),
+            row(Rolle.OKONOMI_BESLUTTER_GRUPPETILTAK, GjennomforingType.AVTALE, kostnadssted, true),
+            row(Rolle.OKONOMI_BESLUTTER_GRUPPETILTAK, GjennomforingType.AVTALE, annetKostnadssted, false),
+            row(Rolle.OKONOMI_BESLUTTER_GRUPPETILTAK, GjennomforingType.ENKELTPLASS, kostnadssted, false),
+            row(Rolle.OKONOMI_BESLUTTER_GRUPPETILTAK, GjennomforingType.ARENA, kostnadssted, false),
+            row(Rolle.OKONOMI_ATTESTANT_GRUPPETILTAK, GjennomforingType.AVTALE, kostnadssted, false),
+            row(Rolle.OKONOMI_ATTESTANT_GRUPPETILTAK, GjennomforingType.ENKELTPLASS, kostnadssted, false),
+            row(Rolle.OKONOMI_ATTESTANT_GRUPPETILTAK, GjennomforingType.ARENA, kostnadssted, false),
         ) { rolle, type, enhet, forventet ->
             OkonomiAuthorization.erBeslutterTilsagn(
                 medKontorspesifikkRolle(rolle, kostnadssted),
@@ -137,13 +137,13 @@ class OkonomiAuthorizationTest : FunSpec({
             row(Rolle.OKONOMI_BESLUTTER_ENKELTPLASS, GjennomforingType.ENKELTPLASS, annetKostnadssted, false),
             row(Rolle.OKONOMI_BESLUTTER_ENKELTPLASS, GjennomforingType.AVTALE, kostnadssted, false),
             row(Rolle.OKONOMI_BESLUTTER_ENKELTPLASS, GjennomforingType.ARENA, kostnadssted, false),
-            row(Rolle.BESLUTTER_TILSAGN, GjennomforingType.AVTALE, kostnadssted, false),
-            row(Rolle.BESLUTTER_TILSAGN, GjennomforingType.ENKELTPLASS, kostnadssted, false),
-            row(Rolle.BESLUTTER_TILSAGN, GjennomforingType.ARENA, kostnadssted, false),
-            row(Rolle.ATTESTANT_UTBETALING, GjennomforingType.AVTALE, kostnadssted, true),
-            row(Rolle.ATTESTANT_UTBETALING, GjennomforingType.AVTALE, annetKostnadssted, false),
-            row(Rolle.ATTESTANT_UTBETALING, GjennomforingType.ENKELTPLASS, kostnadssted, false),
-            row(Rolle.ATTESTANT_UTBETALING, GjennomforingType.ARENA, kostnadssted, false),
+            row(Rolle.OKONOMI_BESLUTTER_GRUPPETILTAK, GjennomforingType.AVTALE, kostnadssted, false),
+            row(Rolle.OKONOMI_BESLUTTER_GRUPPETILTAK, GjennomforingType.ENKELTPLASS, kostnadssted, false),
+            row(Rolle.OKONOMI_BESLUTTER_GRUPPETILTAK, GjennomforingType.ARENA, kostnadssted, false),
+            row(Rolle.OKONOMI_ATTESTANT_GRUPPETILTAK, GjennomforingType.AVTALE, kostnadssted, true),
+            row(Rolle.OKONOMI_ATTESTANT_GRUPPETILTAK, GjennomforingType.AVTALE, annetKostnadssted, false),
+            row(Rolle.OKONOMI_ATTESTANT_GRUPPETILTAK, GjennomforingType.ENKELTPLASS, kostnadssted, false),
+            row(Rolle.OKONOMI_ATTESTANT_GRUPPETILTAK, GjennomforingType.ARENA, kostnadssted, false),
         ) { rolle, type, enhet, forventet ->
             OkonomiAuthorization.erAttestantUtbetaling(
                 medKontorspesifikkRolle(rolle, kostnadssted),
@@ -157,22 +157,22 @@ class OkonomiAuthorizationTest : FunSpec({
         val avtale = OkonomiBeslutningContext(GjennomforingType.AVTALE, beggeKostnadssteder)
         val enkeltplass = OkonomiBeslutningContext(GjennomforingType.ENKELTPLASS, beggeKostnadssteder)
 
-        val tilsagnBeslutter = medKontorspesifikkRolle(Rolle.BESLUTTER_TILSAGN, kostnadssted)
-        val utbetalingAttestant = medKontorspesifikkRolle(Rolle.ATTESTANT_UTBETALING, kostnadssted)
+        val gruppetiltakBeslutter = medKontorspesifikkRolle(Rolle.OKONOMI_BESLUTTER_GRUPPETILTAK, kostnadssted)
+        val gruppetiltakAttestant = medKontorspesifikkRolle(Rolle.OKONOMI_ATTESTANT_GRUPPETILTAK, kostnadssted)
         val enkeltplassBeslutter = medKontorspesifikkRolle(Rolle.OKONOMI_BESLUTTER_ENKELTPLASS, kostnadssted)
 
-        OkonomiAuthorization.erBeslutterTilsagn(tilsagnBeslutter, avtale) shouldBe false
-        OkonomiAuthorization.erAttestantUtbetaling(utbetalingAttestant, avtale) shouldBe false
-        OkonomiAuthorization.erOkonomiBeslutter(tilsagnBeslutter, avtale) shouldBe false
-        OkonomiAuthorization.erOkonomiBeslutter(utbetalingAttestant, avtale) shouldBe false
+        OkonomiAuthorization.erBeslutterTilsagn(gruppetiltakBeslutter, avtale) shouldBe false
+        OkonomiAuthorization.erAttestantUtbetaling(gruppetiltakAttestant, avtale) shouldBe false
+        OkonomiAuthorization.erOkonomiBeslutter(gruppetiltakBeslutter, avtale) shouldBe false
+        OkonomiAuthorization.erOkonomiBeslutter(gruppetiltakAttestant, avtale) shouldBe false
         OkonomiAuthorization.erBeslutterTilsagn(enkeltplassBeslutter, enkeltplass) shouldBe false
         OkonomiAuthorization.erAttestantUtbetaling(enkeltplassBeslutter, enkeltplass) shouldBe false
         OkonomiAuthorization.erOkonomiBeslutter(enkeltplassBeslutter, enkeltplass) shouldBe false
 
         val alleRoller = NavAnsattFixture.DonaldDuck.medRoller(
             setOf(
-                NavAnsattRolle.kontorspesifikk(Rolle.BESLUTTER_TILSAGN, beggeKostnadssteder),
-                NavAnsattRolle.kontorspesifikk(Rolle.ATTESTANT_UTBETALING, beggeKostnadssteder),
+                NavAnsattRolle.kontorspesifikk(Rolle.OKONOMI_BESLUTTER_GRUPPETILTAK, beggeKostnadssteder),
+                NavAnsattRolle.kontorspesifikk(Rolle.OKONOMI_ATTESTANT_GRUPPETILTAK, beggeKostnadssteder),
                 NavAnsattRolle.kontorspesifikk(Rolle.OKONOMI_BESLUTTER_ENKELTPLASS, beggeKostnadssteder),
             ),
         )
@@ -188,10 +188,10 @@ class OkonomiAuthorizationTest : FunSpec({
         val ansatt = NavAnsattFixture.DonaldDuck.medRoller(
             setOf(
                 NavAnsattRolle.generell(Rolle.OKONOMI_LES),
-                NavAnsattRolle.generell(Rolle.SAKSBEHANDLER_OKONOMI),
+                NavAnsattRolle.generell(Rolle.OKONOMI_SAKSBEHANDLER_GRUPPETILTAK),
                 NavAnsattRolle.generell(Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS),
-                NavAnsattRolle.kontorspesifikk(Rolle.BESLUTTER_TILSAGN, setOf(kostnadssted)),
-                NavAnsattRolle.kontorspesifikk(Rolle.ATTESTANT_UTBETALING, setOf(kostnadssted)),
+                NavAnsattRolle.kontorspesifikk(Rolle.OKONOMI_BESLUTTER_GRUPPETILTAK, setOf(kostnadssted)),
+                NavAnsattRolle.kontorspesifikk(Rolle.OKONOMI_ATTESTANT_GRUPPETILTAK, setOf(kostnadssted)),
                 NavAnsattRolle.kontorspesifikk(Rolle.OKONOMI_BESLUTTER_ENKELTPLASS, setOf(kostnadssted)),
             ),
         )
@@ -212,7 +212,7 @@ class OkonomiAuthorizationTest : FunSpec({
         OkonomiAuthorization.erBeslutterEnkeltplass(beslutterEnkeltplass, setOf(annetKostnadssted)) shouldBe false
 
         OkonomiAuthorization.erBeslutterEnkeltplass(
-            medKontorspesifikkRolle(Rolle.BESLUTTER_TILSAGN, kostnadssted),
+            medKontorspesifikkRolle(Rolle.OKONOMI_BESLUTTER_GRUPPETILTAK, kostnadssted),
             setOf(kostnadssted),
         ) shouldBe false
 
@@ -228,11 +228,11 @@ class OkonomiAuthorizationTest : FunSpec({
         ) shouldBe true
 
         OkonomiAuthorization.erSaksbehandlerEnkeltplass(
-            medGenerellRolle(Rolle.SAKSBEHANDLER_OKONOMI),
+            medGenerellRolle(Rolle.OKONOMI_SAKSBEHANDLER_GRUPPETILTAK),
         ) shouldBe false
 
         OkonomiAuthorization.erBeslutterEnkeltplass(
-            medKontorspesifikkRolle(Rolle.ATTESTANT_UTBETALING, kostnadssted),
+            medKontorspesifikkRolle(Rolle.OKONOMI_ATTESTANT_GRUPPETILTAK, kostnadssted),
             setOf(kostnadssted),
         ) shouldBe false
 

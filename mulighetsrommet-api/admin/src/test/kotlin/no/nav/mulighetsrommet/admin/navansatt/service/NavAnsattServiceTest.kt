@@ -116,7 +116,7 @@ class NavAnsattServiceTest : FunSpec({
             val adGruppeBeslutterOslo = UUID.randomUUID()
             val rolleBeslutterOslo = EntraGroupNavAnsattRolleMapping(
                 entraGroupId = adGruppeBeslutterOslo,
-                rolle = Rolle.BESLUTTER_TILSAGN,
+                rolle = Rolle.OKONOMI_BESLUTTER_GRUPPETILTAK,
                 kostnadssteder = setOf(NavEnhetNummer("0387")),
             )
 
@@ -127,7 +127,7 @@ class NavAnsattServiceTest : FunSpec({
             coEvery { msGraph.getMemberGroups(oid, any()) } returns listOf(adGruppeBeslutterOslo)
 
             service.getNavAnsattRoles(oid, AccessType.M2M) shouldBe setOf(
-                NavAnsattRolle.kontorspesifikk(Rolle.BESLUTTER_TILSAGN, enheter = setOf(NavEnhetNummer("0387"))),
+                NavAnsattRolle.kontorspesifikk(Rolle.OKONOMI_BESLUTTER_GRUPPETILTAK, enheter = setOf(NavEnhetNummer("0387"))),
             )
         }
 
@@ -149,13 +149,13 @@ class NavAnsattServiceTest : FunSpec({
             val adGruppeBeslutterInnlandet = UUID.randomUUID()
             val rolleBeslutterInnlandet = EntraGroupNavAnsattRolleMapping(
                 entraGroupId = adGruppeBeslutterInnlandet,
-                rolle = Rolle.BESLUTTER_TILSAGN,
+                rolle = Rolle.OKONOMI_BESLUTTER_GRUPPETILTAK,
                 kostnadssteder = setOf(NavEnhetNummer("0400")),
             )
             val adGruppeBeslutterOslo = UUID.randomUUID()
             val rolleBeslutterOslo = EntraGroupNavAnsattRolleMapping(
                 entraGroupId = adGruppeBeslutterOslo,
-                rolle = Rolle.BESLUTTER_TILSAGN,
+                rolle = Rolle.OKONOMI_BESLUTTER_GRUPPETILTAK,
                 kostnadssteder = setOf(NavEnhetNummer("0300")),
             )
 
@@ -170,7 +170,7 @@ class NavAnsattServiceTest : FunSpec({
 
             service.getNavAnsattRoles(oid, AccessType.M2M) shouldBe setOf(
                 NavAnsattRolle.kontorspesifikk(
-                    Rolle.BESLUTTER_TILSAGN,
+                    Rolle.OKONOMI_BESLUTTER_GRUPPETILTAK,
                     enheter = setOf(
                         NavEnhetNummer("0400"),
                         NavEnhetNummer("0501"),
@@ -186,12 +186,12 @@ class NavAnsattServiceTest : FunSpec({
             val adGruppeBeslutterGenerell = UUID.randomUUID()
             val rolleBeslutterGenerell = EntraGroupNavAnsattRolleMapping(
                 entraGroupId = adGruppeBeslutterGenerell,
-                rolle = Rolle.BESLUTTER_TILSAGN,
+                rolle = Rolle.OKONOMI_BESLUTTER_GRUPPETILTAK,
             )
             val adGruppeBeslutterOslo = UUID.randomUUID()
             val rolleBeslutterOslo = EntraGroupNavAnsattRolleMapping(
                 entraGroupId = adGruppeBeslutterOslo,
-                rolle = Rolle.BESLUTTER_TILSAGN,
+                rolle = Rolle.OKONOMI_BESLUTTER_GRUPPETILTAK,
                 kostnadssteder = setOf(NavEnhetNummer("0387")),
             )
 
@@ -206,7 +206,7 @@ class NavAnsattServiceTest : FunSpec({
 
             service.getNavAnsattRoles(oid, AccessType.M2M) shouldBe setOf(
                 NavAnsattRolle(
-                    rolle = Rolle.BESLUTTER_TILSAGN,
+                    rolle = Rolle.OKONOMI_BESLUTTER_GRUPPETILTAK,
                     generell = true,
                     enheter = setOf(NavEnhetNummer("0387")),
                 ),

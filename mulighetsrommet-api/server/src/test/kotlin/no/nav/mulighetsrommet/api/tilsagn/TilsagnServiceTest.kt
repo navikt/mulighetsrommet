@@ -110,20 +110,20 @@ class TilsagnServiceTest : FunSpec({
             setRoller(
                 ansatt1,
                 setOf(
-                    NavAnsattRolle.generell(Rolle.SAKSBEHANDLER_OKONOMI),
-                    NavAnsattRolle.kontorspesifikk(Rolle.BESLUTTER_TILSAGN, setOf(Gjovik.enhetsnummer)),
+                    NavAnsattRolle.generell(Rolle.OKONOMI_SAKSBEHANDLER_GRUPPETILTAK),
+                    NavAnsattRolle.kontorspesifikk(Rolle.OKONOMI_BESLUTTER_GRUPPETILTAK, setOf(Gjovik.enhetsnummer)),
                 ),
             )
             setRoller(
                 ansatt2,
                 setOf(
-                    NavAnsattRolle.generell(Rolle.SAKSBEHANDLER_OKONOMI),
-                    NavAnsattRolle.kontorspesifikk(Rolle.BESLUTTER_TILSAGN, setOf(Gjovik.enhetsnummer)),
+                    NavAnsattRolle.generell(Rolle.OKONOMI_SAKSBEHANDLER_GRUPPETILTAK),
+                    NavAnsattRolle.kontorspesifikk(Rolle.OKONOMI_BESLUTTER_GRUPPETILTAK, setOf(Gjovik.enhetsnummer)),
                 ),
             )
             setRoller(
                 NavAnsattFixture.FetterAnton.navIdent,
-                setOf(NavAnsattRolle.generell(Rolle.SAKSBEHANDLER_OKONOMI)),
+                setOf(NavAnsattRolle.generell(Rolle.OKONOMI_SAKSBEHANDLER_GRUPPETILTAK)),
             )
         }.initialize(database.api)
     }
@@ -204,7 +204,7 @@ class TilsagnServiceTest : FunSpec({
                     GjennomforingFixtures.AFT1.copy(id = UUID.randomUUID()),
                 ),
             ) {
-                setRoller(ansatt1, setOf(NavAnsattRolle.generell(Rolle.SAKSBEHANDLER_OKONOMI)))
+                setRoller(ansatt1, setOf(NavAnsattRolle.generell(Rolle.OKONOMI_SAKSBEHANDLER_GRUPPETILTAK)))
             }.initialize(database.api)
 
             val tilsagn2 = UUID.randomUUID()
@@ -255,7 +255,7 @@ class TilsagnServiceTest : FunSpec({
                 setRoller(
                     ansatt2,
                     setOf(
-                        NavAnsattRolle.generell(Rolle.SAKSBEHANDLER_OKONOMI),
+                        NavAnsattRolle.generell(Rolle.OKONOMI_SAKSBEHANDLER_GRUPPETILTAK),
                         NavAnsattRolle.generell(Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS),
                     ),
                 )
@@ -411,7 +411,7 @@ class TilsagnServiceTest : FunSpec({
             database.run {
                 setRoller(
                     ansatt1,
-                    setOf(NavAnsattRolle.kontorspesifikk(Rolle.BESLUTTER_TILSAGN, setOf(Lillehammer.enhetsnummer))),
+                    setOf(NavAnsattRolle.kontorspesifikk(Rolle.OKONOMI_BESLUTTER_GRUPPETILTAK, setOf(Lillehammer.enhetsnummer))),
                 )
             }
 
@@ -584,7 +584,7 @@ class TilsagnServiceTest : FunSpec({
             database.run {
                 setRoller(
                     ansatt1,
-                    setOf(NavAnsattRolle.generell(Rolle.SAKSBEHANDLER_OKONOMI)),
+                    setOf(NavAnsattRolle.generell(Rolle.OKONOMI_SAKSBEHANDLER_GRUPPETILTAK)),
                 )
             }
 
