@@ -39,10 +39,10 @@ class UtbetalingDtoQueryTest : FunSpec({
     val database = extension(ApiDatabaseTestListener())
 
     val saksbehandler = NavAnsattFixture.DonaldDuck.medRoller(
-        setOf(NavAnsattRolle.generell(Rolle.SAKSBEHANDLER_OKONOMI)),
+        setOf(NavAnsattRolle.generell(Rolle.OKONOMI_SAKSBEHANDLER_GRUPPETILTAK)),
     )
     val attestant = NavAnsattFixture.MikkeMus.medRoller(
-        setOf(NavAnsattRolle.generell(Rolle.ATTESTANT_UTBETALING)),
+        setOf(NavAnsattRolle.generell(Rolle.OKONOMI_ATTESTANT_GRUPPETILTAK)),
     )
     val enkeltplassSaksbehandler = NavAnsattFixture.DonaldDuck.medRoller(
         setOf(NavAnsattRolle.generell(Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS)),
@@ -287,7 +287,7 @@ class UtbetalingDtoQueryTest : FunSpec({
         )
         val enkeltplassLinje = utbetalingLinje1.copy(tilsagnId = enkeltplassTilsagn.id)
 
-        test("avtale-attestant kan attestere og returnere linjen") {
+        test("gruppetiltak-attestant kan attestere og returnere linjen") {
             MulighetsrommetTestDomain(
                 ansatte = listOf(saksbehandler, attestant),
                 avtaler = listOf(AvtaleFixtures.AFT),
@@ -340,7 +340,7 @@ class UtbetalingDtoQueryTest : FunSpec({
             )
         }
 
-        test("avtale-attestant med lesetilgang får ikke handlinger for enkeltplasslinjer") {
+        test("gruppetiltak-attestant med lesetilgang får ikke handlinger for enkeltplasslinjer") {
             val attestantMedLesetilgang = attestant.medRoller(
                 attestant.roller + NavAnsattRolle.generell(Rolle.OKONOMI_LES),
             )

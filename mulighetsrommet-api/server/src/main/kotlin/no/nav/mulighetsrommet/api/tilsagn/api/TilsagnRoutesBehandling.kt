@@ -28,7 +28,7 @@ fun Route.tilsagnRoutesBehandling() {
     val service: TilsagnService by inject()
 
     authorize(
-        anyOf = setOf(Rolle.SAKSBEHANDLER_OKONOMI, Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS),
+        anyOf = setOf(Rolle.OKONOMI_SAKSBEHANDLER_GRUPPETILTAK, Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS),
     ) {
         put({
             description = "Opprett tilsagn"
@@ -145,7 +145,7 @@ fun Route.tilsagnRoutesBehandling() {
     }
 
     authorize(
-        anyOf = setOf(Rolle.BESLUTTER_TILSAGN, Rolle.OKONOMI_BESLUTTER_ENKELTPLASS),
+        anyOf = setOf(Rolle.OKONOMI_BESLUTTER_GRUPPETILTAK, Rolle.OKONOMI_BESLUTTER_ENKELTPLASS),
     ) {
         post("/{id}/godkjenn", {
             tags = setOf("Tilsagn")
@@ -176,8 +176,8 @@ fun Route.tilsagnRoutesBehandling() {
 
     authorize(
         anyOf = setOf(
-            Rolle.SAKSBEHANDLER_OKONOMI,
-            Rolle.BESLUTTER_TILSAGN,
+            Rolle.OKONOMI_SAKSBEHANDLER_GRUPPETILTAK,
+            Rolle.OKONOMI_BESLUTTER_GRUPPETILTAK,
             Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS,
             Rolle.OKONOMI_BESLUTTER_ENKELTPLASS,
         ),
