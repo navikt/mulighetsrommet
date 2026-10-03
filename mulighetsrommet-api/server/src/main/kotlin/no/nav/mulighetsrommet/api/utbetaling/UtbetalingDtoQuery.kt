@@ -2,12 +2,15 @@ package no.nav.mulighetsrommet.api.utbetaling
 
 import arrow.core.Either
 import arrow.core.left
+import arrow.core.nonEmptySetOf
 import arrow.core.right
 import no.nav.mulighetsrommet.admin.navenhet.Kontorstruktur
+import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollDto
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsatt
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.navansatt.OkonomiAuthorization
+import no.nav.mulighetsrommet.api.navansatt.OkonomiBeslutningContext
 import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnDeltakerDto
 import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnDto
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
@@ -16,13 +19,17 @@ import no.nav.mulighetsrommet.api.utbetaling.api.BeregningFilter
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingBeregningDto
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingDetaljerDto
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingDto
+import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingHandling
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingLinjeDto
+import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingLinjeHandling
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingLinjeStatusDto
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakerAdvarselDto
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinje
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.hentDeltakerAdvarslerForUtbetaling
-import no.nav.mulighetsrommet.api.utbetaling.service.AdminUtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
+import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.ValutaBelop
 import java.util.UUID
@@ -48,7 +55,7 @@ class UtbetalingDtoQuery(
             avbrytelse = avbrytelse,
         )
 
-        val handlinger = AdminUtbetalingService.utbetalingHandlinger(utbetaling, ansatt, dto.avbrytelse)
+        val handlinger = utbetalingHandlinger(utbetaling, ansatt, avbrytelse)
 
         return UtbetalingDetaljerDto(utbetaling = dto, handlinger = handlinger).right()
     }
@@ -85,11 +92,14 @@ class UtbetalingDtoQuery(
                 tilsagn = TilsagnDto.from(tilsagn),
                 deltakere = deltakere,
                 opprettelse = opprettelse,
-                handlinger = AdminUtbetalingService.linjeHandlinger(
-                    linje,
-                    opprettelse.behandling.utfortAv.agent,
-                    tilsagn.kostnadssted.enhetsnummer,
-                    ansatt,
+                handlinger = linjeHandlinger(
+                    linje = linje,
+                    ansatt = ansatt,
+                    behandletAv = opprettelse.behandling.utfortAv.agent,
+                    kontekst = OkonomiBeslutningContext(
+                        utbetaling.gjennomforing.type,
+                        nonEmptySetOf(tilsagn.kostnadssted.enhetsnummer),
+                    ),
                 ),
             )
         }
@@ -168,6 +178,49 @@ class UtbetalingDtoQuery(
                 )
             },
         ).right()
+    }
+
+    private fun utbetalingHandlinger(
+        utbetaling: Utbetaling,
+        ansatt: NavAnsatt,
+        avbrytelse: TotrinnskontrollDto?,
+    ): Set<UtbetalingHandling> {
+        if (!OkonomiAuthorization.erSaksbehandler(ansatt, utbetaling.gjennomforing.type)) {
+            return emptySet()
+        }
+
+        val tilAvbrytelse = avbrytelse is TotrinnskontrollDto.TilBeslutning
+        return setOfNotNull(
+            UtbetalingHandling.SEND_TIL_ATTESTERING.takeIf { utbetaling.erTilBehandling() },
+            UtbetalingHandling.SLETT.takeIf { utbetaling.kanSlettes() },
+            UtbetalingHandling.OPPRETT_KORREKSJON.takeIf { utbetaling.erFerdigBehandlet() && !utbetaling.erKorreksjon() },
+            UtbetalingHandling.REDIGER.takeIf { utbetaling.kanRedigeres() },
+            UtbetalingHandling.HENT_GODKJENTE_TILSAGN.takeIf { utbetaling.erTilBehandling() },
+            UtbetalingHandling.OPPRETT_TILSAGN.takeIf { utbetaling.erTilBehandling() },
+            UtbetalingHandling.SEND_TIL_AVBRYTELSE.takeIf { utbetaling.kanSettesTilAvbrytelse() },
+            UtbetalingHandling.GODKJENN_AVBRYTELSE.takeIf {
+                tilAvbrytelse && avbrytelse.behandling.utfortAv.agent != ansatt.navIdent
+            },
+            UtbetalingHandling.AVSLA_AVBRYTELSE.takeIf { tilAvbrytelse },
+        )
+    }
+
+    private fun linjeHandlinger(
+        linje: UtbetalingLinje,
+        ansatt: NavAnsatt,
+        behandletAv: Agent,
+        kontekst: OkonomiBeslutningContext,
+    ): Set<UtbetalingLinjeHandling> {
+        if (linje.status != UtbetalingLinjeStatus.TIL_ATTESTERING) {
+            return emptySet()
+        }
+
+        val erAttestant = OkonomiAuthorization.erAttestantUtbetaling(ansatt, kontekst)
+        val erSaksbehandler = OkonomiAuthorization.erSaksbehandler(ansatt, kontekst.gjennomforingType)
+        return setOfNotNull(
+            UtbetalingLinjeHandling.ATTESTER.takeIf { erAttestant && behandletAv != ansatt.navIdent },
+            UtbetalingLinjeHandling.RETURNER.takeIf { erAttestant || erSaksbehandler },
+        )
     }
 
     private fun harLesetilgang(utbetaling: Utbetaling, ansatt: NavAnsatt): Boolean {
