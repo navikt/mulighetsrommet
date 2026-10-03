@@ -5,13 +5,10 @@ import arrow.core.flatMap
 import arrow.core.left
 import arrow.core.nel
 import arrow.core.nonEmptySetOf
-import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollDto
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.aarsakerbegrunnelse.AarsakerOgBegrunnelseRequest
 import no.nav.mulighetsrommet.api.domain.arrangor.Arrangor
-import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsatt
-import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingType
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
@@ -20,18 +17,12 @@ import no.nav.mulighetsrommet.api.navansatt.OkonomiAuthorization
 import no.nav.mulighetsrommet.api.navansatt.OkonomiBeslutningContext
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
-import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingHandling
-import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingLinjeHandling
 import no.nav.mulighetsrommet.api.utbetaling.model.OpprettUtbetalingLinjer
 import no.nav.mulighetsrommet.api.utbetaling.model.UpsertUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinje
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeReturnertAarsak
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusAarsak
-import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.FieldError
-import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.withValuta
 import no.nav.mulighetsrommet.validation.validation
@@ -285,95 +276,5 @@ class AdminUtbetalingService(
             kostnadssteder = nonEmptySetOf(tilsagn.kostnadssted.enhetsnummer),
         )
         return OkonomiAuthorization.erAttestantUtbetaling(ansatt, kontekst)
-    }
-
-    companion object {
-        fun utbetalingHandlinger(
-            utbetaling: Utbetaling,
-            ansatt: NavAnsatt,
-            tilAvbrytelse: TotrinnskontrollDto?,
-        ): Set<UtbetalingHandling> {
-            return setOfNotNull(
-                UtbetalingHandling.SEND_TIL_ATTESTERING.takeIf { utbetaling.erTilBehandling() },
-                UtbetalingHandling.SLETT.takeIf { utbetaling.kanSlettes() },
-                UtbetalingHandling.OPPRETT_KORREKSJON.takeIf { utbetaling.erFerdigBehandlet() && !utbetaling.erKorreksjon() },
-                UtbetalingHandling.REDIGER.takeIf { utbetaling.kanRedigeres() },
-                UtbetalingHandling.HENT_GODKJENTE_TILSAGN.takeIf { utbetaling.erTilBehandling() },
-                UtbetalingHandling.OPPRETT_TILSAGN.takeIf { utbetaling.erTilBehandling() },
-                UtbetalingHandling.SEND_TIL_AVBRYTELSE.takeIf { utbetaling.kanSettesTilAvbrytelse() },
-                UtbetalingHandling.GODKJENN_AVBRYTELSE.takeIf { kanGodkjenneAvbrytelse(ansatt, tilAvbrytelse) },
-                UtbetalingHandling.AVSLA_AVBRYTELSE.takeIf { kanAvslaAvbrytelse(tilAvbrytelse) },
-            )
-                .filter { handling ->
-                    tilgangTilHandling(handling, ansatt, utbetaling.gjennomforing.type)
-                }
-                .toSet()
-        }
-
-        private fun kanGodkjenneAvbrytelse(ansatt: NavAnsatt, tilAvbrytelse: TotrinnskontrollDto?) = when (tilAvbrytelse) {
-            is TotrinnskontrollDto.TilBeslutning -> tilAvbrytelse.behandling.utfortAv.agent != ansatt.navIdent
-            is TotrinnskontrollDto.Besluttet, null -> false
-        }
-
-        private fun kanAvslaAvbrytelse(tilAvbrytelse: TotrinnskontrollDto?) = when (tilAvbrytelse) {
-            is TotrinnskontrollDto.TilBeslutning -> true
-            is TotrinnskontrollDto.Besluttet, null -> false
-        }
-
-        fun linjeHandlinger(
-            linje: UtbetalingLinje,
-            behandletAv: Agent,
-            kostnadssted: NavEnhetNummer,
-            ansatt: NavAnsatt,
-        ): Set<UtbetalingLinjeHandling> {
-            return setOfNotNull(
-                UtbetalingLinjeHandling.ATTESTER.takeIf { linje.status == UtbetalingLinjeStatus.TIL_ATTESTERING },
-                UtbetalingLinjeHandling.RETURNER.takeIf { linje.status == UtbetalingLinjeStatus.TIL_ATTESTERING },
-            )
-                .filter {
-                    tilgangTilHandling(
-                        handling = it,
-                        ansatt = ansatt,
-                        kostnadssted = kostnadssted,
-                        behandletAv = behandletAv,
-                    )
-                }
-                .toSet()
-        }
-
-        fun tilgangTilHandling(
-            handling: UtbetalingHandling,
-            ansatt: NavAnsatt,
-            gjennomforingType: GjennomforingType,
-        ): Boolean {
-            val erSaksbehandler = OkonomiAuthorization.erSaksbehandler(ansatt, gjennomforingType)
-            return when (handling) {
-                UtbetalingHandling.OPPRETT_KORREKSJON -> erSaksbehandler
-                UtbetalingHandling.REDIGER -> erSaksbehandler
-                UtbetalingHandling.SEND_TIL_ATTESTERING -> erSaksbehandler
-                UtbetalingHandling.SLETT -> erSaksbehandler
-                UtbetalingHandling.HENT_GODKJENTE_TILSAGN -> erSaksbehandler
-                UtbetalingHandling.OPPRETT_TILSAGN -> erSaksbehandler
-                UtbetalingHandling.SEND_TIL_AVBRYTELSE -> erSaksbehandler
-                UtbetalingHandling.GODKJENN_AVBRYTELSE -> erSaksbehandler
-                UtbetalingHandling.AVSLA_AVBRYTELSE -> erSaksbehandler
-            }
-        }
-
-        fun tilgangTilHandling(
-            handling: UtbetalingLinjeHandling,
-            ansatt: NavAnsatt,
-            kostnadssted: NavEnhetNummer,
-            behandletAv: Agent,
-        ): Boolean {
-            val erBeslutter = ansatt.hasKontorspesifikkRolle(Rolle.ATTESTANT_UTBETALING, setOf(kostnadssted))
-            val erSaksbehandler = ansatt.hasGenerellRolle(Rolle.SAKSBEHANDLER_OKONOMI)
-
-            return when (handling) {
-                UtbetalingLinjeHandling.SEND_TIL_ATTESTERING -> erSaksbehandler
-                UtbetalingLinjeHandling.ATTESTER -> erBeslutter && behandletAv != ansatt.navIdent
-                UtbetalingLinjeHandling.RETURNER -> erBeslutter || erSaksbehandler
-            }
-        }
     }
 }
