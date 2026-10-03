@@ -37,9 +37,9 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusAarsak
 import no.nav.mulighetsrommet.api.utbetaling.service.AdminUtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
+import no.nav.mulighetsrommet.api.utbetaling.service.UtbetalingError
 import no.nav.mulighetsrommet.api.utbetaling.service.UtbetalingValidator
 import no.nav.mulighetsrommet.ktor.exception.Forbidden
-import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
 import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.ProblemDetail
@@ -136,8 +136,9 @@ fun Route.utbetalingRoutes() {
                 val navIdent = getNavIdent()
 
                 val result = UtbetalingValidator.validateUpsertUtbetaling(request)
+                    .mapLeft(UtbetalingError::Valideringsfeil)
                     .flatMap { utbetalingService.opprettUtbetaling(it, navIdent) }
-                    .mapLeft { ValidationError("Klarte ikke opprette utbetaling", it) }
+                    .mapLeft { toProblemDetail(it, "Klarte ikke opprette utbetaling") }
                     .map { HttpStatusCode.Created }
 
                 call.respondWithStatusResponse(result)
@@ -163,8 +164,9 @@ fun Route.utbetalingRoutes() {
                 val navIdent = getNavIdent()
 
                 val result = UtbetalingValidator.validateUpsertUtbetaling(request)
+                    .mapLeft { UtbetalingError.Valideringsfeil(it) }
                     .flatMap { utbetalingService.redigerUtbetaling(it, navIdent) }
-                    .mapLeft { ValidationError("Klarte ikke redigere utbetaling", it) }
+                    .mapLeft { toProblemDetail(it, "Klarte ikke redigere utbetaling") }
                     .map { HttpStatusCode.OK }
 
                 call.respondWithStatusResponse(result)
@@ -319,10 +321,13 @@ fun Route.utbetalingRoutes() {
                 }
             }) {
                 val id: UUID by call.parameters
+                val navIdent = getNavIdent()
 
-                utbetalingService.slettUtbetaling(id)
-                    .onLeft { call.respondWithProblemDetail(ValidationError(errors = it)) }
-                    .onRight { call.respond(HttpStatusCode.OK) }
+                val result = utbetalingService.slettUtbetaling(id, navIdent)
+                    .mapLeft { toProblemDetail(it) }
+                    .map { HttpStatusCode.OK }
+
+                call.respondWithStatusResponse(result)
             }
 
             put("/avbryt", {
@@ -347,17 +352,15 @@ fun Route.utbetalingRoutes() {
                 val request = call.receive<AarsakerOgBegrunnelseRequest<UtbetalingStatusAarsak>>()
                 val navIdent = getNavIdent()
 
-                request.validate().flatMap {
-                    utbetalingService.sendTilAvbrytelse(id, navIdent, it)
-                }
-                    .onLeft { call.respondWithProblemDetail(ValidationError(errors = it)) }
-                    .onRight {
-                        call.respond(HttpStatusCode.OK)
-                    }
-            }
-        }
+                val result = request.validate()
+                    .mapLeft { UtbetalingError.Valideringsfeil(it) }
+                    .flatMap { utbetalingService.sendTilAvbrytelse(id, navIdent, it) }
+                    .mapLeft { toProblemDetail(it) }
+                    .map { HttpStatusCode.OK }
 
-        authorize(anyOf = setOf(Rolle.ATTESTANT_UTBETALING, Rolle.OKONOMI_BESLUTTER_ENKELTPLASS)) {
+                call.respondWithStatusResponse(result)
+            }
+
             put("/avbryt/godkjenn", {
                 description = "Godkjenn avbrytelse av utbetaling"
                 tags = setOf("Utbetaling")
@@ -378,9 +381,11 @@ fun Route.utbetalingRoutes() {
                 val id = call.parameters.getOrFail<UUID>("id")
                 val navIdent = getNavIdent()
 
-                utbetalingService.godkjennAvbrytelse(id, navIdent)
-                    .onLeft { call.respondWithProblemDetail(ValidationError(errors = it)) }
-                    .onRight { call.respond(HttpStatusCode.OK) }
+                val result = utbetalingService.godkjennAvbrytelse(id, navIdent)
+                    .mapLeft { toProblemDetail(it) }
+                    .map { HttpStatusCode.OK }
+
+                call.respondWithStatusResponse(result)
             }
 
             put("/avbryt/avsla", {
@@ -404,11 +409,14 @@ fun Route.utbetalingRoutes() {
                 val id = call.parameters.getOrFail<UUID>("id")
                 val request = call.receive<AarsakerOgBegrunnelseRequest<UtbetalingStatusAarsak>>()
                 val navIdent = getNavIdent()
-                request.validate().flatMap {
-                    utbetalingService.avslaAvbrytelse(id, navIdent, it)
-                }
-                    .onLeft { call.respondWithProblemDetail(ValidationError(errors = it)) }
-                    .onRight { call.respond(HttpStatusCode.OK) }
+
+                val result = request.validate()
+                    .mapLeft { UtbetalingError.Valideringsfeil(it) }
+                    .flatMap { utbetalingService.avslaAvbrytelse(id, navIdent, it) }
+                    .mapLeft { toProblemDetail(it) }
+                    .map { HttpStatusCode.OK }
+
+                call.respondWithStatusResponse(result)
             }
         }
     }
@@ -436,8 +444,9 @@ fun Route.utbetalingRoutes() {
                 val navIdent = getNavIdent()
 
                 val result = request.validate()
+                    .mapLeft { UtbetalingError.Valideringsfeil(it) }
                     .flatMap { utbetalingService.sendTilAttestering(it, navIdent) }
-                    .mapLeft { ValidationError(errors = it) }
+                    .mapLeft { toProblemDetail(it) }
                     .map { HttpStatusCode.OK }
 
                 call.respondWithStatusResponse(result)
@@ -465,7 +474,7 @@ fun Route.utbetalingRoutes() {
                 val navIdent = getNavIdent()
 
                 val result = utbetalingService.godkjennUtbetalingLinje(id, navIdent)
-                    .mapLeft { ValidationError(errors = it) }
+                    .mapLeft { toProblemDetail(it) }
                     .map { HttpStatusCode.OK }
 
                 call.respondWithStatusResponse(result)
@@ -475,7 +484,7 @@ fun Route.utbetalingRoutes() {
         authorize(
             anyOf = setOf(
                 Rolle.SAKSBEHANDLER_OKONOMI,
-                Rolle.BESLUTTER_TILSAGN,
+                Rolle.ATTESTANT_UTBETALING,
                 Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS,
                 Rolle.OKONOMI_BESLUTTER_ENKELTPLASS,
             ),
@@ -502,8 +511,9 @@ fun Route.utbetalingRoutes() {
                 val navIdent = getNavIdent()
 
                 val result = request.validate()
+                    .mapLeft { UtbetalingError.Valideringsfeil(it) }
                     .flatMap { utbetalingService.returnerUtbetalingLinje(id, it.aarsaker, it.begrunnelse, navIdent) }
-                    .mapLeft { ValidationError(errors = it) }
+                    .mapLeft { toProblemDetail(it) }
                     .map { HttpStatusCode.OK }
 
                 call.respondWithStatusResponse(result)
@@ -613,4 +623,14 @@ data class UtbetalingBeregningDeltaker(
 
 private fun toProblemDetail(error: UtbetalingDtoQueryError): ProblemDetail = when (error) {
     is UtbetalingDtoQueryError.ManglerTilgang -> Forbidden(error.message)
+}
+
+private fun toProblemDetail(error: UtbetalingError, title: String? = null): ProblemDetail = when (error) {
+    is UtbetalingError.ManglerTilgang -> Forbidden(error.message)
+
+    is UtbetalingError.Valideringsfeil -> if (title == null) {
+        ValidationError(errors = error.errors)
+    } else {
+        ValidationError(title, error.errors)
+    }
 }
