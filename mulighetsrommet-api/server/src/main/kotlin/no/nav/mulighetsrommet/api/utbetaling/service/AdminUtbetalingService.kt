@@ -82,7 +82,7 @@ class AdminUtbetalingService(
             return UtbetalingError.ManglerTilgang("Du mangler saksbehandlertilgang til utbetalingen").left()
         }
 
-        if (!kanRedigeres(utbetaling)) {
+        if (!utbetaling.kanRedigeres()) {
             return UtbetalingError.Valideringsfeil(FieldError.of("Utbetalingen kan ikke redigeres").nel()).left()
         }
 
@@ -293,17 +293,14 @@ class AdminUtbetalingService(
             ansatt: NavAnsatt,
             tilAvbrytelse: TotrinnskontrollDto?,
         ): Set<UtbetalingHandling> {
-            val erEnkeltplass = utbetaling.gjennomforing.type == GjennomforingType.ENKELTPLASS
             return setOfNotNull(
                 UtbetalingHandling.SEND_TIL_ATTESTERING.takeIf { utbetaling.erTilBehandling() },
-                UtbetalingHandling.SLETT.takeIf {
-                    utbetaling.erTilBehandling() && (utbetaling.erKorreksjon() || erEnkeltplass)
-                },
+                UtbetalingHandling.SLETT.takeIf { utbetaling.kanSlettes() },
                 UtbetalingHandling.OPPRETT_KORREKSJON.takeIf { utbetaling.erFerdigBehandlet() && !utbetaling.erKorreksjon() },
-                UtbetalingHandling.REDIGER.takeIf { kanRedigeres(utbetaling) },
+                UtbetalingHandling.REDIGER.takeIf { utbetaling.kanRedigeres() },
                 UtbetalingHandling.HENT_GODKJENTE_TILSAGN.takeIf { utbetaling.erTilBehandling() },
                 UtbetalingHandling.OPPRETT_TILSAGN.takeIf { utbetaling.erTilBehandling() },
-                UtbetalingHandling.SEND_TIL_AVBRYTELSE.takeIf { !erEnkeltplass && utbetaling.kanSettesTilAvbrytelse() },
+                UtbetalingHandling.SEND_TIL_AVBRYTELSE.takeIf { utbetaling.kanSettesTilAvbrytelse() },
                 UtbetalingHandling.GODKJENN_AVBRYTELSE.takeIf { kanGodkjenneAvbrytelse(ansatt, tilAvbrytelse) },
                 UtbetalingHandling.AVSLA_AVBRYTELSE.takeIf { kanAvslaAvbrytelse(tilAvbrytelse) },
             )
@@ -380,5 +377,3 @@ class AdminUtbetalingService(
         }
     }
 }
-
-private fun kanRedigeres(utbetaling: Utbetaling): Boolean = utbetaling.erTilBehandling() && !utbetaling.erInnsending()

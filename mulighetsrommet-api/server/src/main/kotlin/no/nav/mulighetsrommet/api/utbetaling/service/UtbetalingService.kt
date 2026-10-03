@@ -17,7 +17,6 @@ import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.Totrinnskontroll
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollStatus
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingTiltaksadministrasjon
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
@@ -209,11 +208,6 @@ class UtbetalingService(
     }
 
     context(tx: TransactionalQueryContext)
-    private fun erEnkeltplass(utbetaling: Utbetaling): Boolean = with(tx) {
-        queries.gjennomforing.getGjennomforing(utbetaling.gjennomforing.id) is GjennomforingEnkeltplass
-    }
-
-    context(tx: TransactionalQueryContext)
     fun slettUtbetaling(id: UUID): Either<List<FieldError>, Unit> = with(tx) {
         val utbetaling = queries.utbetaling.getAndAcquireLock(id)
         if (!utbetaling.erTilBehandling()) {
@@ -221,7 +215,7 @@ class UtbetalingService(
                 .nel()
                 .left()
         }
-        if (!utbetaling.erKorreksjon() && !erEnkeltplass(utbetaling)) {
+        if (!utbetaling.kanSlettes()) {
             return FieldError.of("Kan kun slette korreksjoner og utbetalinger for enkeltplass").nel().left()
         }
         queries.utbetalingLinje.getByUtbetalingId(id).forEach { linje ->
@@ -242,9 +236,6 @@ class UtbetalingService(
         begrunnelse: String?,
     ): Either<List<FieldError>, Utbetaling> = with(tx) {
         val utbetaling = queries.utbetaling.getAndAcquireLock(id)
-        if (erEnkeltplass(utbetaling)) {
-            return FieldError.of("Utbetaling for enkeltplass kan ikke avbrytes").nel().left()
-        }
         return utbetaling.settTilAbrytelse(agent, aarsaker, begrunnelse).map { utbetalingTilAvbrytelse ->
             queries.utbetaling.save(utbetalingTilAvbrytelse)
 
