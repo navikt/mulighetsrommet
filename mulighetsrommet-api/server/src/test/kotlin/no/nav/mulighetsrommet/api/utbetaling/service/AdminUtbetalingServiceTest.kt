@@ -198,6 +198,46 @@ class AdminUtbetalingServiceTest : FunSpec({
             )
         }
 
+        test("journalpostId er påkrevd ved redigering for norsk arrangør") {
+            val service = createUtbetalingService()
+
+            service.opprettUtbetaling(upsert, navIdent).shouldBeRight()
+
+            service.redigerUtbetaling(
+                upsert.copy(journalpostId = null),
+                navIdent,
+            ) shouldBeLeft listOf(
+                FieldError("/journalpostId", "Journalpost-ID er påkrevd"),
+            )
+        }
+
+        test("utbetalingsDato er påkrevd ved redigering for norsk arrangør") {
+            val service = createUtbetalingService()
+
+            service.opprettUtbetaling(upsert, navIdent).shouldBeRight()
+
+            service.redigerUtbetaling(
+                upsert.copy(utbetalingsDato = null),
+                navIdent,
+            ) shouldBeLeft listOf(
+                FieldError("/utbetalingsDato", "Utbetalingsdato er påkrevd"),
+            )
+        }
+
+        test("journalpostId og utbetalingsDato er påkrevd ved redigering for norsk arrangør") {
+            val service = createUtbetalingService()
+
+            service.opprettUtbetaling(upsert, navIdent).shouldBeRight()
+
+            service.redigerUtbetaling(
+                upsert.copy(journalpostId = null, utbetalingsDato = null),
+                navIdent,
+            ) shouldBeLeft listOf(
+                FieldError("/journalpostId", "Journalpost-ID er påkrevd"),
+                FieldError("/utbetalingsDato", "Utbetalingsdato er påkrevd"),
+            )
+        }
+
         test("journalpostId er ikke påkrevd for utenlandsk arrangør") {
             val utenlandskArrangor = ArrangorFixtures.Utenlandsk.hovedenhet
             val gjennomforingMedUtenlandskArrangor = AFT1.copy(arrangorId = utenlandskArrangor.id)
