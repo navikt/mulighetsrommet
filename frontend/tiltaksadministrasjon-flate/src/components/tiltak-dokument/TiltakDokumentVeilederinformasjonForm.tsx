@@ -1,5 +1,5 @@
 import { Heading, VStack } from "@navikt/ds-react";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { TiltakDokumentFormValues } from "@/pages/tiltak-dokument/TiltakDokumentFormValues";
 import { FormCombobox } from "@/components/skjema/FormCombobox";
@@ -17,6 +17,9 @@ import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { gjennomforingTekster } from "@/components/ledetekster/gjennomforingLedetekster";
 import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
+import { useTiltakstype } from "@/api/tiltakstyper/useTiltakstype";
+import { InlineErrorBoundary } from "@/ErrorBoundary";
+import { Laster } from "@/components/laster/Laster";
 
 export function TiltakDokumentVeilederinformasjonForm() {
   const { watch } = useFormContext<TiltakDokumentFormValues>();
@@ -33,10 +36,11 @@ export function TiltakDokumentVeilederinformasjonForm() {
   return (
     <TwoColumnGrid>
       <VStack gap="space-16">
-        <RedaksjoneltInnholdForm
-          path="veilederinformasjon"
-          description="Beskrivelse av formålet med gjennomføringen."
-        />
+        <InlineErrorBoundary>
+          <Suspense fallback={<Laster tekst="Laster innhold" />}>
+            <RedaksjoneltInnholdFormMedTiltakstype />
+          </Suspense>
+        </InlineErrorBoundary>
       </VStack>
       <VStack gap="space-16">
         <Heading size="small" level="3">
@@ -79,6 +83,33 @@ export function TiltakDokumentVeilederinformasjonForm() {
         />
       </VStack>
     </TwoColumnGrid>
+  );
+}
+
+function RedaksjoneltInnholdFormMedTiltakstype() {
+  const { watch } = useFormContext<TiltakDokumentFormValues>();
+  const tiltakstypeId = watch("tiltakstypeId");
+
+  if (!tiltakstypeId) {
+    return (
+      <RedaksjoneltInnholdForm
+        path="veilederinformasjon"
+        description="Beskrivelse av formålet med gjennomføringen."
+      />
+    );
+  }
+
+  return <RedaksjoneltInnholdFormInner tiltakstypeId={tiltakstypeId} />;
+}
+
+function RedaksjoneltInnholdFormInner({ tiltakstypeId }: { tiltakstypeId: string }) {
+  const tiltakstype = useTiltakstype(tiltakstypeId);
+  return (
+    <RedaksjoneltInnholdForm
+      path="veilederinformasjon"
+      description="Beskrivelse av formålet med gjennomføringen."
+      tiltakstype={tiltakstype}
+    />
   );
 }
 
