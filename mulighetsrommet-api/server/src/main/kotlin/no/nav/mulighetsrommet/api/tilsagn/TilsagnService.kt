@@ -40,6 +40,7 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.totrinnskontroll.api.toFieldErrors
 import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingInputHelper
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
 import no.nav.mulighetsrommet.api.utbetaling.service.erBeslutter
 import no.nav.mulighetsrommet.api.utbetaling.service.erSaksbehandler
 import no.nav.mulighetsrommet.model.Agent
@@ -477,7 +478,10 @@ class TilsagnService(
                 .nel()
                 .left()
         }
-        if (db.session { queries.utbetalingLinje.getNextLopenummerByTilsagn(tilsagn.id) } > 1) {
+        val linjer = db.session { queries.utbetalingLinje.getByTilsagnId(tilsagn.id) }
+            .filter { it.status != UtbetalingLinjeStatus.AVBRUTT }
+
+        if (linjer.count() > 0) {
             return FieldError.of("Tilsagnet kan ikke annulleres fordi det har blitt brukt i utbetalinger")
                 .nel()
                 .left()

@@ -768,6 +768,65 @@ class TilsagnServiceTest : FunSpec({
             ) shouldBeLeft listOf(FieldError.of("Tilsagnet kan ikke annulleres fordi det har blitt brukt i utbetalinger"))
         }
 
+        test("kan annullere tilsagn når eneste utbetalingslinje er avbrutt") {
+            service.upsert(request, ansatt1).shouldBeRight()
+            service.godkjennTilsagn(
+                id = requestId,
+                agent = ansatt2,
+            ).shouldBeRight()
+            service.tilAnnulleringRequest(
+                id = requestId,
+                navIdent = ansatt1,
+                request = AarsakerOgBegrunnelseRequest(
+                    aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
+                    begrunnelse = "Velg et annet beløp",
+                ),
+            )
+            database.run {
+                val belop = 10.withValuta(Valuta.NOK)
+                val utbetalingId = UUID.randomUUID()
+                queries.utbetaling.upsert(
+                    UtbetalingDbo(
+                        id = utbetalingId,
+                        status = UtbetalingStatusType.FERDIG_BEHANDLET,
+                        periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
+                        gjennomforingId = request.gjennomforingId,
+                        valuta = Valuta.NOK,
+                        journalpostId = null,
+                        beregning = UtbetalingBeregningFri.from(belop),
+                        betalingsinformasjon = null,
+                        kommentar = null,
+                        korreksjonGjelderUtbetalingId = null,
+                        korreksjonBegrunnelse = null,
+                        tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
+                        innsendtAvArrangorTidspunkt = null,
+                        utbetalesTidligstTidspunkt = null,
+                        avbrytelse = null,
+                    ),
+                )
+                queries.utbetalingLinje.upsert(
+                    UtbetalingLinjeDbo(
+                        id = UUID.randomUUID(),
+                        tilsagnId = requestId,
+                        utbetalingId = utbetalingId,
+                        status = UtbetalingLinjeStatus.AVBRUTT,
+                        pris = belop,
+                        gjorOppTilsagn = false,
+                        periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
+                        lopenummer = 1,
+                        fakturanummer = "a-asdf2-4",
+                        fakturaStatus = null,
+                        fakturaStatusEndretTidspunkt = null,
+                    ),
+                )
+            }
+            service.godkjennTilsagn(
+                id = requestId,
+                agent = ansatt2,
+            ).shouldBeRight()
+            database.run { queries.tilsagn.getOrError(requestId).status shouldBe TilsagnStatus.ANNULLERT }
+        }
+
         test("returnering av tilsagn når tilsagnet har status TIL_ANNULLERING setter annulleringen til RETURNERT og tilsagnet tilbake til godkjent") {
             service.upsert(
                 request = request,
