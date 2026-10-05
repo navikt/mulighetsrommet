@@ -16,12 +16,12 @@
     "@date-fns/utc": "2.1.1",
     "@hookform/resolvers": "5.9.1",
     "@portabletext/react": "7.0.1",
-    "@tanstack/react-query": "5.103.2",
+    "@tanstack/react-query": "5.104.0",
     "classnames": "2.5.1",
     "date-fns": "4.4.0",
     "date-fns-tz": "^3.2.0",
     "react-error-boundary": "6.1.6",
-    "react-hook-form": "7.88.0",
+    "react-hook-form": "7.89.0",
     "zod": "4.6.5"
   },
   "peerDependencies": {
@@ -46,7 +46,7 @@
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "react-router": "8.4.0",
-    "vitest": "5.0.1"
+    "vitest": "5.0.2"
   },
   "repository": {
     "type": "git",
