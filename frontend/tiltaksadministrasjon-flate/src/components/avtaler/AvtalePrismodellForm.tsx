@@ -120,7 +120,7 @@ export default function AvtalePrismodellForm({ tiltakskode, avtaleStartDato }: P
                 )}
                 <FormTextarea<PrismodellValues>
                   name={`prismodeller.${index}.prisbetingelser`}
-                  label={avtaletekster.prisOgBetalingLabel}
+                  label={avtaletekster.prisOgBetalingsbetingelserLabel}
                 />
                 <HStack>
                   <Button

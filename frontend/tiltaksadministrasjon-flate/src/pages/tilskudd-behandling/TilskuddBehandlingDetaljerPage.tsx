@@ -33,10 +33,10 @@ import {
 } from "@/utils/Utils";
 import { Saksopplysninger } from "@/components/tilskudd-behandling/Saksopplysninger";
 import { VedtakDetaljer } from "@/components/tilskudd-behandling/VedtakDetaljer";
-import { PrismodellDetaljer } from "@/components/prismodell/PrismodellDetaljer";
 import { TilskuddBehandlingHandlinger } from "./TilskuddBehandlingHandlinger";
 import { TilskuddFormGroup } from "@/layouts/TilskuddFormGroup";
 import { formaterPeriode } from "@mr/frontend-common/utils/date";
+import { PrisOgBetalingsbetingelser } from "@/components/prismodell/PrisOgBetalingsbetingelser";
 
 export function TilskuddBehandlingDetaljerPage() {
   const { gjennomforingId, behandlingId } = useRequiredParams(["gjennomforingId", "behandlingId"]);
@@ -144,10 +144,7 @@ export function TilskuddBehandlingDetaljerPage() {
           />
         </VStack>
         <Box>
-          <Heading level="3" size="medium" spacing>
-            Pris og betalingsbetingelser
-          </Heading>
-          <PrismodellDetaljer prismodell={prismodell} />
+          <PrisOgBetalingsbetingelser prismodell={prismodell} size="medium" />
         </Box>
       </TwoColumnGrid>
       <Separator />

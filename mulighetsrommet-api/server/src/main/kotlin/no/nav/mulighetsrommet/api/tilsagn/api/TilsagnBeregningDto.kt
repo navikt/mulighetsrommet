@@ -35,7 +35,7 @@ data class TilsagnBeregningDto(
                         entries = listOf(
                             DataElement.text(PrismodellType.ANNEN_AVTALT_PRIS.navn).label("Prismodell"),
                             DataElement.text(beregning.input.prisbetingelser)
-                                .label("Pris- og betalingsbetingelser", LabeledDataElementType.MULTILINE),
+                                .label("Pris og betalingsbetingelser", LabeledDataElementType.MULTILINE),
                         ),
                     ),
                     regnestykke = CalculationDto(
@@ -126,7 +126,7 @@ data class TilsagnBeregningDto(
                             DataElement.number(beregning.input.antallPlasser).label("Antall plasser"),
                             DataElement.money(beregning.input.sats).label("Avtalt pris"),
                             DataElement.text(beregning.input.prisbetingelser)
-                                .label("Pris- og betalingsbetingelser", LabeledDataElementType.MULTILINE),
+                                .label("Pris og betalingsbetingelser", LabeledDataElementType.MULTILINE),
                         ),
                     ),
 
@@ -150,7 +150,7 @@ data class TilsagnBeregningDto(
                             DataElement.number(beregning.input.antallPlasser).label("Antall plasser"),
                             DataElement.money(beregning.input.sats).label("Avtalt pris"),
                             DataElement.text(beregning.input.prisbetingelser)
-                                .label("Pris- og betalingsbetingelser", LabeledDataElementType.MULTILINE),
+                                .label("Pris og betalingsbetingelser", LabeledDataElementType.MULTILINE),
                         ),
                     ),
 
@@ -188,7 +188,7 @@ data class TilsagnBeregningDto(
                             DataElement.number(beregning.input.antallPlasser).label("Antall plasser"),
                             DataElement.money(beregning.input.sats).label("Avtalt pris"),
                             DataElement.text(beregning.input.prisbetingelser)
-                                .label("Pris- og betalingsbetingelser", LabeledDataElementType.MULTILINE),
+                                .label("Pris og betalingsbetingelser", LabeledDataElementType.MULTILINE),
                         ),
                     ),
 
@@ -226,7 +226,7 @@ data class TilsagnBeregningDto(
                             DataElement.number(beregning.input.antallTimerOppfolgingPerDeltaker)
                                 .label("Antall oppfølgingstimer per deltaker"),
                             DataElement.text(beregning.input.prisbetingelser)
-                                .label("Pris- og betalingsbetingelser", LabeledDataElementType.MULTILINE),
+                                .label("Pris og betalingsbetingelser", LabeledDataElementType.MULTILINE),
                         ),
                     ),
 
