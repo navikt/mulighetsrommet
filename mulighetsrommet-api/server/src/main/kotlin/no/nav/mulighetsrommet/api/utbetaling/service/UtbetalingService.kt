@@ -59,6 +59,7 @@ import no.nav.tiltak.okonomi.OpprettFaktura
 import no.nav.tiltak.okonomi.toOkonomiPart
 import java.time.Instant
 import java.time.LocalDateTime
+import java.time.ZoneId
 import java.util.UUID
 
 class UtbetalingService(
@@ -530,6 +531,8 @@ class UtbetalingService(
     ): Either<NonEmptyList<FieldError>, UtbetalingDbo> {
         val gjennomforing = queries.gjennomforing.getGjennomforingTiltaksadministrasjon(upsert.gjennomforingId)
 
+        val valgtUtbetalingsTidspunkt = upsert.utbetalingsDato?.atStartOfDay(ZoneId.of("Europe/Oslo"))?.toInstant()
+
         val dbo = UtbetalingDbo(
             id = upsert.id,
             gjennomforingId = upsert.gjennomforingId,
@@ -544,7 +547,7 @@ class UtbetalingService(
             journalpostId = upsert.journalpostId,
             innsendtAvArrangorTidspunkt = null,
             betalingsinformasjon = getUtbetalingsinformasjon(gjennomforing.arrangor.id, upsert.kid),
-            utbetalesTidligstTidspunkt = getUtbetalesTidligstTidspunkt(gjennomforing, upsert.periode),
+            utbetalesTidligstTidspunkt = valgtUtbetalingsTidspunkt ?: getUtbetalesTidligstTidspunkt(gjennomforing, upsert.periode),
             avbrytelse = null,
         )
 
