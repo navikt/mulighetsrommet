@@ -26,6 +26,7 @@ export function useRedigerUtbetalingForm(
     kidNummer:
       utbetaling.betalingsinformasjon?.type === "BBan" ? utbetaling.betalingsinformasjon.kid : null,
     pris: utbetaling.beregning,
+    utbetalingsDato: utbetaling.utbetalesTidligstDato ?? null,
     korrigererUtbetaling: utbetaling.korreksjon?.opprinneligUtbetaling,
     korreksjonBegrunnelse: utbetaling.korreksjon?.begrunnelse,
   };
@@ -35,11 +36,21 @@ export function useRedigerUtbetalingForm(
   const mutation = useRedigerUtbetaling();
 
   function submit(data: UtbetalingRequest) {
-    mutation.mutate(data, {
+    mutation.mutate(emptyDatesToNull(data), {
       onSuccess: options?.onSuccess,
       onValidationError: (error: ValidationError) => applyValidationErrors(form, error),
     });
   }
 
   return { form, submit, mutation };
+}
+
+// Unngå deserialiseringsproblemer: default verdi er tom streng, mens api krever null
+function emptyDatesToNull(data: UtbetalingRequest) {
+  return {
+    ...data,
+    periodeStart: data.periodeStart ? data.periodeStart : null,
+    periodeSlutt: data.periodeSlutt ? data.periodeSlutt : null,
+    utbetalingsDato: data.utbetalingsDato ? data.utbetalingsDato : null
+  }
 }
