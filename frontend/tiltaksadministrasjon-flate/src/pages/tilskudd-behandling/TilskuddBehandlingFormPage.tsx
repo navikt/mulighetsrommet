@@ -84,7 +84,7 @@ export function TilskuddBehandlingFormPage() {
 
   const form = useForm<TilskuddBehandlingRequest>({
     defaultValues,
-    mode: "onBlur",
+    mode: "onSubmit",
   });
 
   const {
