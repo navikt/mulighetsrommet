@@ -51,6 +51,6 @@ function emptyDatesToNull(data: UtbetalingRequest) {
     ...data,
     periodeStart: data.periodeStart ? data.periodeStart : null,
     periodeSlutt: data.periodeSlutt ? data.periodeSlutt : null,
-    utbetalingsDato: data.utbetalingsDato ? data.utbetalingsDato : null
-  }
+    utbetalingsDato: data.utbetalingsDato ? data.utbetalingsDato : null,
+  };
 }
