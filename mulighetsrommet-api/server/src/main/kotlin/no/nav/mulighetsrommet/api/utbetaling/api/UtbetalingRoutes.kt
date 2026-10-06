@@ -447,7 +447,7 @@ fun Route.utbetalingRoutes() {
         authorize(anyOf = setOf(Rolle.ATTESTANT_UTBETALING, Rolle.OKONOMI_BESLUTTER_ENKELTPLASS)) {
             post("/{id}/attester", {
                 tags = setOf("Utbetaling")
-                operationId = "godkjennUtbetalingLinje"
+                operationId = "attesterUtbetalingLinje"
                 request {
                     pathParameterUuid("id")
                 }

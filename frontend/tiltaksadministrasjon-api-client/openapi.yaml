@@ -2755,7 +2755,7 @@ paths:
     post:
       tags:
       - Utbetaling
-      operationId: godkjennUtbetalingLinje
+      operationId: attesterUtbetalingLinje
       parameters:
       - name: id
         in: path

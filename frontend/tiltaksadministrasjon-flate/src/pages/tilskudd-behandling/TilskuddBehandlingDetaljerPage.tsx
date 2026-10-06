@@ -79,7 +79,7 @@ export function TilskuddBehandlingDetaljerPage() {
   }
 
   const kanReturneres = handlinger.includes(TilskuddBehandlingHandling.RETURNER);
-  const kanGodkjennes = handlinger.includes(TilskuddBehandlingHandling.GODKJENN);
+  const kanGodkjennes = handlinger.includes(TilskuddBehandlingHandling.ATTESTER);
   return (
     <TilskuddBehandlingLayout gjennomforingId={gjennomforingId}>
       <TilskuddBehandlingHandlinger tilskuddBehandlingId={behandlingId} />
