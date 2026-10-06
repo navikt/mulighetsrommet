@@ -29,6 +29,7 @@
     "@navikt/ds-react": "8.17.2",
     "@navikt/ds-tailwind": "8.17.2",
     "@portabletext/editor": "8.2.2",
+    "@portabletext/plugin-list-index": "2.0.15",
     "@portabletext/toolbar": "9.0.16",
     "@portabletext/types": "4.0.2",
     "@tailwindcss/vite": "4.3.3",

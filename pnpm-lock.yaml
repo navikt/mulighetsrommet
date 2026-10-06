@@ -634,6 +634,9 @@ importers:
       '@portabletext/editor':
         specifier: 8.2.2
         version: 8.2.2(@types/react@19.2.14)(react@19.2.8)
+      '@portabletext/plugin-list-index':
+        specifier: 2.0.15
+        version: 2.0.15(@portabletext/editor@8.2.2(@types/react@19.2.14)(react@19.2.8))(react@19.2.8)
       '@portabletext/toolbar':
         specifier: 9.0.16
         version: 9.0.16(@portabletext/editor@8.2.2(@types/react@19.2.14)(react@19.2.8))(@types/react@19.2.14)(react@19.2.8)
@@ -2270,6 +2273,9 @@ packages:
       '@types/react': ^17.0.30 || ^18 || ^19
       react: ^17 || ^18 || ^19
       react-dom: ^17 || ^18 || ^19
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
 
   '@navikt/ds-tailwind@8.17.2':
     resolution: {integrity: sha512-vnk1Rh10u58SArtWY1eoVRc3W5pvQIcb6XLwmTicCO0nSnMhTSPOFnrtTLaMxj0yqwncunQgu7L3ziN5EZ1MsQ==, tarball: https://npm.pkg.github.com/download/@navikt/ds-tailwind/8.17.2/27c852f81b6fe3333ba7f876b2950dfb457e9cf3}
@@ -2283,6 +2289,9 @@ packages:
     peerDependencies:
       html-react-parser: '>=5.x'
       react: '>=17.x'
+    peerDependenciesMeta:
+      react:
+        optional: true
 
   '@navikt/oasis@4.2.2':
     resolution: {integrity: sha512-EVMsF8uKbLPNRWuPfH1IKVJhqtibFzSTSyNkzj5mTCVMZV2QPS5W3uYMD4r0rXsmLx7nv0HnLovDphb3AFEjvw==, tarball: https://npm.pkg.github.com/download/@navikt/oasis/4.2.2/3c43e1e89bb2d46646a9a2aaf27972a024377a6f}
@@ -9735,11 +9744,12 @@ snapshots:
       '@floating-ui/react-dom': 2.1.9(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       '@navikt/aksel-icons': 8.17.2
       '@navikt/ds-tokens': 8.17.2
-      '@types/react': 19.2.14
       date-fns: 4.4.0
       react: 19.2.8
       react-day-picker: 10.0.1(@types/react@19.2.14)(react@19.2.8)
       react-dom: 19.2.8(react@19.2.8)
+    optionalDependencies:
+      '@types/react': 19.2.14
 
   '@navikt/ds-tailwind@8.17.2': {}
 
@@ -9751,6 +9761,7 @@ snapshots:
       csp-header: 6.3.1
       html-react-parser: 6.1.8(@types/react@19.2.14)(react@19.2.8)
       js-cookie: 3.0.8
+    optionalDependencies:
       react: 19.2.8
 
   '@navikt/oasis@4.2.2':

@@ -1,15 +1,17 @@
 import {
+  defineAnnotation,
+  defineDecorator,
   defineSchema,
+  defineTextBlock,
   EditorProvider,
   PortableTextBlock,
   PortableTextEditable,
-  RenderAnnotationFunction,
-  RenderBlockFunction,
-  RenderDecoratorFunction,
-  RenderStyleFunction,
+  RegistrableNode,
   SchemaDefinition,
+  TextBlockRenderProps,
 } from "@portabletext/editor";
-import { EventListenerPlugin } from "@portabletext/editor/plugins";
+import { EventListenerPlugin, NodePlugin } from "@portabletext/editor/plugins";
+import { ListIndexProvider, useListIndex } from "@portabletext/plugin-list-index";
 import { BodyLong, Link, Tooltip } from "@navikt/ds-react";
 import "./portableTextEditor.css";
 import { PortableTextEditorToolbar } from "./PortableTextToolbar";
@@ -36,6 +38,68 @@ const schemaDefinition = defineSchema({
   inlineObjects: [],
   blockObjects: [],
 });
+
+const nodes: RegistrableNode[] = [
+  defineTextBlock({
+    type: "block",
+    render: (props) => {
+      if (props.node.listItem) {
+        return (
+          <ListItemBlock attributes={props.attributes} node={props.node} path={props.path}>
+            {props.children}
+          </ListItemBlock>
+        );
+      }
+      return (
+        <BodyLong size="small" className="mb-1 min-h-3" {...props.attributes}>
+          {props.children}
+        </BodyLong>
+      );
+    },
+  }),
+  defineDecorator({
+    type: SupportedDecorator.STRONG,
+    render: (props) => <strong>{props.children}</strong>,
+  }),
+  defineDecorator({
+    type: SupportedDecorator.EM,
+    render: (props) => <em>{props.children}</em>,
+  }),
+  defineDecorator({
+    type: SupportedDecorator.UNDERLINE,
+    render: (props) => <u>{props.children}</u>,
+  }),
+  defineAnnotation({
+    type: SupportedAnnotation.LINK,
+    render: (props) => {
+      const href = typeof props.annotation.href === "string" ? props.annotation.href : "";
+      return (
+        <Tooltip content={href}>
+          <Link href={href}>{props.children}</Link>
+        </Tooltip>
+      );
+    },
+  }),
+];
+
+function ListItemBlock(props: {
+  attributes: TextBlockRenderProps["attributes"];
+  node: TextBlockRenderProps["node"];
+  path: TextBlockRenderProps["path"];
+  children: TextBlockRenderProps["children"];
+}) {
+  const listIndex = useListIndex(props.path);
+  return (
+    <div
+      {...props.attributes}
+      data-list-item={props.node.listItem}
+      data-level={props.node.level}
+      data-list-index={listIndex}
+    >
+      {props.children}
+    </div>
+  );
+}
 
 interface PortableTextFormEditorProps {
   name: string;
@@ -92,53 +156,11 @@ export function PortableTextEditor({
           }}
         />
         <PortableTextEditorToolbar />
-        <PortableTextEditable
-          className="p-2 border rounded-b-md"
-          renderDecorator={renderDecorator}
-          renderAnnotation={renderAnnotation}
-          renderBlock={renderBlock}
-          renderStyle={renderStyle}
-          // Liste-elementer er egne "blocks", så kan ikke bruke Aksel her. See css i samme mappe.
-          renderListItem={(props) => <>{props.children}</>}
-        />
+        <ListIndexProvider>
+          <NodePlugin nodes={nodes} />
+          <PortableTextEditable className="p-2 border rounded-b-md" />
+        </ListIndexProvider>
       </EditorProvider>
     </>
   );
 }
-
-const renderDecorator: RenderDecoratorFunction = (props) => {
-  if (props.value === SupportedDecorator.STRONG) {
-    return <strong>{props.children}</strong>;
-  }
-  if (props.value === SupportedDecorator.EM) {
-    return <em>{props.children}</em>;
-  }
-  if (props.value === SupportedDecorator.UNDERLINE) {
-    return <u>{props.children}</u>;
-  }
-  return <>{props.children}</>;
-};
-
-const renderAnnotation: RenderAnnotationFunction = (props) => {
-  if (props.schemaType.name === SupportedAnnotation.LINK) {
-    return (
-      <Tooltip content={props.value.href as string}>
-        <Link href={props.value.href as string}>{props.children}</Link>
-      </Tooltip>
-    );
-  }
-
-  return <>{props.children}</>;
-};
-
-const renderBlock: RenderBlockFunction = (props) => {
-  return (
-    <BodyLong size="small" className="mb-1 min-h-3">
-      {props.children}
-    </BodyLong>
-  );
-};
-
-const renderStyle: RenderStyleFunction = (props) => {
-  return <>{props.children}</>;
-};
