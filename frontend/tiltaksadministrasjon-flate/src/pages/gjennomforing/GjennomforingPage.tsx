@@ -123,7 +123,6 @@ const ENKELTPLASS_TILSKUDD_TABS: TabConfig[] = [
     label: "Tilskuddsbehandlinger",
   },
   { key: "tilskudd-utbetalinger", label: "Utbetalinger" },
-  { key: "tilskudd", label: "Tilskudd" },
 ];
 
 const ENKELTPLASS_INGEN_KOSTNADER_TABS: TabConfig[] = [{ key: "detaljer", label: "Detaljer" }];
