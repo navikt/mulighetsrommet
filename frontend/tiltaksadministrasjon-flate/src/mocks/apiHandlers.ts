@@ -14,7 +14,7 @@ import { utbetalingHandlers } from "./endpoints/utbetalingHandlers";
 import { tilskuddHandlers } from "./endpoints/tilskuddHandlers";
 import { personopplysningerHandlers } from "@/mocks/endpoints/personopplysningerHandler";
 import { redaksjoneltInnholdHandlers } from "@/mocks/endpoints/redaksjoneltInnholdHandlers";
-import { tiltakDokumentHandlers } from "@/mocks/endpoints/tiltakDokumentHandlers";
+import { tiltakBeskrivelseHandlers } from "@/mocks/endpoints/tiltakBeskrivelseHandlers";
 
 export const apiHandlers = [
   ...arrangorHandlers,
@@ -33,5 +33,5 @@ export const apiHandlers = [
   ...utbetalingHandlers,
   ...tilskuddHandlers,
   ...personopplysningerHandlers,
-  ...tiltakDokumentHandlers,
+  ...tiltakBeskrivelseHandlers,
 ];

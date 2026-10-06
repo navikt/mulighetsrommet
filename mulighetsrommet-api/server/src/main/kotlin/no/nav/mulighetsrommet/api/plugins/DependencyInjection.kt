@@ -36,7 +36,7 @@ import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeDtoQuery
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeKompaktQuery
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
 import no.nav.mulighetsrommet.admin.tiltak.UpdateTiltakstypeUseCase
-import no.nav.mulighetsrommet.admin.tiltakdokument.service.TiltakDokumentAdminService
+import no.nav.mulighetsrommet.admin.tiltakbeskrivelse.service.TiltakBeskrivelseAdminService
 import no.nav.mulighetsrommet.admin.utdanning.SynkroniserUtdanningerUseCase
 import no.nav.mulighetsrommet.altinn.AltinnClient
 import no.nav.mulighetsrommet.altinn.AltinnCorrespondenceClient
@@ -528,7 +528,7 @@ private fun services(appConfig: AppConfig) = module {
     single { PoaoTilgangService(get()) }
     single { DelMedBrukerService(get(), get()) }
     single { GjennomforingDetaljerService(get(), get(), get(), get(), get()) }
-    single { TiltakDokumentAdminService(get(), get()) }
+    single { TiltakBeskrivelseAdminService(get(), get()) }
     single {
         GjennomforingEnkeltplassService(
             get(),

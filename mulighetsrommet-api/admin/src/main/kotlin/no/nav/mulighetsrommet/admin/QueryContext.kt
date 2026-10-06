@@ -7,7 +7,7 @@ import no.nav.mulighetsrommet.admin.kostnadssted.KostnadsstedQueryHandler
 import no.nav.mulighetsrommet.admin.navansatt.NavAnsattDtoQueryHandler
 import no.nav.mulighetsrommet.admin.opplaring.OpplaringKategoriseringQueryHandler
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeQueryHandler
-import no.nav.mulighetsrommet.admin.tiltakdokument.TiltakDokumentQueryHandler
+import no.nav.mulighetsrommet.admin.tiltakbeskrivelse.TiltakBeskrivelseQueryHandler
 import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollQueryHandler
 import no.nav.mulighetsrommet.api.domain.arrangor.ArrangorRepository
 import no.nav.mulighetsrommet.api.domain.avtale.AvtaleRepository
@@ -18,7 +18,7 @@ import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetRepository
 import no.nav.mulighetsrommet.api.domain.redaksjoneltinnhold.RedaksjoneltInnholdLenkeRepository
 import no.nav.mulighetsrommet.api.domain.tiltak.Tiltakstype
 import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeRepository
-import no.nav.mulighetsrommet.api.domain.tiltakdokument.TiltakDokumentRepository
+import no.nav.mulighetsrommet.api.domain.tiltakbeskrivelse.TiltakBeskrivelseRepository
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.Totrinnskontroll
 import no.nav.mulighetsrommet.api.domain.utdanning.UtdanningsprogramRepository
 
@@ -35,7 +35,7 @@ abstract class QueryContext {
         abstract val navAnsatt: NavAnsattRepository
         abstract val arrangor: ArrangorRepository
         abstract val utdanning: UtdanningsprogramRepository
-        abstract val tiltakDokument: TiltakDokumentRepository
+        abstract val tiltakBeskrivelse: TiltakBeskrivelseRepository
         abstract val deltaker: DeltakerRepository
         abstract val deltakerForslag: DeltakerForslagRepository
     }
@@ -49,7 +49,7 @@ abstract class QueryContext {
         abstract val totrinnskontroll: TotrinnskontrollQueryHandler
         abstract val arrangor: ArrangorQueryHandler
         abstract val opplaering: OpplaringKategoriseringQueryHandler
-        abstract val tiltakDokument: TiltakDokumentQueryHandler
+        abstract val tiltakBeskrivelse: TiltakBeskrivelseQueryHandler
     }
 
     interface Outbox {

@@ -64,8 +64,8 @@ class VeilederflateService(
         search: String? = null,
         erSykmeldtMedArbeidsgiver: Boolean,
     ): List<VeilederflateTiltak> = coroutineScope {
-        val tiltakDokumenter = async {
-            hentTiltakDokumenter(enheter, tiltakskoder, innsatsgruppe, apentForPamelding, search)
+        val tiltakBeskrivelser = async {
+            hentTiltakBeskrivelser(enheter, tiltakskoder, innsatsgruppe, apentForPamelding, search)
         }
 
         val gruppeGjennomforinger = async {
@@ -79,7 +79,7 @@ class VeilederflateService(
             )
         }
 
-        (tiltakDokumenter.await() + gruppeGjennomforinger.await()).filter {
+        (tiltakBeskrivelser.await() + gruppeGjennomforinger.await()).filter {
             tiltakstypeService.isEnabled(it.tiltakstype.tiltakskode, TiltakstypeFeature.VISES_I_MODIA)
         }
     }
@@ -88,7 +88,7 @@ class VeilederflateService(
         db.session { queries.veilederTiltak.get(id) }
             ?.let { return toVeilederflateTiltak(it) }
 
-        db.session { queries.veilederTiltak.getTiltakDokument(id) }
+        db.session { queries.veilederTiltak.getTiltakBeskrivelse(id) }
             ?.let { return toVeilederflateTiltak(it) }
 
         throw StatusException(HttpStatusCode.NotFound, "Fant ikke tiltak med id=$id")
@@ -119,7 +119,7 @@ class VeilederflateService(
         }
     }
 
-    private suspend fun hentTiltakDokumenter(
+    private suspend fun hentTiltakBeskrivelser(
         enheter: NonEmptyList<NavEnhetNummer>,
         tiltakskoder: List<Tiltakskode>?,
         innsatsgruppe: Innsatsgruppe,
@@ -143,7 +143,7 @@ class VeilederflateService(
 
         // Hent publiserte rader fra vår database
         return db.session {
-            queries.veilederTiltak.getAllTiltakDokument(
+            queries.veilederTiltak.getAllTiltakBeskrivelse(
                 brukersEnheter = enheter.toList(),
                 tiltakskoder = tiltakskoder,
             )
@@ -183,11 +183,11 @@ class VeilederflateService(
     }
         .map { toVeilederflateTiltak(it) }
 
-    private suspend fun toVeilederflateTiltak(tiltakDokument: VeilederflateTiltakDokument): VeilederflateTiltak {
-        val tiltakstype = getAllTiltakstyper().singleOrNull { it.tiltakskode == tiltakDokument.tiltakskode }
-            ?: error("Tiltakstype mangler for tiltakskode=${tiltakDokument.tiltakskode}")
+    private suspend fun toVeilederflateTiltak(tiltakBeskrivelse: VeilederflateTiltakBeskrivelse): VeilederflateTiltak {
+        val tiltakstype = getAllTiltakstyper().singleOrNull { it.tiltakskode == tiltakBeskrivelse.tiltakskode }
+            ?: error("Tiltakstype mangler for tiltakskode=${tiltakBeskrivelse.tiltakskode}")
 
-        val tiltaksansvarlige = tiltakDokument.kontaktpersoner.map {
+        val tiltaksansvarlige = tiltakBeskrivelse.kontaktpersoner.map {
             VeilederflateKontaktinfoTiltaksansvarlig(
                 navn = it.navn,
                 telefon = it.mobilnummer,
@@ -197,11 +197,11 @@ class VeilederflateService(
         }
         val kontaktinfo = VeilederflateKontaktinfo(tiltaksansvarlige)
 
-        val fylker = tiltakDokument.navEnheter.filter { it.type == NavEnhetType.FYLKE }.map { it.enhetsnummer }
-        val enheter = tiltakDokument.navEnheter.filter { it.type != NavEnhetType.FYLKE }.map { it.enhetsnummer }
+        val fylker = tiltakBeskrivelse.navEnheter.filter { it.type == NavEnhetType.FYLKE }.map { it.enhetsnummer }
+        val enheter = tiltakBeskrivelse.navEnheter.filter { it.type != NavEnhetType.FYLKE }.map { it.enhetsnummer }
 
-        return if (tiltakDokument.arrangor != null) {
-            val arrangorKontaktpersoner = tiltakDokument.arrangorKontaktpersoner.map {
+        return if (tiltakBeskrivelse.arrangor != null) {
+            val arrangorKontaktpersoner = tiltakBeskrivelse.arrangorKontaktpersoner.map {
                 VeilederflateArrangorKontaktperson(
                     id = it.id,
                     navn = it.navn,
@@ -212,35 +212,35 @@ class VeilederflateService(
             }
             VeilederflateTiltakEnkeltplassAnskaffet(
                 tiltakstype = tiltakstype,
-                navn = tiltakDokument.navn,
-                beskrivelse = tiltakDokument.beskrivelse,
-                faneinnhold = tiltakDokument.faneinnhold,
+                navn = tiltakBeskrivelse.navn,
+                beskrivelse = tiltakBeskrivelse.beskrivelse,
+                faneinnhold = tiltakBeskrivelse.faneinnhold,
                 kontaktinfo = kontaktinfo,
                 oppstart = GjennomforingOppstartstype.LOPENDE,
-                oppmoteSted = tiltakDokument.stedForGjennomforing,
+                oppmoteSted = tiltakBeskrivelse.stedForGjennomforing,
                 fylker = fylker,
                 enheter = enheter,
-                id = tiltakDokument.id,
-                tiltaksnummer = tiltakDokument.tiltaksnummer,
+                id = tiltakBeskrivelse.id,
+                tiltaksnummer = tiltakBeskrivelse.tiltaksnummer,
                 arrangor = VeilederflateArrangor(
-                    selskapsnavn = tiltakDokument.arrangor.navn,
-                    organisasjonsnummer = tiltakDokument.arrangor.organisasjonsnummer,
+                    selskapsnavn = tiltakBeskrivelse.arrangor.navn,
+                    organisasjonsnummer = tiltakBeskrivelse.arrangor.organisasjonsnummer,
                     kontaktpersoner = arrangorKontaktpersoner,
                 ),
             )
         } else {
             VeilederflateTiltakEnkeltplass(
                 tiltakstype = tiltakstype,
-                navn = tiltakDokument.navn,
-                beskrivelse = tiltakDokument.beskrivelse,
-                faneinnhold = tiltakDokument.faneinnhold,
+                navn = tiltakBeskrivelse.navn,
+                beskrivelse = tiltakBeskrivelse.beskrivelse,
+                faneinnhold = tiltakBeskrivelse.faneinnhold,
                 kontaktinfo = kontaktinfo,
                 oppstart = GjennomforingOppstartstype.LOPENDE,
-                oppmoteSted = tiltakDokument.stedForGjennomforing,
+                oppmoteSted = tiltakBeskrivelse.stedForGjennomforing,
                 fylker = fylker,
                 enheter = enheter,
-                id = tiltakDokument.id,
-                tiltaksnummer = tiltakDokument.tiltaksnummer,
+                id = tiltakBeskrivelse.id,
+                tiltaksnummer = tiltakBeskrivelse.tiltaksnummer,
             )
         }
     }

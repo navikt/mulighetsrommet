@@ -10,7 +10,7 @@ import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.clients.sanity.SanityPerspective
 import no.nav.mulighetsrommet.api.clients.sanity.SanityResponse
 import no.nav.mulighetsrommet.api.clients.sanity.SanityTiltakstype
-import no.nav.mulighetsrommet.api.domain.tiltakdokument.TiltakDokument
+import no.nav.mulighetsrommet.api.domain.tiltakbeskrivelse.TiltakBeskrivelse
 import no.nav.mulighetsrommet.model.Faneinnhold
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.tasks.DbSchedulerKotlinSerializer
@@ -67,7 +67,7 @@ class MigrerSanityTiltaksgjennomforinger(
             }
             runCatching {
                 // Reuse existing DB id if sanity_id already exists (ensures idempotency)
-                val eksisterende = db.session { repository.tiltakDokument.get(sanityId) }
+                val eksisterende = db.session { repository.tiltakBeskrivelse.get(sanityId) }
                 val id = eksisterende?.id ?: UUID.randomUUID()
 
                 val navEnheter = buildList {
@@ -82,8 +82,8 @@ class MigrerSanityTiltaksgjennomforinger(
                     }
 
                     if (eksisterende != null) {
-                        repository.tiltakDokument.save(
-                            TiltakDokument(
+                        repository.tiltakBeskrivelse.save(
+                            TiltakBeskrivelse(
                                 id = id,
                                 navn = eksisterende.navn,
                                 tiltakstypeId = eksisterende.tiltakstypeId,
