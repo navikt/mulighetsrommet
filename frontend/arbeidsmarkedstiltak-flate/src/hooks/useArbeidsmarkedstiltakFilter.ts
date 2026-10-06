@@ -17,7 +17,7 @@ import {
   atomWithStorage,
   createJSONStorage,
   unstable_withStorageValidator as withStorageValidator,
-} from "jotai/utils"
+} from "jotai/utils";
 import { useCallback, useEffect } from "react";
 import { z } from "zod";
 

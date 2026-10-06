@@ -1,5 +1,5 @@
 import { Provider as JotaiProvider, useAtom } from "jotai";
-import { useHydrateAtoms } from "jotai/utils"
+import { useHydrateAtoms } from "jotai/utils";
 import { ReactNode, useEffect, useState } from "react";
 import { AppContextData, modiaContextAtom } from "./hooks/useModiaContext";
 import {
