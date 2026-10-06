@@ -17,8 +17,7 @@ import {
   atomWithStorage,
   createJSONStorage,
   unstable_withStorageValidator as withStorageValidator,
-} from "jotai/utils";
-import { SyncStorage } from "jotai/vanilla/utils/atomWithStorage";
+} from "jotai/utils"
 import { useCallback, useEffect } from "react";
 import { z } from "zod";
 
@@ -234,7 +233,7 @@ const filterValidator = (v: unknown): v is FilterMedBrukerIKontekst => {
   return Boolean(filterMedBrukerIKontekstSchema.safeParse(v).success);
 };
 
-const filterStorage: SyncStorage<FilterMedBrukerIKontekst> = withStorageValidator(filterValidator)(
+const filterStorage = withStorageValidator(filterValidator)(
   createJSONStorage(() => sessionStorage),
 );
 
