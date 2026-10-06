@@ -28,7 +28,7 @@ export const mockOppgaver: Oppgave[] = [
     enhet: null,
     type: OppgaveType.TILSAGN_TIL_GODKJENNING,
     navn: "Tilsagn til godkjenning",
-    title: "Send tilsagn til godkjennung",
+    title: "Send tilsagn til godkjenning",
     description: "Tilsagn opprettet av Benny Beslutter er klar og venter godkjenning",
     tiltakstype: {
       tiltakskode: Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
@@ -70,7 +70,7 @@ export const mockOppgaver: Oppgave[] = [
   {
     id: "4",
     enhet: null,
-    type: OppgaveType.UTBETALING_TIL_GODKJENNING,
+    type: OppgaveType.UTBETALING_TIL_ATTESTERING,
     navn: "Utbetaling til godkjenning",
     title: "Utbetaling til godkjenning",
     description: `Utbetaling for <gjennomføringsnavn> er sendt til godkjenning`,

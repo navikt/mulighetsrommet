@@ -42,8 +42,8 @@ test.describe("Utbetalinger detaljer", () => {
     await expect(page.locator("a:has-text('A-2025/123')")).toBeVisible();
     await expect(page.getByTestId("linje-table")).toBeVisible();
 
-    // Verify that Attester og Send i retur buttons are visible
-    await expect(page.locator("tr button", { hasText: /^Attester$/ })).toBeVisible();
+    // Verify that Godkjenn og Send i retur buttons are visible
+    await expect(page.locator("tr button", { hasText: /^Godkjenn$/ })).toBeVisible();
     await expect(page.locator("tr button", { hasText: "Send i retur" })).toBeVisible();
 
     await sjekkUU(page, "utbetaling-til-utbetaling");
