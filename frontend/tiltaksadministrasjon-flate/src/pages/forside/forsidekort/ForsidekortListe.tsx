@@ -6,7 +6,7 @@ import { BellDotFillIcon } from "@navikt/aksel-icons";
 import { HGrid } from "@navikt/ds-react";
 import { UtbetalingerIkon } from "@/components/ikoner/UtbetalingerIkon";
 import { previewArbeidsmarkedstiltakUrl } from "@/constants";
-import { TiltakDokumentIkon } from "@/components/ikoner/TiltakDokumentIkon";
+import { TiltakBeskrivelseIkon } from "@/components/ikoner/TiltakBeskrivelseIkon";
 
 const forsidekortData: ForsideKortProps[] = [
   {
@@ -32,11 +32,11 @@ const forsidekortData: ForsideKortProps[] = [
     tekst: "Her finner du informasjon om Gjennomføringer for gruppetiltak",
   },
   {
-    navn: "Tiltaksdokumenter (tidligere Sanity)",
-    ikon: <TiltakDokumentIkon inkluderBakgrunn />,
-    url: "/tiltak-dokumenter",
+    navn: "Tiltaksbeskrivelser (tidligere Sanity)",
+    ikon: <TiltakBeskrivelseIkon inkluderBakgrunn />,
+    url: "/tiltak-beskrivelser",
     tekst:
-      "Her administrerer du tiltaksdokumenter, det som tidligere var individuelle gjennomføringer i Sanity",
+      "Her administrerer du tiltaksbeskrivelser, det som tidligere var individuelle gjennomføringer i Sanity",
   },
   {
     navn: "Veilederflate forhåndsvisning",

@@ -104,13 +104,13 @@ class ArenaAdapterServiceTest : FunSpec({
             }
         }
 
-        test("should save egen regi-tiltak as tiltak_dokument") {
+        test("should save egen regi-tiltak as tiltak_beskrivelse") {
             val service = createArenaAdapterService()
 
             service.upsertTiltaksgjennomforing(gjennomforing)
 
             database.run {
-                queries.tiltakDokument.get(gjennomforing.id).shouldNotBeNull().should {
+                queries.tiltakBeskrivelse.get(gjennomforing.id).shouldNotBeNull().should {
                     it.id shouldBe gjennomforing.id
                     it.navn shouldBe gjennomforing.navn
                     it.tiltaksnummer shouldBe gjennomforing.tiltaksnummer
@@ -125,13 +125,13 @@ class ArenaAdapterServiceTest : FunSpec({
             service.upsertTiltaksgjennomforing(gjennomforing)
 
             database.run {
-                queries.tiltakDokument.get(gjennomforing.id).shouldNotBeNull()
+                queries.tiltakBeskrivelse.get(gjennomforing.id).shouldNotBeNull()
             }
 
-            service.deleteTiltakDokument(gjennomforing.id)
+            service.deleteTiltakBeskrivelse(gjennomforing.id)
 
             database.run {
-                queries.tiltakDokument.get(gjennomforing.id).shouldBeNull()
+                queries.tiltakBeskrivelse.get(gjennomforing.id).shouldBeNull()
             }
         }
 

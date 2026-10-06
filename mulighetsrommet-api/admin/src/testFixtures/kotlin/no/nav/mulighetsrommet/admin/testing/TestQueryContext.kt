@@ -9,7 +9,7 @@ import no.nav.mulighetsrommet.admin.kostnadssted.KostnadsstedQueryHandler
 import no.nav.mulighetsrommet.admin.navansatt.NavAnsattDtoQueryHandler
 import no.nav.mulighetsrommet.admin.opplaring.OpplaringKategoriseringQueryHandler
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeQueryHandler
-import no.nav.mulighetsrommet.admin.tiltakdokument.TiltakDokumentQueryHandler
+import no.nav.mulighetsrommet.admin.tiltakbeskrivelse.TiltakBeskrivelseQueryHandler
 import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollQueryHandler
 import no.nav.mulighetsrommet.api.domain.testing.repository.FakeArrangorRepository
 import no.nav.mulighetsrommet.api.domain.testing.repository.FakeDeltakerForslagRepository
@@ -17,7 +17,7 @@ import no.nav.mulighetsrommet.api.domain.testing.repository.FakeDeltakerReposito
 import no.nav.mulighetsrommet.api.domain.testing.repository.FakeNavAnsattRepository
 import no.nav.mulighetsrommet.api.domain.testing.repository.FakeNavEnhetRepository
 import no.nav.mulighetsrommet.api.domain.testing.repository.FakeRedaksjoneltInnholdLenkeRepository
-import no.nav.mulighetsrommet.api.domain.testing.repository.FakeTiltakDokumentRepository
+import no.nav.mulighetsrommet.api.domain.testing.repository.FakeTiltakBeskrivelseRepository
 import no.nav.mulighetsrommet.api.domain.testing.repository.FakeTiltakstypeRepository
 import no.nav.mulighetsrommet.api.domain.testing.repository.FakeUtdanningRepository
 
@@ -28,7 +28,7 @@ class TestQueryContext : QueryContext() {
     private val navAnsattRepository = FakeNavAnsattRepository()
     private val arrangorRepository = FakeArrangorRepository()
     private val utdanningRepository = FakeUtdanningRepository()
-    private val tiltakDokumentRepository = FakeTiltakDokumentRepository()
+    private val tiltakBeskrivelseRepository = FakeTiltakBeskrivelseRepository()
     private val deltakerRepository = FakeDeltakerRepository()
     private val deltakerForslagRepository = FakeDeltakerForslagRepository()
 
@@ -39,7 +39,7 @@ class TestQueryContext : QueryContext() {
     private var totrinnskontroll: TotrinnskontrollQueryHandler = mockk(relaxed = true)
     private var arrangor: ArrangorQueryHandler = mockk(relaxed = true)
     private var opplaringKategorisering: OpplaringKategoriseringQueryHandler = mockk(relaxed = true)
-    private var tiltakDokument: TiltakDokumentQueryHandler = mockk(relaxed = true)
+    private var tiltakBeskrivelse: TiltakBeskrivelseQueryHandler = mockk(relaxed = true)
     private var avtale: AvtaleQueryHandler = mockk(relaxed = true)
 
     override val repository = object : Repositories() {
@@ -49,7 +49,7 @@ class TestQueryContext : QueryContext() {
         override val navAnsatt get() = navAnsattRepository
         override val arrangor get() = arrangorRepository
         override val utdanning get() = utdanningRepository
-        override val tiltakDokument get() = tiltakDokumentRepository
+        override val tiltakBeskrivelse get() = tiltakBeskrivelseRepository
         override val deltaker get() = deltakerRepository
         override val deltakerForslag get() = deltakerForslagRepository
         override val avtale get() = TODO("implementer FakeAvtaleRepository")
@@ -63,7 +63,7 @@ class TestQueryContext : QueryContext() {
         override val totrinnskontroll get() = this@TestQueryContext.totrinnskontroll
         override val arrangor get() = this@TestQueryContext.arrangor
         override val opplaering get() = this@TestQueryContext.opplaringKategorisering
-        override val tiltakDokument get() = this@TestQueryContext.tiltakDokument
+        override val tiltakBeskrivelse get() = this@TestQueryContext.tiltakBeskrivelse
         override val avtale get() = this@TestQueryContext.avtale
     }
 
