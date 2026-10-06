@@ -9878,7 +9878,11 @@ components:
         belop:
           type: integer
           format: int32
+        behandlingId:
+          type: integer
+          format: int32
       required:
+      - behandlingId
       - belop
       - gjennomforingId
       - vedtakId
