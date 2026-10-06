@@ -43,7 +43,7 @@
     "axe-core": "4.13.0",
     "classnames": "2.5.1",
     "dequal": "2.0.3",
-    "jotai": "2.20.2",
+    "jotai": "3.0.0",
     "jotai-location": "0.6.2",
     "react": "19.2.8",
     "react-dom": "19.2.8",
