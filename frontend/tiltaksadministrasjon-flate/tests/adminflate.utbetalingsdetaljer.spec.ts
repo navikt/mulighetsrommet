@@ -18,17 +18,17 @@ test.describe("Utbetalinger detaljer", () => {
     // Click on the "Utbetalinger" tab
     await page.locator("button", { hasText: "Utbetalinger" }).click();
   });
-  test("should navigate to utbetalinger and select a TIL_ATTESTERING utbetaling", async ({
+  test("should navigate to utbetalinger and select a TIL_GODKJENNING utbetaling", async ({
     page,
   }) => {
     // Wait for the utbetalinger table to load
     await expect(page.getByTestId("utbetaling-table")).toBeVisible();
 
-    // Find the row with status Til attestering
+    // Find the row with status Til godkjenning
     const returnertUtbetalingRow = page
       .getByTestId("utbetaling-table")
       .locator("tr")
-      .filter({ hasText: "Til attestering" })
+      .filter({ hasText: "Til godkjenning" })
       .first();
     await expect(returnertUtbetalingRow).toBeVisible();
 
@@ -106,10 +106,10 @@ test.describe("Utbetalinger detaljer", () => {
     // Verify the status is displayed as Overført til utbetaling for the utbetalingslinje
     await expect(page.locator("td span", { hasText: "Overført til utbetaling" })).toBeVisible();
 
-    // Verify that the user sees who has behandlet and attestert the utbetaling
+    // Verify that the user sees who has behandlet and godkjent the utbetaling
     await expect(page.locator("dt", { hasText: "Behandlet av" })).toBeVisible();
     await expect(page.locator("table dd", { hasText: "Bertil Bengtson" })).toBeVisible();
-    await expect(page.locator("dt", { hasText: "Attestert av" })).toBeVisible();
+    await expect(page.locator("dt", { hasText: "Godkjent av" })).toBeVisible();
     await expect(page.locator("table dd", { hasText: "Per Haraldsen" })).toBeVisible();
 
     await sjekkUU(page, "utbetaling-til-utbetaling");

@@ -41,7 +41,7 @@ enum class Rolle(val visningsnavn: String) {
     AVTALER_SKRIV("Skrivetilgang - Avtale"),
 
     /**
-     * Gir tilgang til å behandle og sende tilsagn/utbetalinger til godkjenning/attestering.
+     * Gir tilgang til å behandle og sende tilsagn/utbetalinger til godkjenning.
      */
     SAKSBEHANDLER_OKONOMI("Saksbehandler - Økonomi"),
 

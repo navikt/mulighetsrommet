@@ -6,7 +6,7 @@ export const mockOppgaver: Oppgave[] = [
     enhet: null,
     type: OppgaveType.TILSAGN_TIL_ANNULLERING,
     navn: "Tilsagn til annullering",
-    title: "Tilsagn til beslutning",
+    title: "Tilsagn til godkjenning",
     description: "Tilsagn opprettet av Benny Beslutter er klar og venter annullering",
     tiltakstype: {
       tiltakskode: Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
@@ -28,8 +28,8 @@ export const mockOppgaver: Oppgave[] = [
     enhet: null,
     type: OppgaveType.TILSAGN_TIL_GODKJENNING,
     navn: "Tilsagn til godkjenning",
-    title: "Send tilsagn til beslutning",
-    description: "Tilsagn opprettet av Benny Beslutter er klar og venter beslutning",
+    title: "Send tilsagn til godkjennung",
+    description: "Tilsagn opprettet av Benny Beslutter er klar og venter godkjenning",
     tiltakstype: {
       tiltakskode: Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
       navn: "Arbeidsforberedende trening",
@@ -50,8 +50,8 @@ export const mockOppgaver: Oppgave[] = [
     enhet: null,
     type: OppgaveType.TILSAGN_TIL_GODKJENNING,
     navn: "Tilsagn til godkjenning",
-    title: "Send tilsagn til beslutning",
-    description: "Tilsagn opprettet av Benny Beslutter er klar og venter beslutning",
+    title: "Send tilsagn til godkjenning",
+    description: "Tilsagn opprettet av Benny Beslutter er klar og venter godkjenning",
     tiltakstype: {
       tiltakskode: Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
       navn: "Arbeidsforberedende trening",
@@ -70,8 +70,8 @@ export const mockOppgaver: Oppgave[] = [
   {
     id: "4",
     enhet: null,
-    type: OppgaveType.UTBETALING_TIL_ATTESTERING,
-    navn: "Utbetaling til attestering",
+    type: OppgaveType.UTBETALING_TIL_GODKJENNING,
+    navn: "Utbetaling til godkjenning",
     title: "Utbetaling til godkjenning",
     description: `Utbetaling for <gjennomføringsnavn> er sendt til godkjenning`,
     tiltakstype: {

@@ -447,13 +447,13 @@ fun Route.utbetalingRoutes() {
         authorize(anyOf = setOf(Rolle.ATTESTANT_UTBETALING, Rolle.OKONOMI_BESLUTTER_ENKELTPLASS)) {
             post("/{id}/attester", {
                 tags = setOf("Utbetaling")
-                operationId = "attesterUtbetalingLinje"
+                operationId = "godkjennUtbetalingLinje"
                 request {
                     pathParameterUuid("id")
                 }
                 response {
                     code(HttpStatusCode.OK) {
-                        description = "UtbetalingLinje ble attestert"
+                        description = "UtbetalingLinje ble godkjent"
                     }
                     default {
                         description = "Problem details"
