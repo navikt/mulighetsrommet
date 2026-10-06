@@ -108,7 +108,7 @@ importers:
         specifier: 3.0.0
         version: 3.0.0(@types/react@19.2.14)(react@19.2.8)
       jotai-family:
-        specifier: ^1.1.0
+        specifier: 1.1.0
         version: 1.1.0(jotai@3.0.0(@types/react@19.2.14)(react@19.2.8))
       jotai-location:
         specifier: 0.6.2
@@ -668,7 +668,7 @@ importers:
         specifier: 3.0.0
         version: 3.0.0(@types/react@19.2.14)(react@19.2.8)
       jotai-family:
-        specifier: ^1.1.0
+        specifier: 1.1.0
         version: 1.1.0(jotai@3.0.0(@types/react@19.2.14)(react@19.2.8))
       react:
         specifier: 19.2.8
