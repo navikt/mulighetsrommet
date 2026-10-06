@@ -149,7 +149,7 @@ class UtbetalingService(
         val utbetaling = queries.utbetaling.getAndAcquireLock(utbetalingId)
 
         if (!utbetaling.erTilBehandling() && utbetaling.status != UtbetalingStatusType.GENERERT) {
-            return FieldError.of("Utbetalingen kan ikke sendes til attestering").nel().left()
+            return FieldError.of("Utbetalingen kan ikke sendes til godkjenning").nel().left()
         }
 
         when (agent) {
@@ -157,12 +157,12 @@ class UtbetalingService(
 
             Arena,
             Arrangor,
-            -> return FieldError.of("$agent kan ikke sende utbetaling til attestering").nel().left()
+            -> return FieldError.of("$agent kan ikke sende utbetaling til godkjenning").nel().left()
 
             is NavIdent -> {
                 val ansatt = queries.ansatt.getOrError(agent)
                 if (!erSaksbehandler(ansatt)) {
-                    return FieldError.of("Du kan ikke sende utbetaling til attestering").nel().left()
+                    return FieldError.of("Du kan ikke sende utbetaling til godkjenning").nel().left()
                 }
             }
         }
@@ -172,7 +172,7 @@ class UtbetalingService(
         }
 
         if (linjerSomSkalSlettes.any { it.status != UtbetalingLinjeStatus.RETURNERT }) {
-            return FieldError.of("Utbetaling kan ikke sendes til attestering fordi den allerede har andre utbetalingslinjer")
+            return FieldError.of("Utbetaling kan ikke sendes til godkjenning fordi den allerede har andre utbetalingslinjer")
                 .nel()
                 .left()
         }
@@ -193,7 +193,7 @@ class UtbetalingService(
         }
         queries.utbetaling.setStatus(utbetaling.id, UtbetalingStatusType.TIL_ATTESTERING)
 
-        logEndring("Utbetaling sendt til attestering", utbetaling.id, agent).right()
+        logEndring("Utbetaling sendt til godkjenning", utbetaling.id, agent).right()
     }
 
     context(tx: TransactionalQueryContext)
@@ -205,7 +205,7 @@ class UtbetalingService(
         val utbetaling = queries.utbetaling.getAndAcquireLock(linje.utbetalingId)
 
         if (utbetaling.status != UtbetalingStatusType.TIL_ATTESTERING || linje.status != UtbetalingLinjeStatus.TIL_ATTESTERING) {
-            return FieldError.of("Utbetalingen kan ikke attesteres").nel().left()
+            return FieldError.of("Utbetalingen kan ikke godkjennes").nel().left()
         }
 
         when (agent) {
@@ -213,13 +213,13 @@ class UtbetalingService(
 
             Arena,
             Arrangor,
-            -> return FieldError.of("$agent kan ikke attestere utbetalinger").nel().left()
+            -> return FieldError.of("$agent kan ikke godkjenne utbetalinger").nel().left()
 
             is NavIdent -> {
                 val kostnadssted = queries.tilsagn.getOrError(linje.tilsagnId).kostnadssted
                 val ansatt = queries.ansatt.getOrError(agent)
                 if (!erAttestant(ansatt, kostnadssted)) {
-                    return FieldError.of("Du kan ikke attestere utbetalingen fordi du ikke er attestant ved tilsagnets kostnadssted (${kostnadssted.navn})")
+                    return FieldError.of("Du kan ikke godkjenne utbetalingen fordi du ikke er beslutter ved tilsagnets kostnadssted (${kostnadssted.navn})")
                         .nel()
                         .left()
                 }

@@ -453,7 +453,7 @@ fun Route.utbetalingRoutes() {
                 }
                 response {
                     code(HttpStatusCode.OK) {
-                        description = "UtbetalingLinje ble attestert"
+                        description = "UtbetalingLinje ble godkjent"
                     }
                     default {
                         description = "Problem details"

@@ -2767,7 +2767,7 @@ paths:
           format: uuid
       responses:
         "200":
-          description: UtbetalingLinje ble attestert
+          description: UtbetalingLinje ble godkjent
           headers: {}
         default:
           description: Problem details

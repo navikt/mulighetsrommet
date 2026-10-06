@@ -227,7 +227,7 @@ export function TilskuddBehandlingFormPage() {
               <HStack gap="space-4" align="center">
                 <ValideringsfeilOppsummering />
                 <Button variant="primary" size="small" type="submit" disabled={mutation.isPending}>
-                  {mutation.isPending ? "Sender til attestering..." : "Send til attestering"}
+                  {mutation.isPending ? "Sender til godkjenning..." : "Send til godkjenning"}
                 </Button>
               </HStack>
             ) : (

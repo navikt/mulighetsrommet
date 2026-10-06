@@ -230,8 +230,8 @@ class UtbetalingRoutesTest : FunSpec({
         }
     }
 
-    context("attester utbetaling") {
-        test("403 Forbidden uten attestant-tilgang") {
+    context("godkjenn utbetaling") {
+        test("403 Forbidden uten beslutter-tilgang") {
             withTestApplication(appConfig()) {
                 val id = UtbetalingFixtures.utbetalingLinje1.id
                 val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, saksbehandlerOkonomiRolle))
@@ -270,7 +270,7 @@ class UtbetalingRoutesTest : FunSpec({
             }
         }
 
-        test("400 bad request når utbetalingen kan ikke er til attestering") {
+        test("400 bad request når utbetalingen kan ikke er til godkjenning") {
             withTestApplication(appConfig()) {
                 val id = UtbetalingFixtures.utbetalingLinje1.id
                 val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, saksbehandlerOkonomiRolle))

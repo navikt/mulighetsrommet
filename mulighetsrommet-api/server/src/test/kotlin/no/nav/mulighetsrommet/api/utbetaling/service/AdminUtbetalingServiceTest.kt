@@ -372,7 +372,7 @@ class AdminUtbetalingServiceTest : FunSpec({
                 id = utbetalingLinje1.id,
                 navIdent = NavAnsattFixture.MikkeMus.navIdent,
             ) shouldBeLeft listOf(
-                FieldError.of("Du kan ikke attestere utbetalingen fordi du ikke er attestant ved tilsagnets kostnadssted (Nav Innlandet)"),
+                FieldError.of("Du kan ikke godkjenne utbetalingen fordi du ikke er beslutter ved tilsagnets kostnadssted (Nav Innlandet)"),
             )
         }
 
@@ -536,7 +536,7 @@ class AdminUtbetalingServiceTest : FunSpec({
                 id = utbetalingLinje1.id,
                 navIdent = NavAnsattFixture.MikkeMus.navIdent,
             ) shouldBeLeft listOf(
-                FieldError.of("Utbetalingen kan ikke attesteres"),
+                FieldError.of("Utbetalingen kan ikke godkjennes"),
             )
         }
 

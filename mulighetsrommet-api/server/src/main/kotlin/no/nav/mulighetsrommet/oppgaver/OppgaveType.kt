@@ -23,7 +23,7 @@ enum class OppgaveType(
         kategori = Kategori.TILSAGN,
     ),
     TILSAGN_RETURNERT(
-        navn = "Tilsagn returnert av beslutter",
+        navn = "Tilsagn returnert",
         roller = setOf(Rolle.SAKSBEHANDLER_OKONOMI, Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS),
         kategori = Kategori.TILSAGN,
     ),
@@ -33,12 +33,12 @@ enum class OppgaveType(
         kategori = Kategori.UTBETALING,
     ),
     UTBETALING_TIL_ATTESTERING(
-        navn = "Utbetaling til attestering",
+        navn = "Utbetaling til godkjenning",
         roller = setOf(Rolle.ATTESTANT_UTBETALING, Rolle.OKONOMI_BESLUTTER_ENKELTPLASS),
         kategori = Kategori.UTBETALING_LINJE,
     ),
     UTBETALING_RETURNERT(
-        navn = "Utbetaling returnert av attestant",
+        navn = "Utbetaling returnert",
         roller = setOf(Rolle.SAKSBEHANDLER_OKONOMI, Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS),
         kategori = Kategori.UTBETALING_LINJE,
     ),
@@ -73,12 +73,12 @@ enum class OppgaveType(
         kategori = Kategori.ENKELTPLASS,
     ),
     TILSKUDDBEHANDLING_TIL_ATTESTERING(
-        navn = "Tilskuddsbehandling til attestering",
+        navn = "Tilskuddsbehandling til godkjenning",
         roller = setOf(Rolle.OKONOMI_BESLUTTER_ENKELTPLASS),
         kategori = Kategori.TILSKUDDBEHANDLING,
     ),
     TILSKUDDBEHANDLING_RETURNERT(
-        navn = "Tilskuddsbehandling returnert av attestant",
+        navn = "Tilskuddsbehandling returnert",
         roller = setOf(Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS),
         kategori = Kategori.TILSKUDDBEHANDLING,
     ),
