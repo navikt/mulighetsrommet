@@ -120,7 +120,7 @@ class UtbetalingRoutesTest : FunSpec({
             }
         }
 
-        test("validerer påkrevde felter") {
+        test("validerer felles påkrevde felter") {
             withTestApplication(appConfig()) {
                 val id = UUID.randomUUID()
                 val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, saksbehandlerOkonomiRolle))
@@ -129,7 +129,12 @@ class UtbetalingRoutesTest : FunSpec({
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                     contentType(ContentType.Application.Json)
                     setBody(
-                        UtbetalingRequest(id = id, gjennomforingId = AFT1.id, journalpostId = "foo"),
+                        UtbetalingRequest(
+                            id = id,
+                            gjennomforingId = AFT1.id,
+                            korrigererUtbetaling = UUID.randomUUID(),
+                            korreksjonBegrunnelse = "Gyldig begrunnelse",
+                        ),
                     )
                 }
 
@@ -138,7 +143,63 @@ class UtbetalingRoutesTest : FunSpec({
                     FieldError("/periodeStart", "Periodestart må være satt"),
                     FieldError("/periodeSlutt", "Periodeslutt må være satt"),
                     FieldError("/pris/belop", "Beløp må være positivt"),
+                )
+            }
+        }
+
+        test("validerer anskaffelse-spesifikke felter") {
+            withTestApplication(appConfig()) {
+                val id = UUID.randomUUID()
+                val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, saksbehandlerOkonomiRolle))
+
+                val response = client.post("/api/tiltaksadministrasjon/utbetaling/opprett") {
+                    bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
+                    contentType(ContentType.Application.Json)
+                    setBody(
+                        UtbetalingRequest(
+                            id = id,
+                            gjennomforingId = AFT1.id,
+                            periodeStart = LocalDate.now(),
+                            periodeSlutt = LocalDate.now().plusDays(1),
+                            pris = ValutaBelopRequest(150, Valuta.NOK),
+                            journalpostId = "foo",
+                        ),
+                    )
+                }
+
+                response.status shouldBe HttpStatusCode.BadRequest
+                response.body<ValidationError>().errors shouldContainExactlyInAnyOrder listOf(
                     FieldError("/journalpostId", "Journalpost-ID er på ugyldig format"),
+                )
+            }
+        }
+
+        test("validerer korrigering-spesifikke felter") {
+            withTestApplication(appConfig()) {
+                val id = UUID.randomUUID()
+                val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, saksbehandlerOkonomiRolle))
+
+                val response = client.post("/api/tiltaksadministrasjon/utbetaling/opprett") {
+                    bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
+                    contentType(ContentType.Application.Json)
+                    setBody(
+                        UtbetalingRequest(
+                            id = id,
+                            gjennomforingId = AFT1.id,
+                            korrigererUtbetaling = UUID.randomUUID(),
+                            periodeStart = LocalDate.now(),
+                            periodeSlutt = LocalDate.now().plusDays(1),
+                            pris = ValutaBelopRequest(150, Valuta.NOK),
+                        ),
+                    )
+                }
+
+                response.status shouldBe HttpStatusCode.BadRequest
+                response.body<ValidationError>().errors shouldContainExactlyInAnyOrder listOf(
+                    FieldError(
+                        "/korreksjonBegrunnelse",
+                        "Begrunnelse for korreksjon må være minst 10 tegn",
+                    ),
                 )
             }
         }
@@ -158,6 +219,7 @@ class UtbetalingRoutesTest : FunSpec({
                             periodeStart = LocalDate.now(),
                             periodeSlutt = LocalDate.now().plusDays(1),
                             pris = ValutaBelopRequest(150, Valuta.NOK),
+                            utbetalingsDato = LocalDate.now(),
                             journalpostId = "123",
                         ),
                     )
@@ -168,8 +230,8 @@ class UtbetalingRoutesTest : FunSpec({
         }
     }
 
-    context("attester utbetaling") {
-        test("403 Forbidden uten attestant-tilgang") {
+    context("godkjenn utbetaling") {
+        test("403 Forbidden uten beslutter-tilgang") {
             withTestApplication(appConfig()) {
                 val id = UtbetalingFixtures.utbetalingLinje1.id
                 val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, saksbehandlerOkonomiRolle))
@@ -208,7 +270,7 @@ class UtbetalingRoutesTest : FunSpec({
             }
         }
 
-        test("400 bad request når utbetalingen kan ikke er til attestering") {
+        test("400 bad request når utbetalingen kan ikke er til godkjenning") {
             withTestApplication(appConfig()) {
                 val id = UtbetalingFixtures.utbetalingLinje1.id
                 val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, saksbehandlerOkonomiRolle))

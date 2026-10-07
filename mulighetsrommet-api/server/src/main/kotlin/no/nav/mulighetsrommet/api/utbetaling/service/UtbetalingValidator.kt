@@ -12,6 +12,7 @@ import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.ValutaBelop
 import no.nav.mulighetsrommet.validation.validation
 import no.nav.tiltak.okonomi.Tilskuddstype
+import java.time.LocalDate
 import kotlin.contracts.ExperimentalContracts
 
 @OptIn(ExperimentalContracts::class)
@@ -20,6 +21,7 @@ object UtbetalingValidator {
 
     fun validateUpsertUtbetaling(
         request: UtbetalingRequest,
+        today: LocalDate = LocalDate.now(),
     ): Either<List<FieldError>, UpsertUtbetaling> = validation {
         validateNotNull(request.periodeStart) {
             FieldError.of("Periodestart må være satt", UtbetalingRequest::periodeStart)
@@ -46,6 +48,27 @@ object UtbetalingValidator {
 
             else -> null
         }
+
+        val sisteGyldigeUtbetalingsDato = today.plusMonths(3)
+        val utbetalingsDato = when (request.korrigererUtbetaling) {
+            null -> {
+                request.utbetalingsDato?.let { utbetalingsDato ->
+                    validate(
+                        !utbetalingsDato.isBefore(today) &&
+                            !utbetalingsDato.isAfter(sisteGyldigeUtbetalingsDato),
+                    ) {
+                        FieldError.of(
+                            "Utbetalingsdato må være mellom i dag og 3 måneder frem i tid",
+                            UtbetalingRequest::utbetalingsDato,
+                        )
+                    }
+                    utbetalingsDato
+                }
+            }
+
+            else -> null
+        }
+
         val kommentar = request.kommentar?.trim()?.takeIf { it.isNotEmpty() }?.also { value ->
             validate(value.length >= 10) {
                 FieldError.of("Kommentar må være minst 10 tegn", UtbetalingRequest::kommentar)
@@ -106,6 +129,7 @@ object UtbetalingValidator {
                 beregning = beregning,
                 kid = kid,
                 kommentar = kommentar,
+                utbetalingsDato = utbetalingsDato,
                 tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
             )
         }

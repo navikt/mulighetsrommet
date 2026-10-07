@@ -4,8 +4,10 @@ import arrow.core.Either
 import arrow.core.flatMap
 import arrow.core.left
 import arrow.core.nel
+import arrow.core.right
 import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollDto
 import no.nav.mulighetsrommet.api.ApiDatabase
+import no.nav.mulighetsrommet.api.TransactionalQueryContext
 import no.nav.mulighetsrommet.api.aarsakerbegrunnelse.AarsakerOgBegrunnelseRequest
 import no.nav.mulighetsrommet.api.domain.arrangor.Arrangor
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsatt
@@ -41,25 +43,7 @@ class AdminUtbetalingService(
         opprett: UpsertUtbetaling,
         agent: NavIdent,
     ): Either<List<FieldError>, Utbetaling> = db.transaction {
-        when (opprett) {
-            is UpsertUtbetaling.Anskaffelse if opprett.journalpostId == null -> {
-                val gjennomforing = queries.gjennomforing.getGjennomforingTiltaksadministrasjon(opprett.gjennomforingId)
-                val arrangor = repository.arrangor.get(gjennomforing.arrangor.id)
-                if (arrangor is Arrangor.Norsk) {
-                    return FieldError.of("Journalpost-ID er påkrevd", UpsertUtbetaling.Anskaffelse::journalpostId)
-                        .nel()
-                        .left()
-                }
-            }
-
-            is UpsertUtbetaling.Korreksjon -> {
-                if (queries.utbetaling.get(opprett.korreksjonGjelderUtbetalingId) == null) {
-                    return FieldError.of("Utbetaling som skal korrigeres eksisterer ikke").nel().left()
-                }
-            }
-
-            else -> Unit
-        }
+        upsertValidation(opprett).onLeft { return it.left() }
 
         utbetalingService.opprettUtbetaling(opprett, agent)
     }
@@ -73,8 +57,36 @@ class AdminUtbetalingService(
         if (!kanRedigeres(utbetaling)) {
             return FieldError.of("Utbetalingen kan ikke redigeres").nel().left()
         }
+        upsertValidation(rediger).onLeft { return it.left() }
 
         utbetalingService.redigerUtbetaling(rediger, agent)
+    }
+
+    fun TransactionalQueryContext.upsertValidation(utbetaling: UpsertUtbetaling): Either<List<FieldError>, Unit> = when (utbetaling) {
+        is UpsertUtbetaling.Anskaffelse if (utbetaling.journalpostId == null || utbetaling.utbetalingsDato == null) -> {
+            val gjennomforing = queries.gjennomforing.getGjennomforingTiltaksadministrasjon(utbetaling.gjennomforingId)
+            val arrangor = repository.arrangor.get(gjennomforing.arrangor.id)
+            if (arrangor is Arrangor.Norsk) {
+                listOfNotNull(
+                    FieldError.of("Journalpost-ID er påkrevd", UpsertUtbetaling.Anskaffelse::journalpostId)
+                        .takeIf { utbetaling.journalpostId == null },
+                    FieldError.of("Utbetalingsdato er påkrevd", UpsertUtbetaling.Anskaffelse::utbetalingsDato)
+                        .takeIf { utbetaling.utbetalingsDato == null },
+                )
+                    .left()
+            } else {
+                Unit.right()
+            }
+        }
+
+        is UpsertUtbetaling.Korreksjon ->
+            if (queries.utbetaling.get(utbetaling.korreksjonGjelderUtbetalingId) == null) {
+                FieldError.of("Utbetaling som skal korrigeres eksisterer ikke").nel().left()
+            } else {
+                Unit.right()
+            }
+
+        else -> Unit.right()
     }
 
     fun sendTilAttestering(

@@ -9,7 +9,7 @@ import no.nav.mulighetsrommet.admin.kostnadssted.KostnadsstedQueryHandler
 import no.nav.mulighetsrommet.admin.navansatt.NavAnsattDtoQueryHandler
 import no.nav.mulighetsrommet.admin.opplaring.OpplaringKategoriseringQueryHandler
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeQueryHandler
-import no.nav.mulighetsrommet.admin.tiltakdokument.TiltakDokumentQueryHandler
+import no.nav.mulighetsrommet.admin.tiltakbeskrivelse.TiltakBeskrivelseQueryHandler
 import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollQueryHandler
 import no.nav.mulighetsrommet.api.domain.arrangor.ArrangorRepository
 import no.nav.mulighetsrommet.api.domain.avtale.AvtaleRepository
@@ -19,7 +19,7 @@ import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsattRepository
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetRepository
 import no.nav.mulighetsrommet.api.domain.redaksjoneltinnhold.RedaksjoneltInnholdLenkeRepository
 import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeRepository
-import no.nav.mulighetsrommet.api.domain.tiltakdokument.TiltakDokumentRepository
+import no.nav.mulighetsrommet.api.domain.tiltakbeskrivelse.TiltakBeskrivelseRepository
 import no.nav.mulighetsrommet.api.domain.utdanning.UtdanningsprogramRepository
 import no.nav.mulighetsrommet.api.persistence.arrangor.ArrangorQueries
 import no.nav.mulighetsrommet.api.persistence.avtale.AvtaleQueries
@@ -34,7 +34,7 @@ import no.nav.mulighetsrommet.api.persistence.opplaring.OpplaringKategoriseringQ
 import no.nav.mulighetsrommet.api.persistence.redaksjoneltinnhold.RedaksjoneltInnholdLenkeQueries
 import no.nav.mulighetsrommet.api.persistence.tiltak.PrismodellQueries
 import no.nav.mulighetsrommet.api.persistence.tiltak.TiltakstypeQueries
-import no.nav.mulighetsrommet.api.persistence.tiltakdokument.TiltakDokumentQueries
+import no.nav.mulighetsrommet.api.persistence.tiltakbeskrivelse.TiltakBeskrivelseQueries
 import no.nav.mulighetsrommet.api.persistence.totrinnskontroll.TotrinnskontrollQueries
 import no.nav.mulighetsrommet.api.persistence.utdanning.UtdanningQueries
 import no.nav.mulighetsrommet.api.persistence.veilederflate.DelMedBrukerQueries
@@ -56,7 +56,7 @@ class SqlQueryContext(session: Session, topics: OutboxTopics) : QueryContext() {
     val arrangor = ArrangorQueries(session)
     val opplaering = OpplaringKategoriseringQueries(session)
     val utdanning = UtdanningQueries(session)
-    val tiltakDokument = TiltakDokumentQueries(session)
+    val tiltakBeskrivelse = TiltakBeskrivelseQueries(session)
     val deltaker = DeltakerQueries(session)
     val deltakerForslag = DeltakerForslagQueries(session)
     val delMedBruker = DelMedBrukerQueries(session)
@@ -69,7 +69,7 @@ class SqlQueryContext(session: Session, topics: OutboxTopics) : QueryContext() {
         override val navAnsatt: NavAnsattRepository = this@SqlQueryContext.navAnsatt
         override val arrangor: ArrangorRepository = this@SqlQueryContext.arrangor
         override val utdanning: UtdanningsprogramRepository = this@SqlQueryContext.utdanning
-        override val tiltakDokument: TiltakDokumentRepository = this@SqlQueryContext.tiltakDokument
+        override val tiltakBeskrivelse: TiltakBeskrivelseRepository = this@SqlQueryContext.tiltakBeskrivelse
         override val deltaker: DeltakerRepository = this@SqlQueryContext.deltaker
         override val deltakerForslag: DeltakerForslagRepository = this@SqlQueryContext.deltakerForslag
     }
@@ -83,7 +83,7 @@ class SqlQueryContext(session: Session, topics: OutboxTopics) : QueryContext() {
         override val totrinnskontroll: TotrinnskontrollQueryHandler = this@SqlQueryContext.totrinnskontroll
         override val arrangor: ArrangorQueryHandler = this@SqlQueryContext.arrangor
         override val opplaering: OpplaringKategoriseringQueryHandler = this@SqlQueryContext.opplaering
-        override val tiltakDokument: TiltakDokumentQueryHandler = this@SqlQueryContext.tiltakDokument
+        override val tiltakBeskrivelse: TiltakBeskrivelseQueryHandler = this@SqlQueryContext.tiltakBeskrivelse
     }
 
     override val outbox = SqlAdminOutbox(session, topics)

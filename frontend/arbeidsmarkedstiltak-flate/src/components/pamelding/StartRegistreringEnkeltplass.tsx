@@ -14,7 +14,7 @@ interface Props {
 }
 
 export function StartRegistreringEnkeltplass({ tiltakstype, harRettPaaTiltak }: Props): ReactNode {
-  if (!kanOppretteEnkeltplass(tiltakstype)) {
+  if (!kanOppretteEnkeltplass(tiltakstype) || !harRettPaaTiltak) {
     return null;
   }
 
@@ -30,14 +30,11 @@ export function StartRegistreringEnkeltplass({ tiltakstype, harRettPaaTiltak }: 
     deltakelser
       .filter((d): d is TiltaksadministrasjonDeltakelse => d.type === "TILTAKSADMINISTRASJON")
       .map((deltakelse) => <InfoMeldingDeltakelse key={deltakelse.id} deltakelse={deltakelse} />);
+
   return (
     <>
       {pameldingAlerts}
-      <Button
-        variant="primary"
-        disabled={!harRettPaaTiltak}
-        onClick={opprettDeltakelseRoute.navigate}
-      >
+      <Button variant="primary" onClick={opprettDeltakelseRoute.navigate}>
         Start registrering
       </Button>
     </>

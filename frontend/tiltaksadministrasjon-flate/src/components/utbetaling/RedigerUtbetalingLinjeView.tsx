@@ -74,7 +74,7 @@ export function RedigerUtbetalingLinjeView({
     belop: utbetalingLinjeBelop.reduce((acc: number, belop) => acc + (belop ?? 0), 0),
   };
 
-  function sendTilAttestering(payload: OpprettUtbetalingLinjerRequest) {
+  function sendTilGodkjenning(payload: OpprettUtbetalingLinjerRequest) {
     clearErrors();
 
     opprettMutation.mutate(payload, {
@@ -86,7 +86,7 @@ export function RedigerUtbetalingLinjeView({
     if (utbetalesTotalt.belop < beregning.belop) {
       setMindreBelopModalOpen(true);
     } else {
-      sendTilAttestering(data);
+      sendTilGodkjenning(data);
     }
   }
 
@@ -160,7 +160,7 @@ export function RedigerUtbetalingLinjeView({
               <ValideringsfeilOppsummering />
               {handlinger.includes(UtbetalingHandling.SEND_TIL_ATTESTERING) && (
                 <Button size="small" type="submit">
-                  {utbetalingTekster.linje.handlinger.sendTilAttestering}
+                  {utbetalingTekster.linje.handlinger.sendTilGodkjenning}
                 </Button>
               )}
             </HStack>
@@ -176,10 +176,10 @@ export function RedigerUtbetalingLinjeView({
               onClick={() => {
                 setMindreBelopModalOpen(false);
                 const formData = getValues();
-                sendTilAttestering(formData);
+                sendTilGodkjenning(formData);
               }}
             >
-              Ja, send til attestering
+              Ja, send til godkjenning
             </Button>
           }
           headingText="Beløp til utbetaling er mindre enn innsendt beløp"
@@ -187,12 +187,12 @@ export function RedigerUtbetalingLinjeView({
           body={
             <VStack gap="space-16">
               <BodyShort>
-                Beløpet du er i ferd med å sende til attestering er mindre enn beløpet på
+                Beløpet du er i ferd med å sende til godkjenning er mindre enn beløpet på
                 utbetalingen. Er du sikker på at du vil fortsette?
               </BodyShort>
               <VStack>
                 <BodyShort weight="semibold">
-                  Beløp til attestering: {formaterValutaBelop(utbetalesTotalt)}
+                  Beløp til godkjenning: {formaterValutaBelop(utbetalesTotalt)}
                 </BodyShort>
                 <BodyShort weight="semibold">
                   Innsendt beløp: {formaterValutaBelop(beregning)}

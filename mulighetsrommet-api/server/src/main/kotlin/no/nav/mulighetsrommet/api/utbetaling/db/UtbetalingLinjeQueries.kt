@@ -209,6 +209,17 @@ class UtbetalingLinjeQueries(private val session: Session) {
         return session.list(queryOf(query, id)) { it.toUtbetalingLinje() }
     }
 
+    fun getByTilsagnId(tilsagnId: UUID): List<UtbetalingLinje> {
+        @Language("PostgreSQL")
+        val query = """
+            select *
+            from view_utbetaling_linje
+            where tilsagn_id = ?
+        """.trimIndent()
+
+        return session.list(queryOf(query, tilsagnId)) { it.toUtbetalingLinje() }
+    }
+
     fun getOrError(id: UUID): UtbetalingLinje {
         return checkNotNull(get(id)) { "UtbetalingLinje med id $id finnes ikke" }
     }

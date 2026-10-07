@@ -6,7 +6,7 @@ import { SaksopplysningerForm } from "@/components/tilskudd-behandling/Saksopply
 import { VedtakForm } from "@/components/tilskudd-behandling/VedtakForm";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
 import { TilskuddBehandlingRequest, ValidationError } from "@tiltaksadministrasjon/api-client";
-import { Box, Button, Heading, HStack, Tabs } from "@navikt/ds-react";
+import { Box, Button, HStack, Tabs } from "@navikt/ds-react";
 import { ReactElement, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { useNavigate, useParams } from "react-router";
@@ -25,7 +25,7 @@ import { applyValidationErrors } from "@/components/skjema/helpers";
 import { CalculatorIcon, FilePdfIcon, PersonRectangleIcon } from "@navikt/aksel-icons";
 import { VedtaksbrevPdfModal } from "@/components/tilskudd-behandling/VedtaksbrevPdfModal";
 import { useVedtaksbrevPdfBlobPost } from "@/api/tilskudd-behandling/useVedtaksbrevPdfBlob";
-import { PrismodellDetaljer } from "@/components/prismodell/PrismodellDetaljer";
+import { PrisOgBetalingsbetingelser } from "@/components/prismodell/PrisOgBetalingsbetingelser";
 
 interface Tab {
   key: TilskuddBehandlingTab;
@@ -84,7 +84,7 @@ export function TilskuddBehandlingFormPage() {
 
   const form = useForm<TilskuddBehandlingRequest>({
     defaultValues,
-    mode: "onBlur",
+    mode: "onSubmit",
   });
 
   const {
@@ -202,10 +202,7 @@ export function TilskuddBehandlingFormPage() {
                   </Tabs.Panel>
                 </Box>
                 <Box>
-                  <Heading level="3" size="medium" spacing>
-                    Pris og betalingsbetingelser
-                  </Heading>
-                  <PrismodellDetaljer prismodell={prismodell} />
+                  <PrisOgBetalingsbetingelser prismodell={prismodell} size="medium" />
                 </Box>
               </TwoColumnGrid>
             </Box>
@@ -230,7 +227,7 @@ export function TilskuddBehandlingFormPage() {
               <HStack gap="space-4" align="center">
                 <ValideringsfeilOppsummering />
                 <Button variant="primary" size="small" type="submit" disabled={mutation.isPending}>
-                  {mutation.isPending ? "Sender til attestering..." : "Send til attestering"}
+                  {mutation.isPending ? "Sender til godkjenning..." : "Send til godkjenning"}
                 </Button>
               </HStack>
             ) : (

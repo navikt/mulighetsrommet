@@ -19,7 +19,7 @@ export function BehandlerInformasjon({ opprettelse }: BehandlerInformasjonProps)
       {erReturnert(opprettelse) ? (
         <MetadataVStack label="Returnert av" value={utledBesluttetAvNavn(opprettelse)} />
       ) : erGodkjent(opprettelse) ? (
-        <MetadataVStack label="Attestert av" value={utledBesluttetAvNavn(opprettelse)} />
+        <MetadataVStack label="Godkjent av" value={utledBesluttetAvNavn(opprettelse)} />
       ) : null}
     </HStack>
   );

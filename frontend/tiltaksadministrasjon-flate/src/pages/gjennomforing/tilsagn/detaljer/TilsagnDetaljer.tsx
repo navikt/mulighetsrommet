@@ -7,7 +7,7 @@ import {
   TilsagnStatusAarsak,
   ValidationError,
 } from "@tiltaksadministrasjon/api-client";
-import { Box, Button, Heading, HGrid, HStack, Show, Spacer, VStack } from "@navikt/ds-react";
+import { Alert, Box, Button, Heading, HGrid, HStack, Show, Spacer, VStack } from "@navikt/ds-react";
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import { AarsakerOgBegrunnelse } from "@/components/totrinnskontroll/AarsakerOgBegrunnelse";
@@ -333,6 +333,18 @@ export function TilsagnDetaljer() {
             </Button>
           )}
         </HStack>
+        {errors.length > 0 &&
+          !avvisModalOpen &&
+          !avvisAnnulleringModalOpen &&
+          !avvisOppgjorModalOpen && (
+            <VStack gap="space-4">
+              {errors.map((error, index) => (
+                <Alert key={index} className="self-end" variant="error" size="small">
+                  {error.detail}
+                </Alert>
+              ))}
+            </VStack>
+          )}
         <AarsakerOgBegrunnelseModal<TilsagnStatusAarsak>
           aarsaker={[
             {

@@ -87,7 +87,7 @@ jobs:
           team: team-mulighetsrommet
           docker_context: ./frontend/arrangor-utbetalinger-flate
           image_suffix: arrangor-utbetalinger-flate-demo
-      - uses: nais/deploy/actions/deploy@1de80da70ad26556ecdc5964a8b7ec3bbed98120 # v2
+      - uses: nais/deploy/actions/deploy@7ad7c2b833e1db74a80954e3ee6bb6ac060a8ae7 # v2
         env:
           CLUSTER: dev-gcp
           RESOURCE: frontend/arrangor-utbetalinger-flate/.nais/nais-demo.yaml
@@ -113,7 +113,7 @@ jobs:
           team: team-mulighetsrommet
           docker_context: ./frontend/arrangor-utbetalinger-flate
           image_suffix: arrangor-utbetalinger-flate
-      - uses: nais/deploy/actions/deploy@1de80da70ad26556ecdc5964a8b7ec3bbed98120 # v2
+      - uses: nais/deploy/actions/deploy@7ad7c2b833e1db74a80954e3ee6bb6ac060a8ae7 # v2
         env:
           CLUSTER: dev-gcp
           RESOURCE: frontend/arrangor-utbetalinger-flate/.nais/nais-dev.yaml
@@ -139,7 +139,7 @@ jobs:
           team: team-mulighetsrommet
           docker_context: ./frontend/arrangor-utbetalinger-flate
           image_suffix: arrangor-utbetalinger-flate
-      - uses: nais/deploy/actions/deploy@1de80da70ad26556ecdc5964a8b7ec3bbed98120 # v2
+      - uses: nais/deploy/actions/deploy@7ad7c2b833e1db74a80954e3ee6bb6ac060a8ae7 # v2
         env:
           CLUSTER: prod-gcp
           RESOURCE: frontend/arrangor-utbetalinger-flate/.nais/nais-prod.yaml
