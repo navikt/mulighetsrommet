@@ -15,17 +15,12 @@ import no.nav.mulighetsrommet.api.navansatt.OkonomiAuthorization
 import no.nav.mulighetsrommet.api.navansatt.OkonomiBeslutningContext
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatus
-import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingHandling
-import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingLinjeHandling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
-import no.nav.mulighetsrommet.api.utbetaling.service.AdminUtbetalingService
 import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskLocalDateTime
 import no.nav.mulighetsrommet.featuretoggle.model.FeatureToggle
 import no.nav.mulighetsrommet.featuretoggle.service.FeatureToggleService
-import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.NavEnhetNummer
-import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Tiltakskode
 import java.util.UUID
 
@@ -398,12 +393,13 @@ private fun toOppgave(data: UtbetalingLinjeOppgaveData, ansatt: NavAnsatt): Oppg
                 createdAt = data.opprettelse.behandletTidspunkt,
                 arrangor = data.arrangor,
             ).takeIf {
-                AdminUtbetalingService.tilgangTilHandling(
-                    handling = UtbetalingLinjeHandling.ATTESTER,
-                    ansatt = ansatt,
-                    kostnadssted = data.kostnadssted.nummer,
-                    behandletAv = data.opprettelse.behandletAv,
-                )
+                OkonomiAuthorization.erAttestantUtbetaling(
+                    ansatt,
+                    OkonomiBeslutningContext(
+                        data.gjennomforing.type,
+                        nonEmptySetOf(data.kostnadssted.nummer),
+                    ),
+                ) && data.opprettelse.behandletAv != ansatt.navIdent
             }
         }
 
@@ -420,12 +416,7 @@ private fun toOppgave(data: UtbetalingLinjeOppgaveData, ansatt: NavAnsatt): Oppg
                 createdAt = requireNotNull(data.opprettelse.besluttetTidspunkt),
                 arrangor = data.arrangor,
             ).takeIf {
-                AdminUtbetalingService.tilgangTilHandling(
-                    handling = UtbetalingLinjeHandling.SEND_TIL_ATTESTERING,
-                    ansatt = ansatt,
-                    kostnadssted = data.kostnadssted.nummer,
-                    behandletAv = data.opprettelse.behandletAv,
-                )
+                OkonomiAuthorization.erSaksbehandler(ansatt, data.gjennomforing.type)
             }
         }
 
@@ -463,11 +454,7 @@ private fun toOppgave(data: UtbetalingBehandlingOppgaveData, ansatt: NavAnsatt):
                 createdAt = data.godkjentAvArrangorTidspunkt ?: data.createdAt,
                 arrangor = data.arrangor,
             ).takeIf {
-                AdminUtbetalingService.tilgangTilHandling(
-                    handling = UtbetalingHandling.SEND_TIL_ATTESTERING,
-                    ansatt = ansatt,
-                    gjennomforingType = data.gjennomforing.type,
-                )
+                OkonomiAuthorization.erSaksbehandler(ansatt, data.gjennomforing.type)
             }
     }
 }
@@ -505,13 +492,9 @@ private fun tilAvbrytelseOppgave(data: UtbetalingBehandlingOppgaveData, ansatt: 
     createdAt = data.avbrytelseBehandletTidspunkt ?: data.createdAt,
     arrangor = data.arrangor,
 ).takeIf {
-    AdminUtbetalingService.tilgangTilHandling(
-        handling = UtbetalingHandling.GODKJENN_AVBRYTELSE,
-        ansatt = ansatt,
-        gjennomforingType = data.gjennomforing.type,
-    )
+    OkonomiAuthorization.erSaksbehandler(ansatt, data.gjennomforing.type) &&
+        data.avbrytelseBehandletAv != ansatt.navIdent
 }
-    .takeIf { !isSame(ansatt.navIdent, data.avbrytelseBehandletAv) }
 
 private fun AvtaleManglerAdministratorOppgaveData.toOppgave(ansatt: NavAnsatt) = Oppgave(
     id = id,
@@ -675,7 +658,3 @@ private val OppgaveGjennomforing.type: GjennomforingType
         is OppgaveGjennomforing.Gruppetiltak -> GjennomforingType.AVTALE
         is OppgaveGjennomforing.Enkeltplass -> GjennomforingType.ENKELTPLASS
     }
-
-private fun isSame(ansatt: NavIdent, behandletAv: Agent?): Boolean {
-    return behandletAv is NavIdent && ansatt == behandletAv
-}

@@ -43,8 +43,6 @@ import no.nav.mulighetsrommet.api.totrinnskontroll.api.toFieldErrors
 import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingInputHelper
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
-import no.nav.mulighetsrommet.api.utbetaling.service.erBeslutter
-import no.nav.mulighetsrommet.api.utbetaling.service.erSaksbehandler
 import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.Arena
 import no.nav.mulighetsrommet.model.FieldError

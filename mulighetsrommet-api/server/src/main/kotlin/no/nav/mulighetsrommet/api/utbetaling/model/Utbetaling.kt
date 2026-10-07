@@ -73,6 +73,9 @@ data class Utbetaling(
         aarsaker: List<String>,
         begrunnelse: String?,
     ): Either<List<FieldError>, Utbetaling> {
+        if (gjelderEnkeltplass()) {
+            return FieldError.of("Utbetaling for enkeltplass kan ikke avbrytes").nel().left()
+        }
         if (!kanSettesTilAvbrytelse()) {
             return FieldError.of("Utbetaling kan ikke settes til avbrytelse").nel().left()
         }
@@ -170,23 +173,33 @@ data class Utbetaling(
 
     fun erKorreksjon(): Boolean = korreksjon != null
 
-    fun kanSettesTilAvbrytelse(): Boolean = !erKorreksjon() && when (status) {
-        UtbetalingStatusType.GENERERT,
-        UtbetalingStatusType.TIL_BEHANDLING,
-        UtbetalingStatusType.RETURNERT,
-        -> true
+    fun kanRedigeres(): Boolean = erTilBehandling() && !erInnsending()
 
-        UtbetalingStatusType.TIL_AVBRYTELSE,
-        UtbetalingStatusType.AVBRUTT,
-        UtbetalingStatusType.FERDIG_BEHANDLET,
-        UtbetalingStatusType.UTBETALT,
-        UtbetalingStatusType.DELVIS_UTBETALT,
-        UtbetalingStatusType.TIL_ATTESTERING,
-        -> false
+    fun kanSlettes(): Boolean = erTilBehandling() && (erKorreksjon() || gjelderEnkeltplass())
+
+    fun kanSettesTilAvbrytelse(): Boolean {
+        return !(erKorreksjon() || gjelderEnkeltplass()) && when (status) {
+            UtbetalingStatusType.GENERERT,
+            UtbetalingStatusType.TIL_BEHANDLING,
+            UtbetalingStatusType.RETURNERT,
+            -> true
+
+            UtbetalingStatusType.TIL_AVBRYTELSE,
+            UtbetalingStatusType.AVBRUTT,
+            UtbetalingStatusType.FERDIG_BEHANDLET,
+            UtbetalingStatusType.UTBETALT,
+            UtbetalingStatusType.DELVIS_UTBETALT,
+            UtbetalingStatusType.TIL_ATTESTERING,
+            -> false
+        }
     }
 
     fun getTiltaksnavn(): String {
         return "${tiltakstype.navn} (${gjennomforing.lopenummer.value})"
+    }
+
+    private fun gjelderEnkeltplass(): Boolean {
+        return gjennomforing.type == GjennomforingType.ENKELTPLASS
     }
 
     @Serializable

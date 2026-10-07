@@ -14,6 +14,8 @@ import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import no.nav.mulighetsrommet.admin.navansatt.EntraGroupNavAnsattRolleMapping
 import no.nav.mulighetsrommet.api.ApplicationConfigTest
 import no.nav.mulighetsrommet.api.aarsakerbegrunnelse.AarsakerOgBegrunnelseRequest
@@ -81,11 +83,20 @@ class UtbetalingRoutesTest : FunSpec({
     val generellRolle = EntraGroupNavAnsattRolleMapping(UUID.randomUUID(), Rolle.TILTAKADMINISTRASJON_GENERELL)
     val saksbehandlerOkonomiRolle = EntraGroupNavAnsattRolleMapping(UUID.randomUUID(), Rolle.SAKSBEHANDLER_OKONOMI)
     val attestantUtbetalingRolle = EntraGroupNavAnsattRolleMapping(UUID.randomUUID(), Rolle.ATTESTANT_UTBETALING)
+    val enkeltplassSaksbehandlerRolle = EntraGroupNavAnsattRolleMapping(
+        UUID.randomUUID(),
+        Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS,
+    )
 
     fun appConfig() = ApplicationConfigTest.copy(
         auth = createAuthConfig(
             oauth,
-            roles = setOf(generellRolle, saksbehandlerOkonomiRolle, attestantUtbetalingRolle),
+            roles = setOf(
+                generellRolle,
+                saksbehandlerOkonomiRolle,
+                attestantUtbetalingRolle,
+                enkeltplassSaksbehandlerRolle,
+            ),
         ),
         engine = createMockEngine {
             mockKontoregisterOrganisasjon()
@@ -117,6 +128,31 @@ class UtbetalingRoutesTest : FunSpec({
                     Rolle.SAKSBEHANDLER_OKONOMI,
                     Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS,
                 )
+            }
+        }
+
+        test("403 Forbidden når saksbehandlerrollen ikke gjelder gjennomføringstypen") {
+            withTestApplication(appConfig()) {
+                val id = UUID.randomUUID()
+                val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, enkeltplassSaksbehandlerRolle))
+
+                val response = client.post("/api/tiltaksadministrasjon/utbetaling/opprett") {
+                    bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
+                    contentType(ContentType.Application.Json)
+                    setBody(
+                        UtbetalingRequest(
+                            id = id,
+                            gjennomforingId = AFT1.id,
+                            periodeStart = LocalDate.now(),
+                            periodeSlutt = LocalDate.now().plusDays(1),
+                            pris = ValutaBelopRequest(150, Valuta.NOK),
+                            journalpostId = "123",
+                        ),
+                    )
+                }
+
+                response.status shouldBe HttpStatusCode.Forbidden
+                response.body<JsonObject>()["detail"]?.jsonPrimitive?.content shouldBe "Du mangler saksbehandlertilgang til utbetalingen"
             }
         }
 
@@ -250,7 +286,7 @@ class UtbetalingRoutesTest : FunSpec({
     }
 
     context("returner utbetaling") {
-        test("403 forbidden uten saksbehandler- eller beslutter-tilgang") {
+        test("403 forbidden uten saksbehandler- eller attestant-tilgang") {
             withTestApplication(appConfig()) {
                 val id = UtbetalingFixtures.utbetalingLinje1.id
                 val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle))
@@ -263,7 +299,7 @@ class UtbetalingRoutesTest : FunSpec({
                 response.status shouldBe HttpStatusCode.Forbidden
                 response.body<NavAnsattManglerTilgang>().missingRoles shouldBe setOf(
                     Rolle.SAKSBEHANDLER_OKONOMI,
-                    Rolle.BESLUTTER_TILSAGN,
+                    Rolle.ATTESTANT_UTBETALING,
                     Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS,
                     Rolle.OKONOMI_BESLUTTER_ENKELTPLASS,
                 )
@@ -596,7 +632,7 @@ class UtbetalingRoutesTest : FunSpec({
                 ).initialize(database.api)
 
                 withTestApplication(appConfig()) {
-                    val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, attestantUtbetalingRolle))
+                    val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, saksbehandlerOkonomiRolle))
                     val response = client.put(avslaAbrytelseUrl(UtbetalingFixtures.utbetaling1.id)) {
                         bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                         setBody(
