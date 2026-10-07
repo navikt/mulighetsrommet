@@ -54,6 +54,7 @@ import no.nav.tiltak.okonomi.OpprettFaktura
 import no.nav.tiltak.okonomi.toOkonomiPart
 import java.time.Instant
 import java.time.LocalDateTime
+import java.time.ZoneId
 import java.util.UUID
 
 class UtbetalingService(
@@ -143,7 +144,7 @@ class UtbetalingService(
         val utbetaling = queries.utbetaling.getAndAcquireLock(utbetalingId)
 
         if (!utbetaling.erTilBehandling() && utbetaling.status != UtbetalingStatusType.GENERERT) {
-            return FieldError.of("Utbetalingen kan ikke sendes til attestering").nel().left()
+            return FieldError.of("Utbetalingen kan ikke sendes til godkjenning").nel().left()
         }
 
         val linjerSomSkalSlettes = queries.utbetalingLinje.getByUtbetalingId(utbetaling.id).filter { linje ->
@@ -151,7 +152,7 @@ class UtbetalingService(
         }
 
         if (linjerSomSkalSlettes.any { it.status != UtbetalingLinjeStatus.RETURNERT }) {
-            return FieldError.of("Utbetaling kan ikke sendes til attestering fordi den allerede har andre utbetalingslinjer")
+            return FieldError.of("Utbetaling kan ikke sendes til godkjenning fordi den allerede har andre utbetalingslinjer")
                 .nel()
                 .left()
         }
@@ -172,7 +173,7 @@ class UtbetalingService(
         }
         queries.utbetaling.setStatus(utbetaling.id, UtbetalingStatusType.TIL_ATTESTERING)
 
-        logEndring("Utbetaling sendt til attestering", utbetaling.id, agent).right()
+        logEndring("Utbetaling sendt til godkjenning", utbetaling.id, agent).right()
     }
 
     context(tx: TransactionalQueryContext)
@@ -184,7 +185,7 @@ class UtbetalingService(
         val utbetaling = queries.utbetaling.getAndAcquireLock(linje.utbetalingId)
 
         if (utbetaling.status != UtbetalingStatusType.TIL_ATTESTERING || linje.status != UtbetalingLinjeStatus.TIL_ATTESTERING) {
-            return FieldError.of("Utbetalingen kan ikke attesteres").nel().left()
+            return FieldError.of("Utbetalingen kan ikke godkjennes").nel().left()
         }
 
         attesterUtbetalingLinje(linje, agent)
@@ -468,6 +469,8 @@ class UtbetalingService(
     ): Either<NonEmptyList<FieldError>, UtbetalingDbo> {
         val gjennomforing = queries.gjennomforing.getGjennomforingTiltaksadministrasjon(upsert.gjennomforingId)
 
+        val valgtUtbetalingsTidspunkt = upsert.utbetalingsDato?.atStartOfDay(ZoneId.of("Europe/Oslo"))?.toInstant()
+
         val dbo = UtbetalingDbo(
             id = upsert.id,
             gjennomforingId = upsert.gjennomforingId,
@@ -482,7 +485,7 @@ class UtbetalingService(
             journalpostId = upsert.journalpostId,
             innsendtAvArrangorTidspunkt = null,
             betalingsinformasjon = getUtbetalingsinformasjon(gjennomforing.arrangor.id, upsert.kid),
-            utbetalesTidligstTidspunkt = getUtbetalesTidligstTidspunkt(gjennomforing, upsert.periode),
+            utbetalesTidligstTidspunkt = valgtUtbetalingsTidspunkt ?: getUtbetalesTidligstTidspunkt(gjennomforing, upsert.periode),
             avbrytelse = null,
         )
 

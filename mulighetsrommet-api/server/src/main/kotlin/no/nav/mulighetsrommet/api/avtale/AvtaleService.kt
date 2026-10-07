@@ -620,6 +620,8 @@ private fun PersonvernRequest.toAvtalePersonvern(): Avtale.Personvern {
         addAll(personopplysninger)
         if (annetChecked == true) {
             add(Personopplysning.Type.ANNET)
+        } else {
+            remove(Personopplysning.Type.ANNET)
         }
     }
     return Avtale.Personvern(

@@ -4,6 +4,7 @@ import no.nav.mulighetsrommet.model.JournalpostId
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.tiltak.okonomi.Tilskuddstype
+import java.time.LocalDate
 import java.util.UUID
 
 sealed class UpsertUtbetaling {
@@ -37,6 +38,7 @@ sealed class UpsertUtbetaling {
         val kommentar: String?,
         val kid: Kid?,
         val journalpostId: JournalpostId?,
+        val utbetalingsDato: LocalDate?,
     ) : UpsertUtbetaling()
 
     data class Korreksjon(

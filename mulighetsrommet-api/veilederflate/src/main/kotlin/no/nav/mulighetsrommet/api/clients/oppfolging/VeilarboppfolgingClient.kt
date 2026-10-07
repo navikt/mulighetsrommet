@@ -25,6 +25,7 @@ import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.serializers.ZonedDateTimeSerializer
+import no.nav.mulighetsrommet.teamLogsError
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import no.nav.mulighetsrommet.tokenprovider.TokenProvider
 import org.slf4j.LoggerFactory
@@ -71,33 +72,55 @@ class VeilarboppfolgingClient(
     suspend fun hentOppfolgingsenhet(fnr: NorskIdent, obo: AccessType.OBO): Either<OppfolgingError, Oppfolgingsenhet?> {
         oppfolgingsenhetCache.getIfPresent(fnr)?.let { return@hentOppfolgingsenhet it.right() }
 
-        val response = client.post("$baseUrl/v2/person/hent-oppfolgingsstatus") {
+        val request = OppfolgingsenhetGraphqlRequest(
+            query = $$"""
+                query($fnr: String) {
+                    oppfolgingsEnhet(fnr: $fnr) {
+                        enhet {
+                            id
+                            navn
+                        }
+                    }
+                }
+            """.trimIndent(),
+            variables = OppfolgingsenhetGraphqlRequest.Variables(fnr = fnr.value),
+        )
+
+        val response = client.post("$baseUrl/graphql") {
             bearerAuth(tokenProvider.exchange(obo))
             header(HttpHeaders.ContentType, ContentType.Application.Json)
-            setBody(HentOppfolgingsstatusRequest(fnr = fnr.value))
+            setBody(request)
         }
 
-        return when (response.status) {
-            HttpStatusCode.NotFound -> {
-                log.info("Fant ikke oppfølgingsstatus for bruker. Det kan være fordi bruker ikke er under oppfølging eller ikke finnes i Arena")
-                OppfolgingError.NotFound.left()
-            }
+        if (!response.status.isSuccess()) {
+            log.warn("Klarte ikke hente oppfølgingsenhet for bruker. Status: ${response.status}")
+            return OppfolgingError.Error.left()
+        }
 
-            HttpStatusCode.Forbidden -> {
-                log.info("Manglet tilgang til å hente oppfølgingsstatus for bruker.")
+        val graphqlResponse = try {
+            response.body<OppfolgingsenhetGraphqlResponse>()
+        } catch (e: Exception) {
+            log.error("Kunne ikke deserialisere oppfølgingsenhet fra veilarboppfolging. Se teamlogs for mer informasjon.")
+            log.teamLogsError("Kunne ikke deserialisere oppfølgingsenhet fra veilarboppfolging.", e)
+            return OppfolgingError.Error.left()
+        }
+
+        if (graphqlResponse.errors.isNotEmpty()) {
+            return if (graphqlResponse.errors.any { it.message?.contains("Ikke tilgang", ignoreCase = true) == true }) {
+                log.info("Manglet tilgang til å hente oppfølgingsenhet for bruker.")
                 OppfolgingError.Forbidden.left()
-            }
-
-            else -> if (!response.status.isSuccess()) {
-                log.warn("Klarte ikke hente oppfølgingsstatus for bruker. Status: ${response.status}")
-                OppfolgingError.Error.left()
             } else {
-                val oppfolgingsenhet = response.body<OppfolgingEnhetMedVeilederResponse>().oppfolgingsenhet
-                oppfolgingsenhet?.also {
-                    oppfolgingsenhetCache.put(fnr, it)
-                }.right()
+                log.warn("Klarte ikke hente oppfølgingsenhet for bruker. Errors: ${graphqlResponse.errors}")
+                OppfolgingError.Error.left()
             }
         }
+
+        val oppfolgingsenhet = graphqlResponse.data?.oppfolgingsEnhet?.enhet?.let {
+            Oppfolgingsenhet(navn = it.navn, enhetId = it.id)
+        }
+        return oppfolgingsenhet
+            ?.also { oppfolgingsenhetCache.put(fnr, it) }
+            .right()
     }
 
     suspend fun erBrukerUnderOppfolging(
@@ -197,9 +220,42 @@ data class ManuellStatusRequest(
 )
 
 @Serializable
-data class OppfolgingEnhetMedVeilederResponse(
-    val oppfolgingsenhet: Oppfolgingsenhet?,
-)
+data class OppfolgingsenhetGraphqlRequest(
+    val query: String,
+    val variables: Variables,
+) {
+    @Serializable
+    data class Variables(
+        val fnr: String,
+    )
+}
+
+@Serializable
+data class OppfolgingsenhetGraphqlResponse(
+    val data: Data? = null,
+    val errors: List<GraphqlError> = emptyList(),
+) {
+    @Serializable
+    data class Data(
+        val oppfolgingsEnhet: OppfolgingsEnhetsInfo? = null,
+    )
+
+    @Serializable
+    data class OppfolgingsEnhetsInfo(
+        val enhet: Enhet? = null,
+    )
+
+    @Serializable
+    data class Enhet(
+        val id: NavEnhetNummer,
+        val navn: String,
+    )
+
+    @Serializable
+    data class GraphqlError(
+        val message: String? = null,
+    )
+}
 
 @Serializable
 data class Oppfolgingsenhet(

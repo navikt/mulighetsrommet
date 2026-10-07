@@ -15,7 +15,7 @@ class DelMedBrukerService(
 
     fun insertDelMedBruker(dbo: DelMedBrukerDbo): Unit = db.session {
         logger.teamLogsInfo(
-            "Veileder (${dbo.navIdent}) deler tiltak med id: '${dbo.tiltakDokumentId ?: dbo.gjennomforingId}' med bruker (${dbo.norskIdent.value})",
+            "Veileder (${dbo.navIdent}) deler tiltak med id: '${dbo.tiltakBeskrivelseId ?: dbo.gjennomforingId}' med bruker (${dbo.norskIdent.value})",
         )
 
         val fylke = navEnhetService.hentOverordnetFylkesenhet(dbo.deltFraEnhet)
@@ -23,8 +23,8 @@ class DelMedBrukerService(
         queries.delMedBruker.insert(dbo, fylke?.enhetsnummer)
     }
 
-    fun getLast(fnr: NorskIdent, tiltakDokumentOrGjennomforingId: UUID): DelMedBrukerDto? = db.session {
-        queries.delMedBruker.getLast(fnr, tiltakDokumentOrGjennomforingId)
+    fun getLast(fnr: NorskIdent, tiltakBeskrivelseOrGjennomforingId: UUID): DelMedBrukerDto? = db.session {
+        queries.delMedBruker.getLast(fnr, tiltakBeskrivelseOrGjennomforingId)
     }
 
     fun getAll(fnr: NorskIdent): List<DelMedBrukerDto> = db.session {

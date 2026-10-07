@@ -2,8 +2,8 @@
   "private": true,
   "name": "mulighetsrommet",
   "devDependencies": {
-    "prettier": "3.9.8",
-    "turbo": "2.11.2"
+    "prettier": "3.9.9",
+    "turbo": "2.11.5"
   },
   "packageManager": "pnpm@10.32.1"
 }

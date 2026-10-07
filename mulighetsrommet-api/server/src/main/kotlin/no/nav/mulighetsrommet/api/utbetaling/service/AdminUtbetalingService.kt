@@ -5,8 +5,10 @@ import arrow.core.flatMap
 import arrow.core.left
 import arrow.core.nel
 import arrow.core.nonEmptySetOf
+import arrow.core.right
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
+import no.nav.mulighetsrommet.api.TransactionalQueryContext
 import no.nav.mulighetsrommet.api.aarsakerbegrunnelse.AarsakerOgBegrunnelseRequest
 import no.nav.mulighetsrommet.api.domain.arrangor.Arrangor
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingType
@@ -48,6 +50,7 @@ class AdminUtbetalingService(
             return UtbetalingError.ManglerTilgang("Du mangler saksbehandlertilgang til utbetalingen").left()
         }
 
+        upsertValidation(opprett).onLeft { return UtbetalingError.Valideringsfeil(it).left() }
         when (opprett) {
             is UpsertUtbetaling.Anskaffelse if opprett.journalpostId == null -> {
                 val arrangor = repository.arrangor.get(gjennomforing.arrangor.id)
@@ -72,6 +75,7 @@ class AdminUtbetalingService(
         if (!erSaksbehandler(agent, utbetaling)) {
             return UtbetalingError.ManglerTilgang("Du mangler saksbehandlertilgang til utbetalingen").left()
         }
+        upsertValidation(rediger).onLeft { return UtbetalingError.Valideringsfeil(it).left() }
 
         if (!utbetaling.kanRedigeres()) {
             return UtbetalingError.Valideringsfeil(FieldError.of("Utbetalingen kan ikke redigeres").nel()).left()
@@ -85,6 +89,33 @@ class AdminUtbetalingService(
         }
 
         utbetalingService.redigerUtbetaling(rediger, agent).mapLeft(UtbetalingError::Valideringsfeil)
+    }
+
+    fun TransactionalQueryContext.upsertValidation(utbetaling: UpsertUtbetaling): Either<List<FieldError>, Unit> = when (utbetaling) {
+        is UpsertUtbetaling.Anskaffelse if (utbetaling.journalpostId == null || utbetaling.utbetalingsDato == null) -> {
+            val gjennomforing = queries.gjennomforing.getGjennomforingTiltaksadministrasjon(utbetaling.gjennomforingId)
+            val arrangor = repository.arrangor.get(gjennomforing.arrangor.id)
+            if (arrangor is Arrangor.Norsk) {
+                listOfNotNull(
+                    FieldError.of("Journalpost-ID er påkrevd", UpsertUtbetaling.Anskaffelse::journalpostId)
+                        .takeIf { utbetaling.journalpostId == null },
+                    FieldError.of("Utbetalingsdato er påkrevd", UpsertUtbetaling.Anskaffelse::utbetalingsDato)
+                        .takeIf { utbetaling.utbetalingsDato == null },
+                )
+                    .left()
+            } else {
+                Unit.right()
+            }
+        }
+
+        is UpsertUtbetaling.Korreksjon ->
+            if (queries.utbetaling.get(utbetaling.korreksjonGjelderUtbetalingId) == null) {
+                FieldError.of("Utbetaling som skal korrigeres eksisterer ikke").nel().left()
+            } else {
+                Unit.right()
+            }
+
+        else -> Unit.right()
     }
 
     fun sendTilAttestering(
@@ -196,7 +227,7 @@ class AdminUtbetalingService(
         val tilsagn = queries.tilsagn.getAndAcquireLock(linje.tilsagnId)
         if (!erAttestant(navIdent, utbetaling, tilsagn)) {
             return UtbetalingError.ManglerTilgang(
-                "Du kan ikke attestere utbetalingen fordi du ikke er attestant ved tilsagnets kostnadssted (${tilsagn.kostnadssted.navn})",
+                "Du kan ikke godkjenne utbetalingen fordi du ikke er beslutter ved tilsagnets kostnadssted (${tilsagn.kostnadssted.navn})",
             ).left()
         }
 

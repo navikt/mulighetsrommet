@@ -7,7 +7,7 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.delmedbruker.DelMedBrukerDbo
 import no.nav.mulighetsrommet.api.domain.testing.fixture.TiltakstypeFixtures
-import no.nav.mulighetsrommet.api.domain.tiltakdokument.TiltakDokument
+import no.nav.mulighetsrommet.api.domain.tiltakbeskrivelse.TiltakBeskrivelse
 import no.nav.mulighetsrommet.api.persistence.SqlAdminDatabaseTestListener
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
@@ -19,19 +19,19 @@ class DelMedBrukerQueriesTest : FunSpec({
     val database = extension(SqlAdminDatabaseTestListener())
 
     val norskIdent = NorskIdent("12345678910")
-    val tiltakDokumentId = UUID.randomUUID()
+    val tiltakBeskrivelseId = UUID.randomUUID()
 
     fun dbo() = DelMedBrukerDbo(
         norskIdent = norskIdent,
         navIdent = NavIdent("B123456"),
         dialogId = "1",
         tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
-        tiltakDokumentId = tiltakDokumentId,
+        tiltakBeskrivelseId = tiltakBeskrivelseId,
         gjennomforingId = null,
         deltFraEnhet = NavEnhetNummer("0502"),
     )
 
-    fun tiltakDokument(id: UUID = tiltakDokumentId) = TiltakDokument(
+    fun tiltakBeskrivelse(id: UUID = tiltakBeskrivelseId) = TiltakBeskrivelse(
         id = id,
         navn = "Test tiltak",
         tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
@@ -51,14 +51,14 @@ class DelMedBrukerQueriesTest : FunSpec({
     test("insert og getLast returnerer delingen med tiltaksinfo") {
         database.runAndRollback {
             repository.tiltakstype.save(TiltakstypeFixtures.Oppfolging)
-            repository.tiltakDokument.save(tiltakDokument())
+            repository.tiltakBeskrivelse.save(tiltakBeskrivelse())
 
             delMedBruker.insert(dbo(), deltFraFylke = NavEnhetNummer("0400"))
 
-            val result = delMedBruker.getLast(norskIdent, tiltakDokumentId)
+            val result = delMedBruker.getLast(norskIdent, tiltakBeskrivelseId)
             result.shouldNotBeNull()
             result.dialogId shouldBe "1"
-            result.tiltak.id shouldBe tiltakDokumentId
+            result.tiltak.id shouldBe tiltakBeskrivelseId
             result.tiltak.navn shouldBe "Test tiltak"
             result.tiltak.slettet shouldBe false
             result.tiltakstype.navn shouldBe "Oppfølging"
@@ -75,7 +75,7 @@ class DelMedBrukerQueriesTest : FunSpec({
     test("getAll returnerer alle delinger for en person") {
         database.runAndRollback {
             repository.tiltakstype.save(TiltakstypeFixtures.Oppfolging)
-            repository.tiltakDokument.save(tiltakDokument())
+            repository.tiltakBeskrivelse.save(tiltakBeskrivelse())
 
             delMedBruker.insert(dbo(), deltFraFylke = null)
             delMedBruker.insert(dbo(), deltFraFylke = null)

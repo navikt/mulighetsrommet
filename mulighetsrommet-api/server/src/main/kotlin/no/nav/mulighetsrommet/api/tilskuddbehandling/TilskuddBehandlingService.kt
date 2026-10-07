@@ -103,7 +103,7 @@ class TilskuddBehandlingService(
                     }
                     queries.totrinnskontroll.upsert(opprettelse)
                     outbox.publish(opprettelse)
-                    logEndring("Sendt til attestering", dbo.id, navIdent)
+                    logEndring("Sendt til godkjenning", dbo.id, navIdent)
                 }
             }
     }
@@ -172,7 +172,7 @@ class TilskuddBehandlingService(
             }
             if (behandling.status.type !== TilskuddBehandlingStatus.TIL_ATTESTERING) {
                 return FieldError
-                    .of("Tilskuddsbehandling kan ikke attesteres fordi det har status ${behandling.status.type.beskrivelse}")
+                    .of("Tilskuddsbehandling kan ikke godkjennes fordi det har status ${behandling.status.type.beskrivelse}")
                     .nel()
                     .left()
             }
@@ -189,7 +189,7 @@ class TilskuddBehandlingService(
                     outbox.publish(godkjent)
                     queries.tilskuddBehandling.setStatus(id, TilskuddBehandlingStatus.FERDIG_BEHANDLET)
                     scheduleJournalforVedtak(id)
-                    logEndring("Tilskuddsbehandling attestert", behandling.id, navIdent)
+                    logEndring("Tilskuddsbehandling godkjent", behandling.id, navIdent)
                 }
         }
     } catch (e: UtbetalingException) {

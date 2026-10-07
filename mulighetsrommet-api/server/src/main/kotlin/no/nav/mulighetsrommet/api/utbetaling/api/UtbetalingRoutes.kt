@@ -462,7 +462,7 @@ fun Route.utbetalingRoutes() {
                 }
                 response {
                     code(HttpStatusCode.OK) {
-                        description = "UtbetalingLinje ble attestert"
+                        description = "UtbetalingLinje ble godkjent"
                     }
                     default {
                         description = "Problem details"
@@ -602,6 +602,8 @@ data class UtbetalingRequest(
     @Serializable(with = LocalDateSerializer::class)
     val periodeSlutt: LocalDate? = null,
     val journalpostId: String? = null,
+    @Serializable(with = LocalDateSerializer::class)
+    val utbetalingsDato: LocalDate? = null,
     val korreksjonBegrunnelse: String? = null,
     val kommentar: String? = null,
     val kidNummer: String? = null,

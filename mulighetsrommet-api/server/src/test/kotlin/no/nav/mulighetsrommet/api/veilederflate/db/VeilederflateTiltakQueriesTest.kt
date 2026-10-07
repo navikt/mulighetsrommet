@@ -15,7 +15,7 @@ import no.nav.mulighetsrommet.api.domain.testing.fixture.NavEnhetFixtures.Innlan
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavEnhetFixtures.Lillehammer
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavEnhetFixtures.Oslo
 import no.nav.mulighetsrommet.api.domain.testing.fixture.TiltakstypeFixtures
-import no.nav.mulighetsrommet.api.domain.tiltakdokument.TiltakDokument
+import no.nav.mulighetsrommet.api.domain.tiltakbeskrivelse.TiltakBeskrivelse
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.ArbeidsrettetRehabilitering
@@ -332,12 +332,12 @@ class VeilederflateTiltakQueriesTest : FunSpec({
         }
     }
 
-    context("getAllTiltakDokument") {
+    context("getAllTiltakBeskrivelse") {
         fun minimalDokument(
             id: UUID = UUID.randomUUID(),
             navn: String = "Test",
             navEnheter: List<NavEnhetNummer> = emptyList(),
-        ) = TiltakDokument(
+        ) = TiltakBeskrivelse(
             id = id,
             navn = navn,
             tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
@@ -365,14 +365,14 @@ class VeilederflateTiltakQueriesTest : FunSpec({
                 val medFylkeId = UUID.randomUUID()
                 val medEnhetId = UUID.randomUUID()
 
-                repository.tiltakDokument.save(
+                repository.tiltakBeskrivelse.save(
                     minimalDokument(id = medFylkeId, navn = "Kun fylke", navEnheter = listOf(Innlandet.enhetsnummer)),
                 )
-                repository.tiltakDokument.save(
+                repository.tiltakBeskrivelse.save(
                     minimalDokument(id = medEnhetId, navn = "Med enhet", navEnheter = listOf(Gjovik.enhetsnummer)),
                 )
 
-                val result = queries.veilderTiltak.getAllTiltakDokument(
+                val result = queries.veilderTiltak.getAllTiltakBeskrivelse(
                     brukersEnheter = listOf(Gjovik.enhetsnummer),
                 )
                 result shouldHaveSize 2
@@ -388,11 +388,11 @@ class VeilederflateTiltakQueriesTest : FunSpec({
                 )
                 domain.initialize()
 
-                repository.tiltakDokument.save(
+                repository.tiltakBeskrivelse.save(
                     minimalDokument(navn = "Annen fylke", navEnheter = listOf(Oslo.enhetsnummer)),
                 )
 
-                val result = queries.veilderTiltak.getAllTiltakDokument(
+                val result = queries.veilderTiltak.getAllTiltakBeskrivelse(
                     brukersEnheter = listOf(Gjovik.enhetsnummer),
                 )
                 result.shouldBeEmpty()
@@ -407,11 +407,11 @@ class VeilederflateTiltakQueriesTest : FunSpec({
                 )
                 domain.initialize()
 
-                repository.tiltakDokument.save(
+                repository.tiltakBeskrivelse.save(
                     minimalDokument(navn = "Riktig fylke, feil underenhet", navEnheter = listOf(Innlandet.enhetsnummer, Lillehammer.enhetsnummer)),
                 )
 
-                val result = queries.veilderTiltak.getAllTiltakDokument(
+                val result = queries.veilderTiltak.getAllTiltakBeskrivelse(
                     brukersEnheter = listOf(Gjovik.enhetsnummer),
                 )
                 result.shouldBeEmpty()

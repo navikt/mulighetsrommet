@@ -20,7 +20,7 @@ class DelMedBrukerQueries(private val session: Session) : DelMedBrukerQueryHandl
             insert into del_med_bruker(
                 norsk_ident,
                 nav_ident,
-                tiltak_dokument_id,
+                tiltak_beskrivelse_id,
                 dialog_id,
                 gjennomforing_id,
                 tiltakstype_id,
@@ -30,7 +30,7 @@ class DelMedBrukerQueries(private val session: Session) : DelMedBrukerQueryHandl
             values (
                 :norsk_ident,
                 :nav_ident,
-                :tiltak_dokument_id::uuid,
+                :tiltak_beskrivelse_id::uuid,
                 :dialog_id,
                 :gjennomforing_id::uuid,
                 :tiltakstype_id,
@@ -42,7 +42,7 @@ class DelMedBrukerQueries(private val session: Session) : DelMedBrukerQueryHandl
         val params = mapOf(
             "norsk_ident" to dbo.norskIdent.value,
             "nav_ident" to dbo.navIdent.value,
-            "tiltak_dokument_id" to dbo.tiltakDokumentId,
+            "tiltak_beskrivelse_id" to dbo.tiltakBeskrivelseId,
             "gjennomforing_id" to dbo.gjennomforingId,
             "dialog_id" to dbo.dialogId,
             "tiltakstype_id" to dbo.tiltakstypeId,
@@ -53,28 +53,28 @@ class DelMedBrukerQueries(private val session: Session) : DelMedBrukerQueryHandl
         session.execute(queryOf(query, params))
     }
 
-    override fun getLast(norskIdent: NorskIdent, tiltakDokumentOrGjennomforingId: UUID): DelMedBrukerDto? {
+    override fun getLast(norskIdent: NorskIdent, tiltakBeskrivelseOrGjennomforingId: UUID): DelMedBrukerDto? {
         @Language("PostgreSQL")
         val query = """
             select del_med_bruker.id,
                    del_med_bruker.dialog_id,
                    del_med_bruker.created_at,
-                   coalesce(del_med_bruker.gjennomforing_id, del_med_bruker.tiltak_dokument_id) as tiltak_id,
+                   coalesce(del_med_bruker.gjennomforing_id, del_med_bruker.tiltak_beskrivelse_id) as tiltak_id,
                    tiltakstype.navn as tiltakstype_navn,
                    tiltakstype.tiltakskode as tiltakstype_tiltakskode,
                    tiltakstype.arena_kode as tiltakstype_arena_kode,
-                   coalesce(gjennomforing.navn, tiltak_dokument.navn) as tiltak_navn
+                   coalesce(gjennomforing.navn, tiltak_beskrivelse.navn) as tiltak_navn
             from del_med_bruker
                 join tiltakstype on del_med_bruker.tiltakstype_id = tiltakstype.id
                 left join gjennomforing on del_med_bruker.gjennomforing_id = gjennomforing.id
-                left join tiltak_dokument on del_med_bruker.tiltak_dokument_id = tiltak_dokument.id
+                left join tiltak_beskrivelse on del_med_bruker.tiltak_beskrivelse_id = tiltak_beskrivelse.id
             where norsk_ident = :norsk_ident
-                and coalesce(gjennomforing_id, tiltak_dokument_id) = :id::uuid
+                and coalesce(gjennomforing_id, tiltak_beskrivelse_id) = :id::uuid
             order by created_at desc
             limit 1
         """.trimIndent()
 
-        val params = mapOf("norsk_ident" to norskIdent.value, "id" to tiltakDokumentOrGjennomforingId)
+        val params = mapOf("norsk_ident" to norskIdent.value, "id" to tiltakBeskrivelseOrGjennomforingId)
 
         return session.single(queryOf(query, params)) { it.toDelMedBrukerDto() }
     }
@@ -85,14 +85,14 @@ class DelMedBrukerQueries(private val session: Session) : DelMedBrukerQueryHandl
             select del_med_bruker.id,
                    del_med_bruker.dialog_id,
                    del_med_bruker.created_at,
-                   coalesce(del_med_bruker.gjennomforing_id, del_med_bruker.tiltak_dokument_id) as tiltak_id,
+                   coalesce(del_med_bruker.gjennomforing_id, del_med_bruker.tiltak_beskrivelse_id) as tiltak_id,
                    tiltakstype.navn as tiltakstype_navn,
                    tiltakstype.tiltakskode as tiltakstype_tiltakskode,
-                   coalesce(gjennomforing.navn, tiltak_dokument.navn) as tiltak_navn
+                   coalesce(gjennomforing.navn, tiltak_beskrivelse.navn) as tiltak_navn
             from del_med_bruker
                 join tiltakstype on del_med_bruker.tiltakstype_id = tiltakstype.id
                 left join gjennomforing on del_med_bruker.gjennomforing_id = gjennomforing.id
-                left join tiltak_dokument on del_med_bruker.tiltak_dokument_id = tiltak_dokument.id
+                left join tiltak_beskrivelse on del_med_bruker.tiltak_beskrivelse_id = tiltak_beskrivelse.id
             where norsk_ident = ?
             order by created_at desc
         """.trimIndent()

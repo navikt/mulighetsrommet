@@ -68,9 +68,6 @@ export const tilsagnTekster = {
     belop: {
       label: "Totalbeløp",
     },
-    prisbetingelser: {
-      label: "Pris- og betalingsbetingelser",
-    },
     input: {
       label: "Utregning",
       linjer: {

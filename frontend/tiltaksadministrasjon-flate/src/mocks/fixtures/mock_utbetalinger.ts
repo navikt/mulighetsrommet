@@ -81,7 +81,7 @@ export const mockUtbetalinger: UtbetalingDto[] = [
     status: {
       type: UtbetalingStatusDtoType.TIL_ATTESTERING,
       status: {
-        value: "Til attestering",
+        value: "Til godkjenning",
         variant: DataElementStatusVariant.WARNING,
         description: null,
       },
@@ -200,7 +200,7 @@ export const mockUtbetalingerKompakt: UtbetalingKompaktDto[] = [
     status: {
       type: UtbetalingStatusDtoType.TIL_ATTESTERING,
       status: {
-        value: "Til attestering",
+        value: "Til godkjenning",
         variant: DataElementStatusVariant.WARNING,
         description: null,
       },

@@ -38,7 +38,7 @@ data class DelMedBrukerDbo(
     val navIdent: NavIdent,
     val dialogId: String,
     val tiltakstypeId: UUID,
-    val tiltakDokumentId: UUID?,
+    val tiltakBeskrivelseId: UUID?,
     val gjennomforingId: UUID?,
     val deltFraEnhet: NavEnhetNummer,
 )
