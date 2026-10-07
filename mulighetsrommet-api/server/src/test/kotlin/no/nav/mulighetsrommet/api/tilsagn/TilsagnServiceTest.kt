@@ -2,7 +2,6 @@ package no.nav.mulighetsrommet.api.tilsagn
 
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
-import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldBeNull
@@ -99,7 +98,7 @@ class TilsagnServiceTest : FunSpec({
     beforeEach {
         MulighetsrommetTestDomain(
             navEnheter = listOf(NavEnhetFixtures.Innlandet, Gjovik, Lillehammer),
-            ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
+            ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus, NavAnsattFixture.FetterAnton),
             arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
             avtaler = listOf(AvtaleFixtures.AFT, AvtaleFixtures.ARR),
             gjennomforinger = listOf(
@@ -110,11 +109,21 @@ class TilsagnServiceTest : FunSpec({
         ) {
             setRoller(
                 ansatt1,
-                setOf(NavAnsattRolle.kontorspesifikk(Rolle.BESLUTTER_TILSAGN, setOf(Gjovik.enhetsnummer))),
+                setOf(
+                    NavAnsattRolle.generell(Rolle.SAKSBEHANDLER_OKONOMI),
+                    NavAnsattRolle.kontorspesifikk(Rolle.BESLUTTER_TILSAGN, setOf(Gjovik.enhetsnummer)),
+                ),
             )
             setRoller(
                 ansatt2,
-                setOf(NavAnsattRolle.kontorspesifikk(Rolle.BESLUTTER_TILSAGN, setOf(Gjovik.enhetsnummer))),
+                setOf(
+                    NavAnsattRolle.generell(Rolle.SAKSBEHANDLER_OKONOMI),
+                    NavAnsattRolle.kontorspesifikk(Rolle.BESLUTTER_TILSAGN, setOf(Gjovik.enhetsnummer)),
+                ),
+            )
+            setRoller(
+                NavAnsattFixture.FetterAnton.navIdent,
+                setOf(NavAnsattRolle.generell(Rolle.SAKSBEHANDLER_OKONOMI)),
             )
         }.initialize(database.api)
     }
@@ -194,7 +203,9 @@ class TilsagnServiceTest : FunSpec({
                     GjennomforingFixtures.AFT1,
                     GjennomforingFixtures.AFT1.copy(id = UUID.randomUUID()),
                 ),
-            ).initialize(database.api)
+            ) {
+                setRoller(ansatt1, setOf(NavAnsattRolle.generell(Rolle.SAKSBEHANDLER_OKONOMI)))
+            }.initialize(database.api)
 
             val tilsagn2 = UUID.randomUUID()
             val tilsagn3 = UUID.randomUUID()
@@ -234,6 +245,34 @@ class TilsagnServiceTest : FunSpec({
                 }
             }
         }
+
+        test("tilsagn kan ikke flyttes mellom gjennomføringer selv med begge saksbehandlerroller") {
+            service.upsert(request, ansatt1).shouldBeRight()
+
+            service.returnerTilsagn(requestId, ansatt2, listOf(TilsagnStatusAarsak.FEIL_BELOP), null).shouldBeRight()
+
+            database.run {
+                setRoller(
+                    ansatt2,
+                    setOf(
+                        NavAnsattRolle.generell(Rolle.SAKSBEHANDLER_OKONOMI),
+                        NavAnsattRolle.generell(Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS),
+                    ),
+                )
+            }
+
+            service.upsert(
+                request.copy(gjennomforingId = GjennomforingFixtures.EnkelAmo.id),
+                ansatt2,
+            ) shouldBeLeft TilsagnError.Valideringsfeil(
+                listOf(
+                    FieldError.of(
+                        "Tilsagnet kan ikke flyttes til en annen gjennomføring",
+                        TilsagnRequest::gjennomforingId,
+                    ),
+                ),
+            )
+        }
     }
 
     context("slett tilsagn") {
@@ -251,7 +290,7 @@ class TilsagnServiceTest : FunSpec({
             service.slettTilsagn(
                 requestId,
                 ansatt1,
-            ) shouldBeLeft listOf(FieldError.of("Kan ikke slette tilsagn som er godkjent"))
+            ) shouldBeLeft TilsagnError.Valideringsfeil(listOf(FieldError.of("Kan ikke slette tilsagn som er godkjent")))
         }
 
         test("kan ikke slette tilsagn når det er godkjent") {
@@ -266,7 +305,7 @@ class TilsagnServiceTest : FunSpec({
             service.slettTilsagn(
                 requestId,
                 ansatt1,
-            ) shouldBeLeft listOf(FieldError.of("Kan ikke slette tilsagn som er godkjent"))
+            ) shouldBeLeft TilsagnError.Valideringsfeil(listOf(FieldError.of("Kan ikke slette tilsagn som er godkjent")))
         }
 
         test("kan slette tilsagn når det er returnert") {
@@ -303,8 +342,10 @@ class TilsagnServiceTest : FunSpec({
                 navIdent = ansatt2,
                 aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
                 begrunnelse = null,
-            ) shouldBeLeft listOf(
-                FieldError.of("Tilsagnet kan ikke returneres fordi det har status Returnert"),
+            ) shouldBeLeft TilsagnError.Valideringsfeil(
+                listOf(
+                    FieldError.of("Tilsagnet kan ikke returneres fordi det har status Returnert"),
+                ),
             )
         }
 
@@ -351,22 +392,22 @@ class TilsagnServiceTest : FunSpec({
         val service = createTilsagnService()
 
         test("kan ikke beslutte når ansatt mangler beslutter-rolle") {
+            service.upsert(request, ansatt1)
+                .shouldBeRight().status shouldBe TilsagnStatus.TIL_GODKJENNING
+
             database.run {
                 setRoller(ansatt1, setOf())
             }
 
-            service.upsert(request, ansatt1)
-                .shouldBeRight().status shouldBe TilsagnStatus.TIL_GODKJENNING
-
-            service.godkjennTilsagn(
-                id = requestId,
-                agent = ansatt1,
-            ) shouldBeLeft listOf(
-                FieldError.of("Du kan ikke beslutte tilsagnet fordi du mangler budsjettmyndighet ved tilsagnets kostnadssted (Nav Gjøvik)"),
+            service.godkjennTilsagn(id = requestId, agent = ansatt1) shouldBeLeft TilsagnError.ManglerTilgang(
+                "Du kan ikke beslutte tilsagnet fordi du mangler budsjettmyndighet ved tilsagnets kostnadssted (Nav Gjøvik)",
             )
         }
 
         test("kan ikke beslutte når ansatt bare har beslutter-rolle ved andre kostnadssteder") {
+            service.upsert(request, ansatt1)
+                .shouldBeRight().status shouldBe TilsagnStatus.TIL_GODKJENNING
+
             database.run {
                 setRoller(
                     ansatt1,
@@ -374,14 +415,8 @@ class TilsagnServiceTest : FunSpec({
                 )
             }
 
-            service.upsert(request, ansatt1)
-                .shouldBeRight().status shouldBe TilsagnStatus.TIL_GODKJENNING
-
-            service.godkjennTilsagn(
-                id = requestId,
-                agent = ansatt1,
-            ) shouldBeLeft listOf(
-                FieldError.of("Du kan ikke beslutte tilsagnet fordi du mangler budsjettmyndighet ved tilsagnets kostnadssted (Nav Gjøvik)"),
+            service.godkjennTilsagn(id = requestId, agent = ansatt1) shouldBeLeft TilsagnError.ManglerTilgang(
+                "Du kan ikke beslutte tilsagnet fordi du mangler budsjettmyndighet ved tilsagnets kostnadssted (Nav Gjøvik)",
             )
         }
 
@@ -392,7 +427,7 @@ class TilsagnServiceTest : FunSpec({
             service.godkjennTilsagn(
                 id = requestId,
                 agent = ansatt1,
-            ) shouldBeLeft listOf(FieldError.of("Du kan ikke beslutte noe du selv har behandlet"))
+            ) shouldBeLeft TilsagnError.Valideringsfeil(listOf(FieldError.of("Du kan ikke beslutte noe du selv har behandlet")))
         }
 
         test("kan ikke beslutte to ganger") {
@@ -407,7 +442,7 @@ class TilsagnServiceTest : FunSpec({
             service.godkjennTilsagn(
                 id = requestId,
                 agent = ansatt2,
-            ) shouldBeLeft listOf(FieldError.of("Tilsagnet kan ikke godkjennes fordi det har status Godkjent"))
+            ) shouldBeLeft TilsagnError.Valideringsfeil(listOf(FieldError.of("Tilsagnet kan ikke godkjennes fordi det har status Godkjent")))
         }
 
         test("godkjent tilsagn trigger melding til økonomi") {
@@ -462,13 +497,13 @@ class TilsagnServiceTest : FunSpec({
                 }
             }
 
-            service.upsert(request, NavIdent("T888888"))
+            service.upsert(request, NavAnsattFixture.FetterAnton.navIdent)
                 .shouldBeRight().status shouldBe TilsagnStatus.TIL_GODKJENNING
 
             database.run {
                 queries.totrinnskontroll.getOrError(requestId, TotrinnskontrollType.TILSAGN_OPPRETTELSE).should {
                     it.status shouldBe TotrinnskontrollStatus.TIL_BEHANDLING
-                    it.behandling.utfortAv shouldBe NavIdent("T888888")
+                    it.behandling.utfortAv shouldBe NavAnsattFixture.FetterAnton.navIdent
                     it.beslutning.shouldBeNull()
                 }
             }
@@ -481,7 +516,7 @@ class TilsagnServiceTest : FunSpec({
             database.run {
                 queries.totrinnskontroll.getOrError(requestId, TotrinnskontrollType.TILSAGN_OPPRETTELSE).should {
                     it.status shouldBe TotrinnskontrollStatus.GODKJENT
-                    it.behandling.utfortAv shouldBe NavIdent("T888888")
+                    it.behandling.utfortAv shouldBe NavAnsattFixture.FetterAnton.navIdent
                     it.beslutning.shouldNotBeNull().utfortAv shouldBe ansatt2
                 }
 
@@ -505,7 +540,7 @@ class TilsagnServiceTest : FunSpec({
                 begrunnelse = null,
             ).shouldBeRight().status shouldBe TilsagnStatus.RETURNERT
 
-            service.upsert(request, NavIdent("T888888")).shouldBeRight().should {
+            service.upsert(request, NavAnsattFixture.FetterAnton.navIdent).shouldBeRight().should {
                 it.status shouldBe TilsagnStatus.TIL_GODKJENNING
                 it.lopenummer shouldBe 1
                 it.bestilling.bestillingsnummer shouldBe "A-${aft1.lopenummer.value}-1"
@@ -542,9 +577,7 @@ class TilsagnServiceTest : FunSpec({
                 navIdent = ansatt1,
                 aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
                 begrunnelse = null,
-            ) shouldBeLeft listOf(
-                FieldError.of("Du kan ikke returnere tilsagnet fordi du mangler tilgang"),
-            )
+            ) shouldBeLeft TilsagnError.ManglerTilgang("Du kan ikke returnere tilsagnet fordi du mangler tilgang")
         }
 
         test("saksbehandler kan returnere tilsagn") {
@@ -584,8 +617,8 @@ class TilsagnServiceTest : FunSpec({
                 navIdent = ansatt2,
                 aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
                 begrunnelse = null,
-            ) shouldBeLeft listOf(
-                FieldError.of("Tilsagnet kan ikke returneres fordi det har status Godkjent"),
+            ) shouldBeLeft TilsagnError.Valideringsfeil(
+                listOf(FieldError.of("Tilsagnet kan ikke returneres fordi det har status Godkjent")),
             )
         }
     }
@@ -597,16 +630,14 @@ class TilsagnServiceTest : FunSpec({
             service.upsert(request, ansatt1)
                 .shouldBeRight().status shouldBe TilsagnStatus.TIL_GODKJENNING
 
-            shouldThrow<IllegalArgumentException> {
-                service.tilAnnulleringRequest(
-                    id = requestId,
-                    navIdent = ansatt2,
-                    request = AarsakerOgBegrunnelseRequest(
-                        aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
-                        begrunnelse = "Velg et annet beløp",
-                    ),
-                )
-            }.message shouldBe "Kan bare annullere godkjente tilsagn"
+            service.tilAnnulleringRequest(
+                id = requestId,
+                navIdent = ansatt2,
+                request = AarsakerOgBegrunnelseRequest(
+                    aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
+                    begrunnelse = "Velg et annet beløp",
+                ),
+            ) shouldBeLeft TilsagnError.Valideringsfeil(listOf(FieldError.of("Kan bare annullere godkjente tilsagn")))
 
             service.godkjennTilsagn(
                 id = requestId,
@@ -620,7 +651,7 @@ class TilsagnServiceTest : FunSpec({
                     aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
                     begrunnelse = "Velg et annet beløp",
                 ),
-            ).status shouldBe TilsagnStatus.TIL_ANNULLERING
+            ).shouldBeRight().status shouldBe TilsagnStatus.TIL_ANNULLERING
 
             database.run {
                 queries.totrinnskontroll.getOrError(requestId, TotrinnskontrollType.TILSAGN_ANNULLERING).should {
@@ -671,7 +702,7 @@ class TilsagnServiceTest : FunSpec({
                     aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
                     begrunnelse = "Velg et annet beløp",
                 ),
-            ).status shouldBe TilsagnStatus.TIL_ANNULLERING
+            ).shouldBeRight().status shouldBe TilsagnStatus.TIL_ANNULLERING
 
             service.godkjennTilsagn(
                 id = requestId,
@@ -706,7 +737,7 @@ class TilsagnServiceTest : FunSpec({
             service.godkjennTilsagn(
                 id = requestId,
                 agent = ansatt1,
-            ) shouldBeLeft listOf(FieldError.of("Du kan ikke beslutte noe du selv har behandlet"))
+            ) shouldBeLeft TilsagnError.Valideringsfeil(listOf(FieldError.of("Du kan ikke beslutte noe du selv har behandlet")))
             database.run { queries.tilsagn.getOrError(requestId).status shouldBe TilsagnStatus.TIL_ANNULLERING }
         }
 
@@ -765,7 +796,7 @@ class TilsagnServiceTest : FunSpec({
             service.godkjennTilsagn(
                 id = requestId,
                 agent = ansatt2,
-            ) shouldBeLeft listOf(FieldError.of("Tilsagnet kan ikke annulleres fordi det har blitt brukt i utbetalinger"))
+            ) shouldBeLeft TilsagnError.Valideringsfeil(listOf(FieldError.of("Tilsagnet kan ikke annulleres fordi det har blitt brukt i utbetalinger")))
         }
 
         test("kan annullere tilsagn når eneste utbetalingslinje er avbrutt") {
@@ -845,7 +876,7 @@ class TilsagnServiceTest : FunSpec({
                     aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
                     begrunnelse = null,
                 ),
-            ).status shouldBe TilsagnStatus.TIL_ANNULLERING
+            ).shouldBeRight().status shouldBe TilsagnStatus.TIL_ANNULLERING
 
             service.returnerTilsagn(
                 id = requestId,
@@ -868,6 +899,16 @@ class TilsagnServiceTest : FunSpec({
     context("Gjør opp tilsagn") {
         val service = createTilsagnService()
 
+        test("kan ikke sende tilsagn til oppgjør før det er godkjent") {
+            service.upsert(request, ansatt1).shouldBeRight()
+
+            service.tilOppgjorRequest(
+                id = requestId,
+                navIdent = ansatt1,
+                request = AarsakerOgBegrunnelseRequest(aarsaker = emptyList(), begrunnelse = null),
+            ) shouldBeLeft TilsagnError.Valideringsfeil(listOf(FieldError.of("Kan bare gjøre opp godkjente tilsagn")))
+        }
+
         test("kan ikke gjøre opp egen") {
             service.upsert(request, ansatt1)
                 .shouldBeRight().status shouldBe TilsagnStatus.TIL_GODKJENNING
@@ -880,12 +921,12 @@ class TilsagnServiceTest : FunSpec({
                 id = requestId,
                 navIdent = ansatt1,
                 request = AarsakerOgBegrunnelseRequest(aarsaker = emptyList(), begrunnelse = null),
-            ).status shouldBe TilsagnStatus.TIL_OPPGJOR
+            ).shouldBeRight().status shouldBe TilsagnStatus.TIL_OPPGJOR
 
             service.godkjennTilsagn(
                 id = requestId,
                 agent = ansatt1,
-            ) shouldBeLeft listOf(FieldError.of("Du kan ikke beslutte noe du selv har behandlet"))
+            ) shouldBeLeft TilsagnError.Valideringsfeil(listOf(FieldError.of("Du kan ikke beslutte noe du selv har behandlet")))
 
             database.run {
                 queries.tilsagn.getOrError(requestId).status shouldBe TilsagnStatus.TIL_OPPGJOR
@@ -904,7 +945,7 @@ class TilsagnServiceTest : FunSpec({
                 id = requestId,
                 navIdent = ansatt1,
                 request = AarsakerOgBegrunnelseRequest(aarsaker = emptyList(), begrunnelse = null),
-            ).status shouldBe TilsagnStatus.TIL_OPPGJOR
+            ).shouldBeRight().status shouldBe TilsagnStatus.TIL_OPPGJOR
 
             service.returnerTilsagn(
                 id = requestId,
@@ -929,7 +970,7 @@ class TilsagnServiceTest : FunSpec({
                     aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
                     begrunnelse = null,
                 ),
-            ).status shouldBe TilsagnStatus.TIL_OPPGJOR
+            ).shouldBeRight().status shouldBe TilsagnStatus.TIL_OPPGJOR
 
             database.run {
                 queries.totrinnskontroll.getOrError(requestId, TotrinnskontrollType.TILSAGN_OPPGJOR).should {

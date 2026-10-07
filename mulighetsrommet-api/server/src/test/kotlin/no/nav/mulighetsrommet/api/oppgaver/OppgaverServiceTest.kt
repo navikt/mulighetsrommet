@@ -66,6 +66,108 @@ class OppgaverServiceTest : FunSpec({
     }
 
     context("tilsagn") {
+        test("tilsagn for enkeltplass krever enkeltplassbeslutter") {
+            val tilsagn =
+                TilsagnFixtures.createTilsagn(gjennomforingId = GjennomforingFixtures.EnkelAmo.id, lopenummer = 1)
+            MulighetsrommetTestDomain(
+                gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
+                tilsagn = listOf(tilsagn),
+            ) {
+                setTilsagnStatus(tilsagn, TilsagnStatus.TIL_GODKJENNING)
+            }.initialize(database.api)
+
+            val service = OppgaverService(database.api, features())
+            service.oppgaver(
+                oppgavetyper = setOf(OppgaveType.TILSAGN_TIL_GODKJENNING),
+                tiltakskoder = setOf(),
+                navEnheter = setOf(),
+                arrangorer = setOf(),
+                ansatt = NavAnsattFixture.MikkeMus.medRoller(
+                    setOf(NavAnsattRolle.generell(Rolle.OKONOMI_BESLUTTER_ENKELTPLASS)),
+                ),
+            ) shouldMatchAllOppgaver listOf(PartialOppgave(tilsagn.id, OppgaveType.TILSAGN_TIL_GODKJENNING))
+
+            service.oppgaver(
+                oppgavetyper = setOf(OppgaveType.TILSAGN_TIL_GODKJENNING),
+                tiltakskoder = setOf(),
+                navEnheter = setOf(),
+                arrangorer = setOf(),
+                ansatt = NavAnsattFixture.MikkeMus.medRoller(
+                    setOf(NavAnsattRolle.generell(Rolle.BESLUTTER_TILSAGN)),
+                ),
+            ).shouldBeEmpty()
+        }
+
+        test("annullering skjules for behandleren av annulleringen, ikke behandleren av opprettelsen") {
+            val tilsagn = TilsagnFixtures.Tilsagn1
+            MulighetsrommetTestDomain(
+                avtaler = listOf(AvtaleFixtures.AFT),
+                gjennomforinger = listOf(AFT1),
+                tilsagn = listOf(tilsagn),
+            ) {
+                setTilsagnStatus(
+                    tilsagn,
+                    TilsagnStatus.TIL_ANNULLERING,
+                    behandletAv = NavAnsattFixture.MikkeMus.navIdent,
+                )
+                setTilBehandling(
+                    tilsagn.id,
+                    TotrinnskontrollType.TILSAGN_ANNULLERING,
+                    NavAnsattFixture.DonaldDuck.navIdent,
+                )
+            }.initialize(database.api)
+
+            val service = OppgaverService(database.api, features())
+            val roller = setOf(NavAnsattRolle.generell(Rolle.BESLUTTER_TILSAGN))
+
+            service.oppgaver(
+                oppgavetyper = setOf(OppgaveType.TILSAGN_TIL_ANNULLERING),
+                tiltakskoder = setOf(),
+                navEnheter = setOf(),
+                arrangorer = setOf(),
+                ansatt = NavAnsattFixture.DonaldDuck.medRoller(roller),
+            ).shouldBeEmpty()
+
+            service.oppgaver(
+                oppgavetyper = setOf(OppgaveType.TILSAGN_TIL_ANNULLERING),
+                tiltakskoder = setOf(),
+                navEnheter = setOf(),
+                arrangorer = setOf(),
+                ansatt = NavAnsattFixture.MikkeMus.medRoller(roller),
+            ) shouldMatchAllOppgaver listOf(PartialOppgave(tilsagn.id, OppgaveType.TILSAGN_TIL_ANNULLERING))
+        }
+
+        test("oppgjør skjules for behandleren av oppgjøret, ikke behandleren av opprettelsen") {
+            val tilsagn = TilsagnFixtures.Tilsagn1
+            MulighetsrommetTestDomain(
+                avtaler = listOf(AvtaleFixtures.AFT),
+                gjennomforinger = listOf(AFT1),
+                tilsagn = listOf(tilsagn),
+            ) {
+                setTilsagnStatus(tilsagn, TilsagnStatus.TIL_OPPGJOR, behandletAv = NavAnsattFixture.MikkeMus.navIdent)
+                setTilBehandling(tilsagn.id, TotrinnskontrollType.TILSAGN_OPPGJOR, NavAnsattFixture.DonaldDuck.navIdent)
+            }.initialize(database.api)
+
+            val service = OppgaverService(database.api, features())
+            val roller = setOf(NavAnsattRolle.generell(Rolle.BESLUTTER_TILSAGN))
+
+            service.oppgaver(
+                oppgavetyper = setOf(OppgaveType.TILSAGN_TIL_OPPGJOR),
+                tiltakskoder = setOf(),
+                navEnheter = setOf(),
+                arrangorer = setOf(),
+                ansatt = NavAnsattFixture.DonaldDuck.medRoller(roller),
+            ).shouldBeEmpty()
+
+            service.oppgaver(
+                oppgavetyper = setOf(OppgaveType.TILSAGN_TIL_OPPGJOR),
+                tiltakskoder = setOf(),
+                navEnheter = setOf(),
+                arrangorer = setOf(),
+                ansatt = NavAnsattFixture.MikkeMus.medRoller(roller),
+            ) shouldMatchAllOppgaver listOf(PartialOppgave(tilsagn.id, OppgaveType.TILSAGN_TIL_OPPGJOR))
+        }
+
         test("Skal hente oppgaver for tilsagn med filter") {
             val service = OppgaverService(database.api, features())
 

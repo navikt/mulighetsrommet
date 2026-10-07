@@ -6,7 +6,6 @@ import io.github.smiley4.ktoropenapi.post
 import io.github.smiley4.ktoropenapi.put
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.request.receive
-import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.util.getOrFail
 import no.nav.mulighetsrommet.api.aarsakerbegrunnelse.AarsakerOgBegrunnelseRequest
@@ -16,10 +15,11 @@ import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
+import no.nav.mulighetsrommet.api.tilsagn.TilsagnError
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatusAarsak
-import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
+import no.nav.mulighetsrommet.ktor.exception.Forbidden
 import no.nav.mulighetsrommet.model.ProblemDetail
 import org.koin.ktor.ext.inject
 import java.util.UUID
@@ -52,7 +52,7 @@ fun Route.tilsagnRoutesBehandling() {
             val navIdent = getNavIdent()
 
             val result = service.upsert(request, navIdent)
-                .mapLeft { ValidationError(errors = it) }
+                .mapLeft(::toProblemDetail)
                 .map { TilsagnDto.from(it) }
 
             call.respondWithStatusResponse(result)
@@ -79,12 +79,12 @@ fun Route.tilsagnRoutesBehandling() {
             val id = call.parameters.getOrFail<UUID>("id")
             val navIdent = getNavIdent()
 
-            request.validate()
-                .onLeft { call.respondWithProblemDetail(ValidationError(errors = it)) }
-                .onRight {
-                    service.tilAnnulleringRequest(id, navIdent, it)
-                    call.respond(HttpStatusCode.OK)
-                }
+            val result = request.validate()
+                .mapLeft(TilsagnError::Valideringsfeil)
+                .flatMap { service.tilAnnulleringRequest(id, navIdent, it) }
+                .mapLeft(::toProblemDetail)
+                .map { HttpStatusCode.OK }
+            call.respondWithStatusResponse(result)
         }
 
         post("/{id}/gjor-opp", {
@@ -108,12 +108,12 @@ fun Route.tilsagnRoutesBehandling() {
             val id = call.parameters.getOrFail<UUID>("id")
             val navIdent = getNavIdent()
 
-            request.validate()
-                .onLeft { call.respondWithProblemDetail(ValidationError(errors = it)) }
-                .onRight {
-                    service.tilOppgjorRequest(id, navIdent, it)
-                    call.respond(HttpStatusCode.OK)
-                }
+            val result = request.validate()
+                .mapLeft(TilsagnError::Valideringsfeil)
+                .flatMap { service.tilOppgjorRequest(id, navIdent, it) }
+                .mapLeft(::toProblemDetail)
+                .map { HttpStatusCode.OK }
+            call.respondWithStatusResponse(result)
         }
 
         delete("/{id}", {
@@ -137,7 +137,7 @@ fun Route.tilsagnRoutesBehandling() {
             val navIdent = getNavIdent()
 
             val result = service.slettTilsagn(id, navIdent)
-                .mapLeft { ValidationError(errors = it) }
+                .mapLeft(::toProblemDetail)
                 .map { HttpStatusCode.OK }
 
             call.respondWithStatusResponse(result)
@@ -167,7 +167,7 @@ fun Route.tilsagnRoutesBehandling() {
             val navIdent = getNavIdent()
 
             val result = service.godkjennTilsagn(id, navIdent)
-                .mapLeft { ValidationError(errors = it) }
+                .mapLeft(::toProblemDetail)
                 .map { HttpStatusCode.OK }
 
             call.respondWithStatusResponse(result)
@@ -204,11 +204,17 @@ fun Route.tilsagnRoutesBehandling() {
             val navIdent = getNavIdent()
 
             val result = request.validate()
+                .mapLeft(TilsagnError::Valideringsfeil)
                 .flatMap { service.returnerTilsagn(id, navIdent, it.aarsaker, it.begrunnelse) }
-                .mapLeft { ValidationError(errors = it) }
+                .mapLeft(::toProblemDetail)
                 .map { HttpStatusCode.OK }
 
             call.respondWithStatusResponse(result)
         }
     }
+}
+
+private fun toProblemDetail(error: TilsagnError): ProblemDetail = when (error) {
+    is TilsagnError.ManglerTilgang -> Forbidden(error.message)
+    is TilsagnError.Valideringsfeil -> ValidationError("Valideringsfeil", error.errors)
 }

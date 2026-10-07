@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.oppgaver
 
+import arrow.core.nonEmptySetOf
 import arrow.core.toNonEmptySetOrThrow
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
@@ -12,8 +13,6 @@ import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingType
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingDetaljerService
 import no.nav.mulighetsrommet.api.navansatt.OkonomiAuthorization
 import no.nav.mulighetsrommet.api.navansatt.OkonomiBeslutningContext
-import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
-import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnHandling
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatus
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingHandling
@@ -295,6 +294,13 @@ private fun QueryContext.toOppgave(data: TilsagnOppgaveData, ansatt: NavAnsatt):
     val annullering = queries.totrinnskontroll.get(data.id, TotrinnskontrollType.TILSAGN_ANNULLERING)
     val tilOppgjor = queries.totrinnskontroll.get(data.id, TotrinnskontrollType.TILSAGN_OPPGJOR)
 
+    val erBeslutter = OkonomiAuthorization.erBeslutterTilsagn(
+        ansatt,
+        OkonomiBeslutningContext(
+            data.gjennomforing.type,
+            nonEmptySetOf(data.kostnadssted.nummer),
+        ),
+    )
     val title = getOkonomiOppgaveTitle(data.tiltakstype, data.gjennomforing)
     return when (data.status) {
         TilsagnStatus.TIL_GODKJENNING -> {
@@ -310,14 +316,7 @@ private fun QueryContext.toOppgave(data: TilsagnOppgaveData, ansatt: NavAnsatt):
                 createdAt = opprettelse.behandling.tidspunkt.tilNorskLocalDateTime(),
                 arrangor = data.arrangor,
             ).takeIf {
-                TilsagnService.tilgangTilHandling(
-                    TilsagnHandling.GODKJENN,
-                    ansatt = ansatt,
-                    kostnadssted = data.kostnadssted.nummer,
-                    opprettelse = opprettelse,
-                    annullering = annullering,
-                    tilOppgjor = tilOppgjor,
-                )
+                erBeslutter && opprettelse.behandling.utfortAv != ansatt.navIdent
             }
         }
 
@@ -335,14 +334,7 @@ private fun QueryContext.toOppgave(data: TilsagnOppgaveData, ansatt: NavAnsatt):
                 createdAt = besluttetTidspunkt.tilNorskLocalDateTime(),
                 arrangor = data.arrangor,
             ).takeIf {
-                TilsagnService.tilgangTilHandling(
-                    TilsagnHandling.REDIGER,
-                    ansatt = ansatt,
-                    kostnadssted = data.kostnadssted.nummer,
-                    opprettelse = opprettelse,
-                    annullering = annullering,
-                    tilOppgjor = tilOppgjor,
-                )
+                OkonomiAuthorization.erSaksbehandler(ansatt, data.gjennomforing.type)
             }
         }
 
@@ -360,14 +352,7 @@ private fun QueryContext.toOppgave(data: TilsagnOppgaveData, ansatt: NavAnsatt):
                 createdAt = annullering.behandling.tidspunkt.tilNorskLocalDateTime(),
                 arrangor = data.arrangor,
             ).takeIf {
-                TilsagnService.tilgangTilHandling(
-                    TilsagnHandling.GODKJENN_ANNULLERING,
-                    ansatt = ansatt,
-                    kostnadssted = data.kostnadssted.nummer,
-                    opprettelse = opprettelse,
-                    annullering = annullering,
-                    tilOppgjor = tilOppgjor,
-                )
+                erBeslutter && annullering.behandling.utfortAv != ansatt.navIdent
             }
         }
 
@@ -385,14 +370,7 @@ private fun QueryContext.toOppgave(data: TilsagnOppgaveData, ansatt: NavAnsatt):
                 createdAt = tilOppgjor.behandling.tidspunkt.tilNorskLocalDateTime(),
                 arrangor = data.arrangor,
             ).takeIf {
-                TilsagnService.tilgangTilHandling(
-                    TilsagnHandling.GODKJENN_OPPGJOR,
-                    ansatt = ansatt,
-                    kostnadssted = data.kostnadssted.nummer,
-                    opprettelse = opprettelse,
-                    annullering = annullering,
-                    tilOppgjor = tilOppgjor,
-                )
+                erBeslutter && tilOppgjor.behandling.utfortAv != ansatt.navIdent
             }
         }
 
