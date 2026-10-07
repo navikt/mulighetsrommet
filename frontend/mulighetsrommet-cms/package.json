@@ -14,22 +14,22 @@
     "sanity"
   ],
   "dependencies": {
-    "@navikt/aksel-icons": "8.16.2",
-    "@portabletext/react": "7.0.1",
-    "@sanity/client": "8.6.2",
-    "@sanity/ui": "4.2.1",
-    "@sanity/util": "6.15.0",
-    "@sanity/vision": "6.15.0",
+    "@navikt/aksel-icons": "8.17.2",
+    "@portabletext/react": "8.0.1",
+    "@sanity/client": "8.7.0",
+    "@sanity/ui": "4.2.7",
+    "@sanity/util": "6.16.0",
+    "@sanity/vision": "6.16.0",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "react-icons": "5.7.0",
     "react-switch": "7.1.0",
-    "sanity": "6.15.0",
+    "sanity": "6.16.0",
     "styled-components": "6.5.3"
   },
   "devDependencies": {
     "@types/react": "19.2.14",
     "postcss": "8.5.28",
-    "sass-embedded": "1.104.1"
+    "sass-embedded": "1.105.0"
   }
 }

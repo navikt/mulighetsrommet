@@ -14,6 +14,7 @@ import no.nav.mulighetsrommet.admin.tiltak.PrismodellDto
 import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollDto
 import no.nav.mulighetsrommet.api.domain.deltaker.Deltaker
 import no.nav.mulighetsrommet.api.utbetaling.service.AvvistGrunn
+import no.nav.mulighetsrommet.api.utbetaling.service.Gradering
 import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
 import no.nav.mulighetsrommet.model.DataElement
 import no.nav.mulighetsrommet.model.Faneinnhold
@@ -173,6 +174,7 @@ data class DeltakerDto(
     val status: DataElement.Status,
     val innholdAnnet: String?,
     val avvistGrunn: AvvistGrunn?,
+    val gradering: Gradering,
     val startDato: LocalDate?,
     val sluttDato: LocalDate?,
     val navVeilederNavn: String?,
@@ -187,6 +189,7 @@ data class DeltakerDto(
             norskIdent = personalia.norskIdent(),
             oppfolgingEnhet = personalia.oppfolgingEnhet(),
             avvistGrunn = personalia.avvistGrunn,
+            gradering = personalia.gradering,
             startDato = deltaker.startDato,
             sluttDato = deltaker.sluttDato,
             navVeilederNavn = navVeilederNavn,

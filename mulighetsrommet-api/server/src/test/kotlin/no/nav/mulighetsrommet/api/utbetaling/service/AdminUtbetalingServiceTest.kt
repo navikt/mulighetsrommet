@@ -145,6 +145,8 @@ class AdminUtbetalingServiceTest : FunSpec({
         fakturanummer = "${enkeltplassTilsagn.bestillingsnummer}-1",
     )
 
+    val utbetalingsDato = LocalDate.of(2025, 1, 12)
+
     context("opprett og rediger utbetaling") {
         val upsert = UpsertUtbetaling.Anskaffelse(
             id = UUID.randomUUID(),
@@ -153,6 +155,7 @@ class AdminUtbetalingServiceTest : FunSpec({
             journalpostId = JournalpostId("123123123"),
             kid = null,
             beregning = UtbetalingBeregningFri.from(10.NOK),
+            utbetalingsDato = utbetalingsDato,
             kommentar = "Arrangør trenger penger",
             tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
         )
@@ -200,6 +203,79 @@ class AdminUtbetalingServiceTest : FunSpec({
             )
         }
 
+        test("utbetalingsDato er påkrevd for norsk arrangør") {
+            val service = createUtbetalingService()
+
+            service.opprettUtbetaling(
+                upsert.copy(utbetalingsDato = null),
+                saksbehandler.navIdent,
+            ) shouldBeLeft UtbetalingError.Valideringsfeil(
+                listOf(
+                    FieldError("/utbetalingsDato", "Utbetalingsdato er påkrevd"),
+                ),
+            )
+        }
+
+        test("journalpostId og utbetalingsDato er påkrevd for norsk arrangør") {
+            val service = createUtbetalingService()
+
+            service.opprettUtbetaling(
+                upsert.copy(journalpostId = null, utbetalingsDato = null),
+                saksbehandler.navIdent,
+            ) shouldBeLeft UtbetalingError.Valideringsfeil(
+                listOf(
+                    FieldError("/journalpostId", "Journalpost-ID er påkrevd"),
+                    FieldError("/utbetalingsDato", "Utbetalingsdato er påkrevd"),
+                ),
+            )
+        }
+
+        test("journalpostId er påkrevd ved redigering for norsk arrangør") {
+            val service = createUtbetalingService()
+
+            service.opprettUtbetaling(upsert, saksbehandler.navIdent).shouldBeRight()
+
+            service.redigerUtbetaling(
+                upsert.copy(journalpostId = null),
+                saksbehandler.navIdent,
+            ) shouldBeLeft UtbetalingError.Valideringsfeil(
+                listOf(
+                    FieldError("/journalpostId", "Journalpost-ID er påkrevd"),
+                ),
+            )
+        }
+
+        test("utbetalingsDato er påkrevd ved redigering for norsk arrangør") {
+            val service = createUtbetalingService()
+
+            service.opprettUtbetaling(upsert, saksbehandler.navIdent).shouldBeRight()
+
+            service.redigerUtbetaling(
+                upsert.copy(utbetalingsDato = null),
+                saksbehandler.navIdent,
+            ) shouldBeLeft UtbetalingError.Valideringsfeil(
+                listOf(
+                    FieldError("/utbetalingsDato", "Utbetalingsdato er påkrevd"),
+                ),
+            )
+        }
+
+        test("journalpostId og utbetalingsDato er påkrevd ved redigering for norsk arrangør") {
+            val service = createUtbetalingService()
+
+            service.opprettUtbetaling(upsert, saksbehandler.navIdent).shouldBeRight()
+
+            service.redigerUtbetaling(
+                upsert.copy(journalpostId = null, utbetalingsDato = null),
+                saksbehandler.navIdent,
+            ) shouldBeLeft UtbetalingError.Valideringsfeil(
+                listOf(
+                    FieldError("/journalpostId", "Journalpost-ID er påkrevd"),
+                    FieldError("/utbetalingsDato", "Utbetalingsdato er påkrevd"),
+                ),
+            )
+        }
+
         test("journalpostId er ikke påkrevd for utenlandsk arrangør") {
             val utenlandskArrangor = ArrangorFixtures.Utenlandsk.hovedenhet
             val gjennomforingMedUtenlandskArrangor = AFT1.copy(arrangorId = utenlandskArrangor.id)
@@ -213,6 +289,23 @@ class AdminUtbetalingServiceTest : FunSpec({
 
             service.opprettUtbetaling(
                 upsert.copy(gjennomforingId = gjennomforingMedUtenlandskArrangor.id, journalpostId = null),
+                saksbehandler.navIdent,
+            ).shouldBeRight()
+        }
+
+        test("utbetalingsDato er ikke påkrevd for utenlandsk arrangør") {
+            val utenlandskArrangor = ArrangorFixtures.Utenlandsk.hovedenhet
+            val gjennomforingMedUtenlandskArrangor = AFT1.copy(arrangorId = utenlandskArrangor.id)
+            MulighetsrommetTestDomain(
+                arrangorer = listOf(utenlandskArrangor),
+                gjennomforinger = listOf(gjennomforingMedUtenlandskArrangor),
+                ansatte = listOf(saksbehandler),
+            ).initialize(database.api)
+
+            val service = createUtbetalingService()
+
+            service.opprettUtbetaling(
+                upsert.copy(gjennomforingId = gjennomforingMedUtenlandskArrangor.id, utbetalingsDato = null),
                 saksbehandler.navIdent,
             ).shouldBeRight()
         }
@@ -625,7 +718,7 @@ class AdminUtbetalingServiceTest : FunSpec({
                 id = utbetalingLinje1.id,
                 navIdent = ansattUtenRoller.navIdent,
             ) shouldBeLeft UtbetalingError.ManglerTilgang(
-                "Du kan ikke attestere utbetalingen fordi du ikke er attestant ved tilsagnets kostnadssted (Nav Innlandet)",
+                "Du kan ikke godkjenne utbetalingen fordi du ikke er beslutter ved tilsagnets kostnadssted (Nav Innlandet)",
             )
         }
 
@@ -762,7 +855,7 @@ class AdminUtbetalingServiceTest : FunSpec({
                 id = utbetalingLinje1.id,
                 navIdent = attestant.navIdent,
             ) shouldHaveValidationErrors listOf(
-                FieldError.of("Utbetalingen kan ikke attesteres"),
+                FieldError.of("Utbetalingen kan ikke godkjennes"),
             )
         }
 

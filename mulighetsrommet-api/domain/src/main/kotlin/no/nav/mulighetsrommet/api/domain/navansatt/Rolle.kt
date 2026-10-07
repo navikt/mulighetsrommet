@@ -57,7 +57,7 @@ enum class Rolle(val visningsnavn: String) {
     OKONOMI_BESLUTTER_GRUPPETILTAK("Beslutter - Gruppetiltak"),
 
     /**
-     * Gir tilgang til å attestere utbetalinger for gruppetiltak.
+     * Gir tilgang til å godkjenne utbetalinger for gruppetiltak.
      */
     OKONOMI_ATTESTANT_GRUPPETILTAK("Attestant - Gruppetiltak"),
 

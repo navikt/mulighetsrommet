@@ -64,6 +64,7 @@ export function SaksopplysningerForm({ arrangorId }: Props) {
                 <FormTextField
                   label="Journalpost-ID i Gosys"
                   name={`tilskudd.${index}.soknadJournalpostId`}
+                  autoFocus
                   rules={{ required: "Journalpost-ID må fylles ut" }}
                 />
                 <FormDateInput
@@ -166,7 +167,11 @@ export function SaksopplysningerForm({ arrangorId }: Props) {
             type="button"
             variant="secondary"
             icon={<PlusIcon aria-hidden />}
-            onClick={() => append(defaultTilskuddRequest())}
+            onClick={() =>
+              append(defaultTilskuddRequest(), {
+                focusName: `tilskudd.${fields.length}.soknadJournalpostId`,
+              })
+            }
           >
             Legg til tilskudd
           </Button>

@@ -70,7 +70,7 @@ class VeilederflateServiceTest : FunSpec({
         stengt = emptyList(),
     )
 
-    fun tiltakDokument(id: UUID, tiltakskode: Tiltakskode) = VeilederflateTiltakDokument(
+    fun tiltakBeskrivelse(id: UUID, tiltakskode: Tiltakskode) = VeilederflateTiltakBeskrivelse(
         id = id,
         sanityId = null,
         navn = "Tiltak dokument",
@@ -114,11 +114,11 @@ class VeilederflateServiceTest : FunSpec({
         tiltak.shouldBeInstanceOf<VeilederflateTiltakGruppe>().id shouldBe id
     }
 
-    test("hentTiltaksgjennomforing faller tilbake til tiltak-dokument når gruppetiltak mangler") {
+    test("hentTiltaksgjennomforing faller tilbake til tiltak-beskrivelse når gruppetiltak mangler") {
         val (db, service) = createService()
         val id = UUID.randomUUID()
         every { db.queries.veilederTiltak.get(id) } returns null
-        every { db.queries.veilederTiltak.getTiltakDokument(id) } returns tiltakDokument(id, Tiltakskode.OPPFOLGING)
+        every { db.queries.veilederTiltak.getTiltakBeskrivelse(id) } returns tiltakBeskrivelse(id, Tiltakskode.OPPFOLGING)
 
         val tiltak = service.hentTiltaksgjennomforing(id)
 
@@ -129,7 +129,7 @@ class VeilederflateServiceTest : FunSpec({
         val (db, service) = createService()
         val id = UUID.randomUUID()
         every { db.queries.veilederTiltak.get(id) } returns null
-        every { db.queries.veilederTiltak.getTiltakDokument(id) } returns null
+        every { db.queries.veilederTiltak.getTiltakBeskrivelse(id) } returns null
 
         shouldThrow<StatusException> {
             service.hentTiltaksgjennomforing(id)

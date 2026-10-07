@@ -395,6 +395,31 @@ class AvtaleServiceTest : FunSpec({
                 )
             }
         }
+
+        test("fjerner ANNET når den finnes i personopplysninger men annetChecked er false") {
+            MulighetsrommetTestDomain(avtaler = listOf(avtale)).initialize(database.api)
+
+            avtaleService.upsertPersonvern(
+                avtale.id,
+                PersonvernRequest(
+                    personopplysninger = listOf(
+                        Personopplysning.Type.NAVN,
+                        Personopplysning.Type.FODSELSDATO,
+                        Personopplysning.Type.ANNET,
+                    ),
+                    annetChecked = false,
+                    annetBeskrivelse = "Skal fjernes",
+                    personvernBekreftet = true,
+                ),
+                bertilNavIdent,
+            ).shouldBeRight().personvern.should {
+                it.personopplysninger.shouldContainExactlyInAnyOrder(
+                    Personopplysning.Type.NAVN,
+                    Personopplysning.Type.FODSELSDATO,
+                )
+                it.annetBeskrivelse.shouldBeNull()
+            }
+        }
     }
 
     context("rediger veilederinformasjon") {

@@ -33,10 +33,10 @@ import {
 } from "@/utils/Utils";
 import { Saksopplysninger } from "@/components/tilskudd-behandling/Saksopplysninger";
 import { VedtakDetaljer } from "@/components/tilskudd-behandling/VedtakDetaljer";
-import { PrismodellDetaljer } from "@/components/prismodell/PrismodellDetaljer";
 import { TilskuddBehandlingHandlinger } from "./TilskuddBehandlingHandlinger";
 import { TilskuddFormGroup } from "@/layouts/TilskuddFormGroup";
 import { formaterPeriode } from "@mr/frontend-common/utils/date";
+import { PrisOgBetalingsbetingelser } from "@/components/prismodell/PrisOgBetalingsbetingelser";
 
 export function TilskuddBehandlingDetaljerPage() {
   const { gjennomforingId, behandlingId } = useRequiredParams(["gjennomforingId", "behandlingId"]);
@@ -47,7 +47,7 @@ export function TilskuddBehandlingDetaljerPage() {
   } = useTilskuddBehandling(behandlingId);
 
   const [returModalOpen, setReturModalOpen] = useState(false);
-  const [attesterModalOpen, setAttesterModalOpen] = useState(false);
+  const [godkjennModalOpen, setGodkjennModalOpen] = useState(false);
   const [errors, setErrors] = useState<FieldError[]>([]);
   const navigate = useNavigate();
 
@@ -55,7 +55,7 @@ export function TilskuddBehandlingDetaljerPage() {
   const returnerMutation = useReturnerTilskuddBehandling(gjennomforingId);
   const listUrl = `/gjennomforinger/${gjennomforingId}/tilskudd-behandling`;
 
-  function attester() {
+  function godkjenn() {
     godkjennMutation.mutate(behandling.id, {
       onSuccess: () => navigate(listUrl),
       onValidationError: (error: ValidationError) => setErrors(error.errors),
@@ -79,7 +79,7 @@ export function TilskuddBehandlingDetaljerPage() {
   }
 
   const kanReturneres = handlinger.includes(TilskuddBehandlingHandling.RETURNER);
-  const kanAttesteres = handlinger.includes(TilskuddBehandlingHandling.ATTESTER);
+  const kanGodkjennes = handlinger.includes(TilskuddBehandlingHandling.ATTESTER);
   return (
     <TilskuddBehandlingLayout gjennomforingId={gjennomforingId}>
       <TilskuddBehandlingHandlinger tilskuddBehandlingId={behandlingId} />
@@ -144,14 +144,11 @@ export function TilskuddBehandlingDetaljerPage() {
           />
         </VStack>
         <Box>
-          <Heading level="3" size="medium" spacing>
-            Pris og betalingsbetingelser
-          </Heading>
-          <PrismodellDetaljer prismodell={prismodell} />
+          <PrisOgBetalingsbetingelser prismodell={prismodell} size="medium" />
         </Box>
       </TwoColumnGrid>
       <Separator />
-      {(kanReturneres || kanAttesteres) && (
+      {(kanReturneres || kanGodkjennes) && (
         <HStack gap="space-8" marginBlock="space-16" justify="end">
           {kanReturneres && (
             <Button
@@ -163,14 +160,14 @@ export function TilskuddBehandlingDetaljerPage() {
               Send i retur
             </Button>
           )}
-          {kanAttesteres && (
+          {kanGodkjennes && (
             <Button
               variant="primary"
               size="small"
               type="button"
-              onClick={() => setAttesterModalOpen(true)}
+              onClick={() => setGodkjennModalOpen(true)}
             >
-              Attester
+              Godkjenn
             </Button>
           )}
         </HStack>
@@ -207,15 +204,15 @@ export function TilskuddBehandlingDetaljerPage() {
         onConfirm={sendIRetur}
       />
       <VarselModal
-        open={attesterModalOpen}
-        handleClose={() => setAttesterModalOpen(false)}
-        headingText="Attester tilskuddsbehandling"
+        open={godkjennModalOpen}
+        handleClose={() => setGodkjennModalOpen(false)}
+        headingText="Godkjenn tilskuddsbehandling"
         headingIconType="info"
-        body={attesterModalInnhold(behandling)}
+        body={godkjennModalInnhold(behandling)}
         secondaryButton
         primaryButton={
-          <Button variant="primary" onClick={attester}>
-            Ja, attester behandling
+          <Button variant="primary" onClick={godkjenn}>
+            Ja, godkjenn behandling
           </Button>
         }
       />
@@ -223,10 +220,10 @@ export function TilskuddBehandlingDetaljerPage() {
   );
 }
 
-function attesterModalInnhold(behandling: TilskuddBehandlingDto) {
+function godkjennModalInnhold(behandling: TilskuddBehandlingDto) {
   return (
     <>
-      <BodyShort spacing>Du er i ferd med å attestere vedtak om:</BodyShort>
+      <BodyShort spacing>Du er i ferd med å godkjenne vedtak om:</BodyShort>
       <List>
         {behandling.tilskudd.map((t) =>
           t.vedtakResultat.type === VedtakResultat.INNVILGELSE ? (

@@ -27,11 +27,11 @@ export function PrismodellDetaljer({ prismodell }: PrismodellDetaljerProps) {
     case PrismodellType.ANNEN_AVTALT_PRIS:
       return <AnnenAvtaltPris prismodell={prismodell} />;
     case PrismodellType.ANSKAFFET_ENKELTPLASS:
-      return <BetalingsbetingelserAnskaffelse prismodell={prismodell} />;
+      return <PrisOgBetalingsbetingelserAnskaffelse prismodell={prismodell} />;
     case PrismodellType.TILSKUDD_TIL_OPPLAERING:
-      return <BetalingsbetingelserTilskudd prismodell={prismodell} />;
+      return <PrisOgBetalingsbetingelserTilskudd prismodell={prismodell} />;
     case PrismodellType.INGEN_KOSTNADER:
-      return <BetalingsbetingelserIngenKostnader prismodell={prismodell} />;
+      return <PrisOgBetalingsbetingelserIngenKostnader prismodell={prismodell} />;
   }
 }
 
@@ -69,7 +69,7 @@ function AnnenAvtaltPris({ prismodell }: PrismodellDetaljerProps) {
   );
 }
 
-function BetalingsbetingelserAnskaffelse({ prismodell }: PrismodellDetaljerProps) {
+function PrisOgBetalingsbetingelserAnskaffelse({ prismodell }: PrismodellDetaljerProps) {
   return (
     <VStack gap="space-8">
       <Heading level="4" size="xsmall">
@@ -86,7 +86,7 @@ function BetalingsbetingelserAnskaffelse({ prismodell }: PrismodellDetaljerProps
   );
 }
 
-function BetalingsbetingelserTilskudd({ prismodell }: PrismodellDetaljerProps) {
+function PrisOgBetalingsbetingelserTilskudd({ prismodell }: PrismodellDetaljerProps) {
   const totalt = {
     belop: prismodell.tilskudd.reduce((acc, t) => t.belop.belop + acc, 0),
     valuta: prismodell.valuta,
@@ -131,7 +131,7 @@ function BetalingsbetingelserTilskudd({ prismodell }: PrismodellDetaljerProps) {
   );
 }
 
-function BetalingsbetingelserIngenKostnader({ prismodell }: PrismodellDetaljerProps) {
+function PrisOgBetalingsbetingelserIngenKostnader({ prismodell }: PrismodellDetaljerProps) {
   return (
     <VStack gap="space-8">
       <Heading level="4" size="xsmall">
@@ -194,5 +194,10 @@ function PrismodellSatser({ satser }: { satser: AvtaltSatsDto[] | null }) {
 }
 
 function PrismodellPrisbetingelser({ prisbetingelser }: { prisbetingelser: string | null }) {
-  return <MetadataFritekstfelt label={avtaletekster.prisOgBetalingLabel} value={prisbetingelser} />;
+  return (
+    <MetadataFritekstfelt
+      label={avtaletekster.prisOgBetalingsbetingelserLabel}
+      value={prisbetingelser}
+    />
+  );
 }

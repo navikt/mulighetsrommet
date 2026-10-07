@@ -1624,17 +1624,17 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
-  /api/tiltaksadministrasjon/tiltak-dokumenter:
+  /api/tiltaksadministrasjon/tiltak-beskrivelser:
     put:
       tags:
-      - TiltakDokument
-      operationId: upsertTiltakDokument
+      - TiltakBeskrivelse
+      operationId: upsertTiltakBeskrivelse
       parameters: []
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/TiltakDokumentRequest"
+              $ref: "#/components/schemas/TiltakBeskrivelseRequest"
         required: false
       responses:
         "200":
@@ -1643,7 +1643,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/TiltakDokumentDto"
+                $ref: "#/components/schemas/TiltakBeskrivelseDto"
         "400":
           description: Valideringsfeil
           headers: {}
@@ -1661,8 +1661,8 @@ paths:
       deprecated: false
     post:
       tags:
-      - TiltakDokument
-      operationId: getTiltakDokumenter
+      - TiltakBeskrivelse
+      operationId: getTiltakBeskrivelser
       parameters:
       - name: page
         in: query
@@ -1684,22 +1684,22 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/GetTiltakDokumenterRequest"
+              $ref: "#/components/schemas/GetTiltakBeskrivelserRequest"
         required: false
       responses:
         "200":
-          description: Liste over tiltak-dokumentøringer
+          description: Liste over tiltak-beskrivelser
           headers: {}
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/PaginatedResponse_TiltakDokumentKompaktDto"
+                $ref: "#/components/schemas/PaginatedResponse_TiltakBeskrivelseKompaktDto"
       deprecated: false
-  /api/tiltaksadministrasjon/tiltak-dokumenter/{id}/tilgjengelig-for-veileder:
+  /api/tiltaksadministrasjon/tiltak-beskrivelser/{id}/tilgjengelig-for-veileder:
     put:
       tags:
-      - TiltakDokument
-      operationId: setPublisertTiltakDokument
+      - TiltakBeskrivelse
+      operationId: setPublisertTiltakBeskrivelse
       parameters:
       - name: id
         in: path
@@ -1713,7 +1713,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/TiltakDokumentPublisertRequest"
+              $ref: "#/components/schemas/TiltakBeskrivelsePublisertRequest"
         required: false
       responses:
         "200":
@@ -1727,11 +1727,11 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
-  /api/tiltaksadministrasjon/tiltak-dokumenter/{id}:
+  /api/tiltaksadministrasjon/tiltak-beskrivelser/{id}:
     get:
       tags:
-      - TiltakDokument
-      operationId: getTiltakDokument
+      - TiltakBeskrivelse
+      operationId: getTiltakBeskrivelse
       parameters:
       - name: id
         in: path
@@ -1748,7 +1748,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/TiltakDokumentDto"
+                $ref: "#/components/schemas/TiltakBeskrivelseDto"
         "404":
           description: Ikke funnet
           headers: {}
@@ -1757,11 +1757,11 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
-  /api/tiltaksadministrasjon/tiltak-dokumenter/{id}/handlinger:
+  /api/tiltaksadministrasjon/tiltak-beskrivelser/{id}/handlinger:
     get:
       tags:
-      - TiltakDokument
-      operationId: getTiltakDokumentHandlinger
+      - TiltakBeskrivelse
+      operationId: getTiltakBeskrivelseHandlinger
       parameters:
       - name: id
         in: path
@@ -1780,7 +1780,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/TiltakDokumentHandling"
+                  $ref: "#/components/schemas/TiltakBeskrivelseHandling"
                 uniqueItems: true
         default:
           description: Problem details
@@ -2767,7 +2767,7 @@ paths:
           format: uuid
       responses:
         "200":
-          description: UtbetalingLinje ble attestert
+          description: UtbetalingLinje ble godkjent
           headers: {}
         default:
           description: Problem details
@@ -4136,7 +4136,7 @@ components:
       - KREVER_DIREKTE_VEDTAK
       - KREVER_DIREKTE_VEDTAK_FOR_LOPENDE_OPPSTART
       - STOTTER_TILSKUDD_FOR_INVESTERINGER
-      - STOTTER_TILTAK_DOKUMENT
+      - STOTTER_TILTAK_BESKRIVELSE
     TiltakstypeKompaktDto:
       type: object
       properties:
@@ -6582,6 +6582,8 @@ components:
           oneOf:
           - type: "null"
           - $ref: "#/components/schemas/AvvistGrunn"
+        gradering:
+          $ref: "#/components/schemas/Gradering"
         startDato:
           type:
           - "null"
@@ -6604,6 +6606,7 @@ components:
       required:
       - avvistGrunn
       - dagerPerUke
+      - gradering
       - id
       - innholdAnnet
       - navVeilederNavn
@@ -6678,6 +6681,15 @@ components:
       - AVVIST_VERGEMAAL
       - AVVIST_PERSON_UTLAND
       - AVVIST_UKJENT_BOSTED
+    Gradering:
+      type: string
+      enum:
+      - STRENGT_FORTROLIG_ADRESSE
+      - STRENGT_FORTROLIG_UTLAND
+      - FORTROLIG_ADRESSE
+      - SKJERMING
+      - UGRADERT
+      - GEOGRAFISK
     GjennomforingDetaljerDto:
       anyOf:
       - $ref: "#/components/schemas/GjennomforingAvtaleDetaljerDto"
@@ -6760,7 +6772,7 @@ components:
       required:
       - begrunnelse
       - totrinnskontrollId
-    TiltakDokumentRequest.VeilederinfoRequest:
+    TiltakBeskrivelseRequest.VeilederinfoRequest:
       type: object
       properties:
         faneinnhold:
@@ -6789,7 +6801,7 @@ components:
         kontaktpersoner:
           type: array
           items:
-            $ref: "#/components/schemas/TiltakDokumentRequest.Kontaktperson"
+            $ref: "#/components/schemas/TiltakBeskrivelseRequest.Kontaktperson"
           uniqueItems: true
       required:
       - beskrivelse
@@ -6798,7 +6810,7 @@ components:
       - navAndreEnheter
       - navKontorer
       - navRegioner
-    TiltakDokumentRequest.Kontaktperson:
+    TiltakBeskrivelseRequest.Kontaktperson:
       type: object
       properties:
         navIdent:
@@ -6810,7 +6822,7 @@ components:
       required:
       - beskrivelse
       - navIdent
-    TiltakDokumentRequest:
+    TiltakBeskrivelseRequest:
       type: object
       properties:
         id:
@@ -6846,7 +6858,7 @@ components:
             type: string
           uniqueItems: true
         veilederinformasjon:
-          $ref: "#/components/schemas/TiltakDokumentRequest.VeilederinfoRequest"
+          $ref: "#/components/schemas/TiltakBeskrivelseRequest.VeilederinfoRequest"
       required:
       - administratorer
       - arrangorId
@@ -6857,7 +6869,7 @@ components:
       - tiltaksnummer
       - tiltakstypeId
       - veilederinformasjon
-    TiltakDokumentDto.Tiltakstype:
+    TiltakBeskrivelseDto.Tiltakstype:
       type: object
       properties:
         id:
@@ -6871,7 +6883,7 @@ components:
       - id
       - navn
       - tiltakskode
-    TiltakDokumentDto.Arrangor:
+    TiltakBeskrivelseDto.Arrangor:
       type: object
       properties:
         id:
@@ -6885,7 +6897,7 @@ components:
       - id
       - navn
       - organisasjonsnummer
-    TiltakDokumentDto.Administrator:
+    TiltakBeskrivelseDto.Administrator:
       type: object
       properties:
         navIdent:
@@ -6895,7 +6907,7 @@ components:
       required:
       - navIdent
       - navn
-    TiltakDokumentDto.ArrangorKontaktperson:
+    TiltakBeskrivelseDto.ArrangorKontaktperson:
       type: object
       properties:
         id:
@@ -6921,7 +6933,7 @@ components:
       - id
       - navn
       - telefon
-    TiltakDokumentDto.Veilederinfo:
+    TiltakBeskrivelseDto.Veilederinfo:
       type: object
       properties:
         publisert:
@@ -6941,14 +6953,14 @@ components:
         kontaktpersoner:
           type: array
           items:
-            $ref: "#/components/schemas/TiltakDokumentDto.Kontaktperson"
+            $ref: "#/components/schemas/TiltakBeskrivelseDto.Kontaktperson"
       required:
       - beskrivelse
       - faneinnhold
       - kontaktpersoner
       - kontorstruktur
       - publisert
-    TiltakDokumentDto.Kontaktperson:
+    TiltakBeskrivelseDto.Kontaktperson:
       type: object
       properties:
         navIdent:
@@ -6976,7 +6988,7 @@ components:
       - mobilnummer
       - navIdent
       - navn
-    TiltakDokumentDto:
+    TiltakBeskrivelseDto:
       type: object
       properties:
         id:
@@ -6994,7 +7006,7 @@ components:
           - "null"
           - string
         tiltakstype:
-          $ref: "#/components/schemas/TiltakDokumentDto.Tiltakstype"
+          $ref: "#/components/schemas/TiltakBeskrivelseDto.Tiltakstype"
         stedForGjennomforing:
           type:
           - "null"
@@ -7002,17 +7014,17 @@ components:
         arrangor:
           oneOf:
           - type: "null"
-          - $ref: "#/components/schemas/TiltakDokumentDto.Arrangor"
+          - $ref: "#/components/schemas/TiltakBeskrivelseDto.Arrangor"
         administratorer:
           type: array
           items:
-            $ref: "#/components/schemas/TiltakDokumentDto.Administrator"
+            $ref: "#/components/schemas/TiltakBeskrivelseDto.Administrator"
         arrangorKontaktpersoner:
           type: array
           items:
-            $ref: "#/components/schemas/TiltakDokumentDto.ArrangorKontaktperson"
+            $ref: "#/components/schemas/TiltakBeskrivelseDto.ArrangorKontaktperson"
         veilederinfo:
-          $ref: "#/components/schemas/TiltakDokumentDto.Veilederinfo"
+          $ref: "#/components/schemas/TiltakBeskrivelseDto.Veilederinfo"
         publisert:
           type: boolean
       required:
@@ -7027,14 +7039,14 @@ components:
       - tiltaksnummer
       - tiltakstype
       - veilederinfo
-    TiltakDokumentPublisertRequest:
+    TiltakBeskrivelsePublisertRequest:
       type: object
       properties:
         publisert:
           type: boolean
       required:
       - publisert
-    GetTiltakDokumenterRequest:
+    GetTiltakBeskrivelserRequest:
       type: object
       properties:
         navEnheter:
@@ -7053,15 +7065,15 @@ components:
           type:
           - "null"
           - string
-        visMineTiltakDokumenter:
+        visMineTiltakBeskrivelser:
           type: boolean
       required:
       - navEnheter
       - publisert
       - sort
       - tiltakstyper
-      - visMineTiltakDokumenter
-    TiltakDokumentKompaktDto:
+      - visMineTiltakBeskrivelser
+    TiltakBeskrivelseKompaktDto:
       type: object
       properties:
         id:
@@ -7074,11 +7086,11 @@ components:
           - "null"
           - string
         tiltakstype:
-          $ref: "#/components/schemas/TiltakDokumentKompaktDto.Tiltakstype"
+          $ref: "#/components/schemas/TiltakBeskrivelseKompaktDto.Tiltakstype"
         arrangor:
           oneOf:
           - type: "null"
-          - $ref: "#/components/schemas/TiltakDokumentKompaktDto.Arrangor"
+          - $ref: "#/components/schemas/TiltakBeskrivelseKompaktDto.Arrangor"
         publisert:
           type: boolean
         kontorstruktur:
@@ -7093,7 +7105,7 @@ components:
       - publisert
       - tiltaksnummer
       - tiltakstype
-    TiltakDokumentKompaktDto.Tiltakstype:
+    TiltakBeskrivelseKompaktDto.Tiltakstype:
       type: object
       properties:
         id:
@@ -7107,7 +7119,7 @@ components:
       - id
       - navn
       - tiltakskode
-    TiltakDokumentKompaktDto.Arrangor:
+    TiltakBeskrivelseKompaktDto.Arrangor:
       type: object
       properties:
         id:
@@ -7121,7 +7133,7 @@ components:
       - id
       - navn
       - organisasjonsnummer
-    PaginatedResponse_TiltakDokumentKompaktDto:
+    PaginatedResponse_TiltakBeskrivelseKompaktDto:
       type: object
       properties:
         pagination:
@@ -7129,11 +7141,11 @@ components:
         data:
           type: array
           items:
-            $ref: "#/components/schemas/TiltakDokumentKompaktDto"
+            $ref: "#/components/schemas/TiltakBeskrivelseKompaktDto"
       required:
       - data
       - pagination
-    TiltakDokumentHandling:
+    TiltakBeskrivelseHandling:
       type: string
       enum:
       - PUBLISER
@@ -7861,15 +7873,6 @@ components:
       - sluttDato
       - startDato
       - status
-    Gradering:
-      type: string
-      enum:
-      - STRENGT_FORTROLIG_ADRESSE
-      - STRENGT_FORTROLIG_UTLAND
-      - FORTROLIG_ADRESSE
-      - SKJERMING
-      - UGRADERT
-      - GEOGRAFISK
     TilsagnDetaljerDto:
       type: object
       properties:
@@ -8232,6 +8235,11 @@ components:
           type:
           - "null"
           - string
+        utbetalingsDato:
+          type:
+          - "null"
+          - string
+          format: date
         korreksjonBegrunnelse:
           type:
           - "null"
@@ -8259,6 +8267,7 @@ components:
       - periodeSlutt
       - periodeStart
       - pris
+      - utbetalingsDato
     UtbetalingDto:
       type: object
       properties:
@@ -9872,7 +9881,11 @@ components:
         belop:
           type: integer
           format: int32
+        behandlingId:
+          type: integer
+          format: int32
       required:
+      - behandlingId
       - belop
       - gjennomforingId
       - vedtakId
@@ -10122,7 +10135,7 @@ components:
       - TILSAGN
       - UTBETALING
       - TILSKUDD_BEHANDLING
-      - TILTAK_DOKUMENT
+      - TILTAK_BESKRIVELSE
     EndringshistorikkDto.Entry:
       type: object
       properties:

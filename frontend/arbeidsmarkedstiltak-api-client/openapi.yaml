@@ -1101,7 +1101,7 @@ components:
           - "null"
           - string
           format: uuid
-        tiltakDokumentId:
+        tiltakBeskrivelseId:
           type:
           - "null"
           - string
@@ -1114,7 +1114,7 @@ components:
       - gjennomforingId
       - overskrift
       - tekst
-      - tiltakDokumentId
+      - tiltakBeskrivelseId
       - tiltakstypeId
       - venterPaaSvarFraBruker
     DelTiltakMedBrukerResponse:
@@ -1313,7 +1313,7 @@ components:
       - KREVER_DIREKTE_VEDTAK
       - KREVER_DIREKTE_VEDTAK_FOR_LOPENDE_OPPSTART
       - STOTTER_TILSKUDD_FOR_INVESTERINGER
-      - STOTTER_TILTAK_DOKUMENT
+      - STOTTER_TILTAK_BESKRIVELSE
     Faneinnhold:
       type: object
       properties:

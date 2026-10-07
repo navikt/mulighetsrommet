@@ -6,6 +6,7 @@ import { useAvtale } from "@/api/avtaler/useAvtale";
 import { useGetAvtaleIdFromUrlOrThrow } from "@/hooks/useGetAvtaleIdFromUrl";
 import { useNavigateAndReplaceUrl } from "@/hooks/useNavigateWithoutReplacingUrl";
 import { HeaderBanner } from "@/layouts/HeaderBanner";
+import { DataElementStatusTag } from "@mr/frontend-common";
 
 function useAvtaleBrodsmuler(avtaleId?: string): Array<Brodsmule | undefined> {
   const match = useMatch("/avtaler/:avtaleId/gjennomforinger");
@@ -81,7 +82,11 @@ export function AvtalePage() {
     <div data-testid="avtale_info-container">
       <title>{`Avtale | ${avtale.navn}`}</title>
       <Brodsmuler brodsmuler={brodsmuler} />
-      <HeaderBanner ikon={<AvtaleIkon />} heading={avtale.navn} status={avtale.status.status} />
+      <HeaderBanner
+        ikon={<AvtaleIkon />}
+        heading={avtale.navn}
+        tag={<DataElementStatusTag {...avtale.status.status} />}
+      />
       <Tabs value={currentTab}>
         <Box background="default">
           <Tabs.List>

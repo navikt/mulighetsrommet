@@ -8,7 +8,7 @@ import no.nav.mulighetsrommet.admin.enhetsregister.EnhetsregisterError
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.domain.arrangor.Arrangor
-import no.nav.mulighetsrommet.api.domain.tiltakdokument.TiltakDokument
+import no.nav.mulighetsrommet.api.domain.tiltakbeskrivelse.TiltakBeskrivelse
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingArena
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
@@ -94,8 +94,8 @@ class ArenaAdapterService(
         outbox.publish(id, null)
     }
 
-    fun deleteTiltakDokument(sanityId: UUID) {
-        db.session { repository.tiltakDokument.delete(sanityId) }
+    fun deleteTiltakBeskrivelse(sanityId: UUID) {
+        db.session { repository.tiltakBeskrivelse.delete(sanityId) }
     }
 
     private suspend fun upsertEgenRegiTiltak(
@@ -115,7 +115,7 @@ class ArenaAdapterService(
 
         val arrangor = syncArrangorFromBrreg(Organisasjonsnummer(arenaGjennomforing.arrangorOrganisasjonsnummer))
 
-        val tiltakDokument = TiltakDokument(
+        val tiltakBeskrivelse = TiltakBeskrivelse(
             id = arenaGjennomforing.id,
             navn = arenaGjennomforing.navn,
             sanityId = arenaGjennomforing.sanityId,
@@ -132,7 +132,7 @@ class ArenaAdapterService(
             arrangorKontaktpersoner = emptyList(),
         )
 
-        db.transaction { queries.tiltakDokument.upsertFromArena(tiltakDokument) }
+        db.transaction { queries.tiltakBeskrivelse.upsertFromArena(tiltakBeskrivelse) }
         return arenaGjennomforing.id
     }
 

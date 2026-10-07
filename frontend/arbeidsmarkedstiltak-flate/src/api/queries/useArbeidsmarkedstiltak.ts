@@ -3,6 +3,7 @@ import {
   isFilterReady,
   useArbeidsmarkedstiltakFilterValue,
 } from "@/hooks/useArbeidsmarkedstiltakFilter";
+import { medUtfasedeTiltakskoder } from "@/utils/tiltakstyper";
 import { useApiQuery } from "@mr/frontend-common";
 import { VeilederTiltakService } from "@arbeidsmarkedstiltak/api-client";
 
@@ -32,7 +33,9 @@ function useGetArbeidsmarkedstiltakFilterAsQuery() {
   const filter = useArbeidsmarkedstiltakFilterValue();
 
   const tiltakstyper =
-    filter.tiltakstyper.length !== 0 ? filter.tiltakstyper.map(({ id }) => id) : undefined;
+    filter.tiltakstyper.length !== 0
+      ? medUtfasedeTiltakskoder(filter.tiltakstyper.map(({ id }) => id))
+      : undefined;
 
   return {
     isFilterReady: isFilterReady(filter),
