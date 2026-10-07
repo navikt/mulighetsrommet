@@ -71,7 +71,11 @@ function UtbetalingFields({ startDato }: { startDato?: string | null }) {
         fromDate={new Date()}
         toDate={addDuration(today, { months: 3 })}
       />
-      <FormTextarea<UtbetalingRequest> label="Kommentar" name="kommentar" maxLength={250} />
+      <FormTextarea<UtbetalingRequest>
+        label="Kommentar (frivillig og vises kun internt i Nav)"
+        name="kommentar"
+        maxLength={250}
+      />
     </FormGroup>
   );
 }
