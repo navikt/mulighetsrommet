@@ -181,8 +181,7 @@ export type MrApiTask =
   | "sync-arrangorer"
   | "send-tilsagnsbrev"
   | "sync-gjennomforing-avtale-fts"
-  | "hel-ved-utbetaling"
-  | "migrer-sanity-tiltaksgjennomforinger";
+  | "hel-ved-utbetaling";
 
 export const runTask = (base: ApiBase, task: MrApiTask, input?: object) =>
   fetch(`${base}/tasks/${task}`, {
