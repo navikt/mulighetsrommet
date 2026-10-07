@@ -6582,6 +6582,8 @@ components:
           oneOf:
           - type: "null"
           - $ref: "#/components/schemas/AvvistGrunn"
+        gradering:
+          $ref: "#/components/schemas/Gradering"
         startDato:
           type:
           - "null"
@@ -6604,6 +6606,7 @@ components:
       required:
       - avvistGrunn
       - dagerPerUke
+      - gradering
       - id
       - innholdAnnet
       - navVeilederNavn
@@ -6678,6 +6681,15 @@ components:
       - AVVIST_VERGEMAAL
       - AVVIST_PERSON_UTLAND
       - AVVIST_UKJENT_BOSTED
+    Gradering:
+      type: string
+      enum:
+      - STRENGT_FORTROLIG_ADRESSE
+      - STRENGT_FORTROLIG_UTLAND
+      - FORTROLIG_ADRESSE
+      - SKJERMING
+      - UGRADERT
+      - GEOGRAFISK
     GjennomforingDetaljerDto:
       anyOf:
       - $ref: "#/components/schemas/GjennomforingAvtaleDetaljerDto"
@@ -7861,15 +7873,6 @@ components:
       - sluttDato
       - startDato
       - status
-    Gradering:
-      type: string
-      enum:
-      - STRENGT_FORTROLIG_ADRESSE
-      - STRENGT_FORTROLIG_UTLAND
-      - FORTROLIG_ADRESSE
-      - SKJERMING
-      - UGRADERT
-      - GEOGRAFISK
     TilsagnDetaljerDto:
       type: object
       properties:
