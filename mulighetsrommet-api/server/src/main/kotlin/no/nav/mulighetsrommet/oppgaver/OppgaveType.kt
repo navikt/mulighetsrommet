@@ -9,47 +9,47 @@ enum class OppgaveType(
 ) {
     TILSAGN_TIL_GODKJENNING(
         navn = "Tilsagn til godkjenning",
-        roller = setOf(Rolle.BESLUTTER_TILSAGN, Rolle.OKONOMI_BESLUTTER_ENKELTPLASS),
+        roller = setOf(Rolle.OKONOMI_BESLUTTER_GRUPPETILTAK, Rolle.OKONOMI_BESLUTTER_ENKELTPLASS),
         kategori = Kategori.TILSAGN,
     ),
     TILSAGN_TIL_ANNULLERING(
         navn = "Tilsagn til annullering",
-        roller = setOf(Rolle.BESLUTTER_TILSAGN, Rolle.OKONOMI_BESLUTTER_ENKELTPLASS),
+        roller = setOf(Rolle.OKONOMI_BESLUTTER_GRUPPETILTAK, Rolle.OKONOMI_BESLUTTER_ENKELTPLASS),
         kategori = Kategori.TILSAGN,
     ),
     TILSAGN_TIL_OPPGJOR(
         navn = "Tilsagn til oppgjør",
-        roller = setOf(Rolle.BESLUTTER_TILSAGN, Rolle.OKONOMI_BESLUTTER_ENKELTPLASS),
+        roller = setOf(Rolle.OKONOMI_BESLUTTER_GRUPPETILTAK, Rolle.OKONOMI_BESLUTTER_ENKELTPLASS),
         kategori = Kategori.TILSAGN,
     ),
     TILSAGN_RETURNERT(
         navn = "Tilsagn returnert",
-        roller = setOf(Rolle.SAKSBEHANDLER_OKONOMI, Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS),
+        roller = setOf(Rolle.OKONOMI_SAKSBEHANDLER_GRUPPETILTAK, Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS),
         kategori = Kategori.TILSAGN,
     ),
     UTBETALING_TIL_BEHANDLING(
         navn = "Utbetaling til behandling",
-        roller = setOf(Rolle.SAKSBEHANDLER_OKONOMI, Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS),
+        roller = setOf(Rolle.OKONOMI_SAKSBEHANDLER_GRUPPETILTAK, Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS),
         kategori = Kategori.UTBETALING,
     ),
     UTBETALING_TIL_ATTESTERING(
         navn = "Utbetaling til godkjenning",
-        roller = setOf(Rolle.ATTESTANT_UTBETALING, Rolle.OKONOMI_BESLUTTER_ENKELTPLASS),
+        roller = setOf(Rolle.OKONOMI_ATTESTANT_GRUPPETILTAK, Rolle.OKONOMI_BESLUTTER_ENKELTPLASS),
         kategori = Kategori.UTBETALING_LINJE,
     ),
     UTBETALING_RETURNERT(
         navn = "Utbetaling returnert",
-        roller = setOf(Rolle.SAKSBEHANDLER_OKONOMI, Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS),
+        roller = setOf(Rolle.OKONOMI_SAKSBEHANDLER_GRUPPETILTAK, Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS),
         kategori = Kategori.UTBETALING_LINJE,
     ),
     UTBETALING_TIL_AVBRYTELSE(
         navn = "Utbetaling til avbrytelse",
-        roller = setOf(Rolle.SAKSBEHANDLER_OKONOMI, Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS),
+        roller = setOf(Rolle.OKONOMI_SAKSBEHANDLER_GRUPPETILTAK, Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS),
         kategori = Kategori.UTBETALING,
     ),
     UTBETALING_MANGLER_TILSAGN(
         navn = "Utbetaling mangler tilsagn",
-        roller = setOf(Rolle.SAKSBEHANDLER_OKONOMI),
+        roller = setOf(Rolle.OKONOMI_SAKSBEHANDLER_GRUPPETILTAK),
         kategori = Kategori.UTBETALING,
     ),
     AVTALE_MANGLER_ADMINISTRATOR(

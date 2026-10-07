@@ -25,7 +25,7 @@ import java.util.UUID
 class TilsagnDtoQueryTest : FunSpec({
     val database = extension(ApiDatabaseTestListener())
 
-    val ansatt = NavAnsattFixture.MikkeMus.medRoller(setOf(NavAnsattRolle.generell(Rolle.BESLUTTER_TILSAGN)))
+    val ansatt = NavAnsattFixture.MikkeMus.medRoller(setOf(NavAnsattRolle.generell(Rolle.OKONOMI_BESLUTTER_GRUPPETILTAK)))
     val tilsagn = TilsagnFixtures.Tilsagn1
     val personaliaService = mockk<PersonaliaService>()
     val onBehalfOf = mockk<PersonaliaService.OnBehalfOf.NavAnsatt>()
@@ -49,7 +49,7 @@ class TilsagnDtoQueryTest : FunSpec({
     test("returnerte tilsagn tilbyr redigering og sletting til saksbehandler") {
         database.run {
             setTilsagnStatus(tilsagn, TilsagnStatus.RETURNERT)
-            queries.ansatt.save(ansatt.medRoller(setOf(NavAnsattRolle.generell(Rolle.SAKSBEHANDLER_OKONOMI))))
+            queries.ansatt.save(ansatt.medRoller(setOf(NavAnsattRolle.generell(Rolle.OKONOMI_SAKSBEHANDLER_GRUPPETILTAK))))
         }
         query.getDetaljer(tilsagn.id, ansatt.navIdent, onBehalfOf).shouldBeRight().handlinger shouldBe setOf(
             TilsagnHandling.REDIGER,
@@ -60,7 +60,7 @@ class TilsagnDtoQueryTest : FunSpec({
     test("godkjente tilsagn tilbyr annullering eller oppgjør avhengig av brukt beløp") {
         database.run {
             setTilsagnStatus(tilsagn, TilsagnStatus.GODKJENT)
-            queries.ansatt.save(ansatt.medRoller(setOf(NavAnsattRolle.generell(Rolle.SAKSBEHANDLER_OKONOMI))))
+            queries.ansatt.save(ansatt.medRoller(setOf(NavAnsattRolle.generell(Rolle.OKONOMI_SAKSBEHANDLER_GRUPPETILTAK))))
         }
         query.getDetaljer(tilsagn.id, ansatt.navIdent, onBehalfOf).shouldBeRight().handlinger shouldBe setOf(
             TilsagnHandling.ANNULLER,

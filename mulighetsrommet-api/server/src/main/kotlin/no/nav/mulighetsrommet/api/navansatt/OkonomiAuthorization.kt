@@ -10,14 +10,17 @@ object OkonomiAuthorization {
         GjennomforingType.AVTALE -> hasAnyRole(
             ansatt,
             Rolle.OKONOMI_LES,
-            Rolle.SAKSBEHANDLER_OKONOMI,
-            Rolle.BESLUTTER_TILSAGN,
-            Rolle.ATTESTANT_UTBETALING,
+            Rolle.OKONOMI_SAKSBEHANDLER_GRUPPETILTAK,
+            Rolle.OKONOMI_BESLUTTER_GRUPPETILTAK,
+            Rolle.OKONOMI_ATTESTANT_GRUPPETILTAK,
         )
 
-        GjennomforingType.ENKELTPLASS -> ansatt.hasGenerellRolle(Rolle.OKONOMI_LES) ||
-            erSaksbehandlerEnkeltplass(ansatt) ||
-            erBeslutterEnkeltplass(ansatt, emptySet())
+        GjennomforingType.ENKELTPLASS -> hasAnyRole(
+            ansatt,
+            Rolle.OKONOMI_LES,
+            Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS,
+            Rolle.OKONOMI_BESLUTTER_ENKELTPLASS,
+        )
 
         GjennomforingType.ARENA -> false
     }
@@ -26,21 +29,23 @@ object OkonomiAuthorization {
         GjennomforingType.AVTALE -> hasAnyRole(
             ansatt,
             Rolle.OKONOMI_LES,
-            Rolle.SAKSBEHANDLER_OKONOMI,
-            Rolle.BESLUTTER_TILSAGN,
-            Rolle.ATTESTANT_UTBETALING,
+            Rolle.OKONOMI_SAKSBEHANDLER_GRUPPETILTAK,
+            Rolle.OKONOMI_BESLUTTER_GRUPPETILTAK,
+            Rolle.OKONOMI_ATTESTANT_GRUPPETILTAK,
         )
 
-        GjennomforingType.ENKELTPLASS ->
-            ansatt.hasGenerellRolle(Rolle.OKONOMI_LES) ||
-                erSaksbehandlerEnkeltplass(ansatt) ||
-                erBeslutterEnkeltplass(ansatt, emptySet())
+        GjennomforingType.ENKELTPLASS -> hasAnyRole(
+            ansatt,
+            Rolle.OKONOMI_LES,
+            Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS,
+            Rolle.OKONOMI_BESLUTTER_ENKELTPLASS,
+        )
 
         GjennomforingType.ARENA -> false
     }
 
     fun erSaksbehandler(ansatt: NavAnsatt, type: GjennomforingType): Boolean = when (type) {
-        GjennomforingType.AVTALE -> ansatt.hasGenerellRolle(Rolle.SAKSBEHANDLER_OKONOMI)
+        GjennomforingType.AVTALE -> ansatt.hasGenerellRolle(Rolle.OKONOMI_SAKSBEHANDLER_GRUPPETILTAK)
         GjennomforingType.ENKELTPLASS -> erSaksbehandlerEnkeltplass(ansatt)
         GjennomforingType.ARENA -> false
     }
@@ -51,7 +56,7 @@ object OkonomiAuthorization {
 
     fun erBeslutterTilsagn(ansatt: NavAnsatt, kontekst: OkonomiBeslutningContext): Boolean = when (kontekst.gjennomforingType) {
         GjennomforingType.AVTALE -> ansatt.hasKontorspesifikkRolle(
-            Rolle.BESLUTTER_TILSAGN,
+            Rolle.OKONOMI_BESLUTTER_GRUPPETILTAK,
             kontekst.kostnadssteder,
         )
 
@@ -62,7 +67,7 @@ object OkonomiAuthorization {
 
     fun erAttestantUtbetaling(ansatt: NavAnsatt, kontekst: OkonomiBeslutningContext): Boolean = when (kontekst.gjennomforingType) {
         GjennomforingType.AVTALE -> ansatt.hasKontorspesifikkRolle(
-            Rolle.ATTESTANT_UTBETALING,
+            Rolle.OKONOMI_ATTESTANT_GRUPPETILTAK,
             kontekst.kostnadssteder,
         )
 

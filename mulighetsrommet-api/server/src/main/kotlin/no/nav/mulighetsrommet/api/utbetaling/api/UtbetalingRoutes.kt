@@ -115,7 +115,7 @@ fun Route.utbetalingRoutes() {
     }
 
     route("/utbetaling") {
-        authorize(anyOf = setOf(Rolle.SAKSBEHANDLER_OKONOMI, Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS)) {
+        authorize(anyOf = setOf(Rolle.OKONOMI_SAKSBEHANDLER_GRUPPETILTAK, Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS)) {
             post("/opprett", {
                 tags = setOf("Utbetaling")
                 operationId = "opprettUtbetaling"
@@ -211,8 +211,8 @@ fun Route.utbetalingRoutes() {
         authorize(
             anyOf = setOf(
                 Rolle.OKONOMI_LES,
-                Rolle.SAKSBEHANDLER_OKONOMI,
-                Rolle.ATTESTANT_UTBETALING,
+                Rolle.OKONOMI_SAKSBEHANDLER_GRUPPETILTAK,
+                Rolle.OKONOMI_ATTESTANT_GRUPPETILTAK,
                 Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS,
                 Rolle.OKONOMI_BESLUTTER_ENKELTPLASS,
             ),
@@ -304,7 +304,7 @@ fun Route.utbetalingRoutes() {
             }
         }
 
-        authorize(anyOf = setOf(Rolle.SAKSBEHANDLER_OKONOMI, Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS)) {
+        authorize(anyOf = setOf(Rolle.OKONOMI_SAKSBEHANDLER_GRUPPETILTAK, Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS)) {
             delete({
                 description = "Slett utbetaling"
                 tags = setOf("Utbetaling")
@@ -422,7 +422,7 @@ fun Route.utbetalingRoutes() {
     }
 
     route("/utbetalingslinjer") {
-        authorize(anyOf = setOf(Rolle.SAKSBEHANDLER_OKONOMI, Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS)) {
+        authorize(anyOf = setOf(Rolle.OKONOMI_SAKSBEHANDLER_GRUPPETILTAK, Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS)) {
             put({
                 tags = setOf("Utbetaling")
                 operationId = "opprettUtbetalingLinjer"
@@ -453,7 +453,7 @@ fun Route.utbetalingRoutes() {
             }
         }
 
-        authorize(anyOf = setOf(Rolle.ATTESTANT_UTBETALING, Rolle.OKONOMI_BESLUTTER_ENKELTPLASS)) {
+        authorize(anyOf = setOf(Rolle.OKONOMI_ATTESTANT_GRUPPETILTAK, Rolle.OKONOMI_BESLUTTER_ENKELTPLASS)) {
             post("/{id}/attester", {
                 tags = setOf("Utbetaling")
                 operationId = "attesterUtbetalingLinje"
@@ -483,8 +483,8 @@ fun Route.utbetalingRoutes() {
 
         authorize(
             anyOf = setOf(
-                Rolle.SAKSBEHANDLER_OKONOMI,
-                Rolle.ATTESTANT_UTBETALING,
+                Rolle.OKONOMI_SAKSBEHANDLER_GRUPPETILTAK,
+                Rolle.OKONOMI_ATTESTANT_GRUPPETILTAK,
                 Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS,
                 Rolle.OKONOMI_BESLUTTER_ENKELTPLASS,
             ),

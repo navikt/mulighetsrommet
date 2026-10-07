@@ -15,9 +15,9 @@ const bertil: NavAnsattDto = {
     { rolle: Rolle.TILTAKADMINISTRASJON_GENERELL, navn: "Tiltaksadministrasjon generell" },
     { rolle: Rolle.TILTAKSGJENNOMFORINGER_SKRIV, navn: "Skrivetilgang - Gjennomføring" },
     { rolle: Rolle.AVTALER_SKRIV, navn: "Skrivetilgang - Avtale" },
-    { rolle: Rolle.SAKSBEHANDLER_OKONOMI, navn: "Saksbehandler - Økonomi" },
-    { rolle: Rolle.BESLUTTER_TILSAGN, navn: "Beslutter - Tilsagn" },
-    { rolle: Rolle.ATTESTANT_UTBETALING, navn: "Attestant - Utbetaling" },
+    { rolle: Rolle.OKONOMI_SAKSBEHANDLER_GRUPPETILTAK, navn: "Saksbehandler - Gruppetiltak" },
+    { rolle: Rolle.OKONOMI_BESLUTTER_GRUPPETILTAK, navn: "Beslutter - Gruppetiltak" },
+    { rolle: Rolle.OKONOMI_ATTESTANT_GRUPPETILTAK, navn: "Attestant - Gruppetiltak" },
     { rolle: Rolle.KONTAKTPERSON, navn: "Kontaktperson" },
   ],
 };

@@ -117,10 +117,10 @@ class AdminUtbetalingServiceTest : FunSpec({
     }
 
     val saksbehandler = NavAnsattFixture.DonaldDuck.medRoller(
-        setOf(NavAnsattRolle.generell(Rolle.SAKSBEHANDLER_OKONOMI)),
+        setOf(NavAnsattRolle.generell(Rolle.OKONOMI_SAKSBEHANDLER_GRUPPETILTAK)),
     )
     val attestant = NavAnsattFixture.MikkeMus.medRoller(
-        setOf(NavAnsattRolle.kontorspesifikk(Rolle.ATTESTANT_UTBETALING, setOf(Innlandet.enhetsnummer))),
+        setOf(NavAnsattRolle.kontorspesifikk(Rolle.OKONOMI_ATTESTANT_GRUPPETILTAK, setOf(Innlandet.enhetsnummer))),
     )
 
     val enkeltplassSaksbehandler = NavAnsattFixture.FetterAnton.medRoller(
@@ -519,7 +519,7 @@ class AdminUtbetalingServiceTest : FunSpec({
     }
 
     context("behandling av utbetaling") {
-        test("avtale-saksbehandler kan ikke sende enkeltplassutbetaling til attestering") {
+        test("gruppetiltak-saksbehandler kan ikke sende enkeltplassutbetaling til attestering") {
             MulighetsrommetTestDomain(
                 ansatte = listOf(saksbehandler),
                 gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
@@ -533,7 +533,7 @@ class AdminUtbetalingServiceTest : FunSpec({
                 .shouldBeTypeOf<UtbetalingError.ManglerTilgang>()
         }
 
-        test("avtale-attestant kan ikke attestere enkeltplassutbetaling") {
+        test("gruppetiltak-attestant kan ikke attestere enkeltplassutbetaling") {
             MulighetsrommetTestDomain(
                 ansatte = listOf(attestant),
                 gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
@@ -605,7 +605,7 @@ class AdminUtbetalingServiceTest : FunSpec({
                 .shouldBeLeft().shouldBeTypeOf<UtbetalingError.ManglerTilgang>()
         }
 
-        test("avtale-saksbehandler kan ikke returnere enkeltplassutbetaling") {
+        test("gruppetiltak-saksbehandler kan ikke returnere enkeltplassutbetaling") {
             MulighetsrommetTestDomain(
                 ansatte = listOf(saksbehandler),
                 gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
@@ -673,9 +673,9 @@ class AdminUtbetalingServiceTest : FunSpec({
             ).shouldBeRight()
         }
 
-        test("avtale-attestant må ha tilgang til kostnadsstedet for å returnere") {
+        test("gruppetiltak-attestant må ha tilgang til kostnadsstedet for å returnere") {
             val attestantVedAnnetKostnadssted = attestant.medRoller(
-                setOf(NavAnsattRolle.kontorspesifikk(Rolle.ATTESTANT_UTBETALING, setOf(Gjovik.enhetsnummer))),
+                setOf(NavAnsattRolle.kontorspesifikk(Rolle.OKONOMI_ATTESTANT_GRUPPETILTAK, setOf(Gjovik.enhetsnummer))),
             )
             MulighetsrommetTestDomain(
                 ansatte = listOf(saksbehandler, attestantVedAnnetKostnadssted),

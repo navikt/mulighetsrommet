@@ -80,9 +80,18 @@ class UtbetalingRoutesTest : FunSpec({
         oauth.shutdown()
     }
 
-    val generellRolle = EntraGroupNavAnsattRolleMapping(UUID.randomUUID(), Rolle.TILTAKADMINISTRASJON_GENERELL)
-    val saksbehandlerOkonomiRolle = EntraGroupNavAnsattRolleMapping(UUID.randomUUID(), Rolle.SAKSBEHANDLER_OKONOMI)
-    val attestantUtbetalingRolle = EntraGroupNavAnsattRolleMapping(UUID.randomUUID(), Rolle.ATTESTANT_UTBETALING)
+    val generellRolle = EntraGroupNavAnsattRolleMapping(
+        UUID.randomUUID(),
+        Rolle.TILTAKADMINISTRASJON_GENERELL,
+    )
+    val saksbehandlerGruppetiltakRolle = EntraGroupNavAnsattRolleMapping(
+        UUID.randomUUID(),
+        Rolle.OKONOMI_SAKSBEHANDLER_GRUPPETILTAK,
+    )
+    val attestantGruppetiltakRolle = EntraGroupNavAnsattRolleMapping(
+        UUID.randomUUID(),
+        Rolle.OKONOMI_ATTESTANT_GRUPPETILTAK,
+    )
     val enkeltplassSaksbehandlerRolle = EntraGroupNavAnsattRolleMapping(
         UUID.randomUUID(),
         Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS,
@@ -93,8 +102,8 @@ class UtbetalingRoutesTest : FunSpec({
             oauth,
             roles = setOf(
                 generellRolle,
-                saksbehandlerOkonomiRolle,
-                attestantUtbetalingRolle,
+                saksbehandlerGruppetiltakRolle,
+                attestantGruppetiltakRolle,
                 enkeltplassSaksbehandlerRolle,
             ),
         ),
@@ -107,7 +116,7 @@ class UtbetalingRoutesTest : FunSpec({
         test("403 Forbidden uten saksbehandler-tilgang") {
             withTestApplication(appConfig()) {
                 val id = UUID.randomUUID()
-                val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, attestantUtbetalingRolle))
+                val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, attestantGruppetiltakRolle))
 
                 val response = client.post("/api/tiltaksadministrasjon/utbetaling/opprett") {
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
@@ -125,7 +134,7 @@ class UtbetalingRoutesTest : FunSpec({
 
                 response.status shouldBe HttpStatusCode.Forbidden
                 response.body<NavAnsattManglerTilgang>().missingRoles shouldBe setOf(
-                    Rolle.SAKSBEHANDLER_OKONOMI,
+                    Rolle.OKONOMI_SAKSBEHANDLER_GRUPPETILTAK,
                     Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS,
                 )
             }
@@ -159,7 +168,7 @@ class UtbetalingRoutesTest : FunSpec({
         test("validerer felles påkrevde felter") {
             withTestApplication(appConfig()) {
                 val id = UUID.randomUUID()
-                val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, saksbehandlerOkonomiRolle))
+                val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, saksbehandlerGruppetiltakRolle))
 
                 val response = client.post("/api/tiltaksadministrasjon/utbetaling/opprett") {
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
@@ -186,7 +195,7 @@ class UtbetalingRoutesTest : FunSpec({
         test("validerer anskaffelse-spesifikke felter") {
             withTestApplication(appConfig()) {
                 val id = UUID.randomUUID()
-                val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, saksbehandlerOkonomiRolle))
+                val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, enkeltplassSaksbehandlerRolle))
 
                 val response = client.post("/api/tiltaksadministrasjon/utbetaling/opprett") {
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
@@ -213,7 +222,7 @@ class UtbetalingRoutesTest : FunSpec({
         test("validerer korrigering-spesifikke felter") {
             withTestApplication(appConfig()) {
                 val id = UUID.randomUUID()
-                val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, saksbehandlerOkonomiRolle))
+                val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, enkeltplassSaksbehandlerRolle))
 
                 val response = client.post("/api/tiltaksadministrasjon/utbetaling/opprett") {
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
@@ -243,7 +252,7 @@ class UtbetalingRoutesTest : FunSpec({
         test("Skal returnere 201 med saksbehandler-tilgang") {
             withTestApplication(appConfig()) {
                 val id = UUID.randomUUID()
-                val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, saksbehandlerOkonomiRolle))
+                val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, saksbehandlerGruppetiltakRolle))
 
                 val response = client.post("/api/tiltaksadministrasjon/utbetaling/opprett") {
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
@@ -270,7 +279,7 @@ class UtbetalingRoutesTest : FunSpec({
         test("403 Forbidden uten beslutter-tilgang") {
             withTestApplication(appConfig()) {
                 val id = UtbetalingFixtures.utbetalingLinje1.id
-                val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, saksbehandlerOkonomiRolle))
+                val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, saksbehandlerGruppetiltakRolle))
 
                 val response = client.post("/api/tiltaksadministrasjon/utbetalingslinjer/$id/attester") {
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
@@ -278,7 +287,7 @@ class UtbetalingRoutesTest : FunSpec({
 
                 response.status shouldBe HttpStatusCode.Forbidden
                 response.body<NavAnsattManglerTilgang>().missingRoles shouldBe setOf(
-                    Rolle.ATTESTANT_UTBETALING,
+                    Rolle.OKONOMI_ATTESTANT_GRUPPETILTAK,
                     Rolle.OKONOMI_BESLUTTER_ENKELTPLASS,
                 )
             }
@@ -298,8 +307,8 @@ class UtbetalingRoutesTest : FunSpec({
 
                 response.status shouldBe HttpStatusCode.Forbidden
                 response.body<NavAnsattManglerTilgang>().missingRoles shouldBe setOf(
-                    Rolle.SAKSBEHANDLER_OKONOMI,
-                    Rolle.ATTESTANT_UTBETALING,
+                    Rolle.OKONOMI_SAKSBEHANDLER_GRUPPETILTAK,
+                    Rolle.OKONOMI_ATTESTANT_GRUPPETILTAK,
                     Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS,
                     Rolle.OKONOMI_BESLUTTER_ENKELTPLASS,
                 )
@@ -309,7 +318,7 @@ class UtbetalingRoutesTest : FunSpec({
         test("400 bad request når utbetalingen kan ikke er til godkjenning") {
             withTestApplication(appConfig()) {
                 val id = UtbetalingFixtures.utbetalingLinje1.id
-                val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, saksbehandlerOkonomiRolle))
+                val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, saksbehandlerGruppetiltakRolle))
 
                 val response = client.post("/api/tiltaksadministrasjon/utbetalingslinjer/$id/returner") {
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
@@ -327,7 +336,7 @@ class UtbetalingRoutesTest : FunSpec({
     context("opprett utbetalingslinjer") {
         test("tom liste gir feil om manglende utbetalingslinjer") {
             withTestApplication(appConfig()) {
-                val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, saksbehandlerOkonomiRolle))
+                val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, saksbehandlerGruppetiltakRolle))
 
                 val response = client.put("/api/tiltaksadministrasjon/utbetalingslinjer") {
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
@@ -350,7 +359,7 @@ class UtbetalingRoutesTest : FunSpec({
 
         test("liste med kun nullbeløp gir feil om manglende utbetalingslinjer") {
             withTestApplication(appConfig()) {
-                val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, saksbehandlerOkonomiRolle))
+                val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, saksbehandlerGruppetiltakRolle))
 
                 val response = client.put("/api/tiltaksadministrasjon/utbetalingslinjer") {
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
@@ -380,7 +389,7 @@ class UtbetalingRoutesTest : FunSpec({
 
         test("negativt beløp gir valideringsfeil") {
             withTestApplication(appConfig()) {
-                val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, saksbehandlerOkonomiRolle))
+                val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, saksbehandlerGruppetiltakRolle))
 
                 val response = client.put("/api/tiltaksadministrasjon/utbetalingslinjer") {
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
@@ -465,9 +474,11 @@ class UtbetalingRoutesTest : FunSpec({
             ).initialize(database.api)
 
             withTestApplication(appConfigMedTilgangsmaskinAvvist()) {
-                val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, saksbehandlerOkonomiRolle))
+                val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, saksbehandlerGruppetiltakRolle))
 
-                val response = client.get("/api/tiltaksadministrasjon/utbetaling/${utbetalingMedAdvarsel.id}/beregning") {
+                val response = client.get(
+                    "/api/tiltaksadministrasjon/utbetaling/${utbetalingMedAdvarsel.id}/beregning",
+                ) {
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                 }
 
@@ -506,7 +517,7 @@ class UtbetalingRoutesTest : FunSpec({
             ).initialize(database.api)
 
             withTestApplication(config) {
-                val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, saksbehandlerOkonomiRolle))
+                val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, saksbehandlerGruppetiltakRolle))
 
                 val response =
                     client.get("/api/tiltaksadministrasjon/utbetaling/${utbetalingMedAdvarsel.id}/beregning") {
@@ -536,7 +547,7 @@ class UtbetalingRoutesTest : FunSpec({
     context("avbrytelse") {
         context("send til avbrytelse") {
             val abrytelseUrl = { id: UUID -> "/api/tiltaksadministrasjon/utbetaling/$id/avbryt" }
-            test("må ha saksbehandler økonomi rolle") {
+            test("krever saksbehandlerrolle for gruppetiltak") {
                 withTestApplication(appConfig()) {
                     val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle))
                     client.put(abrytelseUrl(UUID.randomUUID())) {
@@ -557,7 +568,7 @@ class UtbetalingRoutesTest : FunSpec({
                 ).initialize(database.api)
 
                 withTestApplication(appConfig()) {
-                    val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, saksbehandlerOkonomiRolle))
+                    val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, saksbehandlerGruppetiltakRolle))
                     val response = client.put(abrytelseUrl(UtbetalingFixtures.utbetaling1.id)) {
                         bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                         setBody(
@@ -580,7 +591,7 @@ class UtbetalingRoutesTest : FunSpec({
                 ).initialize(database.api)
 
                 withTestApplication(appConfig()) {
-                    val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, saksbehandlerOkonomiRolle))
+                    val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, saksbehandlerGruppetiltakRolle))
                     val response = client.put(abrytelseUrl(UtbetalingFixtures.utbetaling1.id)) {
                         bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                         setBody(
@@ -598,7 +609,7 @@ class UtbetalingRoutesTest : FunSpec({
         context("godkjenn avbrytelse") {
             val godkjennAbrytelseUrl = { id: UUID -> "/api/tiltaksadministrasjon/utbetaling/$id/avbryt/godkjenn" }
 
-            test("må ha saksbehandler økonomi rolle") {
+            test("krever saksbehandlerrolle for gruppetiltak") {
                 withTestApplication(appConfig()) {
                     val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle))
                     client.put(godkjennAbrytelseUrl(UUID.randomUUID())) {
@@ -611,7 +622,7 @@ class UtbetalingRoutesTest : FunSpec({
         context("avslå avbrytelse") {
             val avslaAbrytelseUrl = { id: UUID -> "/api/tiltaksadministrasjon/utbetaling/$id/avbryt/avsla" }
 
-            test("må ha saksbehandler økonomi rolle") {
+            test("krever saksbehandlerrolle for gruppetiltak") {
                 withTestApplication(appConfig()) {
                     val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle))
                     client.put(avslaAbrytelseUrl(UUID.randomUUID())) {
@@ -632,7 +643,7 @@ class UtbetalingRoutesTest : FunSpec({
                 ).initialize(database.api)
 
                 withTestApplication(appConfig()) {
-                    val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, saksbehandlerOkonomiRolle))
+                    val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, saksbehandlerGruppetiltakRolle))
                     val response = client.put(avslaAbrytelseUrl(UtbetalingFixtures.utbetaling1.id)) {
                         bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                         setBody(

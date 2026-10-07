@@ -41,24 +41,25 @@ enum class Rolle(val visningsnavn: String) {
     AVTALER_SKRIV("Skrivetilgang - Avtale"),
 
     /**
-     * Gir tilgang til å behandle og sende tilsagn/utbetalinger til godkjenning.
-     */
-    SAKSBEHANDLER_OKONOMI("Saksbehandler - Økonomi"),
-
-    /**
-     * Gir lesetilgang til detaljer på tilsagn og utbetalinger.
+     * Gir lesetilgang til detaljer på tilsagn og utbetalinger for både gruppetiltak og enkeltplasser.
      */
     OKONOMI_LES("Lesetilgang - Økonomi"),
 
     /**
-     * Gir tilgang til å godkjenne tilsagn.
+     * Gir tilgang til å behandle og sende økonomi (tilsagn og utbetalinger) for gruppetiltak
+     * til godkjenning.
      */
-    BESLUTTER_TILSAGN("Beslutter - Tilsagn"),
+    OKONOMI_SAKSBEHANDLER_GRUPPETILTAK("Saksbehandler - Gruppetiltak"),
 
     /**
-     * Gir tilgang til å attestere utbetalinger.
+     * Gir tilgang til å godkjenne tilsagn for gruppetiltak.
      */
-    ATTESTANT_UTBETALING("Attestant - Utbetaling"),
+    OKONOMI_BESLUTTER_GRUPPETILTAK("Beslutter - Gruppetiltak"),
+
+    /**
+     * Gir tilgang til å godkjenne utbetalinger for gruppetiltak.
+     */
+    OKONOMI_ATTESTANT_GRUPPETILTAK("Attestant - Gruppetiltak"),
 
     /**
      * Gir tilgang til å behandle og sende økonomi (tilsagn, utbetalinger og tilskuddsbehandlinger)
