@@ -89,7 +89,7 @@ object TilsagnValidator {
         validateAntallTimerOppfolgingPerDeltaker(next.beregning.type, next.beregning.antallTimerOppfolgingPerDeltaker)
         requireValid(periodeStart != null && periodeSlutt != null && next.kostnadssted != null && gyldigTilsagnPeriode != null)
 
-        validate(periodeStart.isBefore(periodeSlutt)) {
+        validate(!periodeStart.isAfter(periodeSlutt)) {
             FieldError.of("Periodestart må være før slutt", TilsagnRequest::periodeStart)
         }
         validate(!periodeStart.isBefore(gyldigTilsagnPeriode.start)) {
