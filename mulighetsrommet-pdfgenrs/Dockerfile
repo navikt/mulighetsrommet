@@ -1,4 +1,4 @@
-FROM ghcr.io/navikt/pdfgenrs:1.0.40
+FROM ghcr.io/navikt/pdfgenrs:1.0.44
 
 COPY templates /app/templates
 COPY resources /app/resources
