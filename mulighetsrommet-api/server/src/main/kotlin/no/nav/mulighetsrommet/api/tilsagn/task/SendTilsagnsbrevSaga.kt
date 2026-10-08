@@ -10,9 +10,13 @@ import com.github.kagkarlsson.scheduler.task.helper.Tasks
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.mulighetsrommet.admin.arrangor.ArrangorMeldingSender
 import no.nav.mulighetsrommet.admin.arrangor.KontoregisterGateway
+import no.nav.mulighetsrommet.admin.endringshistorikk.EndringshistorikkType
 import no.nav.mulighetsrommet.api.ApiDatabase
+import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.TransactionalQueryContext
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokarkClient
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
@@ -22,7 +26,9 @@ import no.nav.mulighetsrommet.api.tilsagn.mapper.TilsagnToPdfDocumentContentMapp
 import no.nav.mulighetsrommet.api.tilsagn.mapper.TilsagnsbrevMeldingMapper
 import no.nav.mulighetsrommet.api.tilsagn.mapper.TilsagnsbrevMeldingSnapshot
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
+import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
+import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
 import no.nav.mulighetsrommet.model.Tiltaksnummer
 import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -231,6 +237,7 @@ class SendTilsagnsbrevSaga(
                 if (!response.journalpostferdigstilt) {
                     logger.info("Journalpost ${response.journalpostId} for tilsagn $tilsagnId er ikke ferdigstilt: ${response.melding}")
                 }
+                logEndring("Bekreftelse på bestilling arkivert i Gosys med journal-ID ${response.journalpostId}", tilsagnId, Tiltaksadministrasjon)
             }
     }
 
@@ -258,5 +265,22 @@ class SendTilsagnsbrevSaga(
                 queries.tilsagn.setAltinnCorrespondenceId(tilsagnId, meldingId.value.toString())
                 logger.info("Tilsagnsbrev for tilsagn $tilsagnId sendt til Altinn med referanse ${meldingId.value}")
             }
+    }
+
+    private fun QueryContext.logEndring(
+        operation: String,
+        tilsagnId: UUID,
+        endretAv: Agent,
+    ) {
+        val tilsagn = queries.tilsagn.getOrError(tilsagnId)
+        queries.endringshistorikk.logEndring(
+            EndringshistorikkType.TILSAGN,
+            operation,
+            endretAv,
+            tilsagnId,
+            LocalDateTime.now(),
+        ) {
+            Json.encodeToJsonElement(tilsagn)
+        }
     }
 }
