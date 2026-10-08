@@ -364,11 +364,12 @@ private fun ExcelWorkbookBuilder.createGjennomforingerSheet(
     header(
         "Tiltaksnavn",
         "Tiltakstype",
-        "Tiltaksnummer",
+        "Løpenummer",
         "Tiltaksarrangør",
         "Tiltaksarrangør orgnr",
         "Startdato",
         "Sluttdato",
+        "GjennomføringId",
     )
 
     result.forEach { tiltak ->
@@ -381,6 +382,7 @@ private fun ExcelWorkbookBuilder.createGjennomforingerSheet(
                 tiltak.arrangor.organisasjonsnummer.value,
                 tiltak.startDato?.formaterDatoTilEuropeiskDatoformat(),
                 tiltak.sluttDato?.formaterDatoTilEuropeiskDatoformat(),
+                tiltak.id,
             )
         }
     }
