@@ -105,7 +105,6 @@ import no.nav.mulighetsrommet.api.persistence.navenhet.SqlNavEnhetRepository
 import no.nav.mulighetsrommet.api.persistence.veilederflate.SqlVeilederflateDatabase
 import no.nav.mulighetsrommet.api.sanity.SanityService
 import no.nav.mulighetsrommet.api.sanity.VeilederflateSanityService
-import no.nav.mulighetsrommet.api.sanity.task.MigrerSanityTiltaksgjennomforinger
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnDtoQuery
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
@@ -651,7 +650,6 @@ private fun tasks(config: AppConfig) = module {
     }
     single { SynchronizeNavAnsatte(tasks.synchronizeNavAnsatte, get(), get()) }
     single { SynchronizeUtdanninger(tasks.synchronizeUtdanninger, get(), get()) }
-    single { MigrerSanityTiltaksgjennomforinger(get(), get()) }
     single { GenerateUtbetaling(tasks.generateUtbetaling, get()) }
     single { JournalforUtbetaling(get(), get(), get(), get()) }
     single { NotificationTask(get()) }
@@ -694,7 +692,6 @@ private fun tasks(config: AppConfig) = module {
         val journalforVedtaksbrev: JournalforVedtaksbrev by inject()
         val distribuerVedtaksbrev: DistribuerVedtaksbrev by inject()
         val updateGjennomforingAvtaleFreeTextSearch: UpdateGjennomforingAvtaleFreeTextSearch by inject()
-        val migrerSanityTiltaksgjennomforinger: MigrerSanityTiltaksgjennomforinger by inject()
 
         val db: Database by inject()
 
@@ -713,7 +710,6 @@ private fun tasks(config: AppConfig) = module {
                 journalforVedtaksbrev.task,
                 distribuerVedtaksbrev.task,
                 updateGjennomforingAvtaleFreeTextSearch.task,
-                migrerSanityTiltaksgjennomforinger.task,
             )
             .addSchedulerListener(SlackNotifierSchedulerListener(get()))
             .addSchedulerListener(OpenTelemetrySchedulerListener())
