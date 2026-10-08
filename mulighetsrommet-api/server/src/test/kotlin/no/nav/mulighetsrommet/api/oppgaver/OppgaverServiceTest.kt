@@ -1006,6 +1006,45 @@ class OppgaverServiceTest : FunSpec({
                 PartialOppgave(UtbetalingFixtures.utbetaling1.id, OppgaveType.UTBETALING_TIL_BEHANDLING),
             )
         }
+
+        test("Skal bruke gjennomføringens Nav-enheter for utbetaling uten tilsagn") {
+            MulighetsrommetTestDomain(
+                avtaler = listOf(AvtaleFixtures.AFT),
+                navEnheter = listOf(
+                    NavEnhetFixtures.Innlandet,
+                    NavEnhetFixtures.Gjovik,
+                    NavEnhetFixtures.Oslo,
+                    NavEnhetFixtures.TiltakOslo,
+                ),
+                gjennomforinger = listOf(AFT1),
+                utbetalinger = listOf(
+                    UtbetalingFixtures.utbetaling1.copy(
+                        status = UtbetalingStatusType.TIL_BEHANDLING,
+                        gjennomforingId = AFT1.id,
+                    ),
+                ),
+                additionalSetup = {
+                    queries.gjennomforing.setNavEnheter(
+                        AFT1.id,
+                        setOf(NavEnhetFixtures.TiltakOslo.enhetsnummer),
+                    )
+                },
+            ).initialize(database.api)
+
+            val service = OppgaverService(database.api, features())
+
+            service.oppgaver(
+                oppgavetyper = setOf(OppgaveType.UTBETALING_TIL_BEHANDLING),
+                tiltakskoder = setOf(),
+                navEnheter = setOf(NavEnhetFixtures.TiltakOslo.enhetsnummer),
+                arrangorer = setOf(),
+                ansatt = NavAnsattFixture.MikkeMus.medRoller(
+                    roller = setOf(NavAnsattRolle.generell(Rolle.OKONOMI_SAKSBEHANDLER_GRUPPETILTAK)),
+                ),
+            ) shouldMatchAllOppgaver listOf(
+                PartialOppgave(UtbetalingFixtures.utbetaling1.id, OppgaveType.UTBETALING_TIL_BEHANDLING),
+            )
+        }
     }
 
     context("utbetaling mangler tilsagn") {
