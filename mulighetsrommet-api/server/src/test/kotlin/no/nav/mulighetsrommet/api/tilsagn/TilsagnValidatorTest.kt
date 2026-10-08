@@ -270,6 +270,24 @@ class TilsagnValidatorTest : FunSpec({
             )
         }
 
+        test("periode på én dag er lov") {
+            TilsagnValidator.validate(
+                TilsagnFixtures.TilsagnRequest1.copy(periodeStart = "2025-11-01", periodeSlutt = "2025-11-01"),
+                previous = null,
+                gyldigTilsagnPeriode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2026, 1, 1)),
+                gjennomforingSluttDato = null,
+                arrangorSlettet = false,
+                tiltakstypeNavn = "AFT",
+                prismodell = Prismodell.AnnenAvtaltPris(
+                    id = UUID.randomUUID(),
+                    valuta = Valuta.NOK,
+                    prisbetingelser = null,
+                    tilsagnPerDeltaker = false,
+                ),
+                stengt = emptyList(),
+            ).shouldBeRight()
+        }
+
         context("TilsagnBeregningAnnenAvtaltPris.Input") {
             test("should return field error if linjer is empty") {
                 val input = TilsagnBeregningRequest(

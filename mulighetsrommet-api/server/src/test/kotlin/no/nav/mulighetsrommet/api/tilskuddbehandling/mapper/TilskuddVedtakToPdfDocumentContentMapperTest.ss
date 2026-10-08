@@ -45,7 +45,7 @@
           "type": "paragraph",
           "words": [
             {
-              "text": "Du får dekket skolepenger for å gjennomføre tiltaket Høyere utdanning ved Underenhet 1 AS i perioden 01.01.2025 - 30.12.2025."
+              "text": "Du får dekket skolepenger for å gjennomføre tiltaket Høyere utdanning ved Underenhet 1 AS i perioden 01.01.2025 - 31.12.2025."
             }
           ]
         },

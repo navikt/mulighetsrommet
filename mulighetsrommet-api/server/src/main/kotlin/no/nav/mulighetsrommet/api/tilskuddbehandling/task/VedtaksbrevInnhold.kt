@@ -174,7 +174,7 @@ private fun validateGjennomforingPeriode(gjennomforing: Gjennomforing): Either<S
         ?: return "Gjennomføring ${gjennomforing.id} mangler startdato".left()
     val sluttDato = gjennomforing.sluttDato
         ?: return "Gjennomføring ${gjennomforing.id} mangler sluttdato".left()
-    return Periode(startDato, sluttDato).right()
+    return Periode.fromInclusiveDates(startDato, sluttDato).right()
 }
 
 private fun validateDeltakerPersonalia(personalia: Personalia): Either<String, DeltakerPersonalia> {

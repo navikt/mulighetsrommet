@@ -135,6 +135,7 @@ object TilskuddBehandlingValidator {
             }
         }
 
+        requireValid(periodeStart == null || !periodeStart.isAfter(periodeSlutt))
         val periode = Periode.fromInclusiveDates(requireNotNull(periodeStart), requireNotNull(periodeSlutt))
 
         requireNotNull(req.soknadDato)
