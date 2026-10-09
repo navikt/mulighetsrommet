@@ -70,7 +70,7 @@ export const mockOppgaver: Oppgave[] = [
   {
     id: "4",
     enhet: null,
-    type: OppgaveType.UTBETALING_TIL_ATTESTERING,
+    type: OppgaveType.UTBETALING_TIL_GODKJENNING,
     navn: "Utbetaling til godkjenning",
     title: "Utbetaling til godkjenning",
     description: `Utbetaling for <gjennomføringsnavn> er sendt til godkjenning`,

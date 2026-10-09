@@ -68,7 +68,7 @@ object TilskuddFixtures {
         id = UUID.randomUUID(),
         gjennomforingId = EnkelAmo.id,
         tilskudd = listOf(TilskuddVedtakInnvilgelse, TilskuddVedtakAvslag),
-        status = TilskuddBehandlingStatus.TIL_ATTESTERING,
+        status = TilskuddBehandlingStatus.TIL_GODKJENNING,
         type = TilskuddBehandlingType.REGISTRERING,
         behandlendeEnhet = NavEnhetFixtures.Innlandet.enhetsnummer,
     )

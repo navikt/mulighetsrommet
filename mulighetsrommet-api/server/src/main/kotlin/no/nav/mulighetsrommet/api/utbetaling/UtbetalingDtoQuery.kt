@@ -191,7 +191,7 @@ class UtbetalingDtoQuery(
 
         val tilAvbrytelse = avbrytelse is TotrinnskontrollDto.TilBeslutning
         return setOfNotNull(
-            UtbetalingHandling.SEND_TIL_ATTESTERING.takeIf { utbetaling.erTilBehandling() },
+            UtbetalingHandling.SEND_TIL_GODKJENNING.takeIf { utbetaling.erTilBehandling() },
             UtbetalingHandling.SLETT.takeIf { utbetaling.kanSlettes() },
             UtbetalingHandling.OPPRETT_KORREKSJON.takeIf { utbetaling.erFerdigBehandlet() && !utbetaling.erKorreksjon() },
             UtbetalingHandling.REDIGER.takeIf { utbetaling.kanRedigeres() },
@@ -211,15 +211,15 @@ class UtbetalingDtoQuery(
         behandletAv: Agent,
         kontekst: OkonomiBeslutningContext,
     ): Set<UtbetalingLinjeHandling> {
-        if (linje.status != UtbetalingLinjeStatus.TIL_ATTESTERING) {
+        if (linje.status != UtbetalingLinjeStatus.TIL_GODKJENNING) {
             return emptySet()
         }
 
-        val erAttestant = OkonomiAuthorization.erAttestantUtbetaling(ansatt, kontekst)
+        val erBeslutter = OkonomiAuthorization.erAttestantUtbetaling(ansatt, kontekst)
         val erSaksbehandler = OkonomiAuthorization.erSaksbehandler(ansatt, kontekst.gjennomforingType)
         return setOfNotNull(
-            UtbetalingLinjeHandling.ATTESTER.takeIf { erAttestant && behandletAv != ansatt.navIdent },
-            UtbetalingLinjeHandling.RETURNER.takeIf { erAttestant || erSaksbehandler },
+            UtbetalingLinjeHandling.GODKJENN.takeIf { erBeslutter && behandletAv != ansatt.navIdent },
+            UtbetalingLinjeHandling.RETURNER.takeIf { erBeslutter || erSaksbehandler },
         )
     }
 

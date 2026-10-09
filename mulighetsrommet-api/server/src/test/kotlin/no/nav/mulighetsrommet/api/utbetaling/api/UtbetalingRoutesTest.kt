@@ -281,7 +281,7 @@ class UtbetalingRoutesTest : FunSpec({
                 val id = UtbetalingFixtures.utbetalingLinje1.id
                 val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, saksbehandlerGruppetiltakRolle))
 
-                val response = client.post("/api/tiltaksadministrasjon/utbetalingslinjer/$id/attester") {
+                val response = client.post("/api/tiltaksadministrasjon/utbetalingslinjer/$id/godkjenn") {
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                 }
 

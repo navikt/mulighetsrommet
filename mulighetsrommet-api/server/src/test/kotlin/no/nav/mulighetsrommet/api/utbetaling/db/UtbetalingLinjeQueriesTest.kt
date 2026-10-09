@@ -32,7 +32,7 @@ class UtbetalingLinjeQueriesTest : FunSpec({
         id = UUID.randomUUID(),
         tilsagnId = TilsagnFixtures.Tilsagn1.id,
         utbetalingId = UtbetalingFixtures.utbetaling1.id,
-        status = UtbetalingLinjeStatus.TIL_ATTESTERING,
+        status = UtbetalingLinjeStatus.TIL_GODKJENNING,
         fakturaStatusEndretTidspunkt = Instant.parse("2025-01-01T12:00:00Z"),
         pris = 100.NOK,
         gjorOppTilsagn = false,
@@ -46,7 +46,7 @@ class UtbetalingLinjeQueriesTest : FunSpec({
         id = UUID.randomUUID(),
         tilsagnId = TilsagnFixtures.Tilsagn2.id,
         utbetalingId = UtbetalingFixtures.utbetaling1.id,
-        status = UtbetalingLinjeStatus.TIL_ATTESTERING,
+        status = UtbetalingLinjeStatus.TIL_GODKJENNING,
         fakturaStatusEndretTidspunkt = Instant.parse("2025-01-01T12:00:00Z"),
         pris = 200.NOK,
         gjorOppTilsagn = false,
@@ -65,7 +65,7 @@ class UtbetalingLinjeQueriesTest : FunSpec({
             queries.utbetalingLinje.getByUtbetalingId(UtbetalingFixtures.utbetaling1.id).first().should {
                 it.tilsagnId shouldBe TilsagnFixtures.Tilsagn1.id
                 it.utbetalingId shouldBe UtbetalingFixtures.utbetaling1.id
-                it.status shouldBe UtbetalingLinjeStatus.TIL_ATTESTERING
+                it.status shouldBe UtbetalingLinjeStatus.TIL_GODKJENNING
                 it.pris shouldBe 100.NOK
                 it.periode shouldBe UtbetalingFixtures.utbetaling1.periode
                 it.lopenummer shouldBe 1
@@ -137,7 +137,7 @@ class UtbetalingLinjeQueriesTest : FunSpec({
             queries.utbetalingLinje.upsert(linje2)
 
             queries.utbetalingLinje.getByUtbetalingId(linje.utbetalingId).forEach {
-                it.status shouldBe UtbetalingLinjeStatus.TIL_ATTESTERING
+                it.status shouldBe UtbetalingLinjeStatus.TIL_GODKJENNING
             }
 
             queries.utbetalingLinje.setAvbruttStatusLinjer(linje.utbetalingId)

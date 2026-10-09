@@ -20,7 +20,7 @@ data class UtbetalingDetaljerDto(
 enum class UtbetalingHandling {
     OPPRETT_KORREKSJON,
     REDIGER,
-    SEND_TIL_ATTESTERING,
+    SEND_TIL_GODKJENNING,
     SLETT,
     SEND_TIL_AVBRYTELSE,
     GODKJENN_AVBRYTELSE,
@@ -44,9 +44,9 @@ data class UtbetalingLinjeDto(
 
 @Serializable
 enum class UtbetalingLinjeHandling {
-    ATTESTER,
+    GODKJENN,
     RETURNER,
-    SEND_TIL_ATTESTERING,
+    SEND_TIL_GODKJENNING,
 }
 
 @Serializable
@@ -66,7 +66,7 @@ data class UtbetalingLinjeStatusDto(
                         UtbetalingLinjeStatus.UTBETALT,
                         -> DataElement.Status.Variant.SUCCESS
 
-                        UtbetalingLinjeStatus.TIL_ATTESTERING,
+                        UtbetalingLinjeStatus.TIL_GODKJENNING,
                         -> DataElement.Status.Variant.INFO
 
                         UtbetalingLinjeStatus.RETURNERT,

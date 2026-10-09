@@ -136,7 +136,7 @@ export function UtbetalingTable({ gjennomforingId, utbetalinger }: Props) {
 
 function utbetalingLenkeText(status: UtbetalingStatusDtoType) {
   switch (status) {
-    case UtbetalingStatusDtoType.TIL_ATTESTERING:
+    case UtbetalingStatusDtoType.TIL_GODKJENNING:
     case UtbetalingStatusDtoType.KLAR_TIL_BEHANDLING:
     case UtbetalingStatusDtoType.TIL_AVBRYTELSE:
     case UtbetalingStatusDtoType.RETURNERT:

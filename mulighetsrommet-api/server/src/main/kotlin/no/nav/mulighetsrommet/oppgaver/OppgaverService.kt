@@ -380,11 +380,11 @@ private fun toOppgave(data: UtbetalingLinjeOppgaveData, ansatt: NavAnsatt): Oppg
     )
 
     return when (data.status) {
-        UtbetalingLinjeStatus.TIL_ATTESTERING -> {
+        UtbetalingLinjeStatus.TIL_GODKJENNING -> {
             Oppgave(
                 id = data.id,
-                type = OppgaveType.UTBETALING_TIL_ATTESTERING,
-                navn = OppgaveType.UTBETALING_TIL_ATTESTERING.navn,
+                type = OppgaveType.UTBETALING_TIL_GODKJENNING,
+                navn = OppgaveType.UTBETALING_TIL_GODKJENNING.navn,
                 enhet = data.kostnadssted,
                 title = getOkonomiOppgaveTitle(data.tiltakstype, data.gjennomforing),
                 description = "Utbetaling for perioden ${data.periode.formatPeriode()} er klar til godkjenning",
@@ -428,7 +428,7 @@ private fun toOppgave(data: UtbetalingBehandlingOppgaveData, ansatt: NavAnsatt):
     return when (data.status) {
         UtbetalingStatusType.GENERERT,
         UtbetalingStatusType.RETURNERT,
-        UtbetalingStatusType.TIL_ATTESTERING,
+        UtbetalingStatusType.TIL_GODKJENNING,
         UtbetalingStatusType.FERDIG_BEHANDLET,
         UtbetalingStatusType.DELVIS_UTBETALT,
         UtbetalingStatusType.UTBETALT,
@@ -601,11 +601,11 @@ private fun toTilskuddBehandlingOppgave(data: TilskuddBehandlingOppgaveData, ans
     val title = getOkonomiOppgaveTitle(data.tiltakstype, data.gjennomforing)
 
     return when (data.status) {
-        TilskuddBehandlingStatus.TIL_ATTESTERING -> {
+        TilskuddBehandlingStatus.TIL_GODKJENNING -> {
             Oppgave(
                 id = data.id,
-                type = OppgaveType.TILSKUDDBEHANDLING_TIL_ATTESTERING,
-                navn = OppgaveType.TILSKUDDBEHANDLING_TIL_ATTESTERING.navn,
+                type = OppgaveType.TILSKUDDBEHANDLING_TIL_GODKJENNING,
+                navn = OppgaveType.TILSKUDDBEHANDLING_TIL_GODKJENNING.navn,
                 enhet = data.kostnadssteder.first(),
                 title = title,
                 description = "Tilskuddsbehandling for perioden ${data.periode.formatPeriode()} er sendt til godkjenning",

@@ -899,7 +899,7 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
 
             forAll(
                 row(UtbetalingStatusType.GENERERT),
-                row(UtbetalingStatusType.TIL_ATTESTERING),
+                row(UtbetalingStatusType.TIL_GODKJENNING),
                 row(UtbetalingStatusType.FERDIG_BEHANDLET),
                 row(UtbetalingStatusType.UTBETALT),
                 row(UtbetalingStatusType.AVBRUTT),
@@ -956,7 +956,7 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
             forAll(
                 row(UtbetalingStatusType.GENERERT),
                 row(UtbetalingStatusType.TIL_BEHANDLING),
-                row(UtbetalingStatusType.TIL_ATTESTERING),
+                row(UtbetalingStatusType.TIL_GODKJENNING),
                 row(UtbetalingStatusType.RETURNERT),
                 row(UtbetalingStatusType.FERDIG_BEHANDLET),
                 row(UtbetalingStatusType.UTBETALT),

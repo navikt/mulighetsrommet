@@ -188,7 +188,7 @@ fun avbrytStatus(utbetaling: ArrangorflateUtbetaling, status: ArrangorflateUtbet
     return when (utbetaling.status) {
         UtbetalingStatusType.GENERERT,
         UtbetalingStatusType.DELVIS_UTBETALT,
-        UtbetalingStatusType.TIL_ATTESTERING,
+        UtbetalingStatusType.TIL_GODKJENNING,
         UtbetalingStatusType.TIL_AVBRYTELSE,
         -> AvbrytStatus.KanIkkeAvbrytes
 

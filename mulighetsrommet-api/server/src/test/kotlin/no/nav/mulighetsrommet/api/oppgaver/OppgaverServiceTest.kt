@@ -434,7 +434,7 @@ class OppgaverServiceTest : FunSpec({
         )
         val enkeltplassUtbetaling = UtbetalingFixtures.utbetaling1.copy(
             gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
-            status = UtbetalingStatusType.TIL_ATTESTERING,
+            status = UtbetalingStatusType.TIL_GODKJENNING,
         )
         val enkeltplassLinje = UtbetalingFixtures.utbetalingLinje1.copy(
             tilsagnId = enkeltplassTilsagn.id,
@@ -449,28 +449,28 @@ class OppgaverServiceTest : FunSpec({
             ),
         )
 
-        test("enkeltplass-beslutter ser enkeltplassutbetaling til attestering") {
+        test("enkeltplass-beslutter ser enkeltplassutbetaling til godkjenning") {
             MulighetsrommetTestDomain(
                 gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
                 tilsagn = listOf(enkeltplassTilsagn),
                 utbetalinger = listOf(enkeltplassUtbetaling),
                 utbetalingLinjer = listOf(enkeltplassLinje),
             ) {
-                setUtbetalingLinjeStatus(enkeltplassLinje, UtbetalingLinjeStatus.TIL_ATTESTERING)
+                setUtbetalingLinjeStatus(enkeltplassLinje, UtbetalingLinjeStatus.TIL_GODKJENNING)
             }.initialize(database.api)
 
             val service = OppgaverService(database.api, features())
 
             service.oppgaver(
-                oppgavetyper = setOf(OppgaveType.UTBETALING_TIL_ATTESTERING),
+                oppgavetyper = setOf(OppgaveType.UTBETALING_TIL_GODKJENNING),
                 tiltakskoder = setOf(),
                 navEnheter = setOf(),
                 arrangorer = setOf(),
                 ansatt = enkeltplassBeslutter,
-            ) shouldMatchAllOppgaver listOf(PartialOppgave(enkeltplassLinje.id, OppgaveType.UTBETALING_TIL_ATTESTERING))
+            ) shouldMatchAllOppgaver listOf(PartialOppgave(enkeltplassLinje.id, OppgaveType.UTBETALING_TIL_GODKJENNING))
         }
 
-        test("gruppetiltak-attestant ser ikke enkeltplassutbetaling til attestering") {
+        test("gruppetiltak-attestant ser ikke enkeltplassutbetaling til godkjenning") {
             val attestant = NavAnsattFixture.MikkeMus.medRoller(
                 setOf(NavAnsattRolle.generell(Rolle.OKONOMI_ATTESTANT_GRUPPETILTAK)),
             )
@@ -480,13 +480,13 @@ class OppgaverServiceTest : FunSpec({
                 utbetalinger = listOf(enkeltplassUtbetaling),
                 utbetalingLinjer = listOf(enkeltplassLinje),
             ) {
-                setUtbetalingLinjeStatus(enkeltplassLinje, UtbetalingLinjeStatus.TIL_ATTESTERING)
+                setUtbetalingLinjeStatus(enkeltplassLinje, UtbetalingLinjeStatus.TIL_GODKJENNING)
             }.initialize(database.api)
 
             val service = OppgaverService(database.api, features())
 
             service.oppgaver(
-                oppgavetyper = setOf(OppgaveType.UTBETALING_TIL_ATTESTERING),
+                oppgavetyper = setOf(OppgaveType.UTBETALING_TIL_GODKJENNING),
                 tiltakskoder = setOf(),
                 navEnheter = setOf(),
                 arrangorer = setOf(),
@@ -494,7 +494,7 @@ class OppgaverServiceTest : FunSpec({
             ).shouldBeEmpty()
         }
 
-        test("enkeltplass-beslutter uten tilgang til kostnadsstedet ser ikke attesteringsoppgaven") {
+        test("enkeltplass-beslutter uten tilgang til kostnadsstedet ser ikke godkjenningssoppgaven") {
             val beslutterVedAnnetKostnadssted = enkeltplassBeslutter.medRoller(
                 setOf(
                     NavAnsattRolle.kontorspesifikk(
@@ -509,13 +509,13 @@ class OppgaverServiceTest : FunSpec({
                 utbetalinger = listOf(enkeltplassUtbetaling),
                 utbetalingLinjer = listOf(enkeltplassLinje),
             ) {
-                setUtbetalingLinjeStatus(enkeltplassLinje, UtbetalingLinjeStatus.TIL_ATTESTERING)
+                setUtbetalingLinjeStatus(enkeltplassLinje, UtbetalingLinjeStatus.TIL_GODKJENNING)
             }.initialize(database.api)
 
             val service = OppgaverService(database.api, features())
 
             service.oppgaver(
-                oppgavetyper = setOf(OppgaveType.UTBETALING_TIL_ATTESTERING),
+                oppgavetyper = setOf(OppgaveType.UTBETALING_TIL_GODKJENNING),
                 tiltakskoder = setOf(),
                 navEnheter = setOf(),
                 arrangorer = setOf(),
@@ -583,7 +583,7 @@ class OppgaverServiceTest : FunSpec({
             ) {
                 setTilsagnStatus(TilsagnFixtures.Tilsagn1, TilsagnStatus.GODKJENT)
                 setTilsagnStatus(TilsagnFixtures.Tilsagn2, TilsagnStatus.GODKJENT)
-                setUtbetalingLinjeStatus(UtbetalingFixtures.utbetalingLinje1, UtbetalingLinjeStatus.TIL_ATTESTERING)
+                setUtbetalingLinjeStatus(UtbetalingFixtures.utbetalingLinje1, UtbetalingLinjeStatus.TIL_GODKJENNING)
                 setUtbetalingLinjeStatus(UtbetalingFixtures.utbetalingLinje2, UtbetalingLinjeStatus.RETURNERT)
             }.initialize(database.api)
 
@@ -597,7 +597,7 @@ class OppgaverServiceTest : FunSpec({
                     roller = setOf(NavAnsattRolle.generell(Rolle.OKONOMI_ATTESTANT_GRUPPETILTAK)),
                 ),
             ) shouldMatchAllOppgaver listOf(
-                PartialOppgave(UtbetalingFixtures.utbetalingLinje1.id, OppgaveType.UTBETALING_TIL_ATTESTERING),
+                PartialOppgave(UtbetalingFixtures.utbetalingLinje1.id, OppgaveType.UTBETALING_TIL_GODKJENNING),
             )
 
             // Skal se returnert utbetaling når ansatt har saksbehandler-rolle
@@ -660,13 +660,13 @@ class OppgaverServiceTest : FunSpec({
                 setTilsagnStatus(TilsagnFixtures.Tilsagn1, TilsagnStatus.GODKJENT)
                 setUtbetalingLinjeStatus(
                     UtbetalingFixtures.utbetalingLinje1,
-                    UtbetalingLinjeStatus.TIL_ATTESTERING,
+                    UtbetalingLinjeStatus.TIL_GODKJENNING,
                     behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
                 )
             }.initialize(database.api)
 
             service.oppgaver(
-                oppgavetyper = setOf(OppgaveType.UTBETALING_TIL_ATTESTERING),
+                oppgavetyper = setOf(OppgaveType.UTBETALING_TIL_GODKJENNING),
                 tiltakskoder = setOf(),
                 navEnheter = setOf(),
                 arrangorer = setOf(),
@@ -698,13 +698,13 @@ class OppgaverServiceTest : FunSpec({
                 )
                 setUtbetalingLinjeStatus(
                     UtbetalingFixtures.utbetalingLinje1,
-                    UtbetalingLinjeStatus.TIL_ATTESTERING,
+                    UtbetalingLinjeStatus.TIL_GODKJENNING,
                     behandletAv = NavAnsattFixture.MikkeMus.navIdent,
                 )
             }.initialize(database.api)
 
             service.oppgaver(
-                oppgavetyper = setOf(OppgaveType.UTBETALING_TIL_ATTESTERING),
+                oppgavetyper = setOf(OppgaveType.UTBETALING_TIL_GODKJENNING),
                 tiltakskoder = setOf(),
                 navEnheter = setOf(),
                 arrangorer = setOf(),
@@ -715,10 +715,10 @@ class OppgaverServiceTest : FunSpec({
                     ),
                 ),
             ) shouldMatchAllOppgaver listOf(
-                PartialOppgave(UtbetalingFixtures.utbetalingLinje1.id, OppgaveType.UTBETALING_TIL_ATTESTERING),
+                PartialOppgave(UtbetalingFixtures.utbetalingLinje1.id, OppgaveType.UTBETALING_TIL_GODKJENNING),
             )
             service.oppgaver(
-                oppgavetyper = setOf(OppgaveType.UTBETALING_TIL_ATTESTERING),
+                oppgavetyper = setOf(OppgaveType.UTBETALING_TIL_GODKJENNING),
                 tiltakskoder = setOf(),
                 navEnheter = setOf(),
                 arrangorer = setOf(),
@@ -729,7 +729,7 @@ class OppgaverServiceTest : FunSpec({
                     ),
                 ),
             ) shouldMatchAllOppgaver listOf(
-                PartialOppgave(UtbetalingFixtures.utbetalingLinje1.id, OppgaveType.UTBETALING_TIL_ATTESTERING),
+                PartialOppgave(UtbetalingFixtures.utbetalingLinje1.id, OppgaveType.UTBETALING_TIL_GODKJENNING),
             )
         }
 
@@ -748,7 +748,7 @@ class OppgaverServiceTest : FunSpec({
                 setTilsagnStatus(TilsagnFixtures.Tilsagn1, TilsagnStatus.GODKJENT)
                 setUtbetalingLinjeStatus(
                     UtbetalingFixtures.utbetalingLinje1,
-                    UtbetalingLinjeStatus.TIL_ATTESTERING,
+                    UtbetalingLinjeStatus.TIL_GODKJENNING,
                     behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
                 )
             }.initialize(database.api)
@@ -761,7 +761,7 @@ class OppgaverServiceTest : FunSpec({
                 row(
                     NavAnsattRolle.generell(Rolle.OKONOMI_ATTESTANT_GRUPPETILTAK),
                     listOf(
-                        PartialOppgave(UtbetalingFixtures.utbetalingLinje1.id, OppgaveType.UTBETALING_TIL_ATTESTERING),
+                        PartialOppgave(UtbetalingFixtures.utbetalingLinje1.id, OppgaveType.UTBETALING_TIL_GODKJENNING),
                     ),
                 ),
                 row(
@@ -777,12 +777,12 @@ class OppgaverServiceTest : FunSpec({
                         setOf(NavEnhetFixtures.Innlandet.enhetsnummer),
                     ),
                     listOf(
-                        PartialOppgave(UtbetalingFixtures.utbetalingLinje1.id, OppgaveType.UTBETALING_TIL_ATTESTERING),
+                        PartialOppgave(UtbetalingFixtures.utbetalingLinje1.id, OppgaveType.UTBETALING_TIL_GODKJENNING),
                     ),
                 ),
             ) { rolle, expectedOppgaver ->
                 service.oppgaver(
-                    oppgavetyper = setOf(OppgaveType.UTBETALING_TIL_ATTESTERING),
+                    oppgavetyper = setOf(OppgaveType.UTBETALING_TIL_GODKJENNING),
                     tiltakskoder = setOf(),
                     navEnheter = setOf(),
                     arrangorer = setOf(),
@@ -949,7 +949,10 @@ class OppgaverServiceTest : FunSpec({
                 ansatt = NavAnsattFixture.MikkeMus.medRoller(
                     roller = setOf(
                         NavAnsattRolle.generell(Rolle.OKONOMI_SAKSBEHANDLER_GRUPPETILTAK),
-                        NavAnsattRolle.kontorspesifikk(Rolle.OKONOMI_ATTESTANT_GRUPPETILTAK, setOf(NavEnhetNummer("0100"))),
+                        NavAnsattRolle.kontorspesifikk(
+                            Rolle.OKONOMI_ATTESTANT_GRUPPETILTAK,
+                            setOf(NavEnhetNummer("0100")),
+                        ),
                     ),
                 ),
             )
@@ -1206,10 +1209,10 @@ class OppgaverServiceTest : FunSpec({
                 OppgaveType.TILSAGN_TIL_GODKJENNING,
                 OppgaveType.TILSAGN_TIL_ANNULLERING,
                 OppgaveType.TILSAGN_TIL_OPPGJOR,
-                OppgaveType.UTBETALING_TIL_ATTESTERING,
+                OppgaveType.UTBETALING_TIL_GODKJENNING,
                 OppgaveType.ENKELTPLASS_TIL_GODKJENNING,
                 OppgaveType.ENKELTPLASS_SATT_PA_VENT,
-                OppgaveType.TILSKUDDBEHANDLING_TIL_ATTESTERING,
+                OppgaveType.TILSKUDDBEHANDLING_TIL_GODKJENNING,
             )
         }
 
@@ -1541,7 +1544,7 @@ class OppgaverServiceTest : FunSpec({
         )
         val saksbehandlerEnkeltplass = NavAnsattRolle.generell(Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS)
 
-        test("beslutter som ikke har opprettet behandling ser oppgave til attestering") {
+        test("beslutter som ikke har opprettet behandling ser oppgave til godkjenning") {
             val service = OppgaverService(database.api, features())
 
             MulighetsrommetTestDomain(
@@ -1562,7 +1565,7 @@ class OppgaverServiceTest : FunSpec({
                 arrangorer = setOf(),
                 ansatt = NavAnsattFixture.MikkeMus.medRoller(setOf(beslutterEnkeltplass)),
             ) shouldMatchAllOppgaver listOf(
-                PartialOppgave(TilskuddFixtures.Behandling.id, OppgaveType.TILSKUDDBEHANDLING_TIL_ATTESTERING),
+                PartialOppgave(TilskuddFixtures.Behandling.id, OppgaveType.TILSKUDDBEHANDLING_TIL_GODKJENNING),
             )
         }
 
@@ -1592,7 +1595,7 @@ class OppgaverServiceTest : FunSpec({
             }.initialize(database.api)
 
             fun oppgaverFor(roller: Set<NavAnsattRolle>) = service.oppgaver(
-                oppgavetyper = setOf(OppgaveType.TILSKUDDBEHANDLING_TIL_ATTESTERING),
+                oppgavetyper = setOf(OppgaveType.TILSKUDDBEHANDLING_TIL_GODKJENNING),
                 tiltakskoder = setOf(),
                 navEnheter = setOf(),
                 arrangorer = setOf(),
@@ -1618,7 +1621,7 @@ class OppgaverServiceTest : FunSpec({
                     ),
                 ),
             ) shouldMatchAllOppgaver listOf(
-                PartialOppgave(behandling.id, OppgaveType.TILSKUDDBEHANDLING_TIL_ATTESTERING),
+                PartialOppgave(behandling.id, OppgaveType.TILSKUDDBEHANDLING_TIL_GODKJENNING),
             )
         }
 
@@ -1637,7 +1640,7 @@ class OppgaverServiceTest : FunSpec({
             }.initialize(database.api)
 
             service.oppgaver(
-                oppgavetyper = setOf(OppgaveType.TILSKUDDBEHANDLING_TIL_ATTESTERING),
+                oppgavetyper = setOf(OppgaveType.TILSKUDDBEHANDLING_TIL_GODKJENNING),
                 tiltakskoder = setOf(),
                 navEnheter = setOf(),
                 arrangorer = setOf(),
@@ -1765,7 +1768,7 @@ class OppgaverServiceTest : FunSpec({
                 arrangorer = setOf(),
                 ansatt = NavAnsattFixture.MikkeMus.medRoller(setOf(beslutterEnkeltplass)),
             ) shouldMatchAllOppgaver listOf(
-                PartialOppgave(TilskuddFixtures.Behandling.id, OppgaveType.TILSKUDDBEHANDLING_TIL_ATTESTERING),
+                PartialOppgave(TilskuddFixtures.Behandling.id, OppgaveType.TILSKUDDBEHANDLING_TIL_GODKJENNING),
             )
         }
 
@@ -1803,7 +1806,7 @@ class OppgaverServiceTest : FunSpec({
                 arrangorer = setOf(underenhet1.id),
                 ansatt = NavAnsattFixture.MikkeMus.medRoller(setOf(beslutterEnkeltplass)),
             ) shouldMatchAllOppgaver listOf(
-                PartialOppgave(TilskuddFixtures.Behandling.id, OppgaveType.TILSKUDDBEHANDLING_TIL_ATTESTERING),
+                PartialOppgave(TilskuddFixtures.Behandling.id, OppgaveType.TILSKUDDBEHANDLING_TIL_GODKJENNING),
             )
         }
     }
