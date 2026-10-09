@@ -33,7 +33,7 @@ export const utbetalingHandlers = [
         utbetaling: mockUtbetaling,
         handlinger:
           mockUtbetaling.status.type === "KLAR_TIL_BEHANDLING"
-            ? [UtbetalingHandling.SEND_TIL_ATTESTERING]
+            ? [UtbetalingHandling.SEND_TIL_GODKJENNING]
             : [],
       });
     },

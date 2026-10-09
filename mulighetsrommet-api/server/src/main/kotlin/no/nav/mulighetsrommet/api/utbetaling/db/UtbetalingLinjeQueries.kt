@@ -149,7 +149,7 @@ class UtbetalingLinjeQueries(private val session: Session) {
             update utbetaling_linje
             set status = :status
             where utbetaling_id = :utbetaling_id::uuid
-            and status in ('TIL_ATTESTERING', 'RETURNERT')
+            and status in ('TIL_GODKJENNING', 'RETURNERT')
         """.trimIndent()
 
         val params = mapOf(

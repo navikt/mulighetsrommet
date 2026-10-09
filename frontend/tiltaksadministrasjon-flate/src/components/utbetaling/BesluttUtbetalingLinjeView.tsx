@@ -110,7 +110,7 @@ export function BesluttUtbetalingLinjeView({ utbetaling }: Props) {
                       {utbetalingTekster.linje.handlinger.returner}
                     </Button>
                   )}
-                  {linje.handlinger.includes(UtbetalingLinjeHandling.ATTESTER) && (
+                  {linje.handlinger.includes(UtbetalingLinjeHandling.GODKJENN) && (
                     <Button
                       key={`godkjenn-knapp-${linje.id}`}
                       size="small"

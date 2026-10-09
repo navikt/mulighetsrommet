@@ -144,7 +144,7 @@ data class Utbetaling(
         -> true
 
         UtbetalingStatusType.GENERERT,
-        UtbetalingStatusType.TIL_ATTESTERING,
+        UtbetalingStatusType.TIL_GODKJENNING,
         UtbetalingStatusType.FERDIG_BEHANDLET,
         UtbetalingStatusType.DELVIS_UTBETALT,
         UtbetalingStatusType.UTBETALT,
@@ -162,7 +162,7 @@ data class Utbetaling(
         UtbetalingStatusType.RETURNERT,
         UtbetalingStatusType.TIL_BEHANDLING,
         UtbetalingStatusType.GENERERT,
-        UtbetalingStatusType.TIL_ATTESTERING,
+        UtbetalingStatusType.TIL_GODKJENNING,
         UtbetalingStatusType.TIL_AVBRYTELSE,
         UtbetalingStatusType.AVBRUTT,
         -> false
@@ -189,7 +189,7 @@ data class Utbetaling(
             UtbetalingStatusType.FERDIG_BEHANDLET,
             UtbetalingStatusType.UTBETALT,
             UtbetalingStatusType.DELVIS_UTBETALT,
-            UtbetalingStatusType.TIL_ATTESTERING,
+            UtbetalingStatusType.TIL_GODKJENNING,
             -> false
         }
     }

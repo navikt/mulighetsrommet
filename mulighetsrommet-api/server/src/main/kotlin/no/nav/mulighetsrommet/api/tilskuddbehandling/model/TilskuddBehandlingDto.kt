@@ -69,7 +69,7 @@ data class TilskuddBehandlingStatusDto(
 
 fun toTilskuddBehandlingStatusTag(status: TilskuddBehandlingStatus): DataElement.Status {
     val variant = when (status) {
-        TilskuddBehandlingStatus.TIL_ATTESTERING -> DataElement.Status.Variant.INFO
+        TilskuddBehandlingStatus.TIL_GODKJENNING -> DataElement.Status.Variant.INFO
         TilskuddBehandlingStatus.FERDIG_BEHANDLET -> DataElement.Status.Variant.SUCCESS
         TilskuddBehandlingStatus.RETURNERT -> DataElement.Status.Variant.ERROR
     }
@@ -89,6 +89,6 @@ fun samletVedtakResultatStatusTag(vedtakResultat: List<VedtakResultat>): SamletV
 @Serializable
 enum class TilskuddBehandlingHandling {
     REDIGER,
-    ATTESTER,
+    GODKJENN,
     RETURNER,
 }

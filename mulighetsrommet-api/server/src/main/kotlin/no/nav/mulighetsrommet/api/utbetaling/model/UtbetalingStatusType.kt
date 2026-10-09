@@ -14,7 +14,7 @@ enum class UtbetalingStatusType {
     /**
      * Saksbehandler hos Nav har utført kostnadsfordeling og sendt utbetalingen til godkjenning.
      */
-    TIL_ATTESTERING,
+    TIL_GODKJENNING,
 
     /**
      * Attestant har sendt utbetalingen i retur.

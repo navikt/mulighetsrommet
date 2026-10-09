@@ -1693,7 +1693,7 @@ components:
     UtbetalingLinjeStatus:
       type: string
       enum:
-      - TIL_ATTESTERING
+      - TIL_GODKJENNING
       - GODKJENT
       - RETURNERT
       - UTBETALT

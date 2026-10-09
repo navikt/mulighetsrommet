@@ -20,7 +20,7 @@ export function UtbetalingLinjeStatusTag({ status }: Props): ReactNode {
           Utbetalt
         </Tag>
       );
-    case UtbetalingLinjeStatus.TIL_ATTESTERING:
+    case UtbetalingLinjeStatus.TIL_GODKJENNING:
     case UtbetalingLinjeStatus.GODKJENT:
     case UtbetalingLinjeStatus.RETURNERT:
       return (

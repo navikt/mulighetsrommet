@@ -158,7 +158,7 @@ export function RedigerUtbetalingLinjeView({
           {utbetalingLinjerWatch.length > 0 && (
             <HStack gap="space-8" justify="end">
               <ValideringsfeilOppsummering />
-              {handlinger.includes(UtbetalingHandling.SEND_TIL_ATTESTERING) && (
+              {handlinger.includes(UtbetalingHandling.SEND_TIL_GODKJENNING) && (
                 <Button size="small" type="submit">
                   {utbetalingTekster.linje.handlinger.sendTilGodkjenning}
                 </Button>

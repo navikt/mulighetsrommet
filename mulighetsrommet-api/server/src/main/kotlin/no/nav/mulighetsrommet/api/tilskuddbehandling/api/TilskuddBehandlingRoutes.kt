@@ -126,13 +126,13 @@ fun Route.tilskuddBehandlingRoutes() {
         authorize(Rolle.OKONOMI_BESLUTTER_ENKELTPLASS) {
             post("/{id}/attester", {
                 tags = setOf("TilskuddBehandling")
-                operationId = "attesterTilskuddBehandling"
+                operationId = "godkjennTilskuddBehandling"
                 request {
                     pathParameterUuid("id")
                 }
                 response {
                     code(HttpStatusCode.OK) {
-                        description = "Tilskuddsbehandling ble attestert"
+                        description = "Tilskuddsbehandling ble godkjent"
                     }
                     default {
                         description = "Problem details"

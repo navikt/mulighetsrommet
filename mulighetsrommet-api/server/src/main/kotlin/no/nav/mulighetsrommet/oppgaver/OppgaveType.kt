@@ -32,7 +32,7 @@ enum class OppgaveType(
         roller = setOf(Rolle.OKONOMI_SAKSBEHANDLER_GRUPPETILTAK, Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS),
         kategori = Kategori.UTBETALING,
     ),
-    UTBETALING_TIL_ATTESTERING(
+    UTBETALING_TIL_GODKJENNING(
         navn = "Utbetaling til godkjenning",
         roller = setOf(Rolle.OKONOMI_ATTESTANT_GRUPPETILTAK, Rolle.OKONOMI_BESLUTTER_ENKELTPLASS),
         kategori = Kategori.UTBETALING_LINJE,
@@ -72,7 +72,7 @@ enum class OppgaveType(
         roller = setOf(Rolle.OKONOMI_BESLUTTER_ENKELTPLASS),
         kategori = Kategori.ENKELTPLASS,
     ),
-    TILSKUDDBEHANDLING_TIL_ATTESTERING(
+    TILSKUDDBEHANDLING_TIL_GODKJENNING(
         navn = "Tilskuddsbehandling til godkjenning",
         roller = setOf(Rolle.OKONOMI_BESLUTTER_ENKELTPLASS),
         kategori = Kategori.TILSKUDDBEHANDLING,
