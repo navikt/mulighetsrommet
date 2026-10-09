@@ -614,7 +614,7 @@ private fun services(appConfig: AppConfig) = module {
         )
     }
     single { TilsagnDtoQuery(get(), get()) }
-    single { TilskuddBehandlingService(get(), get(), get(), get(), get(), get()) }
+    single { TilskuddBehandlingService(get(), get(), get(), get(), get(), get(), get()) }
     single { TilskuddService(get(), get(), get()) }
     single { AltinnRettigheterService(db = get(), altinnClient = get()) }
     single { OppgaverService(get(), get()) }

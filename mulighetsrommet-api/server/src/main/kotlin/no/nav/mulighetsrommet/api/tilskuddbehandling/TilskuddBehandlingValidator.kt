@@ -6,8 +6,10 @@ import arrow.core.right
 import kotlinx.coroutines.runBlocking
 import no.nav.mulighetsrommet.admin.journalpost.ForventetBruker
 import no.nav.mulighetsrommet.admin.journalpost.JournalpostValidator
+import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandling
+import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddVedtak
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingRequest
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingRequest.TilskuddRequest
@@ -32,6 +34,7 @@ object TilskuddBehandlingValidator {
     fun validate(
         request: TilskuddBehandlingRequest,
         gjennomforing: Gjennomforing,
+        arrangorBetalingsinformasjon: Betalingsinformasjon?,
         behandlendeEnhet: NavEnhetNummer,
         journalpostValidator: (String, Int) -> Validated<JournalpostId>,
     ): Validated<TilskuddBehandling> = validation {
@@ -40,6 +43,7 @@ object TilskuddBehandlingValidator {
                 req = v,
                 index = index,
                 gjennomforing = gjennomforing,
+                arrangorBetalingsinformasjon = arrangorBetalingsinformasjon,
                 journalpostValidator,
             ).bind()
         }
@@ -58,6 +62,7 @@ object TilskuddBehandlingValidator {
         req: TilskuddRequest,
         index: Int,
         gjennomforing: Gjennomforing,
+        arrangorBetalingsinformasjon: Betalingsinformasjon?,
         journalpostValidator: (String, Int) -> Validated<JournalpostId>,
     ): Validated<TilskuddVedtak> = validation {
         validateNotNull(req.kostnadssted) {
@@ -105,6 +110,14 @@ object TilskuddBehandlingValidator {
                 "/tilskudd/$index/utbetalingMottaker",
                 "Du må velge en mottaker",
             )
+        }
+        if (req.utbetalingMottaker == TilskuddMottaker.ARRANGOR) {
+            validateNotNull(arrangorBetalingsinformasjon) {
+                FieldError(
+                    "/tilskudd/$index/utbetalingMottaker",
+                    "Betalingsinformasjon for arrangøren må være registrert",
+                )
+            }
         }
         validate((req.kommentarVedtaksbrev?.length ?: 0) <= 500) {
             FieldError(
