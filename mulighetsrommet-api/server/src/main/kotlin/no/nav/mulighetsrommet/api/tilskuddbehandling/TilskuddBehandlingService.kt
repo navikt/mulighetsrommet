@@ -162,7 +162,7 @@ class TilskuddBehandlingService(
         }
     }
 
-    fun attester(
+    fun godkjenn(
         id: UUID,
         navIdent: NavIdent,
     ): Either<List<FieldError>, TilskuddBehandlingDto> = try {

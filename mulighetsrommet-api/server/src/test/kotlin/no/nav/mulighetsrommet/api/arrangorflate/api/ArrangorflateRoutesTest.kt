@@ -174,7 +174,7 @@ class ArrangorflateRoutesTest : FunSpec({
         }
     }
 
-    test("kan ikke godkjenne allerede godkjent") {
+    test("kan ikke godkjenne allerede godkjent utbetaling") {
         withTestApplication(ArrangorflateTestUtils.appConfig(oauth)) {
             val updatedAt = database.run {
                 UtbetalingQueries(session).getOrError(utbetaling.id).updatedAt

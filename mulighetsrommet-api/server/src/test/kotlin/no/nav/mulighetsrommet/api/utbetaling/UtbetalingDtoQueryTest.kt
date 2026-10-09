@@ -287,7 +287,7 @@ class UtbetalingDtoQueryTest : FunSpec({
         )
         val enkeltplassLinje = utbetalingLinje1.copy(tilsagnId = enkeltplassTilsagn.id)
 
-        test("gruppetiltak-attestant kan attestere og returnere linjen") {
+        test("gruppetiltak-attestant kan godkjenne og returnere linjen") {
             MulighetsrommetTestDomain(
                 ansatte = listOf(saksbehandler, attestant),
                 avtaler = listOf(AvtaleFixtures.AFT),
@@ -314,7 +314,7 @@ class UtbetalingDtoQueryTest : FunSpec({
             )
         }
 
-        test("enkeltplass-beslutter ved tilsagnets kostnadssted kan attestere og returnere") {
+        test("enkeltplass-beslutter ved tilsagnets kostnadssted kan godkjenne og returnere") {
             MulighetsrommetTestDomain(
                 ansatte = listOf(enkeltplassSaksbehandler, enkeltplassBeslutter),
                 gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
@@ -389,7 +389,7 @@ class UtbetalingDtoQueryTest : FunSpec({
             linje.handlinger.shouldBeEmpty()
         }
 
-        test("enkeltplass-saksbehandler kan returnere, men ikke attestere linjen") {
+        test("enkeltplass-saksbehandler kan returnere, men ikke godkjenne linjen") {
             MulighetsrommetTestDomain(
                 ansatte = listOf(enkeltplassSaksbehandler),
                 gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
@@ -408,7 +408,7 @@ class UtbetalingDtoQueryTest : FunSpec({
             linje.handlinger shouldBe setOf(UtbetalingLinjeHandling.RETURNER)
         }
 
-        test("attestant kan returnere, men ikke attestere linjen hen selv har behandlet") {
+        test("attestant kan returnere, men ikke godkjenne linjen hen selv har behandlet") {
             MulighetsrommetTestDomain(
                 ansatte = listOf(saksbehandler, attestant),
                 avtaler = listOf(AvtaleFixtures.AFT),

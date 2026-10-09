@@ -1,4 +1,4 @@
-import { useAttesterUtbetalingLinje, useReturnerUtbetalingLinje } from "@/api/utbetaling/mutations";
+import { useGodkjennUtbetalingLinje, useReturnerUtbetalingLinje } from "@/api/utbetaling/mutations";
 import {
   AarsakerOgBegrunnelseRequestUtbetalingLinjeReturnertAarsak,
   UtbetalingLinjeReturnertAarsak,
@@ -29,11 +29,11 @@ export function BesluttUtbetalingLinjeView({ utbetaling }: Props) {
     null,
   );
   const [errors, setErrors] = useState<FieldError[]>([]);
-  const attesterUtbetalingLinjeMutation = useAttesterUtbetalingLinje();
+  const godkjennUtbetalingLinjeMutation = useGodkjennUtbetalingLinje();
   const returnerUtbetalingLinjeMutation = useReturnerUtbetalingLinje();
 
   function godkjennUtbetalingLinje(id: string) {
-    attesterUtbetalingLinjeMutation.mutate(
+    godkjennUtbetalingLinjeMutation.mutate(
       { id },
       {
         onValidationError: (error: ValidationError) => {

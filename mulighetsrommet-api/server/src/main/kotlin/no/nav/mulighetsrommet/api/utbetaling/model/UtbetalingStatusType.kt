@@ -22,7 +22,7 @@ enum class UtbetalingStatusType {
     RETURNERT,
 
     /**
-     * Attestant har godkjent (attestert) utbetalingen.
+     * Attestant har godkjent utbetalingen.
      */
     FERDIG_BEHANDLET,
 

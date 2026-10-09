@@ -18,17 +18,17 @@ test.describe("Utbetalinger detaljer", () => {
     // Click on the "Utbetalinger" tab
     await page.locator("button", { hasText: "Utbetalinger" }).click();
   });
-  test("should navigate to utbetalinger and select a TIL_ATTESTERING utbetaling", async ({
+  test("should navigate to utbetalinger and select a TIL_GODKJENNING utbetaling", async ({
     page,
   }) => {
     // Wait for the utbetalinger table to load
     await expect(page.getByTestId("utbetaling-table")).toBeVisible();
 
-    // Find the row with status Til attestering
+    // Find the row with status Til godkjenning
     const returnertUtbetalingRow = page
       .getByTestId("utbetaling-table")
       .locator("tr")
-      .filter({ hasText: "Til attestering" })
+      .filter({ hasText: "Til godkjenning" })
       .first();
     await expect(returnertUtbetalingRow).toBeVisible();
 

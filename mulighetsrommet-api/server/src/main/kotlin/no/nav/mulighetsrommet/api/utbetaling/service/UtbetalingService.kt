@@ -136,7 +136,7 @@ class UtbetalingService(
     }
 
     context(tx: TransactionalQueryContext)
-    fun sendTilAttestering(
+    fun sendTilGodkjenning(
         utbetalingId: UUID,
         linjer: List<OpprettUtbetalingLinje>,
         agent: Agent,
@@ -177,7 +177,7 @@ class UtbetalingService(
     }
 
     context(tx: TransactionalQueryContext)
-    fun attesterUtbetalingLinje(
+    fun godkjennUtbetalingLinje(
         id: UUID,
         agent: Agent,
     ): Either<List<FieldError>, Utbetaling> = with(tx) {
@@ -188,7 +188,7 @@ class UtbetalingService(
             return FieldError.of("Utbetalingen kan ikke godkjennes").nel().left()
         }
 
-        attesterUtbetalingLinje(linje, agent)
+        godkjennUtbetalingLinje(linje, agent)
     }
 
     context(tx: TransactionalQueryContext)
@@ -371,7 +371,7 @@ class UtbetalingService(
             gjorOppTilsagn = tilsagn.periode.getLastInclusiveDate() in utbetaling.periode,
             behandletAv = Tiltaksadministrasjon,
         )
-        return attesterUtbetalingLinje(linje, Tiltaksadministrasjon)
+        return godkjennUtbetalingLinje(linje, Tiltaksadministrasjon)
             .map { AutomatisertUtbetalingResult.GODKJENT }
             .getOrElse { throw UtbetalingException(it) }
     }
@@ -391,10 +391,10 @@ class UtbetalingService(
                 gjorOppTilsagn = false,
             )
         }
-        sendTilAttestering(utbetaling.id, linjer, Tiltaksadministrasjon).onLeft { throw UtbetalingException(it) }
+        sendTilGodkjenning(utbetaling.id, linjer, Tiltaksadministrasjon).onLeft { throw UtbetalingException(it) }
 
         linjer.forEach { linje ->
-            attesterUtbetalingLinje(linje.id, Tiltaksadministrasjon).onLeft { throw UtbetalingException(it) }
+            godkjennUtbetalingLinje(linje.id, Tiltaksadministrasjon).onLeft { throw UtbetalingException(it) }
         }
 
         AutomatisertUtbetalingResult.GODKJENT
@@ -629,7 +629,7 @@ class UtbetalingService(
         return queries.utbetalingLinje.getOrError(id)
     }
 
-    private fun TransactionalQueryContext.attesterUtbetalingLinje(
+    private fun TransactionalQueryContext.godkjennUtbetalingLinje(
         utbetalingLinje: UtbetalingLinje,
         besluttetAv: Agent,
     ): Either<List<FieldError>, Utbetaling> {
@@ -706,7 +706,7 @@ class UtbetalingService(
         tilsagnService.gjorOppTilsagn(
             tilsagnTilOppgjor,
             requireNotNull(opprettelse.beslutning).utfortAv,
-            operation = "Tilsagn oppgjort ved attestering av utbetaling",
+            operation = "Tilsagn oppgjort ved godkjenning av utbetaling",
         ).onLeft { errors ->
             throw UtbetalingException(errors)
         }

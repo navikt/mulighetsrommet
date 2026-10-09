@@ -158,7 +158,7 @@ class TilskuddBehandlingServiceTest : FunSpec({
 
             service.upsert(request, ansatt1).shouldBeRight()
 
-            service.attester(request.id, ansatt1).shouldBeLeft().shouldHaveSize(1).first().should {
+            service.godkjenn(request.id, ansatt1).shouldBeLeft().shouldHaveSize(1).first().should {
                 it.detail shouldBe "Du kan ikke beslutte noe du selv har behandlet"
             }
         }
@@ -168,7 +168,7 @@ class TilskuddBehandlingServiceTest : FunSpec({
 
             service.upsert(request, ansatt1).shouldBeRight()
 
-            service.attester(request.id, ansatt2).shouldBeRight()
+            service.godkjenn(request.id, ansatt2).shouldBeRight()
 
             val detaljer = service.getDetaljerDto(request.id, ansatt1)
             detaljer?.behandling?.status?.type shouldBe TilskuddBehandlingStatus.FERDIG_BEHANDLET

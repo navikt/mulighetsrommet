@@ -262,5 +262,5 @@ private suspend fun opprettOgGodkjennTilskudd(
     )
 
     service.upsert(request, NavAnsattFixture.DonaldDuck.navIdent).shouldBeRight()
-    service.attester(request.id, NavAnsattFixture.MikkeMus.navIdent).shouldBeRight()
+    service.godkjenn(request.id, NavAnsattFixture.MikkeMus.navIdent).shouldBeRight()
 }

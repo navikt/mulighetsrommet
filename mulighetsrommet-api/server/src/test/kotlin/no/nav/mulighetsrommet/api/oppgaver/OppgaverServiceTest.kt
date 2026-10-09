@@ -449,7 +449,7 @@ class OppgaverServiceTest : FunSpec({
             ),
         )
 
-        test("enkeltplass-beslutter ser enkeltplassutbetaling til attestering") {
+        test("enkeltplass-beslutter ser enkeltplassutbetaling til godkjenning") {
             MulighetsrommetTestDomain(
                 gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
                 tilsagn = listOf(enkeltplassTilsagn),
@@ -470,7 +470,7 @@ class OppgaverServiceTest : FunSpec({
             ) shouldMatchAllOppgaver listOf(PartialOppgave(enkeltplassLinje.id, OppgaveType.UTBETALING_TIL_GODKJENNING))
         }
 
-        test("gruppetiltak-attestant ser ikke enkeltplassutbetaling til attestering") {
+        test("gruppetiltak-attestant ser ikke enkeltplassutbetaling til godkjenning") {
             val attestant = NavAnsattFixture.MikkeMus.medRoller(
                 setOf(NavAnsattRolle.generell(Rolle.OKONOMI_ATTESTANT_GRUPPETILTAK)),
             )
@@ -494,7 +494,7 @@ class OppgaverServiceTest : FunSpec({
             ).shouldBeEmpty()
         }
 
-        test("enkeltplass-beslutter uten tilgang til kostnadsstedet ser ikke attesteringsoppgaven") {
+        test("enkeltplass-beslutter uten tilgang til kostnadsstedet ser ikke godkjenningssoppgaven") {
             val beslutterVedAnnetKostnadssted = enkeltplassBeslutter.medRoller(
                 setOf(
                     NavAnsattRolle.kontorspesifikk(

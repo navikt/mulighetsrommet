@@ -445,7 +445,7 @@ fun Route.utbetalingRoutes() {
 
                 val result = request.validate()
                     .mapLeft { UtbetalingError.Valideringsfeil(it) }
-                    .flatMap { utbetalingService.sendTilAttestering(it, navIdent) }
+                    .flatMap { utbetalingService.sendTilGodkjenning(it, navIdent) }
                     .mapLeft { toProblemDetail(it) }
                     .map { HttpStatusCode.OK }
 
@@ -454,9 +454,9 @@ fun Route.utbetalingRoutes() {
         }
 
         authorize(anyOf = setOf(Rolle.OKONOMI_ATTESTANT_GRUPPETILTAK, Rolle.OKONOMI_BESLUTTER_ENKELTPLASS)) {
-            post("/{id}/attester", {
+            post("/{id}/godkjenn", {
                 tags = setOf("Utbetaling")
-                operationId = "attesterUtbetalingLinje"
+                operationId = "godkjennUtbetalingLinje"
                 request {
                     pathParameterUuid("id")
                 }
