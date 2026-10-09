@@ -107,7 +107,7 @@ class SendTilsagnsbrevSaga(
         .onFailure(FailureHandler.ExponentialBackoffFailureHandler(ofMinutes(5)))
         .executeSuspend { inst, _ ->
             arkiverIDokark(inst.data).onLeft { message ->
-                throw Exception("Feil ved arkivering av tilsagnsbrev i Joark for tilsagn med id=${inst.data.tilsagnId}: $message")
+                throw Exception(message)
             }
         }
 
@@ -116,7 +116,7 @@ class SendTilsagnsbrevSaga(
         .onFailure(FailureHandler.ExponentialBackoffFailureHandler(ofMinutes(5)))
         .executeSuspend { inst, _ ->
             sendTilAltinn(inst.data).onLeft { message ->
-                throw Exception("Feil ved sending av tilsagnsbrev til Altinn for tilsagn med id=${inst.data.tilsagnId}: $message")
+                throw Exception(message)
             }
         }
 
