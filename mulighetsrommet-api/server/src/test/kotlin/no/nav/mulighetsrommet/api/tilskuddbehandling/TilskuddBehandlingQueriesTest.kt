@@ -102,7 +102,7 @@ class TilskuddBehandlingQueriesTest : FunSpec({
                 kommentarIntern = "kommentar intern 3",
             ),
         ),
-        status = TilskuddBehandlingStatus.TIL_ATTESTERING,
+        status = TilskuddBehandlingStatus.TIL_GODKJENNING,
         type = TilskuddBehandlingType.REGISTRERING,
         behandlendeEnhet = NavEnhetNummer("0502"),
     )

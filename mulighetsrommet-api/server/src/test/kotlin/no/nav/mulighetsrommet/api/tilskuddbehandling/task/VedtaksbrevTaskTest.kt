@@ -70,7 +70,7 @@ class VedtaksbrevTaskTest : FunSpec({
             avvistGrunn = null,
         )
 
-        opprettOgAttesterTilskudd(database.api, behandlingId, tilskuddVedtakId, tilskuddId)
+        opprettOgGodkjennTilskudd(database.api, behandlingId, tilskuddVedtakId, tilskuddId)
     }
 
     afterEach {
@@ -222,7 +222,7 @@ class VedtaksbrevTaskTest : FunSpec({
     }
 })
 
-private suspend fun opprettOgAttesterTilskudd(
+private suspend fun opprettOgGodkjennTilskudd(
     db: ApiDatabase,
     behandlingId: UUID,
     tilskuddVedtakId: UUID,

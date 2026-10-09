@@ -538,10 +538,10 @@ class AdminUtbetalingServiceTest : FunSpec({
                 ansatte = listOf(attestant),
                 gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
                 tilsagn = listOf(enkeltplassTilsagn),
-                utbetalinger = listOf(enkeltplassUtbetaling.copy(status = UtbetalingStatusType.TIL_ATTESTERING)),
+                utbetalinger = listOf(enkeltplassUtbetaling.copy(status = UtbetalingStatusType.TIL_GODKJENNING)),
                 utbetalingLinjer = listOf(enkeltplassLinje),
             ) {
-                setUtbetalingLinjeStatus(enkeltplassLinje, UtbetalingLinjeStatus.TIL_ATTESTERING)
+                setUtbetalingLinjeStatus(enkeltplassLinje, UtbetalingLinjeStatus.TIL_GODKJENNING)
             }.initialize(database.api)
 
             val service = createUtbetalingService()
@@ -555,11 +555,11 @@ class AdminUtbetalingServiceTest : FunSpec({
                 ansatte = listOf(saksbehandler, enkeltplassBeslutter),
                 gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
                 tilsagn = listOf(enkeltplassTilsagn),
-                utbetalinger = listOf(enkeltplassUtbetaling.copy(status = UtbetalingStatusType.TIL_ATTESTERING)),
+                utbetalinger = listOf(enkeltplassUtbetaling.copy(status = UtbetalingStatusType.TIL_GODKJENNING)),
                 utbetalingLinjer = listOf(enkeltplassLinje),
             ) {
                 setTilsagnStatus(enkeltplassTilsagn, TilsagnStatus.GODKJENT)
-                setUtbetalingLinjeStatus(enkeltplassLinje, UtbetalingLinjeStatus.TIL_ATTESTERING)
+                setUtbetalingLinjeStatus(enkeltplassLinje, UtbetalingLinjeStatus.TIL_GODKJENNING)
             }.initialize(database.api)
 
             val service = createUtbetalingService()
@@ -573,10 +573,10 @@ class AdminUtbetalingServiceTest : FunSpec({
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
                 tilsagn = listOf(Tilsagn1),
-                utbetalinger = listOf(utbetaling1.copy(status = UtbetalingStatusType.TIL_ATTESTERING)),
+                utbetalinger = listOf(utbetaling1.copy(status = UtbetalingStatusType.TIL_GODKJENNING)),
                 utbetalingLinjer = listOf(utbetalingLinje1),
             ) {
-                setUtbetalingLinjeStatus(utbetalingLinje1, UtbetalingLinjeStatus.TIL_ATTESTERING)
+                setUtbetalingLinjeStatus(utbetalingLinje1, UtbetalingLinjeStatus.TIL_GODKJENNING)
             }.initialize(database.api)
 
             val service = createUtbetalingService()
@@ -594,10 +594,10 @@ class AdminUtbetalingServiceTest : FunSpec({
                 ansatte = listOf(enkeltplassBeslutterVedAnnetKostnadssted),
                 gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
                 tilsagn = listOf(enkeltplassTilsagn),
-                utbetalinger = listOf(enkeltplassUtbetaling.copy(status = UtbetalingStatusType.TIL_ATTESTERING)),
+                utbetalinger = listOf(enkeltplassUtbetaling.copy(status = UtbetalingStatusType.TIL_GODKJENNING)),
                 utbetalingLinjer = listOf(enkeltplassLinje),
             ) {
-                setUtbetalingLinjeStatus(enkeltplassLinje, UtbetalingLinjeStatus.TIL_ATTESTERING)
+                setUtbetalingLinjeStatus(enkeltplassLinje, UtbetalingLinjeStatus.TIL_GODKJENNING)
             }.initialize(database.api)
 
             val service = createUtbetalingService()
@@ -610,10 +610,10 @@ class AdminUtbetalingServiceTest : FunSpec({
                 ansatte = listOf(saksbehandler),
                 gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
                 tilsagn = listOf(enkeltplassTilsagn),
-                utbetalinger = listOf(enkeltplassUtbetaling.copy(status = UtbetalingStatusType.TIL_ATTESTERING)),
+                utbetalinger = listOf(enkeltplassUtbetaling.copy(status = UtbetalingStatusType.TIL_GODKJENNING)),
                 utbetalingLinjer = listOf(enkeltplassLinje),
             ) {
-                setUtbetalingLinjeStatus(enkeltplassLinje, UtbetalingLinjeStatus.TIL_ATTESTERING)
+                setUtbetalingLinjeStatus(enkeltplassLinje, UtbetalingLinjeStatus.TIL_GODKJENNING)
             }.initialize(database.api)
 
             val service = createUtbetalingService()
@@ -636,10 +636,10 @@ class AdminUtbetalingServiceTest : FunSpec({
                 ansatte = listOf(enkeltplassBeslutterVedAnnetKostnadssted),
                 gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
                 tilsagn = listOf(enkeltplassTilsagn),
-                utbetalinger = listOf(enkeltplassUtbetaling.copy(status = UtbetalingStatusType.TIL_ATTESTERING)),
+                utbetalinger = listOf(enkeltplassUtbetaling.copy(status = UtbetalingStatusType.TIL_GODKJENNING)),
                 utbetalingLinjer = listOf(enkeltplassLinje),
             ) {
-                setUtbetalingLinjeStatus(enkeltplassLinje, UtbetalingLinjeStatus.TIL_ATTESTERING)
+                setUtbetalingLinjeStatus(enkeltplassLinje, UtbetalingLinjeStatus.TIL_GODKJENNING)
             }.initialize(database.api)
 
             val service = createUtbetalingService()
@@ -657,10 +657,10 @@ class AdminUtbetalingServiceTest : FunSpec({
                 ansatte = listOf(enkeltplassBeslutter),
                 gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
                 tilsagn = listOf(enkeltplassTilsagn),
-                utbetalinger = listOf(enkeltplassUtbetaling.copy(status = UtbetalingStatusType.TIL_ATTESTERING)),
+                utbetalinger = listOf(enkeltplassUtbetaling.copy(status = UtbetalingStatusType.TIL_GODKJENNING)),
                 utbetalingLinjer = listOf(enkeltplassLinje),
             ) {
-                setUtbetalingLinjeStatus(enkeltplassLinje, UtbetalingLinjeStatus.TIL_ATTESTERING)
+                setUtbetalingLinjeStatus(enkeltplassLinje, UtbetalingLinjeStatus.TIL_GODKJENNING)
             }.initialize(database.api)
 
             val service = createUtbetalingService()
@@ -682,10 +682,10 @@ class AdminUtbetalingServiceTest : FunSpec({
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
                 tilsagn = listOf(Tilsagn1),
-                utbetalinger = listOf(utbetaling1.copy(status = UtbetalingStatusType.TIL_ATTESTERING)),
+                utbetalinger = listOf(utbetaling1.copy(status = UtbetalingStatusType.TIL_GODKJENNING)),
                 utbetalingLinjer = listOf(utbetalingLinje1),
             ) {
-                setUtbetalingLinjeStatus(utbetalingLinje1, UtbetalingLinjeStatus.TIL_ATTESTERING)
+                setUtbetalingLinjeStatus(utbetalingLinje1, UtbetalingLinjeStatus.TIL_GODKJENNING)
             }.initialize(database.api)
 
             val service = createUtbetalingService()
@@ -705,11 +705,11 @@ class AdminUtbetalingServiceTest : FunSpec({
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
                 tilsagn = listOf(Tilsagn1),
-                utbetalinger = listOf(utbetaling1.copy(status = UtbetalingStatusType.TIL_ATTESTERING)),
+                utbetalinger = listOf(utbetaling1.copy(status = UtbetalingStatusType.TIL_GODKJENNING)),
                 utbetalingLinjer = listOf(utbetalingLinje1),
             ) {
                 setTilsagnStatus(Tilsagn1, TilsagnStatus.GODKJENT)
-                setUtbetalingLinjeStatus(utbetalingLinje1, UtbetalingLinjeStatus.TIL_ATTESTERING)
+                setUtbetalingLinjeStatus(utbetalingLinje1, UtbetalingLinjeStatus.TIL_GODKJENNING)
             }.initialize(database.api)
 
             val service = createUtbetalingService()
@@ -722,7 +722,7 @@ class AdminUtbetalingServiceTest : FunSpec({
             )
         }
 
-        test("kan ikke beslutte egen utbetaling") {
+        test("kan ikke godkjenne egen utbetaling") {
             val attestantOgSaksbehandler = attestant.medRoller(attestant.roller + saksbehandler.roller)
             MulighetsrommetTestDomain(
                 ansatte = listOf(saksbehandler, attestantOgSaksbehandler),
@@ -748,7 +748,7 @@ class AdminUtbetalingServiceTest : FunSpec({
             )
         }
 
-        test("kan beslutte utbetaling når man har besluttet tilsagnet") {
+        test("kan godkjenne utbetaling når man har besluttet tilsagnet") {
             MulighetsrommetTestDomain(
                 ansatte = listOf(saksbehandler, attestant),
                 avtaler = listOf(AvtaleFixtures.AFT),
@@ -859,7 +859,7 @@ class AdminUtbetalingServiceTest : FunSpec({
             )
         }
 
-        test("oppdatering av returnert utbetalingslinje setter status TIL_ATTESTERING") {
+        test("oppdatering av returnert utbetalingslinje setter status TIL_GODKJENNING") {
             MulighetsrommetTestDomain(
                 ansatte = listOf(saksbehandler, attestant),
                 avtaler = listOf(AvtaleFixtures.AFT),
@@ -879,8 +879,8 @@ class AdminUtbetalingServiceTest : FunSpec({
             service.sendTilAttestering(opprett, saksbehandler.navIdent).shouldBeRight()
 
             database.run {
-                queries.utbetaling.getOrError(utbetaling1.id).status shouldBe UtbetalingStatusType.TIL_ATTESTERING
-                queries.utbetalingLinje.getOrError(utbetalingLinje1.id).status shouldBe UtbetalingLinjeStatus.TIL_ATTESTERING
+                queries.utbetaling.getOrError(utbetaling1.id).status shouldBe UtbetalingStatusType.TIL_GODKJENNING
+                queries.utbetalingLinje.getOrError(utbetalingLinje1.id).status shouldBe UtbetalingLinjeStatus.TIL_GODKJENNING
             }
         }
 
@@ -1013,7 +1013,7 @@ class AdminUtbetalingServiceTest : FunSpec({
             service.godkjennUtbetalingLinje(
                 utbetalingLinje1.id,
                 attestant.navIdent,
-            ).shouldBeRight().status shouldBe UtbetalingStatusType.TIL_ATTESTERING
+            ).shouldBeRight().status shouldBe UtbetalingStatusType.TIL_GODKJENNING
 
             database.run {
                 queries.utbetalingLinje.getOrError(utbetalingLinje1.id).status shouldBe UtbetalingLinjeStatus.GODKJENT
@@ -1190,13 +1190,13 @@ class AdminUtbetalingServiceTest : FunSpec({
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
                 tilsagn = listOf(tilsagn1, tilsagn2),
-                utbetalinger = listOf(utbetaling1.copy(status = UtbetalingStatusType.TIL_ATTESTERING)),
+                utbetalinger = listOf(utbetaling1.copy(status = UtbetalingStatusType.TIL_GODKJENNING)),
                 utbetalingLinjer = listOf(utbetalingLinje1, utbetalingLinje2),
             ) {
                 setTilsagnStatus(tilsagn1, TilsagnStatus.GODKJENT)
                 setTilsagnStatus(tilsagn2, TilsagnStatus.OPPGJORT)
-                setUtbetalingLinjeStatus(utbetalingLinje1, UtbetalingLinjeStatus.TIL_ATTESTERING)
-                setUtbetalingLinjeStatus(utbetalingLinje2, UtbetalingLinjeStatus.TIL_ATTESTERING)
+                setUtbetalingLinjeStatus(utbetalingLinje1, UtbetalingLinjeStatus.TIL_GODKJENNING)
+                setUtbetalingLinjeStatus(utbetalingLinje2, UtbetalingLinjeStatus.TIL_GODKJENNING)
             }.initialize(database.api)
 
             val service = createUtbetalingService()
@@ -1323,7 +1323,7 @@ class AdminUtbetalingServiceTest : FunSpec({
             service.godkjennUtbetalingLinje(
                 id = utbetalingLinje1.id,
                 navIdent = attestant.navIdent,
-            ).shouldBeRight().status shouldBe UtbetalingStatusType.TIL_ATTESTERING
+            ).shouldBeRight().status shouldBe UtbetalingStatusType.TIL_GODKJENNING
 
             database.run {
                 queries.utbetalingLinje.getOrError(utbetalingLinje1.id).status shouldBe UtbetalingLinjeStatus.GODKJENT
@@ -1373,11 +1373,11 @@ class AdminUtbetalingServiceTest : FunSpec({
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
                 tilsagn = listOf(tilsagn1),
-                utbetalinger = listOf(utbetaling1.copy(status = UtbetalingStatusType.TIL_ATTESTERING)),
+                utbetalinger = listOf(utbetaling1.copy(status = UtbetalingStatusType.TIL_GODKJENNING)),
                 utbetalingLinjer = listOf(utbetalingLinje1),
             ) {
                 setTilsagnStatus(tilsagn1, TilsagnStatus.GODKJENT)
-                setUtbetalingLinjeStatus(utbetalingLinje1, UtbetalingLinjeStatus.TIL_ATTESTERING)
+                setUtbetalingLinjeStatus(utbetalingLinje1, UtbetalingLinjeStatus.TIL_GODKJENNING)
             }.initialize(database.api)
 
             val februarNorskTid = TidligstTidspunktForUtbetalingCalculator { _, _ ->
@@ -1415,14 +1415,14 @@ class AdminUtbetalingServiceTest : FunSpec({
                 tilsagn = listOf(tilsagn1),
                 utbetalinger = listOf(
                     utbetaling1.copy(
-                        status = UtbetalingStatusType.TIL_ATTESTERING,
+                        status = UtbetalingStatusType.TIL_GODKJENNING,
                         utbetalesTidligstTidspunkt = februarNorskTid,
                     ),
                 ),
                 utbetalingLinjer = listOf(utbetalingLinje1),
             ) {
                 setTilsagnStatus(tilsagn1, TilsagnStatus.GODKJENT)
-                setUtbetalingLinjeStatus(utbetalingLinje1, UtbetalingLinjeStatus.TIL_ATTESTERING)
+                setUtbetalingLinjeStatus(utbetalingLinje1, UtbetalingLinjeStatus.TIL_GODKJENNING)
             }.initialize(database.api)
 
             val service = createUtbetalingService()
@@ -1441,7 +1441,7 @@ class AdminUtbetalingServiceTest : FunSpec({
             }
         }
 
-        test("saksbehandler som sendte til attestering kan returnere utbetalingslinje") {
+        test("saksbehandler som sendte til godkjenning kan returnere utbetalingslinje") {
             MulighetsrommetTestDomain(
                 ansatte = listOf(saksbehandler, attestant),
                 avtaler = listOf(AvtaleFixtures.AFT),
@@ -1466,7 +1466,7 @@ class AdminUtbetalingServiceTest : FunSpec({
             ).shouldBeRight().status shouldBe UtbetalingStatusType.RETURNERT
         }
 
-        test("annen saksbehandler enn den som sendte utbetaling til attestering kan returnere utbetalingslinje") {
+        test("annen saksbehandler enn den som sendte utbetaling til godkjenning kan returnere utbetalingslinje") {
             val annenSaksbehandler = NavAnsattFixture.FetterAnton.medRoller(saksbehandler.roller)
             MulighetsrommetTestDomain(
                 ansatte = listOf(saksbehandler, annenSaksbehandler),
@@ -1784,7 +1784,7 @@ class AdminUtbetalingServiceTest : FunSpec({
                 utbetalinger = listOf(original, korreksjon),
                 utbetalingLinjer = listOf(linje),
             ) {
-                setUtbetalingLinjeStatus(linje, UtbetalingLinjeStatus.TIL_ATTESTERING)
+                setUtbetalingLinjeStatus(linje, UtbetalingLinjeStatus.TIL_GODKJENNING)
             }.initialize(database.api)
 
             val service = createUtbetalingService()
@@ -1910,7 +1910,7 @@ class AdminUtbetalingServiceTest : FunSpec({
                     row(UtbetalingStatusType.GENERERT, tilAvbrytelse),
                     row(UtbetalingStatusType.TIL_BEHANDLING, tilAvbrytelse),
                     row(UtbetalingStatusType.RETURNERT, tilAvbrytelse),
-                    row(UtbetalingStatusType.TIL_ATTESTERING, feilmelding),
+                    row(UtbetalingStatusType.TIL_GODKJENNING, feilmelding),
                     row(UtbetalingStatusType.FERDIG_BEHANDLET, feilmelding),
                     row(UtbetalingStatusType.DELVIS_UTBETALT, feilmelding),
                     row(UtbetalingStatusType.UTBETALT, feilmelding),
