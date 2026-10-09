@@ -13,6 +13,7 @@ import io.mockk.every
 import io.mockk.mockk
 import no.nav.mulighetsrommet.admin.journalpost.ForventetBruker
 import no.nav.mulighetsrommet.admin.journalpost.JournalpostValidator
+import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandling
@@ -41,6 +42,7 @@ class TilskuddBehandlingValidatorTest : FunSpec({
     val periodeSlutt = LocalDate.of(2025, 7, 1)
     val gjennomforingSluttDato = LocalDate.of(2025, 12, 31)
     val behandlendeEnhet = NavEnhetNummer("0502")
+    val arrangorBetalingsinformasjon = mockk<Betalingsinformasjon>(relaxed = true)
 
     fun createGjennomforing(sluttDato: LocalDate? = gjennomforingSluttDato): Gjennomforing = mockk<Gjennomforing>().also { gjennomforing ->
         every { gjennomforing.sluttDato } returns sluttDato
@@ -76,6 +78,7 @@ class TilskuddBehandlingValidatorTest : FunSpec({
         TilskuddBehandlingValidator.validate(
             request = request,
             gjennomforing = createGjennomforing(),
+            arrangorBetalingsinformasjon = arrangorBetalingsinformasjon,
             behandlendeEnhet = behandlendeEnhet,
         ) { journalpostId, _ -> JournalpostId(journalpostId).right() } shouldBeRight TilskuddBehandling(
             id = request.id,
@@ -114,6 +117,7 @@ class TilskuddBehandlingValidatorTest : FunSpec({
             req = request,
             index = 0,
             gjennomforing = createGjennomforing(),
+            arrangorBetalingsinformasjon = arrangorBetalingsinformasjon,
         ) { journalpostId, _ -> JournalpostId(journalpostId).right() }.shouldBeRight()
 
         result.vedtakResultat shouldBe VedtakResultat.AVSLAG
@@ -139,6 +143,7 @@ class TilskuddBehandlingValidatorTest : FunSpec({
             req = request,
             index = 2,
             gjennomforing = createGjennomforing(),
+            arrangorBetalingsinformasjon = null,
         ) { journalpostId, _ -> JournalpostId(journalpostId).right() }.shouldBeLeft()
             .shouldContainExactlyInAnyOrder(
                 FieldError("/tilskudd/2/kostnadssted", "Kostnadssted er påkrevd"),
@@ -165,8 +170,22 @@ class TilskuddBehandlingValidatorTest : FunSpec({
             req = request,
             index = 0,
             gjennomforing = createGjennomforing(),
+            arrangorBetalingsinformasjon = arrangorBetalingsinformasjon,
         ) { journalpostId, _ -> JournalpostId(journalpostId).right() } shouldBeLeft listOf(
             FieldError("/tilskudd/0/vedtakResultat", "Du må velge et resultat"),
+        )
+    }
+
+    test("krever betalingsinformasjon når utbetaling går til arrangør") {
+        val request = validTilskuddRequest()
+
+        TilskuddBehandlingValidator.validateTilskuddRequest(
+            req = request,
+            index = 0,
+            gjennomforing = createGjennomforing(),
+            arrangorBetalingsinformasjon = null,
+        ) { journalpostId, _ -> JournalpostId(journalpostId).right() } shouldBeLeft listOf(
+            FieldError("/tilskudd/0/utbetalingMottaker", "Betalingsinformasjon for arrangøren må være registrert"),
         )
     }
 
@@ -180,6 +199,7 @@ class TilskuddBehandlingValidatorTest : FunSpec({
             req = request,
             index = 1,
             gjennomforing = createGjennomforing(LocalDate.of(2025, 6, 30)),
+            arrangorBetalingsinformasjon = arrangorBetalingsinformasjon,
         ) { journalpostId, _ -> JournalpostId(journalpostId).right() }.shouldBeLeft()
             .shouldContainExactlyInAnyOrder(
                 FieldError("/tilskudd/1/periodeStart", "Periodestart må være før sluttdato"),
@@ -199,6 +219,7 @@ class TilskuddBehandlingValidatorTest : FunSpec({
         TilskuddBehandlingValidator.validate(
             request = request,
             gjennomforing = createGjennomforing(),
+            arrangorBetalingsinformasjon = arrangorBetalingsinformasjon,
             behandlendeEnhet = behandlendeEnhet,
         ) { journalpostId, _ -> JournalpostId(journalpostId).right() } shouldBeLeft listOf(
             FieldError("/tilskudd/1/kostnadssted", "Kostnadssted er påkrevd"),
