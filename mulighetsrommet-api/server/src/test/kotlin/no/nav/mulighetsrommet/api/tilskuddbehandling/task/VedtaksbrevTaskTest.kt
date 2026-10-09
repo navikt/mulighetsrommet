@@ -10,6 +10,7 @@ import io.kotest.matchers.types.shouldBeInstanceOf
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
+import no.nav.mulighetsrommet.admin.arrangor.BetalingsinformasjonQuery
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokarkClient
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokarkResponse
@@ -49,6 +50,7 @@ class VedtaksbrevTaskTest : FunSpec({
     val deltakerId = UUID.randomUUID()
 
     val personaliaService = mockk<PersonaliaService>()
+    val betalingsinformasjon = mockk<BetalingsinformasjonQuery>(relaxed = true)
 
     beforeEach {
         MulighetsrommetTestDomain(
@@ -150,6 +152,7 @@ class VedtaksbrevTaskTest : FunSpec({
             journalpostValidator = gyldigJournalpostValidator(),
             personaliaService = mockk(relaxed = true),
             featureToggleService = mockk(relaxed = true),
+            betalingsinformasjon = betalingsinformasjon,
         )
 
         val revurderingBehandlingId = service
@@ -259,6 +262,7 @@ private suspend fun opprettOgAttesterTilskudd(
         journalpostValidator = gyldigJournalpostValidator(),
         personaliaService = mockk(relaxed = true),
         featureToggleService = mockk(relaxed = true),
+        betalingsinformasjon = mockk(relaxed = true),
     )
 
     service.upsert(request, NavAnsattFixture.DonaldDuck.navIdent).shouldBeRight()
