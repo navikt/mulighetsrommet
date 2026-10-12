@@ -42,6 +42,8 @@ const tabs: Tab[] = [
   { key: "vedtak", label: "Vedtak og beregning", icon: <CalculatorIcon fontSize="1.5rem" /> },
 ];
 
+const vedtakFields = ["vedtakResultat", "belop", "kommentarVedtaksbrev", "kommentarIntern"];
+
 export function TilskuddBehandlingFormPage() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
   const { gjennomforing, prismodell } = useEnkeltplassGjennomforingOrError(gjennomforingId);
@@ -113,19 +115,22 @@ export function TilskuddBehandlingFormPage() {
   const onSubmit = handleSubmit((data) => {
     mutation.mutate(data, {
       onSuccess: () => navigate(listUrl),
-      onValidationError: (error: ValidationError) => applyValidationErrors(form, error),
+      onValidationError: handleValidationError,
     });
   });
 
   const onVisVedtaksbrev = handleSubmit((data) => {
     vedtaksbrevMutation.mutate(data, {
       onSuccess: () => setPdfPreviewOpen(true),
-      onValidationError: (error: ValidationError) => applyValidationErrors(form, error),
+      onValidationError: handleValidationError,
     });
   });
 
+  function handleValidationError(error: ValidationError) {
+    applyValidationErrors(form, error);
+  }
+
   function tabHasErrors(tab: Tab): boolean {
-    const vedtakFields = ["vedtakResultat", "kommentarVedtaksbrev"];
     const allVedtakErrors = Array.isArray(errors.tilskudd)
       ? errors.tilskudd.flatMap((v) => Object.keys(v ?? {}))
       : [];
@@ -209,6 +214,7 @@ export function TilskuddBehandlingFormPage() {
           </Tabs>
           <Separator />
           <HStack gap="space-8" marginBlock="space-16" justify="end">
+            <ValideringsfeilOppsummering />
             {isFirstTab ? (
               <Button
                 variant="tertiary"
@@ -224,12 +230,9 @@ export function TilskuddBehandlingFormPage() {
               </Button>
             )}
             {isLastTab ? (
-              <HStack gap="space-4" align="center">
-                <ValideringsfeilOppsummering />
-                <Button variant="primary" size="small" type="submit" disabled={mutation.isPending}>
-                  {mutation.isPending ? "Sender til godkjenning..." : "Send til godkjenning"}
-                </Button>
-              </HStack>
+              <Button variant="primary" size="small" type="submit" disabled={mutation.isPending}>
+                {mutation.isPending ? "Sender til godkjenning..." : "Send til godkjenning"}
+              </Button>
             ) : (
               <Button variant="primary" size="small" type="button" onClick={goToNextTab}>
                 Neste
