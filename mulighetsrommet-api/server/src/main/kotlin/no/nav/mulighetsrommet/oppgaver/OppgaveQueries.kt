@@ -67,6 +67,11 @@ class OppgaveQueries(private val session: Session) {
             ) okonomi ON okonomi.entity_id = gjennomforing.id
             WHERE gjennomforing.gjennomforing_type = 'ENKELTPLASS'
                 AND coalesce(prisendring.status, okonomi.status) = 'TIL_BEHANDLING'
+                AND EXISTS (
+                    SELECT 1
+                    FROM deltaker
+                    WHERE deltaker.gjennomforing_id = gjennomforing.id
+                )
                 AND (:tiltakskoder::text[] IS NULL OR tiltakstype.tiltakskode = ANY(:tiltakskoder))
                 AND (:nav_enheter::text[] IS NULL OR gjennomforing.ansvarlig_enhet = ANY(:nav_enheter))
                 AND (:arrangorer::uuid[] IS NULL OR arrangor.id = ANY(:arrangorer))
