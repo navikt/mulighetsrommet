@@ -30,7 +30,7 @@ export const defaultGjennomforingFilter: GjennomforingFilterType = {
   search: "",
   navEnheter: [],
   tiltakstyper: [],
-  statuser: [GjennomforingStatusType.GJENNOMFORES],
+  statuser: [],
   sortering: {
     sortString: "navn-ascending",
     tableSort: {

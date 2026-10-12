@@ -361,7 +361,7 @@ export function gjennomforingTypeToString(type: GjennomforingType): string {
     case GjennomforingType.AVTALE:
       return "Gruppe";
     case GjennomforingType.ENKELTPLASS:
-      return "Enkeltplass";
+      return "Enkeltplass uten rammeavtale";
   }
 }
 
