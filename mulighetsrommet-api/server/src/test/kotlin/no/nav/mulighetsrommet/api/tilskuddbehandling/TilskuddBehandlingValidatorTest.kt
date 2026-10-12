@@ -98,7 +98,7 @@ class TilskuddBehandlingValidatorTest : FunSpec({
                     kommentarVedtaksbrev = "Vedtakskommentar",
                 ),
             ),
-            status = TilskuddBehandlingStatus.TIL_ATTESTERING,
+            status = TilskuddBehandlingStatus.TIL_GODKJENNING,
             type = TilskuddBehandlingType.REGISTRERING,
             behandlendeEnhet = behandlendeEnhet,
         )
