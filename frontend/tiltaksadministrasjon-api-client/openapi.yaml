@@ -7939,7 +7939,7 @@ components:
         pris:
           oneOf:
           - type: "null"
-          - $ref: "#/components/schemas/ValutaBelop"
+          - $ref: "#/components/schemas/ValutaBelopRequest"
       required:
       - antallPlasser
       - antallTimerOppfolgingPerDeltaker
@@ -7982,6 +7982,21 @@ components:
       - beskrivelse
       - id
       - pris
+    ValutaBelopRequest:
+      type: object
+      properties:
+        belop:
+          type:
+          - "null"
+          - integer
+          format: int32
+        valuta:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/Valuta"
+      required:
+      - belop
+      - valuta
     TilsagnDeltakerRequest:
       type: object
       properties:
@@ -8192,21 +8207,6 @@ components:
       - displayName
       - displayNameLong
       - tagName
-    ValutaBelopRequest:
-      type: object
-      properties:
-        belop:
-          type:
-          - "null"
-          - integer
-          format: int32
-        valuta:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/Valuta"
-      required:
-      - belop
-      - valuta
     UtbetalingRequest:
       type: object
       properties:

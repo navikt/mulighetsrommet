@@ -228,7 +228,10 @@ class TilsagnService(
                 TilsagnBeregningType.FRI ->
                     TilsagnBeregningFri.beregn(
                         TilsagnBeregningFri.Input(
-                            pris = request.beregning.pris ?: 0.NOK,
+                            pris = ValutaBelop(
+                                request.beregning.pris?.belop ?: 0,
+                                request.beregning.pris?.valuta ?: Valuta.NOK,
+                            ),
                         ),
                     )
 

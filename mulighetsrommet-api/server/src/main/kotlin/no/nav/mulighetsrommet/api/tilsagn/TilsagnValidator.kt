@@ -122,7 +122,7 @@ object TilsagnValidator {
         )
 
         validate(beregning.output.pris.belop > 0) {
-            FieldError.of("Beløp må være større enn 0")
+            FieldError(pointer = "/beregning/pris/belop", "Beløp må være større enn 0")
         }
 
         Validated(
@@ -377,26 +377,15 @@ object TilsagnValidator {
         prismodellValuta: Valuta,
         request: TilsagnBeregningRequest,
     ): Either<List<FieldError>, TilsagnBeregning> = validation {
-        validate(request.pris != null && request.pris.belop > 0) {
-            FieldError.of(
-                "Beløp må være positivt",
-                TilsagnRequest::beregning,
-                TilsagnBeregningRequest::pris,
+        validate(request.pris?.belop != null && request.pris.belop > 0) {
+            FieldError(
+                pointer = "/beregning/pris/belop",
+                "Beløp må være over 0",
             )
         }
-        validate(request.pris?.valuta == prismodellValuta) {
-            FieldError.of(
-                "Må ha samme valuta som prismodellen: $prismodellValuta",
-                TilsagnRequest::beregning,
-                TilsagnBeregningRequest::pris,
-            )
-        }
-
-        requireValid(request.pris != null)
-
         TilsagnBeregningFri.beregn(
             TilsagnBeregningFri.Input(
-                pris = request.pris,
+                pris = ValutaBelop(requireNotNull(request.pris?.belop), prismodellValuta),
             ),
         )
     }

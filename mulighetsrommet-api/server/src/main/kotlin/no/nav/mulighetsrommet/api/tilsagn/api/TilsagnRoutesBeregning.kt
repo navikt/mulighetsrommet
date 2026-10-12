@@ -38,12 +38,12 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnDeltakerRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnInputLinjeRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
+import no.nav.mulighetsrommet.api.tilsagn.model.ValutaBelopRequest
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.ProblemDetail
-import no.nav.mulighetsrommet.model.ValutaBelop
 import no.nav.mulighetsrommet.model.withValuta
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.tokenprovider.requireAzureAd
@@ -460,8 +460,8 @@ private fun getAntallTimerOppfolgingPerdeltaker(beregning: TilsagnBeregning): In
     else -> null
 }
 
-private fun getDefaultPris(prismodell: Prismodell): ValutaBelop? = when (prismodell) {
-    is Prismodell.AnskaffetEnkeltplass -> prismodell.totalbelop
+private fun getDefaultPris(prismodell: Prismodell): ValutaBelopRequest? = when (prismodell) {
+    is Prismodell.AnskaffetEnkeltplass -> ValutaBelopRequest(prismodell.totalbelop.belop, prismodell.totalbelop.valuta)
     else -> null
 }
 

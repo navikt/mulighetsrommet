@@ -143,7 +143,7 @@ export function BesluttUtbetalingLinjeView({ utbetaling }: Props) {
                     handleClose={() => {
                       setGodkjennModalOpenForLinjeId(null);
                     }}
-                    headingText="Godkjennutbetaling"
+                    headingText="Godkjenn utbetaling"
                     headingIconType="info"
                     body={
                       <BodyShort>
