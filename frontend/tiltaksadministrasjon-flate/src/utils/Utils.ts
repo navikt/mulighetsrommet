@@ -12,6 +12,7 @@ import {
   TilskuddMottaker,
   Tiltakskode,
   UtbetalingLinjeReturnertAarsak,
+  FieldError,
   ValidationError,
   OpplaeringtilskuddKode,
   PrismodellIngenKostnaderAarsak,
@@ -297,8 +298,47 @@ export function tilsagnTypeToString(type: TilsagnType): string {
   }
 }
 
-export function isValidationError(error: unknown): error is ValidationError {
-  return typeof error === "object" && error !== null && "errors" in error;
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}
+
+function isFieldError(value: unknown): value is FieldError {
+  return isRecord(value) && typeof value.pointer === "string" && typeof value.detail === "string";
+}
+
+function isFieldErrorArray(value: unknown): value is FieldError[] {
+  return Array.isArray(value) && value.every(isFieldError);
+}
+
+export function getValidationError(error: unknown): ValidationError | undefined {
+  if (!isRecord(error)) return undefined;
+
+  const extensions = isRecord(error.extensions) ? error.extensions : undefined;
+  const errors = isFieldErrorArray(error.errors)
+    ? error.errors
+    : isFieldErrorArray(extensions?.errors)
+      ? extensions.errors
+      : undefined;
+
+  if (!errors?.length) return undefined;
+
+  if (
+    !isFieldErrorArray(error.errors) &&
+    error.type !== "validation-error" &&
+    error.status !== 400
+  ) {
+    return undefined;
+  }
+
+  return {
+    type: typeof error.type === "string" ? error.type : "validation-error",
+    title: typeof error.title === "string" ? error.title : "Validation error",
+    status: typeof error.status === "number" ? error.status : 400,
+    detail: typeof error.detail === "string" ? error.detail : "Unknown Validation Error",
+    instance: typeof error.instance === "string" ? error.instance : null,
+    extensions: {},
+    errors,
+  };
 }
 
 export function avbrytGjennomforingAarsakTilTekst(aarsak: AvbrytGjennomforingAarsak): string {

@@ -6,7 +6,7 @@ import {
 } from "@tanstack/react-query";
 import { ProblemDetail, ValidationError } from "@tiltaksadministrasjon/api-client";
 import { useNavigate } from "react-router";
-import { isValidationError } from "@/utils/Utils";
+import { getValidationError } from "@/utils/Utils";
 import { useCallback, useEffect, useRef } from "react";
 
 interface OnValidationErrorOption {
@@ -70,8 +70,9 @@ export function useApiMutation<
           }
         },
         onError: (error, variables, onMutateResult, context) => {
-          if (isValidationError(error) && mutateOptions?.onValidationError) {
-            mutateOptions.onValidationError(error);
+          const validationError = getValidationError(error);
+          if (validationError && mutateOptions?.onValidationError) {
+            mutateOptions.onValidationError(validationError);
           } else if (mutateOptions?.onError) {
             mutateOptions.onError(error, variables, onMutateResult, context);
           } else {
