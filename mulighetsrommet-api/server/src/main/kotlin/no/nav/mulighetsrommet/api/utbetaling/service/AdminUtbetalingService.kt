@@ -118,7 +118,7 @@ class AdminUtbetalingService(
         else -> Unit.right()
     }
 
-    fun sendTilAttestering(
+    fun sendTilGodkjenning(
         opprett: OpprettUtbetalingLinjer,
         navIdent: NavIdent,
     ): Either<UtbetalingError, Utbetaling> = db.transaction {
@@ -169,7 +169,7 @@ class AdminUtbetalingService(
             }
         }.flatMap {
             queries.utbetaling.setBegrunnelseMindreBetalt(utbetaling.id, opprett.begrunnelseMindreBetalt)
-            utbetalingService.sendTilAttestering(utbetaling.id, opprett.linjer, navIdent)
+            utbetalingService.sendTilGodkjenning(utbetaling.id, opprett.linjer, navIdent)
         }.mapLeft(UtbetalingError::Valideringsfeil)
     }
 
@@ -231,7 +231,7 @@ class AdminUtbetalingService(
             ).left()
         }
 
-        utbetalingService.attesterUtbetalingLinje(id, navIdent).mapLeft(UtbetalingError::Valideringsfeil)
+        utbetalingService.godkjennUtbetalingLinje(id, navIdent).mapLeft(UtbetalingError::Valideringsfeil)
     }
 
     fun returnerUtbetalingLinje(

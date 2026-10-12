@@ -112,7 +112,7 @@ class TilskuddBehandlingServiceTest : FunSpec({
         val detaljer = service.getDetaljerDto(request.id, ansatt2)!!
 
         val behandling = detaljer.behandling
-        service.handlinger(behandling, ansatt2, detaljer.opprettelse) shouldContain TilskuddBehandlingHandling.ATTESTER
+        service.handlinger(behandling, ansatt2, detaljer.opprettelse) shouldContain TilskuddBehandlingHandling.GODKJENN
 
         val tilskudd = behandling.tilskudd.single()
         val toKostnadssteder = behandling.copy(
@@ -128,7 +128,7 @@ class TilskuddBehandlingServiceTest : FunSpec({
             toKostnadssteder,
             ansatt2,
             detaljer.opprettelse,
-        ) shouldNotContain TilskuddBehandlingHandling.ATTESTER
+        ) shouldNotContain TilskuddBehandlingHandling.GODKJENN
     }
 
     context("validering av journalpost") {
@@ -152,23 +152,23 @@ class TilskuddBehandlingServiceTest : FunSpec({
         }
     }
 
-    context("attester og returner") {
-        test("kan ikke attestere sin egen behandling") {
+    context("godkjenn og returner") {
+        test("kan ikke godkjenne sin egen behandling") {
             val service = createService()
 
             service.upsert(request, ansatt1).shouldBeRight()
 
-            service.attester(request.id, ansatt1).shouldBeLeft().shouldHaveSize(1).first().should {
+            service.godkjenn(request.id, ansatt1).shouldBeLeft().shouldHaveSize(1).first().should {
                 it.detail shouldBe "Du kan ikke beslutte noe du selv har behandlet"
             }
         }
 
-        test("annen ansatt kan attestere behandling") {
+        test("annen ansatt kan godkjenne behandling") {
             val service = createService()
 
             service.upsert(request, ansatt1).shouldBeRight()
 
-            service.attester(request.id, ansatt2).shouldBeRight()
+            service.godkjenn(request.id, ansatt2).shouldBeRight()
 
             val detaljer = service.getDetaljerDto(request.id, ansatt1)
             detaljer?.behandling?.status?.type shouldBe TilskuddBehandlingStatus.FERDIG_BEHANDLET

@@ -79,7 +79,7 @@ export const mockUtbetalinger: UtbetalingDto[] = [
       slutt: "2025-06-30",
     },
     status: {
-      type: UtbetalingStatusDtoType.TIL_ATTESTERING,
+      type: UtbetalingStatusDtoType.TIL_GODKJENNING,
       status: {
         value: "Til godkjenning",
         variant: DataElementStatusVariant.WARNING,
@@ -198,7 +198,7 @@ export const mockUtbetalingerKompakt: UtbetalingKompaktDto[] = [
       slutt: "2025-06-30",
     },
     status: {
-      type: UtbetalingStatusDtoType.TIL_ATTESTERING,
+      type: UtbetalingStatusDtoType.TIL_GODKJENNING,
       status: {
         value: "Til godkjenning",
         variant: DataElementStatusVariant.WARNING,
@@ -273,7 +273,7 @@ export const mockUtbetalingLinjer: UtbetalingLinjeDto[] = [
       beskrivelse: null,
     },
     status: {
-      type: UtbetalingLinjeStatus.TIL_ATTESTERING,
+      type: UtbetalingLinjeStatus.TIL_GODKJENNING,
       status: {
         value: "Til godkjenning",
         variant: DataElementStatusVariant.WARNING,
@@ -295,10 +295,10 @@ export const mockUtbetalingLinjer: UtbetalingLinjeDto[] = [
         aarsaker: ["ANNET"],
       },
     },
-    handlinger: [UtbetalingLinjeHandling.ATTESTER, UtbetalingLinjeHandling.RETURNER],
+    handlinger: [UtbetalingLinjeHandling.GODKJENN, UtbetalingLinjeHandling.RETURNER],
   },
   {
-    handlinger: [UtbetalingLinjeHandling.ATTESTER, UtbetalingLinjeHandling.RETURNER],
+    handlinger: [UtbetalingLinjeHandling.GODKJENN, UtbetalingLinjeHandling.RETURNER],
     id: "456e4567-e89b-12d3-a456-426614174001",
     deltakere: [],
     tilsagn: {
@@ -358,7 +358,7 @@ export const mockUtbetalingLinjer: UtbetalingLinjeDto[] = [
     },
   },
   {
-    handlinger: [UtbetalingLinjeHandling.ATTESTER, UtbetalingLinjeHandling.RETURNER],
+    handlinger: [UtbetalingLinjeHandling.GODKJENN, UtbetalingLinjeHandling.RETURNER],
     deltakere: [],
     id: "456e4567-e89b-12d3-a456-426614174002",
     tilsagn: {
@@ -414,7 +414,7 @@ export const mockUtbetalingLinjer: UtbetalingLinjeDto[] = [
     },
   },
   {
-    handlinger: [UtbetalingLinjeHandling.ATTESTER, UtbetalingLinjeHandling.RETURNER],
+    handlinger: [UtbetalingLinjeHandling.GODKJENN, UtbetalingLinjeHandling.RETURNER],
     deltakere: [],
     id: "456e4567-e89b-12d3-a456-426614174002",
     tilsagn: {
@@ -442,7 +442,7 @@ export const mockUtbetalingLinjer: UtbetalingLinjeDto[] = [
     },
 
     status: {
-      type: UtbetalingLinjeStatus.TIL_ATTESTERING,
+      type: UtbetalingLinjeStatus.TIL_GODKJENNING,
       status: {
         value: "Til godkjenning",
         variant: DataElementStatusVariant.WARNING,
@@ -466,7 +466,7 @@ export const mockUtbetalingLinjer: UtbetalingLinjeDto[] = [
     },
   },
   {
-    handlinger: [UtbetalingLinjeHandling.ATTESTER, UtbetalingLinjeHandling.RETURNER],
+    handlinger: [UtbetalingLinjeHandling.GODKJENN, UtbetalingLinjeHandling.RETURNER],
     id: "456e4567-e89b-12d3-a456-426614174002",
     deltakere: [],
     tilsagn: {

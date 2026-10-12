@@ -10,11 +10,11 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useApiMutation } from "@/hooks/useApiMutation";
 import { QueryKeys } from "@/api/QueryKeys";
 
-export function useAttesterUtbetalingLinje() {
+export function useGodkjennUtbetalingLinje() {
   const queryClient = useQueryClient();
 
   return useApiMutation<unknown, ProblemDetail, { id: string }>({
-    mutationFn: ({ id }) => UtbetalingService.attesterUtbetalingLinje({ path: { id } }),
+    mutationFn: ({ id }) => UtbetalingService.godkjennUtbetalingLinje({ path: { id } }),
     async onSuccess() {
       await queryClient.invalidateQueries({ queryKey: QueryKeys.utbetaling() });
     },

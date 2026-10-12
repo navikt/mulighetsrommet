@@ -48,7 +48,7 @@ object TilskuddBehandlingValidator {
             id = request.id,
             gjennomforingId = request.gjennomforingId,
             tilskudd = tilskudd,
-            status = TilskuddBehandlingStatus.TIL_ATTESTERING,
+            status = TilskuddBehandlingStatus.TIL_GODKJENNING,
             type = TilskuddBehandlingType.REGISTRERING,
             behandlendeEnhet = behandlendeEnhet,
         )

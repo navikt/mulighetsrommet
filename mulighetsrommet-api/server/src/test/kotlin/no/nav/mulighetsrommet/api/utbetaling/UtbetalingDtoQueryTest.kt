@@ -152,7 +152,7 @@ class UtbetalingDtoQueryTest : FunSpec({
             .shouldBeRight()
 
         detaljer.handlinger shouldBe setOf(
-            UtbetalingHandling.SEND_TIL_ATTESTERING,
+            UtbetalingHandling.SEND_TIL_GODKJENNING,
             UtbetalingHandling.REDIGER,
             UtbetalingHandling.HENT_GODKJENTE_TILSAGN,
             UtbetalingHandling.OPPRETT_TILSAGN,
@@ -283,22 +283,22 @@ class UtbetalingDtoQueryTest : FunSpec({
         )
         val enkeltplassUtbetaling = utbetaling1.copy(
             gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
-            status = UtbetalingStatusType.TIL_ATTESTERING,
+            status = UtbetalingStatusType.TIL_GODKJENNING,
         )
         val enkeltplassLinje = utbetalingLinje1.copy(tilsagnId = enkeltplassTilsagn.id)
 
-        test("gruppetiltak-attestant kan attestere og returnere linjen") {
+        test("gruppetiltak-attestant kan godkjenne og returnere linjen") {
             MulighetsrommetTestDomain(
                 ansatte = listOf(saksbehandler, attestant),
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
                 tilsagn = listOf(TilsagnFixtures.Tilsagn1),
-                utbetalinger = listOf(utbetaling1.copy(status = UtbetalingStatusType.TIL_ATTESTERING)),
+                utbetalinger = listOf(utbetaling1.copy(status = UtbetalingStatusType.TIL_GODKJENNING)),
                 utbetalingLinjer = listOf(utbetalingLinje1),
             ) {
                 setUtbetalingLinjeStatus(
                     utbetalingLinje1,
-                    UtbetalingLinjeStatus.TIL_ATTESTERING,
+                    UtbetalingLinjeStatus.TIL_GODKJENNING,
                     behandletAv = saksbehandler.navIdent,
                 )
             }.initialize(database.api)
@@ -309,12 +309,12 @@ class UtbetalingDtoQueryTest : FunSpec({
                 .single()
 
             linje.handlinger shouldBe setOf(
-                UtbetalingLinjeHandling.ATTESTER,
+                UtbetalingLinjeHandling.GODKJENN,
                 UtbetalingLinjeHandling.RETURNER,
             )
         }
 
-        test("enkeltplass-beslutter ved tilsagnets kostnadssted kan attestere og returnere") {
+        test("enkeltplass-beslutter ved tilsagnets kostnadssted kan godkjenne og returnere") {
             MulighetsrommetTestDomain(
                 ansatte = listOf(enkeltplassSaksbehandler, enkeltplassBeslutter),
                 gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
@@ -324,7 +324,7 @@ class UtbetalingDtoQueryTest : FunSpec({
             ) {
                 setUtbetalingLinjeStatus(
                     enkeltplassLinje,
-                    UtbetalingLinjeStatus.TIL_ATTESTERING,
+                    UtbetalingLinjeStatus.TIL_GODKJENNING,
                     behandletAv = enkeltplassSaksbehandler.navIdent,
                 )
             }.initialize(database.api)
@@ -335,7 +335,7 @@ class UtbetalingDtoQueryTest : FunSpec({
                 .single()
 
             linje.handlinger shouldBe setOf(
-                UtbetalingLinjeHandling.ATTESTER,
+                UtbetalingLinjeHandling.GODKJENN,
                 UtbetalingLinjeHandling.RETURNER,
             )
         }
@@ -351,7 +351,7 @@ class UtbetalingDtoQueryTest : FunSpec({
                 utbetalinger = listOf(enkeltplassUtbetaling),
                 utbetalingLinjer = listOf(enkeltplassLinje),
             ) {
-                setUtbetalingLinjeStatus(enkeltplassLinje, UtbetalingLinjeStatus.TIL_ATTESTERING)
+                setUtbetalingLinjeStatus(enkeltplassLinje, UtbetalingLinjeStatus.TIL_GODKJENNING)
             }.initialize(database.api)
 
             val linje = createQuery()
@@ -378,7 +378,7 @@ class UtbetalingDtoQueryTest : FunSpec({
                 utbetalinger = listOf(enkeltplassUtbetaling),
                 utbetalingLinjer = listOf(enkeltplassLinje),
             ) {
-                setUtbetalingLinjeStatus(enkeltplassLinje, UtbetalingLinjeStatus.TIL_ATTESTERING)
+                setUtbetalingLinjeStatus(enkeltplassLinje, UtbetalingLinjeStatus.TIL_GODKJENNING)
             }.initialize(database.api)
 
             val linje = createQuery()
@@ -389,7 +389,7 @@ class UtbetalingDtoQueryTest : FunSpec({
             linje.handlinger.shouldBeEmpty()
         }
 
-        test("enkeltplass-saksbehandler kan returnere, men ikke attestere linjen") {
+        test("enkeltplass-saksbehandler kan returnere, men ikke godkjenne linjen") {
             MulighetsrommetTestDomain(
                 ansatte = listOf(enkeltplassSaksbehandler),
                 gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
@@ -397,7 +397,7 @@ class UtbetalingDtoQueryTest : FunSpec({
                 utbetalinger = listOf(enkeltplassUtbetaling),
                 utbetalingLinjer = listOf(enkeltplassLinje),
             ) {
-                setUtbetalingLinjeStatus(enkeltplassLinje, UtbetalingLinjeStatus.TIL_ATTESTERING)
+                setUtbetalingLinjeStatus(enkeltplassLinje, UtbetalingLinjeStatus.TIL_GODKJENNING)
             }.initialize(database.api)
 
             val linje = createQuery()
@@ -408,18 +408,18 @@ class UtbetalingDtoQueryTest : FunSpec({
             linje.handlinger shouldBe setOf(UtbetalingLinjeHandling.RETURNER)
         }
 
-        test("attestant kan returnere, men ikke attestere linjen hen selv har behandlet") {
+        test("attestant kan returnere, men ikke godkjenne linjen hen selv har behandlet") {
             MulighetsrommetTestDomain(
                 ansatte = listOf(saksbehandler, attestant),
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
                 tilsagn = listOf(TilsagnFixtures.Tilsagn1),
-                utbetalinger = listOf(utbetaling1.copy(status = UtbetalingStatusType.TIL_ATTESTERING)),
+                utbetalinger = listOf(utbetaling1.copy(status = UtbetalingStatusType.TIL_GODKJENNING)),
                 utbetalingLinjer = listOf(utbetalingLinje1),
             ) {
                 setUtbetalingLinjeStatus(
                     utbetalingLinje1,
-                    UtbetalingLinjeStatus.TIL_ATTESTERING,
+                    UtbetalingLinjeStatus.TIL_GODKJENNING,
                     behandletAv = attestant.navIdent,
                 )
             }.initialize(database.api)

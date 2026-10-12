@@ -162,7 +162,7 @@ class TilskuddBehandlingService(
         }
     }
 
-    fun attester(
+    fun godkjenn(
         id: UUID,
         navIdent: NavIdent,
     ): Either<List<FieldError>, TilskuddBehandlingDto> = try {
@@ -170,7 +170,7 @@ class TilskuddBehandlingService(
             val behandling = requireNotNull(queries.tilskuddBehandling.get(id)) {
                 "TilskuddBehandling med id $id ble ikke funnet"
             }
-            if (behandling.status.type !== TilskuddBehandlingStatus.TIL_ATTESTERING) {
+            if (behandling.status.type !== TilskuddBehandlingStatus.TIL_GODKJENNING) {
                 return FieldError
                     .of("Tilskuddsbehandling kan ikke godkjennes fordi det har status ${behandling.status.type.beskrivelse}")
                     .nel()
@@ -213,7 +213,7 @@ class TilskuddBehandlingService(
         val behandling = requireNotNull(queries.tilskuddBehandling.get(id)) {
             "TilskuddBehandling med id $id ble ikke funnet"
         }
-        if (behandling.status.type !== TilskuddBehandlingStatus.TIL_ATTESTERING) {
+        if (behandling.status.type !== TilskuddBehandlingStatus.TIL_GODKJENNING) {
             return FieldError
                 .of("Tilskuddsbehandling kan ikke returneres fordi det har status ${behandling.status.type.beskrivelse}")
                 .nel()
@@ -243,8 +243,8 @@ class TilskuddBehandlingService(
             ?: error("Tilskuddsbehandling med id=${behandling.id} mangler tilskudd")
         return setOfNotNull(
             TilskuddBehandlingHandling.REDIGER.takeIf { behandling.status.type == TilskuddBehandlingStatus.RETURNERT },
-            TilskuddBehandlingHandling.ATTESTER.takeIf { behandling.status.type == TilskuddBehandlingStatus.TIL_ATTESTERING },
-            TilskuddBehandlingHandling.RETURNER.takeIf { behandling.status.type == TilskuddBehandlingStatus.TIL_ATTESTERING },
+            TilskuddBehandlingHandling.GODKJENN.takeIf { behandling.status.type == TilskuddBehandlingStatus.TIL_GODKJENNING },
+            TilskuddBehandlingHandling.RETURNER.takeIf { behandling.status.type == TilskuddBehandlingStatus.TIL_GODKJENNING },
         )
             .filter { handling ->
                 tilgangTilHandling(
@@ -281,7 +281,7 @@ class TilskuddBehandlingService(
             TilskuddBehandlingHandling.RETURNER,
             -> saksbehandler || attestant
 
-            TilskuddBehandlingHandling.ATTESTER -> {
+            TilskuddBehandlingHandling.GODKJENN -> {
                 attestant && erIkkeBehandletAvAnsatt
             }
         }
@@ -304,7 +304,7 @@ class TilskuddBehandlingService(
         val opphorRevurdering = tidligereBehandling.copy(
             id = UUID.randomUUID(),
             type = TilskuddBehandlingType.REVURDERING,
-            status = TilskuddBehandlingStatusDto(TilskuddBehandlingStatus.TIL_ATTESTERING),
+            status = TilskuddBehandlingStatusDto(TilskuddBehandlingStatus.TIL_GODKJENNING),
             tilskudd = listOf(
                 forrigeTilskuddVedtak.copy(
                     id = UUID.randomUUID(),

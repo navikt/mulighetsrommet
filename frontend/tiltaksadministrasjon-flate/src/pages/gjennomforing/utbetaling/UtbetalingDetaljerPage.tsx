@@ -389,7 +389,7 @@ function UtbetalingLinjeView({
         />
       );
 
-    case UtbetalingStatusDtoType.TIL_ATTESTERING:
+    case UtbetalingStatusDtoType.TIL_GODKJENNING:
     case UtbetalingStatusDtoType.OVERFORT_TIL_UTBETALING:
     case UtbetalingStatusDtoType.DELVIS_UTBETALT:
     case UtbetalingStatusDtoType.UTBETALT:

@@ -619,7 +619,7 @@ class OppgaveQueries(private val session: Session) {
                     order by entity_id, behandlet_tidspunkt desc
                 ) tk on tk.entity_id = tb.id
             where
-                tb.status in ('TIL_ATTESTERING', 'RETURNERT')
+                tb.status in ('TIL_GODKJENNING', 'RETURNERT')
                 and (:tiltakskoder::text[] is null or tiltakstype.tiltakskode = any(:tiltakskoder))
                 and (:kostnadssteder::text[] is null or tv.kostnadssted = any(:kostnadssteder))
                 and (:arrangorer::uuid[] is null or arrangor.id = any(:arrangorer))

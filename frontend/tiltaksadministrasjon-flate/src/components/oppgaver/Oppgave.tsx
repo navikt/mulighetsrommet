@@ -63,7 +63,7 @@ function OppgaveIcon({ type, fontSize }: { type: OppgaveType; fontSize?: string 
       return <HandshakeIcon fontSize={fontSize} />;
     case OppgaveType.UTBETALING_RETURNERT:
     case OppgaveType.UTBETALING_TIL_BEHANDLING:
-    case OppgaveType.UTBETALING_TIL_ATTESTERING:
+    case OppgaveType.UTBETALING_TIL_GODKJENNING:
     case OppgaveType.UTBETALING_TIL_AVBRYTELSE:
     case OppgaveType.UTBETALING_MANGLER_TILSAGN:
       return <BankNoteIcon fontSize={fontSize} />;
@@ -74,7 +74,7 @@ function OppgaveIcon({ type, fontSize }: { type: OppgaveType; fontSize?: string 
       return <PiggybankIcon fontSize={fontSize} />;
     case OppgaveType.ENKELTPLASS_TIL_GODKJENNING:
     case OppgaveType.ENKELTPLASS_SATT_PA_VENT:
-    case OppgaveType.TILSKUDDBEHANDLING_TIL_ATTESTERING:
+    case OppgaveType.TILSKUDDBEHANDLING_TIL_GODKJENNING:
     case OppgaveType.TILSKUDDBEHANDLING_RETURNERT:
       return <GavelSoundBlockIcon fontSize={fontSize} />;
   }
@@ -95,9 +95,9 @@ function getOppgaveVariant(type: OppgaveType) {
     case OppgaveType.TILSKUDDBEHANDLING_RETURNERT:
       return "error";
     case OppgaveType.TILSAGN_TIL_GODKJENNING:
-    case OppgaveType.UTBETALING_TIL_ATTESTERING:
+    case OppgaveType.UTBETALING_TIL_GODKJENNING:
     case OppgaveType.ENKELTPLASS_TIL_GODKJENNING:
-    case OppgaveType.TILSKUDDBEHANDLING_TIL_ATTESTERING:
+    case OppgaveType.TILSKUDDBEHANDLING_TIL_GODKJENNING:
       return "info";
     case OppgaveType.UTBETALING_TIL_BEHANDLING:
       return "success";

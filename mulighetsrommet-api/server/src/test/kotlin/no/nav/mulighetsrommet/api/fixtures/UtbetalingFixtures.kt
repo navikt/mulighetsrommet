@@ -175,7 +175,7 @@ object UtbetalingFixtures {
         id = UUID.randomUUID(),
         tilsagnId = TilsagnFixtures.Tilsagn1.id,
         utbetalingId = utbetaling1.id,
-        status = UtbetalingLinjeStatus.TIL_ATTESTERING,
+        status = UtbetalingLinjeStatus.TIL_GODKJENNING,
         pris = 200.NOK,
         gjorOppTilsagn = false,
         periode = utbetaling1.periode,
@@ -189,7 +189,7 @@ object UtbetalingFixtures {
         id = UUID.randomUUID(),
         tilsagnId = TilsagnFixtures.Tilsagn2.id,
         utbetalingId = utbetaling1.id,
-        status = UtbetalingLinjeStatus.TIL_ATTESTERING,
+        status = UtbetalingLinjeStatus.TIL_GODKJENNING,
         pris = 150.NOK,
         gjorOppTilsagn = false,
         periode = utbetaling1.periode,
@@ -213,7 +213,7 @@ fun QueryContext.setUtbetalingLinjeStatus(
     queries.utbetalingLinje.setStatus(dto.id, status)
 
     when (status) {
-        UtbetalingLinjeStatus.TIL_ATTESTERING -> {
+        UtbetalingLinjeStatus.TIL_GODKJENNING -> {
             setTilBehandling(dto.id, TotrinnskontrollType.UTBETALING_LINJE_OPPRETTELSE, behandletAv)
         }
 

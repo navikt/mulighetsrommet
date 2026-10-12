@@ -52,7 +52,7 @@ class TilskuddArrangorUtbetalingConsumer(
         }
 
         val behandling = db.session { queries.tilskuddBehandling.get(key) }
-            ?: throw IllegalStateException("Fant ikke attestert tilskudd_behandling id=$key")
+            ?: throw IllegalStateException("Fant ikke godkjent tilskudd_behandling id=$key")
 
         utbetalTilskuddTilArrangor(behandling)
     }

@@ -122,7 +122,7 @@ data class TilskuddUtbetalingStatusDto(
             val type: Type = when (utbetalingStatus) {
                 UtbetalingStatusType.TIL_BEHANDLING,
                 UtbetalingStatusType.AVBRUTT,
-                UtbetalingStatusType.TIL_ATTESTERING,
+                UtbetalingStatusType.TIL_GODKJENNING,
                 UtbetalingStatusType.RETURNERT,
                 UtbetalingStatusType.GENERERT,
                 UtbetalingStatusType.TIL_AVBRYTELSE,

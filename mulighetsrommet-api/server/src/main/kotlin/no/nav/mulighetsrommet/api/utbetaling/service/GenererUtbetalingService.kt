@@ -164,7 +164,7 @@ class GenererUtbetalingService(
         return getUtbetalinger(gjennomforingId).filter {
             when (it.status) {
                 UtbetalingStatusType.TIL_BEHANDLING,
-                UtbetalingStatusType.TIL_ATTESTERING,
+                UtbetalingStatusType.TIL_GODKJENNING,
                 UtbetalingStatusType.RETURNERT,
                 UtbetalingStatusType.FERDIG_BEHANDLET,
                 UtbetalingStatusType.DELVIS_UTBETALT,

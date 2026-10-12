@@ -27,7 +27,7 @@ data class UtbetalingStatusDto(
 
                 UtbetalingStatusType.TIL_BEHANDLING -> Type.KLAR_TIL_BEHANDLING
 
-                UtbetalingStatusType.TIL_ATTESTERING -> Type.TIL_ATTESTERING
+                UtbetalingStatusType.TIL_GODKJENNING -> Type.TIL_GODKJENNING
 
                 UtbetalingStatusType.RETURNERT -> Type.RETURNERT
 
@@ -61,7 +61,7 @@ data class UtbetalingStatusDto(
         VENTER_PA_ARRANGOR("Venter på arrangør", DataElement.Status.Variant.ALT_1),
         BLOKKERT_FOR_INNSENDING("Blokkert for innsending", DataElement.Status.Variant.WARNING),
         KLAR_TIL_BEHANDLING("Klar til behandling", DataElement.Status.Variant.SUCCESS),
-        TIL_ATTESTERING("Til godkjenning", DataElement.Status.Variant.INFO),
+        TIL_GODKJENNING("Til godkjenning", DataElement.Status.Variant.INFO),
         RETURNERT("Returnert", DataElement.Status.Variant.ERROR),
         OVERFORT_TIL_UTBETALING("Overført til utbetaling", DataElement.Status.Variant.SUCCESS),
         DELVIS_UTBETALT("Delvis utbetalt", DataElement.Status.Variant.SUCCESS),
