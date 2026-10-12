@@ -193,7 +193,7 @@ data class DeltakerDto(
             startDato = deltaker.startDato,
             sluttDato = deltaker.sluttDato,
             navVeilederNavn = navVeilederNavn,
-            dagerPerUke = deltaker.deltakelsesmengder.lastOrNull()?.dagerPerUke,
+            dagerPerUke = deltaker.deltakelsesmengder.lastOrNull { it.gyldigFra <= LocalDate.now() }?.dagerPerUke,
         )
     }
 }
