@@ -64,8 +64,13 @@ export function TilsagnForm(props: Props) {
   });
 
   const postData: SubmitHandler<TilsagnRequest> = async (data): Promise<void> => {
+    const pris = data.beregning.pris?.belop ?? null;
     const request: TilsagnRequest = {
       ...data,
+      beregning: {
+        ...data.beregning,
+        pris: pris ? { ...data.beregning.pris, belop: pris } : null,
+      },
       id: data.id ?? window.crypto.randomUUID(),
       kommentar: data.kommentar ?? null,
       beskrivelse: data.beskrivelse ?? null,
