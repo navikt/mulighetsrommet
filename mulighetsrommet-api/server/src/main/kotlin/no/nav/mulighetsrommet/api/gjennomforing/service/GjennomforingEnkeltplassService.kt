@@ -326,6 +326,11 @@ class GjennomforingEnkeltplassService(
 
         if (enkeltplass.prisendring?.totrinnskontroll?.kanBesluttes() == true) {
             if (enkeltplass.prisendring.totrinnskontroll.id != forventetTotrinnskontrollId) {
+                if (erPrisendringTrukketTilbake(id, forventetTotrinnskontrollId)) {
+                    return EnkeltplassBeslutningError.ForslagTrukketTilbake(
+                        "Nav-veileder har trukket tilbake forslaget. Det kan ikke lenger godkjennes.",
+                    ).left()
+                }
                 return EnkeltplassBeslutningError.Valideringsfeil(
                     FieldError.of("Grunnlaget har endret seg siden det ble hentet. Forsøk igjen.").nel(),
                 ).left()
@@ -341,12 +346,27 @@ class GjennomforingEnkeltplassService(
             ).left()
 
         if (okonomi.id != forventetTotrinnskontrollId) {
+            if (erPrisendringTrukketTilbake(id, forventetTotrinnskontrollId)) {
+                return EnkeltplassBeslutningError.ForslagTrukketTilbake(
+                    "Nav-veileder har trukket tilbake forslaget. Det kan ikke lenger godkjennes.",
+                ).left()
+            }
             return EnkeltplassBeslutningError.Valideringsfeil(
                 FieldError.of("Grunnlaget har endret seg siden det ble hentet. Forsøk igjen.").nel(),
             ).left()
         }
 
         return settOkonomiGodkjent(id, okonomi, navIdent).mapLeft(EnkeltplassBeslutningError::Valideringsfeil)
+    }
+
+    private fun TransactionalQueryContext.erPrisendringTrukketTilbake(
+        gjennomforingId: UUID,
+        totrinnskontrollId: UUID,
+    ): Boolean {
+        val historiskKontroll = queries.totrinnskontroll.findById(totrinnskontrollId) ?: return false
+        return historiskKontroll.entityId == gjennomforingId &&
+            historiskKontroll.type == TotrinnskontrollType.ENKELTPLASS_PRISENDRING &&
+            historiskKontroll.status == TotrinnskontrollStatus.RETURNERT
     }
 
     fun settOkonomiPaVent(

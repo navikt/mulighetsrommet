@@ -1303,6 +1303,32 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                 }
             }
 
+            test("returnerer egen feil når Nav-veileder trekker tilbake prisendring før godkjenning") {
+                val soktInn = createRequest()
+                val opprettelse = behandling(opprettetAv)
+                service.soktInn(soktInn, opprettelse).shouldBeRight()
+                service.settOkonomiGodkjent(soktInn.id, opprettelse.id, besluttetAv).shouldBeRight()
+
+                val prisendring = behandling(opprettetAv)
+                service.endrePrisinformasjon(
+                    soktInn.id,
+                    UpsertEnkeltplass.Prismodell.Anskaffelse(5000),
+                    prisendring,
+                ).shouldBeRight()
+                service.tilbakekallPrisinformasjon(soktInn.id, prisendring).shouldBeRight()
+
+                service.settOkonomiGodkjent(soktInn.id, prisendring.id, besluttetAv)
+                    .shouldBeLeft()
+                    .shouldBeTypeOf<EnkeltplassBeslutningError.ForslagTrukketTilbake>()
+                    .detail shouldBe "Nav-veileder har trukket tilbake forslaget. Det kan ikke lenger godkjennes."
+
+                database.run {
+                    queries.totrinnskontroll.getById(prisendring.id).status shouldBe TotrinnskontrollStatus.RETURNERT
+                }
+                service.get(soktInn.id).shouldNotBeNull().gjennomforing.prismodell
+                    .shouldBeTypeOf<Prismodell.AnskaffetEnkeltplass>().totalbelop shouldBe 1000.NOK
+            }
+
             test("settOkonomiGodkjent setter prisendring-totrinnskontroll til GODKJENT") {
                 val soktInn = createRequest()
                 val opprettelse = behandling(opprettetAv)
