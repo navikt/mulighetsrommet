@@ -113,7 +113,7 @@ object GjennomforingDtoMapper {
 
             is GjennomforingEnkeltplassStatus.SoktInn -> DataElement.Status.Variant.ALT_2
 
-            is GjennomforingEnkeltplassStatus.VenterPaOppstart -> DataElement.Status.Variant.ALT_3
+            is GjennomforingEnkeltplassStatus.VenterPaOppstart -> DataElement.Status.Variant.INFO
 
             is GjennomforingEnkeltplassStatus.Deltar -> DataElement.Status.Variant.BLANK
 
