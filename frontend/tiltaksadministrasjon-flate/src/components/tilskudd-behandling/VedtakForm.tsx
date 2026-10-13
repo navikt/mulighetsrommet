@@ -18,13 +18,16 @@ import { TilskuddFormGroup } from "@/layouts/TilskuddFormGroup";
 import { Saksopplysninger } from "./Saksopplysninger";
 import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
 import { opplaeringTilskuddToString } from "@/utils/Utils";
+import { useArrangorBetalingsinformasjon } from "@/api/arrangor/useArrangorBetalingsinformasjon";
 
-export function VedtakForm() {
+export function VedtakForm({ arrangorId }: { arrangorId: string }) {
   const {
     watch,
     register,
     formState: { errors },
   } = useFormContext<TilskuddBehandlingRequest>();
+
+  const { data: betalingsinformasjon } = useArrangorBetalingsinformasjon(arrangorId);
 
   const { data: kostnadssteder } = useKostnadssteder();
 
@@ -70,6 +73,8 @@ export function VedtakForm() {
                 belop={t.soknadBelop?.belop ?? 0}
                 utbetalingMottaker={t.utbetalingMottaker}
                 tilskuddOpplaeringType={t.tilskuddOpplaeringType}
+                kid={t.kidNummer}
+                betalingsinformasjon={betalingsinformasjon ?? null}
               />
               <Separator />
               <Heading size="small" level="3" spacing>

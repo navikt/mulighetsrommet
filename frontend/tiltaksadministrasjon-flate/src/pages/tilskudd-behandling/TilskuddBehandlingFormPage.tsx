@@ -112,14 +112,22 @@ export function TilskuddBehandlingFormPage() {
 
   const listUrl = `/gjennomforinger/${gjennomforingId}/tilskudd-behandling`;
 
-  const onSubmit = handleSubmit((data) => {
-    mutation.mutate(data, {
-      onSuccess: () => navigate(listUrl),
-      onValidationError: handleValidationError,
-    });
-  });
+  const onSubmit = (event: React.SubmitEvent<HTMLFormElement>) => {
+    if (!isLastTab) {
+      event.preventDefault();
+      return;
+    }
+
+    void handleSubmit((data) => {
+      mutation.mutate(data, {
+        onSuccess: () => navigate(listUrl),
+        onValidationError: handleValidationError,
+      });
+    })(event);
+  };
 
   const onVisVedtaksbrev = handleSubmit((data) => {
+    if (!isLastTab) return;
     vedtaksbrevMutation.mutate(data, {
       onSuccess: () => setPdfPreviewOpen(true),
       onValidationError: handleValidationError,
@@ -203,7 +211,7 @@ export function TilskuddBehandlingFormPage() {
                     <SaksopplysningerForm arrangorId={gjennomforing.arrangor.id} />
                   </Tabs.Panel>
                   <Tabs.Panel value="vedtak">
-                    <VedtakForm />
+                    <VedtakForm arrangorId={gjennomforing.arrangor.id} />
                   </Tabs.Panel>
                 </Box>
                 <Box>
@@ -234,7 +242,15 @@ export function TilskuddBehandlingFormPage() {
                 {mutation.isPending ? "Sender til godkjenning..." : "Send til godkjenning"}
               </Button>
             ) : (
-              <Button variant="primary" size="small" type="button" onClick={goToNextTab}>
+              <Button
+                variant="primary"
+                size="small"
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  goToNextTab();
+                }}
+              >
                 Neste
               </Button>
             )}
