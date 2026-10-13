@@ -9,6 +9,8 @@ import arrow.core.right
 import arrow.core.toNonEmptySetOrNull
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
+import no.nav.mulighetsrommet.admin.arrangor.BetalingsinformasjonQuery
+import no.nav.mulighetsrommet.admin.arrangor.HentBetalingsinformasjon
 import no.nav.mulighetsrommet.admin.endringshistorikk.EndringshistorikkType
 import no.nav.mulighetsrommet.admin.journalpost.ForventetBruker
 import no.nav.mulighetsrommet.admin.journalpost.JournalpostValidator
@@ -58,6 +60,7 @@ class TilskuddBehandlingService(
     private val personaliaService: PersonaliaService,
     private val journalpostValidator: JournalpostValidator,
     private val featureToggleService: FeatureToggleService,
+    private val betalingsinformasjon: BetalingsinformasjonQuery,
 ) {
     suspend fun upsert(
         request: TilskuddBehandlingRequest,
@@ -75,6 +78,8 @@ class TilskuddBehandlingService(
             )
         }
 
+        val betalingsinformasjonArrangor = betalingsinformasjon.execute(HentBetalingsinformasjon(gjennomforing.arrangor.id))
+
         val journalpostValidatorFunc = TilskuddBehandlingValidator.createJournalpostValidator(
             forventetBruker = forventetBruker,
             journalpostValidator = journalpostValidator,
@@ -82,7 +87,7 @@ class TilskuddBehandlingService(
         )
 
         return TilskuddBehandlingValidator
-            .validate(request, gjennomforing, behandlendeEnhet, journalpostValidatorFunc)
+            .validate(request, gjennomforing, betalingsinformasjonArrangor, behandlendeEnhet, journalpostValidatorFunc)
             .map { dbo ->
                 db.transaction {
                     queries.tilskuddBehandling.upsert(dbo)
@@ -371,10 +376,11 @@ class TilskuddBehandlingService(
             ?: throw IllegalStateException("Fant ikke gjennomføring for tilskuddsbehandling")
         val behandlendeEnhet = db.session { queries.ansatt.get(navIdent) }?.hovedenhet
             ?: throw IllegalArgumentException("Fant ikke enhet for ansatt $navIdent")
+        val betalingsinformasjonArrangor = betalingsinformasjon.execute(HentBetalingsinformasjon(gjennomforing.arrangor.id))
 
         return TilskuddBehandlingValidator
             // Dummy journalpost validator her
-            .validate(request, gjennomforing, behandlendeEnhet) { _, _ -> JournalpostId("123").right() }
+            .validate(request, gjennomforing, betalingsinformasjonArrangor, behandlendeEnhet) { _, _ -> JournalpostId("123").right() }
             .map { dbo ->
                 vedtaksbrevForhandsvisPdf(dbo).getOrElse { throw IllegalStateException("Klarte ikke lage vedtaksbrev pdf") }
             }

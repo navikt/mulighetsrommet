@@ -10,8 +10,11 @@ import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
+import io.mockk.coEvery
 import io.mockk.mockk
+import no.nav.mulighetsrommet.admin.arrangor.BetalingsinformasjonQuery
 import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollDto
+import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsattRolle
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd
@@ -96,14 +99,21 @@ class TilskuddBehandlingServiceTest : FunSpec({
         ),
     )
 
-    fun createService() = TilskuddBehandlingService(
-        db = database.api,
-        journalforVedtaksbrev = mockk(relaxed = true),
-        pdf = mockk(relaxed = true),
-        journalpostValidator = gyldigJournalpostValidator(),
-        personaliaService = mockk(relaxed = true),
-        featureToggleService = mockk(relaxed = true),
-    )
+    fun createService(
+        arrangorBetalingsinformasjon: Betalingsinformasjon? = mockk(relaxed = true),
+    ): TilskuddBehandlingService {
+        val betalingsinformasjon = mockk<BetalingsinformasjonQuery>()
+        coEvery { betalingsinformasjon.execute(any()) } returns arrangorBetalingsinformasjon
+        return TilskuddBehandlingService(
+            db = database.api,
+            journalforVedtaksbrev = mockk(relaxed = true),
+            pdf = mockk(relaxed = true),
+            journalpostValidator = gyldigJournalpostValidator(),
+            personaliaService = mockk(relaxed = true),
+            featureToggleService = mockk(relaxed = true),
+            betalingsinformasjon = betalingsinformasjon,
+        )
+    }
 
     test("tilskuddsbehandling krever besluttertilgang ved alle tilskuddenes kostnadssteder") {
         val service = createService()
@@ -133,14 +143,7 @@ class TilskuddBehandlingServiceTest : FunSpec({
 
     context("validering av journalpost") {
         test("upsert feiler når journalpost ikke er gyldig") {
-            val service = TilskuddBehandlingService(
-                db = database.api,
-                journalforVedtaksbrev = mockk(relaxed = true),
-                pdf = mockk(relaxed = true),
-                journalpostValidator = gyldigJournalpostValidator(),
-                personaliaService = mockk(relaxed = true),
-                featureToggleService = mockk(relaxed = true),
-            )
+            val service = createService()
 
             service.upsert(
                 request.copy(tilskudd = request.tilskudd.first().copy(soknadJournalpostId = "asdf").nel()),
@@ -148,6 +151,18 @@ class TilskuddBehandlingServiceTest : FunSpec({
             ).shouldBeLeft().should {
                 it shouldHaveSize 1
                 it.first().pointer shouldBe "/tilskudd/0/soknadJournalpostId"
+            }
+        }
+    }
+
+    context("validering av betalingsinformasjon") {
+        test("upsert feiler når utbetaling går til arrangør uten betalingsinformasjon") {
+            val service = createService(arrangorBetalingsinformasjon = null)
+
+            service.upsert(request, ansatt1).shouldBeLeft().should {
+                it shouldHaveSize 1
+                it.first().pointer shouldBe "/tilskudd/0/utbetalingMottaker"
+                it.first().detail shouldBe "Betalingsinformasjon for arrangøren må være registrert"
             }
         }
     }

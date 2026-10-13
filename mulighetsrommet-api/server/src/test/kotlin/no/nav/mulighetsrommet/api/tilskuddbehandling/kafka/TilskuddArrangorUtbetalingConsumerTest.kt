@@ -139,6 +139,7 @@ class TilskuddArrangorUtbetalingConsumerTest : FunSpec({
             journalpostValidator = gyldigJournalpostValidator(),
             personaliaService = mockk(relaxed = true),
             featureToggleService = mockk(relaxed = true),
+            betalingsinformasjon = betalingsinformasjon,
         )
 
         service.upsert(request, NavAnsattFixture.DonaldDuck.navIdent).shouldBeRight()
@@ -163,6 +164,7 @@ class TilskuddArrangorUtbetalingConsumerTest : FunSpec({
             journalpostValidator = gyldigJournalpostValidator(),
             personaliaService = mockk(relaxed = true),
             featureToggleService = mockk(relaxed = true),
+            betalingsinformasjon = betalingsinformasjon,
         )
         service.upsert(request, NavAnsattFixture.DonaldDuck.navIdent).shouldBeRight()
 
@@ -183,6 +185,7 @@ class TilskuddArrangorUtbetalingConsumerTest : FunSpec({
             journalpostValidator = gyldigJournalpostValidator(),
             personaliaService = mockk(relaxed = true),
             featureToggleService = mockk(relaxed = true),
+            betalingsinformasjon = betalingsinformasjon,
         )
         service.upsert(request, NavAnsattFixture.DonaldDuck.navIdent).shouldBeRight()
 
