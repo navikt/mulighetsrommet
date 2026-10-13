@@ -37,10 +37,12 @@ import { TilskuddBehandlingHandlinger } from "./TilskuddBehandlingHandlinger";
 import { TilskuddFormGroup } from "@/layouts/TilskuddFormGroup";
 import { formaterPeriode } from "@mr/frontend-common/utils/date";
 import { PrisOgBetalingsbetingelser } from "@/components/prismodell/PrisOgBetalingsbetingelser";
+import { useArrangorBetalingsinformasjon } from "@/api/arrangor/useArrangorBetalingsinformasjon";
 
 export function TilskuddBehandlingDetaljerPage() {
   const { gjennomforingId, behandlingId } = useRequiredParams(["gjennomforingId", "behandlingId"]);
-  const { prismodell } = useEnkeltplassGjennomforingOrError(gjennomforingId);
+  const { prismodell, gjennomforing } = useEnkeltplassGjennomforingOrError(gjennomforingId);
+  const { data: betalingsinformasjon } = useArrangorBetalingsinformasjon(gjennomforing.arrangor.id);
 
   const {
     data: { behandling, handlinger, opprettelse },
@@ -95,7 +97,7 @@ export function TilskuddBehandlingDetaljerPage() {
         <VStack gap="space-20">
           <HStack gap="space-8" align="center">
             <Heading level="3" size="medium">
-              Vedtak
+              Behandling
             </Heading>
             <DataElementStatusTag {...behandling.status.status} />
           </HStack>
@@ -115,6 +117,8 @@ export function TilskuddBehandlingDetaljerPage() {
                 belop={t.soknadBelop.belop || 0}
                 tilskuddOpplaeringType={t.tilskuddOpplaeringType}
                 utbetalingMottaker={t.utbetalingMottaker}
+                kid={t.kid}
+                betalingsinformasjon={betalingsinformasjon ?? null}
               />
               <Separator />
               <VedtakDetaljer
