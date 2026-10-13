@@ -16,6 +16,7 @@ import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.domain.testing.fixture.ArrangorFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.ArrangorFixtures.underenhet1
 import no.nav.mulighetsrommet.api.domain.testing.fixture.AvtaleFixtures
+import no.nav.mulighetsrommet.api.domain.testing.fixture.DeltakerFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavAnsattFixture
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.TiltakstypeFixtures
@@ -1221,6 +1222,11 @@ class OppgaverServiceTest : FunSpec({
 
             MulighetsrommetTestDomain(
                 gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
+                deltakere = listOf(
+                    DeltakerFixtures.createDeltaker(
+                        gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
+                    ),
+                ),
             ) {
                 setTilBehandling(
                     GjennomforingFixtures.EnkelAmo.id,
@@ -1238,6 +1244,28 @@ class OppgaverServiceTest : FunSpec({
             ) shouldMatchAllOppgaver listOf(
                 PartialOppgave(GjennomforingFixtures.EnkelAmo.id, OppgaveType.ENKELTPLASS_TIL_GODKJENNING),
             )
+        }
+
+        test("enkeltplass til godkjenning vises ikke når deltaker mangler") {
+            val service = OppgaverService(database.api, features())
+
+            MulighetsrommetTestDomain(
+                gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
+            ) {
+                setTilBehandling(
+                    GjennomforingFixtures.EnkelAmo.id,
+                    TotrinnskontrollType.ENKELTPLASS_OKONOMI,
+                    behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
+                )
+            }.initialize(database.api)
+
+            service.oppgaver(
+                oppgavetyper = setOf(OppgaveType.ENKELTPLASS_TIL_GODKJENNING),
+                tiltakskoder = setOf(),
+                navEnheter = setOf(),
+                arrangorer = setOf(),
+                ansatt = NavAnsattFixture.MikkeMus.medRoller(setOf(beslutterEnkeltplass)),
+            ).shouldBeEmpty()
         }
 
         test("beslutter som har opprettet enkeltplass ser ikke oppgave") {
@@ -1420,6 +1448,12 @@ class OppgaverServiceTest : FunSpec({
 
             MulighetsrommetTestDomain(
                 gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
+                deltakere = listOf(
+                    DeltakerFixtures.createDeltaker(
+                        id = UUID.randomUUID(),
+                        gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
+                    ),
+                ),
             ) {
                 setGodkjent(
                     GjennomforingFixtures.EnkelAmo.id,
@@ -1512,6 +1546,12 @@ class OppgaverServiceTest : FunSpec({
             MulighetsrommetTestDomain(
                 navEnheter = listOf(NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik, NavEnhetFixtures.Oslo),
                 gjennomforinger = listOf(enkeltplassInnlandet, enkeltplassOslo),
+                deltakere = listOf(
+                    DeltakerFixtures.createDeltaker(
+                        id = UUID.randomUUID(),
+                        gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
+                    ),
+                ),
             ) {
                 setTilBehandling(
                     enkeltplassInnlandet.id,
