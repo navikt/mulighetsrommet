@@ -3,7 +3,6 @@ package no.nav.mulighetsrommet.api.tilskuddbehandling
 import arrow.core.left
 import arrow.core.nel
 import arrow.core.right
-import java.time.LocalDate
 import kotlinx.coroutines.runBlocking
 import no.nav.mulighetsrommet.admin.journalpost.ForventetBruker
 import no.nav.mulighetsrommet.admin.journalpost.JournalpostValidator
@@ -26,6 +25,7 @@ import no.nav.mulighetsrommet.model.ValutaBelop
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import no.nav.mulighetsrommet.validation.Validated
 import no.nav.mulighetsrommet.validation.validation
+import java.time.LocalDate
 import kotlin.contracts.ExperimentalContracts
 
 @OptIn(ExperimentalContracts::class)
