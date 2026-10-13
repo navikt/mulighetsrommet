@@ -16,6 +16,7 @@ import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.ktor.exception.Forbidden
+import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
@@ -88,7 +89,13 @@ fun Route.enkeltplassRoutes() {
 
 private fun toProblemDetail(error: EnkeltplassBeslutningError): ProblemDetail = when (error) {
     is EnkeltplassBeslutningError.ManglerTilgang -> Forbidden(error.message)
+
     is EnkeltplassBeslutningError.Valideringsfeil -> ValidationError(errors = error.errors)
+
+    is EnkeltplassBeslutningError.ForslagTrukketTilbake -> ValidationError(
+        detail = error.detail,
+        errors = listOf(FieldError.of(error.detail)),
+    )
 }
 
 @Serializable
