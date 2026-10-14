@@ -3,13 +3,13 @@ package no.nav.mulighetsrommet.api.datavarehus.db
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.admin.opplaring.UtdanningslopDetaljer
 import no.nav.mulighetsrommet.api.contracts.datavarehus.DatavarehusTiltakV1
 import no.nav.mulighetsrommet.api.contracts.datavarehus.DatavarehusTiltakV1AmoDto
 import no.nav.mulighetsrommet.api.contracts.datavarehus.DatavarehusTiltakV1Dto
 import no.nav.mulighetsrommet.api.contracts.datavarehus.DatavarehusTiltakV1YrkesfagDto
 import no.nav.mulighetsrommet.api.contracts.datavarehus.DvhUtdanningslop
 import no.nav.mulighetsrommet.api.datavarehus.mapper.toDvhAmoKategorisering
+import no.nav.mulighetsrommet.api.domain.opplaring.UtdanningslopDetaljer
 import no.nav.mulighetsrommet.api.persistence.opplaring.OpplaringKategoriseringQueries
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingPameldingType

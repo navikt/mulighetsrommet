@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.deltaker
+package no.nav.mulighetsrommet.api.persistence.deltaker
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactly
@@ -8,9 +8,9 @@ import no.nav.mulighetsrommet.api.domain.deltaker.Deltakelsesmengde
 import no.nav.mulighetsrommet.api.domain.deltaker.NavVeileder
 import no.nav.mulighetsrommet.api.domain.testing.fixture.AvtaleFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.DeltakerFixtures
-import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
-import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
-import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
+import no.nav.mulighetsrommet.api.persistence.AdminTestDomain
+import no.nav.mulighetsrommet.api.persistence.SqlAdminDatabaseTestListener
+import no.nav.mulighetsrommet.api.persistence.testing.fixture.GjennomforingDboFixtures
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
@@ -18,15 +18,14 @@ import java.time.Instant
 import java.time.LocalDate
 import java.util.UUID
 
-// TODO: flyttes til "persistence" etter at avhengigheter også er flyttet (avtale, gjennomføring)
 class DeltakerQueriesTest : FunSpec({
-    val database = extension(ApiDatabaseTestListener())
+    val database = extension(SqlAdminDatabaseTestListener())
 
-    val domain = MulighetsrommetTestDomain(
+    val domain = AdminTestDomain(
         avtaler = listOf(AvtaleFixtures.oppfolging),
         gjennomforinger = listOf(
-            GjennomforingFixtures.Oppfolging1,
-            GjennomforingFixtures.Oppfolging1.copy(id = UUID.randomUUID()),
+            GjennomforingDboFixtures.Oppfolging1,
+            GjennomforingDboFixtures.Oppfolging1.copy(id = UUID.randomUUID()),
         ),
     )
 

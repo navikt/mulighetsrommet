@@ -1276,7 +1276,7 @@ components:
         kanKombineresMed:
           type: array
           items:
-            $ref: "#/components/schemas/TiltakstypeKombinasjon"
+            $ref: "#/components/schemas/VeilederflateTiltakstypeKombinasjon"
       required:
       - beskrivelse
       - egenskaper
@@ -1432,7 +1432,7 @@ components:
       - id
       - navn
       - url
-    TiltakstypeKombinasjon:
+    VeilederflateTiltakstypeKombinasjon:
       type: object
       properties:
         id:

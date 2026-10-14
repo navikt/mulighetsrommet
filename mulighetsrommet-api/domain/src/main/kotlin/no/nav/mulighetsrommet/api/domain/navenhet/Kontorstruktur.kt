@@ -1,7 +1,6 @@
-package no.nav.mulighetsrommet.admin.navenhet
+package no.nav.mulighetsrommet.api.domain.navenhet
 
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetType
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 
 @Serializable

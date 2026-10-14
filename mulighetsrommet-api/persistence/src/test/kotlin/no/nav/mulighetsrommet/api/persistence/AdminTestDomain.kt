@@ -14,6 +14,7 @@ import no.nav.mulighetsrommet.api.domain.testing.fixture.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
 import no.nav.mulighetsrommet.api.domain.tiltak.Tiltakstype
 import no.nav.mulighetsrommet.api.domain.utdanning.Utdanningsprogram
+import no.nav.mulighetsrommet.api.persistence.gjennomforing.GjennomforingDbo
 
 data class AdminTestDomain(
     val navEnheter: List<NavEnhet> = listOf(NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik),
@@ -40,11 +41,13 @@ data class AdminTestDomain(
     val regelverklenke: List<RedaksjoneltInnholdLenke> = listOf(),
     val prismodeller: List<Prismodell> = listOf(
         PrismodellFixtures.AnnenAvtaltPris,
+        PrismodellFixtures.AnskaffetEnkeltplass,
         PrismodellFixtures.AvtaltPrisPerTimeOppfolging,
         PrismodellFixtures.ForhandsgodkjentAft,
         PrismodellFixtures.ForhandsgodkjentVtas,
     ),
     val avtaler: List<Avtale> = listOf(),
+    val gjennomforinger: List<GjennomforingDbo> = listOf(),
     val deltakere: List<Deltaker> = listOf(),
     val utdanningsprogram: List<Utdanningsprogram> = listOf(),
     val additionalSetup: (SqlQueryContext.(AdminTestDomain) -> Unit)? = null,
@@ -60,6 +63,12 @@ data class AdminTestDomain(
             tiltakstyper.forEach { tiltakstype.save(it) }
             prismodeller.forEach { prismodell.upsert(it) }
             avtaler.forEach { avtale.save(it) }
+            gjennomforinger.forEach { dbo ->
+                gjennomforing.upsert(dbo)
+                // Sett gjennomforing FTS, siden den er brukt i andre søk (navn/tiltaksnavn)
+                val tiltakstypeNavn = tiltakstyper.first { dbo.tiltakskode == it.tiltakskode }.navn
+                gjennomforing.setFreeTextSearch(dbo.id, listOf(dbo.navn, tiltakstypeNavn))
+            }
             deltakere.forEach { deltaker.save(it) }
         }
 

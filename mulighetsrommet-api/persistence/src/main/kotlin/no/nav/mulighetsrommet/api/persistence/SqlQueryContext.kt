@@ -26,6 +26,7 @@ import no.nav.mulighetsrommet.api.persistence.avtale.AvtaleQueries
 import no.nav.mulighetsrommet.api.persistence.deltaker.DeltakerForslagQueries
 import no.nav.mulighetsrommet.api.persistence.deltaker.DeltakerQueries
 import no.nav.mulighetsrommet.api.persistence.endringshistorikk.EndringshistorikkQueries
+import no.nav.mulighetsrommet.api.persistence.gjennomforing.GjennomforingQueries
 import no.nav.mulighetsrommet.api.persistence.kostnadssted.KostnadsstedQueries
 import no.nav.mulighetsrommet.api.persistence.navansatt.NavAnsattDtoQueries
 import no.nav.mulighetsrommet.api.persistence.navansatt.NavAnsattQueries
@@ -38,6 +39,7 @@ import no.nav.mulighetsrommet.api.persistence.tiltakbeskrivelse.TiltakBeskrivels
 import no.nav.mulighetsrommet.api.persistence.totrinnskontroll.TotrinnskontrollQueries
 import no.nav.mulighetsrommet.api.persistence.utdanning.UtdanningQueries
 import no.nav.mulighetsrommet.api.persistence.veilederflate.DelMedBrukerQueries
+import no.nav.mulighetsrommet.api.persistence.veilederflate.VeilederflateTiltakQueries
 
 /**
  * Concrete [QueryContext] backed by JDBC/kotliquery.
@@ -60,6 +62,8 @@ class SqlQueryContext(session: Session, topics: OutboxTopics) : QueryContext() {
     val deltaker = DeltakerQueries(session)
     val deltakerForslag = DeltakerForslagQueries(session)
     val delMedBruker = DelMedBrukerQueries(session)
+    val gjennomforing = GjennomforingQueries(session)
+    val veilederTiltak = VeilederflateTiltakQueries(session)
 
     override val repository = object : Repositories() {
         override val tiltakstype: TiltakstypeRepository = this@SqlQueryContext.tiltakstype

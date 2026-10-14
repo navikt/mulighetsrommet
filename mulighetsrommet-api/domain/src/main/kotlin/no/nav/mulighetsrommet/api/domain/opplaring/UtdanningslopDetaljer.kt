@@ -1,7 +1,6 @@
-package no.nav.mulighetsrommet.admin.opplaring
+package no.nav.mulighetsrommet.api.domain.opplaring
 
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.domain.opplaring.Utdanningslop
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.util.UUID
 

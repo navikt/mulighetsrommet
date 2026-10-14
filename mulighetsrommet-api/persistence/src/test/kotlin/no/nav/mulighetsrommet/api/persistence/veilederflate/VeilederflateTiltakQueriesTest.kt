@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.veilederflate.db
+package no.nav.mulighetsrommet.api.persistence.veilederflate
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -16,72 +16,71 @@ import no.nav.mulighetsrommet.api.domain.testing.fixture.NavEnhetFixtures.Lilleh
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavEnhetFixtures.Oslo
 import no.nav.mulighetsrommet.api.domain.testing.fixture.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.domain.tiltakbeskrivelse.TiltakBeskrivelse
-import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
-import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
-import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.ArbeidsrettetRehabilitering
-import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.Oppfolging1
-import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
-import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingKontaktpersonDbo
-import no.nav.mulighetsrommet.api.persistence.veilederflate.VeilederflateTiltakQueries
+import no.nav.mulighetsrommet.api.persistence.AdminTestDomain
+import no.nav.mulighetsrommet.api.persistence.SqlAdminDatabaseTestListener
+import no.nav.mulighetsrommet.api.persistence.gjennomforing.GjennomforingKontaktpersonDbo
+import no.nav.mulighetsrommet.api.persistence.testing.fixture.GjennomforingDboFixtures
+import no.nav.mulighetsrommet.api.persistence.testing.fixture.GjennomforingDboFixtures.AFT1
+import no.nav.mulighetsrommet.api.persistence.testing.fixture.GjennomforingDboFixtures.ArbeidsrettetRehabilitering
+import no.nav.mulighetsrommet.api.persistence.testing.fixture.GjennomforingDboFixtures.Oppfolging1
 import no.nav.mulighetsrommet.api.veilederflate.VeilederflateKontaktinfoTiltaksansvarlig
 import no.nav.mulighetsrommet.api.veilederflate.VeilederflateTiltaksansvarligHovedenhet
-import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.Innsatsgruppe
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Tiltakskode
 import java.util.UUID
 
 class VeilederflateTiltakQueriesTest : FunSpec({
-    val database = extension(ApiDatabaseTestListener())
+    val database = extension(SqlAdminDatabaseTestListener())
 
     context("getAll") {
         val oppfolgingSanityId = UUID.randomUUID()
         val aftSanityId = UUID.randomUUID()
 
-        val domain = MulighetsrommetTestDomain(
+        val domain = AdminTestDomain(
             navEnheter = listOf(Innlandet, Gjovik, Oslo),
             tiltakstyper = listOf(TiltakstypeFixtures.AFT, TiltakstypeFixtures.Oppfolging),
             avtaler = listOf(AvtaleFixtures.oppfolging, AvtaleFixtures.AFT),
             gjennomforinger = listOf(Oppfolging1, AFT1),
         ) {
-            repository.tiltakstype.save(
+            tiltakstype.save(
                 TiltakstypeFixtures.Oppfolging.copy(
                     sanityId = oppfolgingSanityId,
                     innsatsgrupper = setOf(Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE),
                 ),
             )
-            queries.gjennomforing.setNavEnheter(Oppfolging1.id, setOf(NavEnhetNummer("0400"), NavEnhetNummer("0502")))
-            queries.gjennomforing.setPublisert(Oppfolging1.id, true)
+            gjennomforing.setNavEnheter(Oppfolging1.id, setOf(NavEnhetNummer("0400"), NavEnhetNummer("0502")))
+            gjennomforing.setPublisert(Oppfolging1.id, true)
 
-            repository.tiltakstype.save(
+            tiltakstype.save(
                 TiltakstypeFixtures.AFT.copy(
                     sanityId = aftSanityId,
                     innsatsgrupper = setOf(Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE),
                 ),
             )
-            queries.gjennomforing.setNavEnheter(AFT1.id, setOf(NavEnhetNummer("0400"), NavEnhetNummer("0502")))
-            queries.gjennomforing.setPublisert(AFT1.id, true)
+            gjennomforing.setNavEnheter(AFT1.id, setOf(NavEnhetNummer("0400"), NavEnhetNummer("0502")))
+            gjennomforing.setPublisert(AFT1.id, true)
         }
 
         test("skal filtrere basert på om tiltaket er publisert") {
             database.runAndRollback {
                 domain.initialize()
 
-                val veilederflateTiltakQueries = VeilederflateTiltakQueries(session)
+                val veilederflateTiltakQueries = veilederTiltak
 
                 veilederflateTiltakQueries.getAll(
                     brukersEnheter = listOf(NavEnhetNummer("0502")),
                     innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
                 ) shouldHaveSize 2
 
-                queries.gjennomforing.setPublisert(Oppfolging1.id, false)
+                gjennomforing.setPublisert(Oppfolging1.id, false)
 
                 veilederflateTiltakQueries.getAll(
                     brukersEnheter = listOf(NavEnhetNummer("0502")),
                     innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
                 ) shouldHaveSize 1
 
-                queries.gjennomforing.setPublisert(AFT1.id, false)
+                gjennomforing.setPublisert(AFT1.id, false)
 
                 veilederflateTiltakQueries.getAll(
                     brukersEnheter = listOf(NavEnhetNummer("0502")),
@@ -94,9 +93,9 @@ class VeilederflateTiltakQueriesTest : FunSpec({
             database.runAndRollback {
                 domain.initialize()
 
-                repository.tiltakstype.save(TiltakstypeFixtures.Oppfolging.copy(innsatsgrupper = setOf(Innsatsgruppe.TRENGER_VEILEDNING_NEDSATT_ARBEIDSEVNE)))
+                tiltakstype.save(TiltakstypeFixtures.Oppfolging.copy(innsatsgrupper = setOf(Innsatsgruppe.TRENGER_VEILEDNING_NEDSATT_ARBEIDSEVNE)))
 
-                repository.tiltakstype.save(
+                tiltakstype.save(
                     TiltakstypeFixtures.AFT.copy(
                         innsatsgrupper = setOf(
                             Innsatsgruppe.GODE_MULIGHETER,
@@ -105,14 +104,14 @@ class VeilederflateTiltakQueriesTest : FunSpec({
                     ),
                 )
 
-                queries.veilderTiltak.getAll(
+                veilederTiltak.getAll(
                     innsatsgruppe = Innsatsgruppe.GODE_MULIGHETER,
                     brukersEnheter = listOf(NavEnhetNummer("0502")),
                 ).should {
                     it.shouldHaveSize(1).first().id.shouldBe(AFT1.id)
                 }
 
-                queries.veilderTiltak.getAll(
+                veilederTiltak.getAll(
                     innsatsgruppe = Innsatsgruppe.TRENGER_VEILEDNING_NEDSATT_ARBEIDSEVNE,
                     brukersEnheter = listOf(NavEnhetNummer("0502")),
                 ) shouldHaveSize 2
@@ -123,32 +122,32 @@ class VeilederflateTiltakQueriesTest : FunSpec({
             database.runAndRollback {
                 domain.initialize()
 
-                queries.gjennomforing.setNavEnheter(
+                gjennomforing.setNavEnheter(
                     Oppfolging1.id,
                     setOf(NavEnhetNummer("0400"), NavEnhetNummer("0502")),
                 )
-                queries.gjennomforing.setNavEnheter(AFT1.id, setOf(NavEnhetNummer("0400"), NavEnhetNummer("0300")))
+                gjennomforing.setNavEnheter(AFT1.id, setOf(NavEnhetNummer("0400"), NavEnhetNummer("0300")))
 
-                queries.veilderTiltak.getAll(
+                veilederTiltak.getAll(
                     brukersEnheter = listOf(NavEnhetNummer("0502")),
                     innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
                 ).should {
                     it.shouldHaveSize(1).first().id.shouldBe(Oppfolging1.id)
                 }
 
-                queries.veilderTiltak.getAll(
+                veilederTiltak.getAll(
                     innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
                     brukersEnheter = listOf(NavEnhetNummer("0300")),
                 ).should {
                     it.shouldHaveSize(1).first().id.shouldBe(AFT1.id)
                 }
 
-                queries.veilderTiltak.getAll(
+                veilederTiltak.getAll(
                     innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
                     brukersEnheter = listOf(NavEnhetNummer("0502"), NavEnhetNummer("0300")),
                 ) shouldHaveSize 2
 
-                queries.veilderTiltak.getAll(
+                veilederTiltak.getAll(
                     innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
                     brukersEnheter = listOf(NavEnhetNummer("0400")),
                 ) shouldHaveSize 2
@@ -159,13 +158,13 @@ class VeilederflateTiltakQueriesTest : FunSpec({
             database.runAndRollback {
                 domain.initialize()
 
-                queries.veilderTiltak.getAll(
+                veilederTiltak.getAll(
                     tiltakskoder = null,
                     brukersEnheter = listOf(NavEnhetNummer("0502")),
                     innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
                 ) shouldHaveSize 2
 
-                queries.veilderTiltak.getAll(
+                veilederTiltak.getAll(
                     innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
                     tiltakskoder = listOf(Tiltakskode.OPPFOLGING),
                     brukersEnheter = listOf(NavEnhetNummer("0502")),
@@ -173,7 +172,7 @@ class VeilederflateTiltakQueriesTest : FunSpec({
                     it.shouldHaveSize(1).first().id.shouldBe(Oppfolging1.id)
                 }
 
-                queries.veilderTiltak.getAll(
+                veilederTiltak.getAll(
                     innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
                     tiltakskoder = listOf(Tiltakskode.ARBEIDSFORBEREDENDE_TRENING),
                     brukersEnheter = listOf(NavEnhetNummer("0502")),
@@ -187,28 +186,28 @@ class VeilederflateTiltakQueriesTest : FunSpec({
             database.runAndRollback {
                 domain.initialize()
 
-                queries.gjennomforing.setFreeTextSearch(Oppfolging1.id, listOf("Oppfølging hos Erik"))
-                queries.gjennomforing.setFreeTextSearch(AFT1.id, listOf("AFT hos Frank"))
+                gjennomforing.setFreeTextSearch(Oppfolging1.id, listOf("Oppfølging hos Erik"))
+                gjennomforing.setFreeTextSearch(AFT1.id, listOf("AFT hos Frank"))
 
-                queries.veilderTiltak.getAll(
+                veilederTiltak.getAll(
                     innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
                     brukersEnheter = listOf(NavEnhetNummer("0502")),
                     search = "erik",
                 ).shouldHaveSize(1).first().id.shouldBe(Oppfolging1.id)
 
-                queries.veilderTiltak.getAll(
+                veilederTiltak.getAll(
                     innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
                     brukersEnheter = listOf(NavEnhetNummer("0502")),
                     search = "frank aft",
                 ).shouldHaveSize(1).first().id.shouldBe(AFT1.id)
 
-                queries.veilderTiltak.getAll(
+                veilederTiltak.getAll(
                     innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
                     brukersEnheter = listOf(NavEnhetNummer("0502")),
                     search = "aft erik",
                 ).shouldHaveSize(0)
 
-                queries.veilderTiltak.getAll(
+                veilederTiltak.getAll(
                     innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
                     brukersEnheter = listOf(NavEnhetNummer("0502")),
                     search = "af",
@@ -220,9 +219,9 @@ class VeilederflateTiltakQueriesTest : FunSpec({
             database.runAndRollback {
                 domain.initialize()
 
-                queries.gjennomforing.setApentForPamelding(AFT1.id, false)
+                gjennomforing.setApentForPamelding(AFT1.id, false)
 
-                queries.veilderTiltak.getAll(
+                veilederTiltak.getAll(
                     innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
                     apentForPamelding = true,
                     brukersEnheter = listOf(NavEnhetNummer("0502")),
@@ -230,7 +229,7 @@ class VeilederflateTiltakQueriesTest : FunSpec({
                     it.shouldHaveSize(1).first().id.shouldBe(Oppfolging1.id)
                 }
 
-                queries.veilderTiltak.getAll(
+                veilederTiltak.getAll(
                     innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
                     apentForPamelding = false,
                     brukersEnheter = listOf(NavEnhetNummer("0502")),
@@ -238,7 +237,7 @@ class VeilederflateTiltakQueriesTest : FunSpec({
                     it.shouldHaveSize(1).first().id.shouldBe(AFT1.id)
                 }
 
-                queries.veilderTiltak.getAll(
+                veilederTiltak.getAll(
                     innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
                     apentForPamelding = null,
                     brukersEnheter = listOf(NavEnhetNummer("0502")),
@@ -248,21 +247,21 @@ class VeilederflateTiltakQueriesTest : FunSpec({
     }
 
     context("sykemeldt med arbeidsgiver") {
-        val domain = MulighetsrommetTestDomain(
+        val domain = AdminTestDomain(
             navEnheter = listOf(Innlandet, Gjovik),
             tiltakstyper = listOf(TiltakstypeFixtures.ArbeidsrettetRehabilitering),
             avtaler = listOf(AvtaleFixtures.ARR),
             gjennomforinger = listOf(ArbeidsrettetRehabilitering),
         ) {
-            repository.tiltakstype.save(
+            tiltakstype.save(
                 TiltakstypeFixtures.ArbeidsrettetRehabilitering.copy(
                     sanityId = UUID.randomUUID(),
                     innsatsgrupper = setOf(Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE),
                 ),
             )
 
-            queries.gjennomforing.setPublisert(ArbeidsrettetRehabilitering.id, true)
-            queries.gjennomforing.setNavEnheter(
+            gjennomforing.setPublisert(ArbeidsrettetRehabilitering.id, true)
+            gjennomforing.setNavEnheter(
                 ArbeidsrettetRehabilitering.id,
                 setOf(NavEnhetNummer("0400"), NavEnhetNummer("0502")),
             )
@@ -273,19 +272,19 @@ class VeilederflateTiltakQueriesTest : FunSpec({
                 domain.initialize()
 
                 // Riktig innsatsgruppe
-                queries.veilderTiltak.getAll(
+                veilederTiltak.getAll(
                     innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
                     brukersEnheter = listOf(NavEnhetNummer("0502")),
                 ).size shouldBe 1
 
                 // Feil innsatsgruppe
-                queries.veilderTiltak.getAll(
+                veilederTiltak.getAll(
                     innsatsgruppe = Innsatsgruppe.TRENGER_VEILEDNING,
                     brukersEnheter = listOf(NavEnhetNummer("0502")),
                 ).size shouldBe 0
 
                 // Feil innsatsgruppe men sykmeldt
-                queries.veilderTiltak.getAll(
+                veilederTiltak.getAll(
                     innsatsgruppe = Innsatsgruppe.TRENGER_VEILEDNING,
                     brukersEnheter = listOf(NavEnhetNummer("0502")),
                     erSykmeldtMedArbeidsgiver = true,
@@ -295,16 +294,16 @@ class VeilederflateTiltakQueriesTest : FunSpec({
     }
 
     context("kontaktpersoner") {
-        val domain = MulighetsrommetTestDomain(
+        val domain = AdminTestDomain(
             ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
             navEnheter = listOf(Innlandet, Gjovik),
             tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
             avtaler = listOf(AvtaleFixtures.oppfolging),
             gjennomforinger = listOf(Oppfolging1),
         ) {
-            repository.tiltakstype.save(TiltakstypeFixtures.Oppfolging.copy(sanityId = UUID.randomUUID()))
-            queries.gjennomforing.setNavEnheter(Oppfolging1.id, setOf(Innlandet.enhetsnummer, Gjovik.enhetsnummer))
-            queries.gjennomforing.setKontaktpersoner(
+            tiltakstype.save(TiltakstypeFixtures.Oppfolging.copy(sanityId = UUID.randomUUID()))
+            gjennomforing.setNavEnheter(Oppfolging1.id, setOf(Innlandet.enhetsnummer, Gjovik.enhetsnummer))
+            gjennomforing.setKontaktpersoner(
                 Oppfolging1.id,
                 setOf(GjennomforingKontaktpersonDbo(NavAnsattFixture.DonaldDuck.navIdent, "Tiltaksansvarlig")),
             )
@@ -314,7 +313,7 @@ class VeilederflateTiltakQueriesTest : FunSpec({
             database.runAndRollback {
                 domain.initialize()
 
-                queries.veilderTiltak.get(Oppfolging1.id).shouldNotBeNull().should {
+                veilederTiltak.get(Oppfolging1.id).shouldNotBeNull().should {
                     it.kontaktinfo.tiltaksansvarlige shouldBe listOf(
                         VeilederflateKontaktinfoTiltaksansvarlig(
                             navn = "Donald Duck",
@@ -356,7 +355,7 @@ class VeilederflateTiltakQueriesTest : FunSpec({
 
         test("inkluderer dokument med kun fylke når enhet i fylket filtreres") {
             database.runAndRollback {
-                val domain = MulighetsrommetTestDomain(
+                val domain = AdminTestDomain(
                     navEnheter = listOf(Innlandet, Gjovik, Oslo),
                     tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
                 )
@@ -365,14 +364,14 @@ class VeilederflateTiltakQueriesTest : FunSpec({
                 val medFylkeId = UUID.randomUUID()
                 val medEnhetId = UUID.randomUUID()
 
-                repository.tiltakBeskrivelse.save(
+                tiltakBeskrivelse.save(
                     minimalDokument(id = medFylkeId, navn = "Kun fylke", navEnheter = listOf(Innlandet.enhetsnummer)),
                 )
-                repository.tiltakBeskrivelse.save(
+                tiltakBeskrivelse.save(
                     minimalDokument(id = medEnhetId, navn = "Med enhet", navEnheter = listOf(Gjovik.enhetsnummer)),
                 )
 
-                val result = queries.veilderTiltak.getAllTiltakBeskrivelse(
+                val result = veilederTiltak.getAllTiltakBeskrivelse(
                     brukersEnheter = listOf(Gjovik.enhetsnummer),
                 )
                 result shouldHaveSize 2
@@ -382,17 +381,17 @@ class VeilederflateTiltakQueriesTest : FunSpec({
 
         test("ekskluderer dokument med annen fylke") {
             database.runAndRollback {
-                val domain = MulighetsrommetTestDomain(
+                val domain = AdminTestDomain(
                     navEnheter = listOf(Innlandet, Gjovik, Oslo),
                     tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
                 )
                 domain.initialize()
 
-                repository.tiltakBeskrivelse.save(
+                tiltakBeskrivelse.save(
                     minimalDokument(navn = "Annen fylke", navEnheter = listOf(Oslo.enhetsnummer)),
                 )
 
-                val result = queries.veilderTiltak.getAllTiltakBeskrivelse(
+                val result = veilederTiltak.getAllTiltakBeskrivelse(
                     brukersEnheter = listOf(Gjovik.enhetsnummer),
                 )
                 result.shouldBeEmpty()
@@ -401,17 +400,17 @@ class VeilederflateTiltakQueriesTest : FunSpec({
 
         test("eksluderer dokument med riktig fylke men feil underenhet") {
             database.runAndRollback {
-                val domain = MulighetsrommetTestDomain(
+                val domain = AdminTestDomain(
                     navEnheter = listOf(Innlandet, Gjovik, Oslo, Lillehammer),
                     tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
                 )
                 domain.initialize()
 
-                repository.tiltakBeskrivelse.save(
+                tiltakBeskrivelse.save(
                     minimalDokument(navn = "Riktig fylke, feil underenhet", navEnheter = listOf(Innlandet.enhetsnummer, Lillehammer.enhetsnummer)),
                 )
 
-                val result = queries.veilderTiltak.getAllTiltakBeskrivelse(
+                val result = veilederTiltak.getAllTiltakBeskrivelse(
                     brukersEnheter = listOf(Gjovik.enhetsnummer),
                 )
                 result.shouldBeEmpty()
@@ -420,22 +419,22 @@ class VeilederflateTiltakQueriesTest : FunSpec({
     }
 
     context("enkeltplasser og Arena-tiltak") {
-        val arenatiltak = GjennomforingFixtures.ArenaArbeidsrettetRehabilitering
-        val enkeltplass = GjennomforingFixtures.EnkelAmo
+        val arenatiltak = GjennomforingDboFixtures.ArenaArbeidsrettetRehabilitering
+        val enkeltplass = GjennomforingDboFixtures.EnkelAmo
 
-        val domain = MulighetsrommetTestDomain(
+        val domain = AdminTestDomain(
             navEnheter = listOf(Innlandet, Gjovik),
             tiltakstyper = listOf(TiltakstypeFixtures.ArbeidsrettetRehabilitering, TiltakstypeFixtures.EnkelAmo),
             gjennomforinger = listOf(arenatiltak, enkeltplass),
         ) {
-            repository.tiltakstype.save(
+            tiltakstype.save(
                 TiltakstypeFixtures.ArbeidsrettetRehabilitering.copy(
                     sanityId = UUID.randomUUID(),
                     innsatsgrupper = setOf(Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE),
                 ),
             )
 
-            repository.tiltakstype.save(
+            tiltakstype.save(
                 TiltakstypeFixtures.EnkelAmo.copy(
                     sanityId = UUID.randomUUID(),
                     innsatsgrupper = setOf(Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE),
@@ -448,11 +447,11 @@ class VeilederflateTiltakQueriesTest : FunSpec({
                 domain.initialize()
 
                 listOf(arenatiltak.id, enkeltplass.id).forEach { id ->
-                    queries.gjennomforing.setNavEnheter(id, setOf(NavEnhetNummer("0502")))
-                    queries.gjennomforing.setPublisert(id, true)
+                    gjennomforing.setNavEnheter(id, setOf(NavEnhetNummer("0502")))
+                    gjennomforing.setPublisert(id, true)
                 }
 
-                queries.veilderTiltak.getAll(
+                veilederTiltak.getAll(
                     innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
                     brukersEnheter = listOf(NavEnhetNummer("0502")),
                 ).shouldBeEmpty()
@@ -463,9 +462,9 @@ class VeilederflateTiltakQueriesTest : FunSpec({
             database.runAndRollback {
                 domain.initialize()
 
-                queries.veilderTiltak.get(arenatiltak.id).shouldBeNull()
+                veilederTiltak.get(arenatiltak.id).shouldBeNull()
 
-                queries.veilderTiltak.get(enkeltplass.id).shouldBeNull()
+                veilederTiltak.get(enkeltplass.id).shouldBeNull()
             }
         }
     }

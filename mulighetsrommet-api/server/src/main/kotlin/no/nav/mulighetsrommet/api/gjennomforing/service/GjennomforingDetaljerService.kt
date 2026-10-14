@@ -14,28 +14,28 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.contracts.gjennomforing.TiltaksgjennomforingV2Dto
 import no.nav.mulighetsrommet.api.domain.deltaker.Deltaker
+import no.nav.mulighetsrommet.api.domain.gjennomforing.Gjennomforing
+import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingArena
+import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingArenaKompakt
+import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingAvtale
+import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingAvtaleKompakt
+import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingAvtaleStatus
+import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingEnkeltplass
+import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingEnkeltplassKompakt
+import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingKompakt
+import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingTiltaksadministrasjon
+import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingType
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsatt
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeFeature
 import no.nav.mulighetsrommet.api.gjennomforing.api.AdminTiltaksgjennomforingFilter
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingHandling
-import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingType
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.GjennomforingDtoMapper
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingV2Mapper
 import no.nav.mulighetsrommet.api.gjennomforing.model.DeltakerDto
-import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingArena
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingArenaKompakt
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleKompakt
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleStatus
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDetaljerDto
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplassDetaljerDto
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplassKompakt
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKompakt
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKompaktDto
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingTiltaksadministrasjon
 import no.nav.mulighetsrommet.api.navansatt.OkonomiAuthorization
 import no.nav.mulighetsrommet.api.navansatt.OkonomiBeslutningContext
 import no.nav.mulighetsrommet.api.responses.PaginatedResponse
@@ -254,24 +254,25 @@ class GjennomforingDetaljerService(
         ansatt: NavAnsatt,
     ): Set<GjennomforingHandling> {
         val enkeltplass = enkeltplassService.get(gjennomforing.id)
-        val okonomiKanBehandlesAvNavAnsatt = enkeltplass?.okonomi
-            ?.kanBehandlesAv(ansatt.navIdent) == true
-        val prisendringKanBehandlesAvNavAnsatt = enkeltplass?.prisendring?.totrinnskontroll
-            ?.kanBehandlesAv(ansatt.navIdent) == true
+        val okonomi = enkeltplass?.okonomi
+        val prisendring = enkeltplass?.prisendring?.totrinnskontroll
+
+        val okonomiKanBehandlesAvNavAnsatt = okonomi?.kanBehandlesAv(ansatt.navIdent) == true
+        val prisendringKanBehandlesAvNavAnsatt = prisendring?.kanBehandlesAv(ansatt.navIdent) == true
         return setOfNotNull(
             GjennomforingHandling.OPPRETT_TILSAGN,
             GjennomforingHandling.OPPRETT_UTBETALING,
             GjennomforingHandling.SETT_PA_VENT_ENKELTPLASS_OKONOMI.takeIf {
-                okonomiKanBehandlesAvNavAnsatt && enkeltplass.okonomi.kanSettesPaVent()
+                okonomiKanBehandlesAvNavAnsatt && okonomi.kanSettesPaVent()
             },
             GjennomforingHandling.GODKJENN_ENKELTPLASS_OKONOMI.takeIf {
-                okonomiKanBehandlesAvNavAnsatt && enkeltplass.okonomi.kanBesluttes()
+                okonomiKanBehandlesAvNavAnsatt && okonomi.kanBesluttes()
             },
             GjennomforingHandling.SETT_PA_VENT_ENKELTPLASS_PRISENDRING.takeIf {
-                prisendringKanBehandlesAvNavAnsatt && enkeltplass.prisendring.totrinnskontroll.kanSettesPaVent()
+                prisendringKanBehandlesAvNavAnsatt && prisendring.kanSettesPaVent()
             },
             GjennomforingHandling.GODKJENN_ENKELTPLASS_PRISENDRING.takeIf {
-                prisendringKanBehandlesAvNavAnsatt && enkeltplass.prisendring.totrinnskontroll.kanBesluttes()
+                prisendringKanBehandlesAvNavAnsatt && prisendring.kanBesluttes()
             },
         )
             .filter { handling ->

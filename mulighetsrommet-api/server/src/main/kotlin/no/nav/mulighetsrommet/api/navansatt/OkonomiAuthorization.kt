@@ -1,8 +1,8 @@
 package no.nav.mulighetsrommet.api.navansatt
 
+import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingType
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsatt
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
-import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingType
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 
 object OkonomiAuthorization {

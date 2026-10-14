@@ -15,13 +15,13 @@ import no.nav.mulighetsrommet.api.domain.deltaker.DeltakerForslagRepository
 import no.nav.mulighetsrommet.api.domain.deltaker.DeltakerRepository
 import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeRepository
 import no.nav.mulighetsrommet.api.domain.tiltakbeskrivelse.TiltakBeskrivelseRepository
-import no.nav.mulighetsrommet.api.gjennomforing.db.EnkeltplassPrisendringQueries
-import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingQueries
 import no.nav.mulighetsrommet.api.persistence.arrangor.ArrangorQueries
 import no.nav.mulighetsrommet.api.persistence.avtale.AvtaleQueries
 import no.nav.mulighetsrommet.api.persistence.deltaker.DeltakerForslagQueries
 import no.nav.mulighetsrommet.api.persistence.deltaker.DeltakerQueries
 import no.nav.mulighetsrommet.api.persistence.endringshistorikk.EndringshistorikkQueries
+import no.nav.mulighetsrommet.api.persistence.gjennomforing.EnkeltplassPrisendringQueries
+import no.nav.mulighetsrommet.api.persistence.gjennomforing.GjennomforingQueries
 import no.nav.mulighetsrommet.api.persistence.kostnadssted.KostnadsstedQueries
 import no.nav.mulighetsrommet.api.persistence.navansatt.NavAnsattQueries
 import no.nav.mulighetsrommet.api.persistence.navenhet.NavEnhetQueries

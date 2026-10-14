@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.gjennomforing.model
+package no.nav.mulighetsrommet.api.domain.gjennomforing
 
 enum class AvbrytGjennomforingAarsak {
     ENDRING_HOS_ARRANGOR,

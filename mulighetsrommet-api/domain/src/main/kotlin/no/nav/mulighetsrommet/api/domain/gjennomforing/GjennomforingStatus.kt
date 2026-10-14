@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.gjennomforing.model
+package no.nav.mulighetsrommet.api.domain.gjennomforing
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

@@ -1,12 +1,6 @@
-package no.nav.mulighetsrommet.admin.opplaring
+package no.nav.mulighetsrommet.api.domain.opplaring
 
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.domain.opplaring.Bransje
-import no.nav.mulighetsrommet.api.domain.opplaring.ForerkortKlasse
-import no.nav.mulighetsrommet.api.domain.opplaring.InnholdElement
-import no.nav.mulighetsrommet.api.domain.opplaring.Kurstype
-import no.nav.mulighetsrommet.api.domain.opplaring.OpplaringKategorisering
-import no.nav.mulighetsrommet.api.domain.opplaring.Sertifisering
 
 /**
  * Read model for opplæringskategorisering, beriket med visningsdata (navn/kode) for

@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.endringshistorikk
+package no.nav.mulighetsrommet.api.persistence.endringshistorikk
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldHaveSize
@@ -8,15 +8,15 @@ import kotlinx.serialization.json.JsonNull
 import no.nav.mulighetsrommet.admin.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.admin.endringshistorikk.EndringshistorikkType
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavAnsattFixture
-import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
-import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
+import no.nav.mulighetsrommet.api.persistence.AdminTestDomain
+import no.nav.mulighetsrommet.api.persistence.SqlAdminDatabaseTestListener
 import no.nav.mulighetsrommet.model.Arena
 import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
 import java.time.LocalDateTime
 import java.util.UUID
 
 class EndringshistorikkQueriesTest : FunSpec({
-    val database = extension(ApiDatabaseTestListener())
+    val database = extension(SqlAdminDatabaseTestListener())
 
     test("opprett og les endringshistorikk sortert med nyeste endringer først") {
         database.runAndRollback {
@@ -74,7 +74,7 @@ class EndringshistorikkQueriesTest : FunSpec({
     test("bruker i endringshistorikk blir utledet fra kjente Nav-ansatte") {
         val ansatt1 = NavAnsattFixture.DonaldDuck
         val ansatt2 = NavAnsattFixture.MikkeMus
-        val domain = MulighetsrommetTestDomain(ansatte = listOf(ansatt1, ansatt2))
+        val domain = AdminTestDomain(ansatte = listOf(ansatt1, ansatt2))
 
         database.runAndRollback {
             domain.initialize()

@@ -1,7 +1,7 @@
-package no.nav.mulighetsrommet.api.gjennomforing.model
+package no.nav.mulighetsrommet.api.domain.gjennomforing
 
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.admin.navenhet.Kontorstruktur
+import no.nav.mulighetsrommet.api.domain.navenhet.Kontorstruktur
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Tiltaksnummer

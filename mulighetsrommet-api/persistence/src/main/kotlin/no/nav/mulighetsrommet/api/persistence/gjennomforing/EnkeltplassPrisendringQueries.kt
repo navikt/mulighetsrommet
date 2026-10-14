@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.gjennomforing.db
+package no.nav.mulighetsrommet.api.persistence.gjennomforing
 
 import kotliquery.Row
 import kotliquery.Session

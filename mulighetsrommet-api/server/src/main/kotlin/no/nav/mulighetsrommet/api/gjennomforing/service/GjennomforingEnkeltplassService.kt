@@ -15,6 +15,12 @@ import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.TransactionalQueryContext
 import no.nav.mulighetsrommet.api.amo.OpplaringKategoriseringRequest
 import no.nav.mulighetsrommet.api.domain.deltaker.Deltaker
+import no.nav.mulighetsrommet.api.domain.gjennomforing.Enkeltplass
+import no.nav.mulighetsrommet.api.domain.gjennomforing.Gjennomforing
+import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingAvtale
+import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingEnkeltplass
+import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingEnkeltplassStatus
+import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingType
 import no.nav.mulighetsrommet.api.domain.opplaring.Kurstype
 import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd
 import no.nav.mulighetsrommet.api.domain.opplaring.OpplaringKategorisering
@@ -24,18 +30,12 @@ import no.nav.mulighetsrommet.api.domain.totrinnskontroll.Totrinnskontroll
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollError
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollStatus
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
-import no.nav.mulighetsrommet.api.gjennomforing.db.EnkeltplassPrisendringDbo
-import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingArenaDataDbo
-import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
-import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingType
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingV2Mapper
-import no.nav.mulighetsrommet.api.gjennomforing.model.Enkeltplass
-import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplassStatus
 import no.nav.mulighetsrommet.api.navansatt.OkonomiAuthorization
 import no.nav.mulighetsrommet.api.navansatt.OkonomiBeslutningContext
+import no.nav.mulighetsrommet.api.persistence.gjennomforing.EnkeltplassPrisendringDbo
+import no.nav.mulighetsrommet.api.persistence.gjennomforing.GjennomforingArenaDataDbo
+import no.nav.mulighetsrommet.api.persistence.gjennomforing.GjennomforingDbo
 import no.nav.mulighetsrommet.api.totrinnskontroll.api.toFieldErrors
 import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
@@ -324,8 +324,9 @@ class GjennomforingEnkeltplassService(
             return EnkeltplassBeslutningError.ManglerTilgang("Du mangler tilgang til å beslutte økonomi for enkeltplassen").left()
         }
 
-        if (enkeltplass.prisendring?.totrinnskontroll?.kanBesluttes() == true) {
-            if (enkeltplass.prisendring.totrinnskontroll.id != forventetTotrinnskontrollId) {
+        val prisendring = enkeltplass.prisendring
+        if (prisendring?.totrinnskontroll?.kanBesluttes() == true) {
+            if (prisendring.totrinnskontroll.id != forventetTotrinnskontrollId) {
                 if (erPrisendringTrukketTilbake(id, forventetTotrinnskontrollId)) {
                     return EnkeltplassBeslutningError.ForslagTrukketTilbake(
                         "Nav-veileder har trukket tilbake forslaget. Det kan ikke lenger godkjennes.",
@@ -336,7 +337,7 @@ class GjennomforingEnkeltplassService(
                 ).left()
             }
 
-            return godkjennPrisendring(id, enkeltplass.prisendring.totrinnskontroll, navIdent)
+            return godkjennPrisendring(id, prisendring.totrinnskontroll, navIdent)
                 .mapLeft(EnkeltplassBeslutningError::Valideringsfeil)
         }
 
@@ -380,8 +381,9 @@ class GjennomforingEnkeltplassService(
             return EnkeltplassBeslutningError.ManglerTilgang("Du mangler tilgang til å beslutte økonomi for enkeltplassen").left()
         }
 
-        if (enkeltplass.prisendring?.totrinnskontroll?.kanBesluttes() == true) {
-            if (enkeltplass.prisendring.totrinnskontroll.id != forventetTotrinnskontrollId) {
+        val prisendring = enkeltplass.prisendring
+        if (prisendring?.totrinnskontroll?.kanBesluttes() == true) {
+            if (prisendring.totrinnskontroll.id != forventetTotrinnskontrollId) {
                 return EnkeltplassBeslutningError.Valideringsfeil(
                     FieldError.of("Grunnlaget har endret seg siden det ble hentet. Forsøk igjen.").nel(),
                 ).left()
@@ -389,7 +391,7 @@ class GjennomforingEnkeltplassService(
 
             return settPrisendringPaVent(
                 id,
-                enkeltplass.prisendring.totrinnskontroll,
+                prisendring.totrinnskontroll,
                 navIdent,
                 begrunnelse,
             ).mapLeft(EnkeltplassBeslutningError::Valideringsfeil)

@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.gjennomforing.model
+package no.nav.mulighetsrommet.api.domain.gjennomforing
 
 import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.Totrinnskontroll

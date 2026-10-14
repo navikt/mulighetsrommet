@@ -23,6 +23,9 @@ dependencies {
     implementation(projects.common.kafka)
 
     testFixturesImplementation(testFixtures(projects.common.database))
+    testFixturesImplementation(projects.mulighetsrommetApi.domain)
+    testFixturesImplementation(testFixtures(projects.mulighetsrommetApi.domain))
+    testFixturesImplementation(projects.common.domain)
 
     testImplementation(libs.arrow.core)
     testImplementation(testFixtures(projects.common.database))

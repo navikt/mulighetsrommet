@@ -4,6 +4,7 @@ import no.nav.mulighetsrommet.api.domain.opplaring.Bransje
 import no.nav.mulighetsrommet.api.domain.opplaring.ForerkortKlasse
 import no.nav.mulighetsrommet.api.domain.opplaring.InnholdElement
 import no.nav.mulighetsrommet.api.domain.opplaring.Kurstype
+import no.nav.mulighetsrommet.api.domain.opplaring.UtdanningslopDetaljer
 
 interface OpplaringKategoriseringQueryHandler {
     fun getKurstyper(filter: Set<Kurstype.Kode> = emptySet()): Set<Kurstype>

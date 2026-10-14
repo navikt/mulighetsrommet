@@ -1,26 +1,29 @@
-package no.nav.mulighetsrommet.api.gjennomforing.db
+package no.nav.mulighetsrommet.api.persistence.gjennomforing
 
 import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.admin.navenhet.Kontorstruktur
-import no.nav.mulighetsrommet.admin.navenhet.NavEnhetDto
-import no.nav.mulighetsrommet.admin.opplaring.OpplaringKategoriseringDetaljer
+import no.nav.mulighetsrommet.api.domain.gjennomforing.AvbrytGjennomforingAarsak
+import no.nav.mulighetsrommet.api.domain.gjennomforing.Gjennomforing
+import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingArena
+import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingArenaKompakt
+import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingAvtale
+import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingAvtaleDetaljer
+import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingAvtaleKompakt
+import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingAvtaleStatus
+import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingEnkeltplass
+import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingEnkeltplassKompakt
+import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingEnkeltplassStatus
+import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingKompakt
+import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingRepository
+import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingTiltaksadministrasjon
+import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingType
+import no.nav.mulighetsrommet.api.domain.navenhet.Kontorstruktur
+import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetDto
+import no.nav.mulighetsrommet.api.domain.opplaring.OpplaringKategoriseringDetaljer
 import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
-import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
-import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingArena
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingArenaKompakt
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleDetaljer
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleKompakt
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleStatus
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplassKompakt
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplassStatus
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKompakt
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingTiltaksadministrasjon
+import no.nav.mulighetsrommet.api.persistence.avtale.JsonIgnoreUnknownKeys
 import no.nav.mulighetsrommet.api.persistence.tiltak.toPrismodell
 import no.nav.mulighetsrommet.api.shared.PaginatedResult
 import no.nav.mulighetsrommet.api.shared.Pagination
@@ -41,12 +44,11 @@ import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Tiltaksnummer
-import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import org.intellij.lang.annotations.Language
 import java.time.LocalDate
 import java.util.UUID
 
-class GjennomforingQueries(private val session: Session) {
+class GjennomforingQueries(private val session: Session) : GjennomforingRepository {
     fun upsert(gjennomforing: GjennomforingDbo) {
         @Language("PostgreSQL")
         val query = """
@@ -411,7 +413,7 @@ class GjennomforingQueries(private val session: Session) {
             .runWithSession(this)
     }
 
-    fun getByAvtale(avtaleId: UUID): List<GjennomforingAvtale> {
+    override fun getByAvtale(avtaleId: UUID): List<GjennomforingAvtale> {
         @Language("PostgreSQL")
         val query = """
             select *
@@ -422,17 +424,17 @@ class GjennomforingQueries(private val session: Session) {
         return session.list(queryOf(query, avtaleId)) { it.toGjennomforingAvtale() }
     }
 
-    fun getGjennomforingTiltaksadministrasjon(id: UUID): GjennomforingTiltaksadministrasjon {
+    override fun getGjennomforingTiltaksadministrasjon(id: UUID): GjennomforingTiltaksadministrasjon {
         return getGjennomforing(id) as? GjennomforingTiltaksadministrasjon ?: error(
             "Gjennomføring med id $id er ikke av type GjennomforingTiltaksadministrasjon",
         )
     }
 
-    fun getGjennomforingOrError(id: UUID): Gjennomforing {
+    override fun getGjennomforingOrError(id: UUID): Gjennomforing {
         return checkNotNull(getGjennomforing(id)) { "Gjennomføring med id $id finnes ikke" }
     }
 
-    fun getGjennomforing(id: UUID): Gjennomforing? {
+    override fun getGjennomforing(id: UUID): Gjennomforing? {
         @Language("PostgreSQL")
         val query = """
             select *
@@ -443,19 +445,19 @@ class GjennomforingQueries(private val session: Session) {
         return session.single(queryOf(query, id)) { it.toGjennomforing() }
     }
 
-    fun getGjennomforingAvtaleOrError(id: UUID): GjennomforingAvtale {
+    override fun getGjennomforingAvtaleOrError(id: UUID): GjennomforingAvtale {
         return getGjennomforing(id) as? GjennomforingAvtale ?: error(
             "Gjennomføring med id $id er ikke av type GjennomforingAvtale",
         )
     }
 
-    fun getGjennomforingEnkeltplassOrError(id: UUID): GjennomforingEnkeltplass {
+    override fun getGjennomforingEnkeltplassOrError(id: UUID): GjennomforingEnkeltplass {
         return getGjennomforing(id) as? GjennomforingEnkeltplass ?: error(
             "Gjennomføring med id $id er ikke av type GjennomforingEnkeltplass",
         )
     }
 
-    fun getGjennomforingArenaOrError(id: UUID): GjennomforingArena {
+    override fun getGjennomforingArenaOrError(id: UUID): GjennomforingArena {
         return getGjennomforing(id) as? GjennomforingArena ?: error(
             "Gjennomføring med id $id er ikke av type GjennomforingArena",
         )

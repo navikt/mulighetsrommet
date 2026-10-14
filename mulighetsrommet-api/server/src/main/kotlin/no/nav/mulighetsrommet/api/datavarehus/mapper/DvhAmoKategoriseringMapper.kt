@@ -1,8 +1,8 @@
 package no.nav.mulighetsrommet.api.datavarehus.mapper
 
-import no.nav.mulighetsrommet.admin.opplaring.OpplaringKategoriseringDetaljer
 import no.nav.mulighetsrommet.api.contracts.datavarehus.DvhAmoKategorisering
 import no.nav.mulighetsrommet.api.domain.opplaring.Kurstype
+import no.nav.mulighetsrommet.api.domain.opplaring.OpplaringKategoriseringDetaljer
 import no.nav.mulighetsrommet.model.Tiltakskode
 
 fun OpplaringKategoriseringDetaljer.toDvhAmoKategorisering(tiltakskode: Tiltakskode): DvhAmoKategorisering? {

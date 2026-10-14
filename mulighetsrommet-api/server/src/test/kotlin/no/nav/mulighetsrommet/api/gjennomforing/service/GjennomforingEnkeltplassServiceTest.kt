@@ -15,15 +15,17 @@ import io.kotest.matchers.types.shouldBeTypeOf
 import io.mockk.mockk
 import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.admin.endringshistorikk.EndringshistorikkType
-import no.nav.mulighetsrommet.admin.opplaring.OpplaringKategoriseringDetaljer
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
 import no.nav.mulighetsrommet.api.amo.OpplaringKategoriseringRequest
 import no.nav.mulighetsrommet.api.contracts.gjennomforing.TiltaksgjennomforingV2Dto
 import no.nav.mulighetsrommet.api.domain.deltaker.Deltakelsesmengde
+import no.nav.mulighetsrommet.api.domain.gjennomforing.Gjennomforing
+import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingEnkeltplassStatus
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsatt
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsattRolle
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd
+import no.nav.mulighetsrommet.api.domain.opplaring.OpplaringKategoriseringDetaljer
 import no.nav.mulighetsrommet.api.domain.opplaring.Sertifisering
 import no.nav.mulighetsrommet.api.domain.testing.fixture.BransjeFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.DeltakerFixtures
@@ -40,8 +42,6 @@ import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollStatus
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
-import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplassStatus
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.FieldError
@@ -122,7 +122,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
         id = UUID.randomUUID(),
         tiltakskode = Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
         arrangorId = GjennomforingFixtures.EnkelAmo.arrangorId,
-        ansvarligEnhet = GjennomforingFixtures.EnkelAmo.ansvarligEnhet,
+        ansvarligEnhet = requireNotNull(GjennomforingFixtures.EnkelAmo.ansvarligEnhet),
         prismodell = UpsertEnkeltplass.Prismodell.Anskaffelse(1000),
         kategorisering = kategorisering,
     )
@@ -410,7 +410,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
             startDato = LocalDate.of(2025, 1, 1),
             sluttDato = LocalDate.of(2025, 6, 1),
             status = GjennomforingEnkeltplassStatus.Deltar,
-            ansvarligEnhet = GjennomforingFixtures.EnkelAmo.ansvarligEnhet,
+            ansvarligEnhet = requireNotNull(GjennomforingFixtures.EnkelAmo.ansvarligEnhet),
             prismodell = UpsertEnkeltplass.Prismodell.Anskaffelse(1000),
             navn = navn,
         )

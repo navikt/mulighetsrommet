@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.gjennomforing.db
+package no.nav.mulighetsrommet.api.persistence.gjennomforing
 
 import java.util.UUID
 
