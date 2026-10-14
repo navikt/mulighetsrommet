@@ -46,6 +46,7 @@ sealed interface GjennomforingRequest {
     data class EnkeltplassEndreInnhold(
         @Serializable(with = UUIDSerializer::class)
         override val gjennomforingId: UUID,
+        val behandletAv: NavIdent,
         val payload: OpplaringKategorisering?,
     ) : GjennomforingRequest
 
