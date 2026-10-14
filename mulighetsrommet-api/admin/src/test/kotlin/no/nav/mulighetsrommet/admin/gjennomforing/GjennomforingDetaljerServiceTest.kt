@@ -13,6 +13,7 @@ import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import no.nav.mulighetsrommet.admin.personalia.PersonaliaPort
 import no.nav.mulighetsrommet.admin.testing.GjennomforingFixtures
 import no.nav.mulighetsrommet.admin.testing.TestAdminDatabase
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
@@ -44,14 +45,14 @@ class GjennomforingDetaljerServiceTest : FunSpec({
     fun createService(
         db: TestAdminDatabase = TestAdminDatabase(),
         personaliaPort: PersonaliaPort = mockk(),
-        enkeltplassPort: EnkeltplassPort = mockk(),
+        enkeltplassService: GjennomforingEnkeltplassService = mockk(),
         auditLog: GjennomforingAuditLog = mockk(relaxed = true),
     ) = GjennomforingDetaljerService(
         db = db,
         tiltakstypeService = TiltakstypeService(db = db),
         navAnsattService = mockk(),
         personaliaPort = personaliaPort,
-        enkeltplassPort = enkeltplassPort,
+        enkeltplassService = enkeltplassService,
         auditLog = auditLog,
     )
 
@@ -132,10 +133,10 @@ class GjennomforingDetaljerServiceTest : FunSpec({
                 status = DeltakerStatusType.DELTAR,
             )
             val personaliaPort = mockk<PersonaliaPort>()
-            val enkeltplassPort = mockk<EnkeltplassPort>()
+            val enkeltplassService = mockk<GjennomforingEnkeltplassService>()
             val auditLog = mockk<GjennomforingAuditLog>(relaxed = true)
             every { db.repository.gjennomforing.getGjennomforing(gjennomforing.id) } returns gjennomforing
-            every { enkeltplassPort.get(gjennomforing.id) } returns Enkeltplass(gjennomforing, null, null)
+            every { enkeltplassService.get(gjennomforing.id) } returns Enkeltplass(gjennomforing, null, null)
             db.repository.deltaker.save(deltaker)
             coEvery { personaliaPort.getPersonalia(deltaker.id, any()) } returns getPersonalia(
                 deltaker,
@@ -143,7 +144,7 @@ class GjennomforingDetaljerServiceTest : FunSpec({
                 avvist = null,
             )
             every { db.queries.opplaering.get(any()) } returns null
-            val service = createService(db, personaliaPort, enkeltplassPort, auditLog)
+            val service = createService(db, personaliaPort, enkeltplassService, auditLog)
 
             val dto = service.getGjennomforingDetaljerDto(
                 gjennomforing.id,
@@ -168,10 +169,10 @@ class GjennomforingDetaljerServiceTest : FunSpec({
             val gjennomforing = GjennomforingFixtures.createGjennomforingEnkeltplass()
             val deltaker = DeltakerFixtures.createDeltaker(gjennomforingId = gjennomforing.id)
             val personaliaPort = mockk<PersonaliaPort>()
-            val enkeltplassPort = mockk<EnkeltplassPort>()
+            val enkeltplassService = mockk<GjennomforingEnkeltplassService>()
             val auditLog = mockk<GjennomforingAuditLog>(relaxed = true)
             every { db.repository.gjennomforing.getGjennomforing(gjennomforing.id) } returns gjennomforing
-            every { enkeltplassPort.get(gjennomforing.id) } returns Enkeltplass(gjennomforing, null, null)
+            every { enkeltplassService.get(gjennomforing.id) } returns Enkeltplass(gjennomforing, null, null)
             db.repository.deltaker.save(deltaker)
             coEvery { personaliaPort.getPersonalia(deltaker.id, any()) } returns getPersonalia(
                 deltaker,
@@ -179,7 +180,7 @@ class GjennomforingDetaljerServiceTest : FunSpec({
                 avvist = AvvistGrunn.AVVIST_FORTROLIG_ADRESSE,
             )
             every { db.queries.opplaering.get(any()) } returns null
-            val service = createService(db, personaliaPort, enkeltplassPort, auditLog)
+            val service = createService(db, personaliaPort, enkeltplassService, auditLog)
 
             service.getGjennomforingDetaljerDto(
                 gjennomforing.id,

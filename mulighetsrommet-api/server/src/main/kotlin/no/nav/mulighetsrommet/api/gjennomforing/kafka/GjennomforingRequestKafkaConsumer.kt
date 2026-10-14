@@ -90,6 +90,7 @@ class GjennomforingRequestKafkaConsumer(
         enkeltplasser.endreInnhold(
             request.gjennomforingId,
             request.payload?.let(KategoriseringMapper::fromKafkaPayload),
+            request.behandletAv,
         )
     }
 

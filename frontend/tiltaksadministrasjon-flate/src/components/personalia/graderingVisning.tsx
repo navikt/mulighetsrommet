@@ -17,12 +17,12 @@ export function graderingVisning(gradering: Gradering): GraderingVisning | null 
     case Gradering.FORTROLIG_ADRESSE:
       return { Ikon: ShieldLockIcon, label: "Fortrolig adresse", color: "warning" };
     case Gradering.SKJERMING:
-      return { Ikon: EyeSlashIcon, label: "Skjermet", color: "info" };
+      return { Ikon: EyeSlashIcon, label: "Skjermet", color: "warning" };
     case Gradering.GEOGRAFISK:
       return {
         Ikon: EarthIcon,
         label: "Du har ikke tilgang til brukerens geografiske område",
-        color: "info",
+        color: "warning",
       };
     case Gradering.UGRADERT:
       return null;

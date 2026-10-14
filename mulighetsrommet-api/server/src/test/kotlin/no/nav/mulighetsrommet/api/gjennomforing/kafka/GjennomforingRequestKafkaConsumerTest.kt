@@ -17,6 +17,8 @@ import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.mulighetsrommet.admin.arrangor.SyncArrangorError
 import no.nav.mulighetsrommet.admin.arrangor.SyncArrangorIfMissing
 import no.nav.mulighetsrommet.admin.arrangor.SyncArrangorUseCase
+import no.nav.mulighetsrommet.admin.endringshistorikk.EndringshistorikkDto
+import no.nav.mulighetsrommet.admin.endringshistorikk.EndringshistorikkType
 import no.nav.mulighetsrommet.admin.enhetsregister.EnhetsregisterError
 import no.nav.mulighetsrommet.admin.gjennomforing.GjennomforingEnkeltplassService
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
@@ -209,6 +211,7 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
         val consumer = createConsumer(service)
 
         val gjennomforingId = UUID.randomUUID()
+        val behandletAv = NavIdent("B654321")
         val utkastPayload = GjennomforingRequest.UpsertEnkeltplass(
             tiltakskode = Tiltakskode.ARBEIDSMARKEDSOPPLAERING,
             organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
@@ -223,7 +226,11 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
             consumer.consume(gjennomforingId, Json.encodeToJsonElement<GjennomforingRequest>(utkast))
             service.get(gjennomforingId).shouldNotBeNull()
 
-            val endreInnholdRequest = GjennomforingRequest.EnkeltplassEndreInnhold(gjennomforingId, payload = null)
+            val endreInnholdRequest = GjennomforingRequest.EnkeltplassEndreInnhold(
+                gjennomforingId = gjennomforingId,
+                behandletAv = behandletAv,
+                payload = null,
+            )
             consumer.consume(gjennomforingId, Json.encodeToJsonElement<GjennomforingRequest>(endreInnholdRequest))
 
             service.get(gjennomforingId).shouldNotBeNull().should { (gjennomforing, _) ->
@@ -231,9 +238,33 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
             }
         }
 
+        test("bruker behandletAv fra request i endringshistorikk") {
+            val utkast = GjennomforingRequest.EnkeltplassUtkast(gjennomforingId, utkastPayload)
+            consumer.consume(gjennomforingId, Json.encodeToJsonElement<GjennomforingRequest>(utkast))
+
+            val endreInnholdRequest = GjennomforingRequest.EnkeltplassEndreInnhold(
+                gjennomforingId = gjennomforingId,
+                behandletAv = behandletAv,
+                payload = null,
+            )
+            consumer.consume(gjennomforingId, Json.encodeToJsonElement<GjennomforingRequest>(endreInnholdRequest))
+
+            database.run {
+                queries.endringshistorikk.getEndringshistorikk(EndringshistorikkType.GJENNOMFORING, gjennomforingId)
+                    .entries.first().should {
+                        it.operation shouldBe "Innhold endret"
+                        it.editedBy shouldBe EndringshistorikkDto.NavAnsatt(navIdent = "B654321", navn = null)
+                    }
+            }
+        }
+
         test("kaster feil dersom gjennomforing ikke eksisterer") {
             val ikkeEksisterendeId = UUID.randomUUID()
-            val request = GjennomforingRequest.EnkeltplassEndreInnhold(ikkeEksisterendeId, payload = null)
+            val request = GjennomforingRequest.EnkeltplassEndreInnhold(
+                gjennomforingId = ikkeEksisterendeId,
+                behandletAv = behandletAv,
+                payload = null,
+            )
 
             shouldThrowExactly<IllegalStateException> {
                 consumer.consume(ikkeEksisterendeId, Json.encodeToJsonElement<GjennomforingRequest>(request))
