@@ -150,6 +150,7 @@ class GjennomforingEnkeltplassService(
     fun endreInnhold(
         gjennomforingId: UUID,
         kategorisering: OpplaringKategoriseringRequest?,
+        behandletAv: NavIdent,
     ): Enkeltplass = db.transaction {
         val enkeltplass = getAndAcquireLock(gjennomforingId)
         upsertKategorisering(
@@ -158,7 +159,7 @@ class GjennomforingEnkeltplassService(
             kategorisering,
         )
         publishTiltaksgjennomforingV2ToKafka(enkeltplass.gjennomforing)
-        logEndring("Innhold endret", gjennomforingId, Tiltaksadministrasjon)
+        logEndring("Innhold endret", gjennomforingId, behandletAv)
     }
 
     fun endrePrisinformasjon(
