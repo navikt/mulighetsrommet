@@ -6,7 +6,7 @@ import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
 import no.nav.mulighetsrommet.admin.QueryContext
 import no.nav.mulighetsrommet.api.domain.tiltak.Tiltakstype
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.Totrinnskontroll
-import no.nav.mulighetsrommet.api.persistence.tiltak.TiltakstypeQueries
+import no.nav.mulighetsrommet.api.persistence.tiltak.AdminTiltakstypeQueries
 import no.nav.mulighetsrommet.api.persistence.totrinnskontroll.toTotrinnskontrollHendelse
 import no.nav.mulighetsrommet.kafka.KafkaProducerRecordQueries
 
@@ -17,7 +17,7 @@ data class OutboxTopics(
 
 class SqlAdminOutbox(session: Session, private val topics: OutboxTopics) : QueryContext.Outbox {
     private val kpr = KafkaProducerRecordQueries(session)
-    private val tiltakstype = TiltakstypeQueries(session)
+    private val tiltakstype = AdminTiltakstypeQueries(session)
 
     override fun publish(tiltakstype: Tiltakstype) {
         val dto = requireNotNull(this@SqlAdminOutbox.tiltakstype.getEksternTiltakstype(tiltakstype.id)) {

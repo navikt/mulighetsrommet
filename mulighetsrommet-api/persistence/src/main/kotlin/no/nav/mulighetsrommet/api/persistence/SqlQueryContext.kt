@@ -8,7 +8,7 @@ import no.nav.mulighetsrommet.admin.endringshistorikk.EndringshistorikkQueryHand
 import no.nav.mulighetsrommet.admin.kostnadssted.KostnadsstedQueryHandler
 import no.nav.mulighetsrommet.admin.navansatt.NavAnsattDtoQueryHandler
 import no.nav.mulighetsrommet.admin.opplaring.OpplaringKategoriseringQueryHandler
-import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeQueryHandler
+import no.nav.mulighetsrommet.admin.tiltak.AdminTiltakstypeQueryHandler
 import no.nav.mulighetsrommet.admin.tiltakbeskrivelse.TiltakBeskrivelseQueryHandler
 import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollQueryHandler
 import no.nav.mulighetsrommet.api.domain.arrangor.ArrangorRepository
@@ -32,8 +32,8 @@ import no.nav.mulighetsrommet.api.persistence.navansatt.NavAnsattQueries
 import no.nav.mulighetsrommet.api.persistence.navenhet.NavEnhetQueries
 import no.nav.mulighetsrommet.api.persistence.opplaring.OpplaringKategoriseringQueries
 import no.nav.mulighetsrommet.api.persistence.redaksjoneltinnhold.RedaksjoneltInnholdLenkeQueries
+import no.nav.mulighetsrommet.api.persistence.tiltak.AdminTiltakstypeQueries
 import no.nav.mulighetsrommet.api.persistence.tiltak.PrismodellQueries
-import no.nav.mulighetsrommet.api.persistence.tiltak.TiltakstypeQueries
 import no.nav.mulighetsrommet.api.persistence.tiltakbeskrivelse.TiltakBeskrivelseQueries
 import no.nav.mulighetsrommet.api.persistence.totrinnskontroll.TotrinnskontrollQueries
 import no.nav.mulighetsrommet.api.persistence.utdanning.UtdanningQueries
@@ -43,7 +43,7 @@ import no.nav.mulighetsrommet.api.persistence.veilederflate.DelMedBrukerQueries
  * Concrete [QueryContext] backed by JDBC/kotliquery.
  */
 class SqlQueryContext(session: Session, topics: OutboxTopics) : QueryContext() {
-    val tiltakstype = TiltakstypeQueries(session)
+    val tiltakstype = AdminTiltakstypeQueries(session)
     val avtale = AvtaleQueries(session)
     val prismodell = PrismodellQueries(session)
     val endringshistorikk = EndringshistorikkQueries(session)
@@ -75,7 +75,7 @@ class SqlQueryContext(session: Session, topics: OutboxTopics) : QueryContext() {
     }
 
     override val queries = object : Queries() {
-        override val tiltakstype: TiltakstypeQueryHandler = this@SqlQueryContext.tiltakstype
+        override val tiltakstype: AdminTiltakstypeQueryHandler = this@SqlQueryContext.tiltakstype
         override val avtale: AvtaleQueryHandler = this@SqlQueryContext.avtale
         override val endringshistorikk: EndringshistorikkQueryHandler = this@SqlQueryContext.endringshistorikk
         override val kostnadssted: KostnadsstedQueryHandler = this@SqlQueryContext.kostnadssted

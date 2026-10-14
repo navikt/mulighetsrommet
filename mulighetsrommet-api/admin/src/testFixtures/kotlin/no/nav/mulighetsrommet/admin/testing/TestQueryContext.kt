@@ -8,7 +8,7 @@ import no.nav.mulighetsrommet.admin.endringshistorikk.EndringshistorikkQueryHand
 import no.nav.mulighetsrommet.admin.kostnadssted.KostnadsstedQueryHandler
 import no.nav.mulighetsrommet.admin.navansatt.NavAnsattDtoQueryHandler
 import no.nav.mulighetsrommet.admin.opplaring.OpplaringKategoriseringQueryHandler
-import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeQueryHandler
+import no.nav.mulighetsrommet.admin.tiltak.AdminTiltakstypeQueryHandler
 import no.nav.mulighetsrommet.admin.tiltakbeskrivelse.TiltakBeskrivelseQueryHandler
 import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollQueryHandler
 import no.nav.mulighetsrommet.api.domain.testing.repository.FakeArrangorRepository
@@ -32,7 +32,7 @@ class TestQueryContext : QueryContext() {
     private val deltakerRepository = FakeDeltakerRepository()
     private val deltakerForslagRepository = FakeDeltakerForslagRepository()
 
-    private var tiltakstype: TiltakstypeQueryHandler = mockk(relaxed = true)
+    private var tiltakstype: AdminTiltakstypeQueryHandler = mockk(relaxed = true)
     private var endringshistorikk: EndringshistorikkQueryHandler = mockk(relaxed = true)
     private var kostnadssted: KostnadsstedQueryHandler = mockk(relaxed = true)
     private var navAnsattDto: NavAnsattDtoQueryHandler = mockk(relaxed = true)

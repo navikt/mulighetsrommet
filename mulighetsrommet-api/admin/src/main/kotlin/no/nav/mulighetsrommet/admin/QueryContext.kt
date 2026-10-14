@@ -6,7 +6,7 @@ import no.nav.mulighetsrommet.admin.endringshistorikk.EndringshistorikkQueryHand
 import no.nav.mulighetsrommet.admin.kostnadssted.KostnadsstedQueryHandler
 import no.nav.mulighetsrommet.admin.navansatt.NavAnsattDtoQueryHandler
 import no.nav.mulighetsrommet.admin.opplaring.OpplaringKategoriseringQueryHandler
-import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeQueryHandler
+import no.nav.mulighetsrommet.admin.tiltak.AdminTiltakstypeQueryHandler
 import no.nav.mulighetsrommet.admin.tiltakbeskrivelse.TiltakBeskrivelseQueryHandler
 import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollQueryHandler
 import no.nav.mulighetsrommet.api.domain.arrangor.ArrangorRepository
@@ -41,7 +41,7 @@ abstract class QueryContext {
     }
 
     abstract class Queries {
-        abstract val tiltakstype: TiltakstypeQueryHandler
+        abstract val tiltakstype: AdminTiltakstypeQueryHandler
         abstract val avtale: AvtaleQueryHandler
         abstract val endringshistorikk: EndringshistorikkQueryHandler
         abstract val kostnadssted: KostnadsstedQueryHandler

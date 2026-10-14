@@ -4,7 +4,7 @@ import no.nav.mulighetsrommet.model.DeltakerRegistreringInnholdDto
 import no.nav.mulighetsrommet.model.Innholdselement
 import java.util.UUID
 
-interface TiltakstypeQueryHandler {
+interface AdminTiltakstypeQueryHandler {
     fun getVeilederinfo(id: UUID): TiltakstypeVeilderinfo?
 
     fun getAllInnholdselementer(): List<Innholdselement>

@@ -7,7 +7,7 @@ import no.nav.common.kafka.util.KafkaUtils
 import no.nav.mulighetsrommet.api.contracts.gjennomforing.TiltaksgjennomforingV2Dto
 import no.nav.mulighetsrommet.api.domain.tiltak.Tiltakstype
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.Totrinnskontroll
-import no.nav.mulighetsrommet.api.persistence.tiltak.TiltakstypeQueries
+import no.nav.mulighetsrommet.api.persistence.tiltak.AdminTiltakstypeQueries
 import no.nav.mulighetsrommet.api.persistence.totrinnskontroll.toTotrinnskontrollHendelse
 import no.nav.mulighetsrommet.kafka.KAFKA_CONSUMER_RECORD_PROCESSOR_SCHEDULED_AT
 import no.nav.mulighetsrommet.kafka.KafkaProducerRecordQueries
@@ -18,7 +18,7 @@ import java.util.UUID
 
 class OutboxEventPublisher(session: Session, private val topics: KafkaTopics) {
     val kpr = KafkaProducerRecordQueries(session)
-    private val tiltakstypeQueries = TiltakstypeQueries(session)
+    private val tiltakstypeQueries = AdminTiltakstypeQueries(session)
 
     fun publish(tiltakstype: Tiltakstype) {
         val dto = requireNotNull(tiltakstypeQueries.getEksternTiltakstype(tiltakstype.id)) {

@@ -516,7 +516,7 @@ private fun services(appConfig: AppConfig) = module {
     single {
         VeilederflateService(
             get(),
-            get(),
+            appConfig.tiltakstyper.features,
             get(),
         )
     }

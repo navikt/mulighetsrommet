@@ -27,8 +27,8 @@ import no.nav.mulighetsrommet.api.persistence.navansatt.NavAnsattQueries
 import no.nav.mulighetsrommet.api.persistence.navenhet.NavEnhetQueries
 import no.nav.mulighetsrommet.api.persistence.opplaring.OpplaringKategoriseringQueries
 import no.nav.mulighetsrommet.api.persistence.redaksjoneltinnhold.RedaksjoneltInnholdLenkeQueries
+import no.nav.mulighetsrommet.api.persistence.tiltak.AdminTiltakstypeQueries
 import no.nav.mulighetsrommet.api.persistence.tiltak.PrismodellQueries
-import no.nav.mulighetsrommet.api.persistence.tiltak.TiltakstypeQueries
 import no.nav.mulighetsrommet.api.persistence.tiltakbeskrivelse.TiltakBeskrivelseQueries
 import no.nav.mulighetsrommet.api.persistence.totrinnskontroll.TotrinnskontrollQueries
 import no.nav.mulighetsrommet.api.persistence.utdanning.UtdanningQueries
@@ -83,7 +83,7 @@ open class QueryContext(open val session: Session, topics: KafkaTopics) {
         val kostnadssted = KostnadsstedQueries(session)
         val ansatt = NavAnsattQueries(session)
         val arrangor = ArrangorQueries(session)
-        val tiltakstype = TiltakstypeQueries(session)
+        val tiltakstype = AdminTiltakstypeQueries(session)
         val regelverklenke = RedaksjoneltInnholdLenkeQueries(session)
         val avtale = AvtaleQueries(session)
         val prismodell = PrismodellQueries(session)

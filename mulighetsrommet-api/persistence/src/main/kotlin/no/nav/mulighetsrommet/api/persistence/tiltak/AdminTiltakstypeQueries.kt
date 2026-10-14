@@ -4,8 +4,8 @@ import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
+import no.nav.mulighetsrommet.admin.tiltak.AdminTiltakstypeQueryHandler
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeKombinasjon
-import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeQueryHandler
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeVeilderinfo
 import no.nav.mulighetsrommet.api.contracts.tiltakstype.TiltakstypeV3Dto
 import no.nav.mulighetsrommet.api.domain.redaksjoneltinnhold.RedaksjoneltInnholdLenke
@@ -23,7 +23,7 @@ import no.nav.mulighetsrommet.model.Tiltakskode
 import org.intellij.lang.annotations.Language
 import java.util.UUID
 
-class TiltakstypeQueries(private val session: Session) : TiltakstypeRepository, TiltakstypeQueryHandler {
+class AdminTiltakstypeQueries(private val session: Session) : TiltakstypeRepository, AdminTiltakstypeQueryHandler {
 
     override fun save(tiltakstype: Tiltakstype) {
         upsert(tiltakstype)
