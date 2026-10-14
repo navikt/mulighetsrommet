@@ -6,14 +6,14 @@ import kotlinx.serialization.json.decodeFromJsonElement
 import no.nav.common.kafka.consumer.util.deserializer.Deserializers.uuidDeserializer
 import no.nav.mulighetsrommet.admin.arrangor.SyncArrangorIfMissing
 import no.nav.mulighetsrommet.admin.arrangor.SyncArrangorUseCase
+import no.nav.mulighetsrommet.admin.gjennomforing.GjennomforingEnkeltplassService
+import no.nav.mulighetsrommet.admin.gjennomforing.TotrinnskontrollBehandling
+import no.nav.mulighetsrommet.admin.gjennomforing.UpsertEnkeltplass
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
 import no.nav.mulighetsrommet.api.domain.arrangor.Arrangor
 import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollError
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.KategoriseringMapper
-import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingEnkeltplassService
-import no.nav.mulighetsrommet.api.gjennomforing.service.TotrinnskontrollBehandling
-import no.nav.mulighetsrommet.api.gjennomforing.service.UpsertEnkeltplass
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
 import no.nav.mulighetsrommet.model.Organisasjonsnummer

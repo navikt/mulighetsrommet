@@ -4,15 +4,18 @@ import kotlinx.serialization.json.Json
 import kotliquery.Session
 import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
 import no.nav.mulighetsrommet.admin.QueryContext
+import no.nav.mulighetsrommet.api.contracts.gjennomforing.TiltaksgjennomforingV2Dto
 import no.nav.mulighetsrommet.api.domain.tiltak.Tiltakstype
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.Totrinnskontroll
 import no.nav.mulighetsrommet.api.persistence.tiltak.AdminTiltakstypeQueries
 import no.nav.mulighetsrommet.api.persistence.totrinnskontroll.toTotrinnskontrollHendelse
 import no.nav.mulighetsrommet.kafka.KafkaProducerRecordQueries
+import java.util.UUID
 
 data class OutboxTopics(
     val sisteTiltakstyperV3: String,
     val totrinnskontrollHendelseV2: String,
+    val sisteTiltaksgjennomforingerV2: String,
 )
 
 class SqlAdminOutbox(session: Session, private val topics: OutboxTopics) : QueryContext.Outbox {
@@ -41,5 +44,15 @@ class SqlAdminOutbox(session: Session, private val topics: OutboxTopics) : Query
             null,
         )
         kpr.storeRecord(v2Record)
+    }
+
+    override fun publish(id: UUID, dto: TiltaksgjennomforingV2Dto?) {
+        val record = StoredProducerRecord(
+            topics.sisteTiltaksgjennomforingerV2,
+            id.toString().toByteArray(),
+            dto?.let { Json.encodeToString(it) }?.toByteArray(),
+            null,
+        )
+        kpr.storeRecord(record)
     }
 }

@@ -4,6 +4,7 @@ import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
+import no.nav.mulighetsrommet.admin.gjennomforing.GjennomforingQueryHandler
 import no.nav.mulighetsrommet.api.domain.gjennomforing.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.domain.gjennomforing.Gjennomforing
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingArena
@@ -48,7 +49,7 @@ import org.intellij.lang.annotations.Language
 import java.time.LocalDate
 import java.util.UUID
 
-class GjennomforingQueries(private val session: Session) : GjennomforingRepository {
+class GjennomforingQueries(private val session: Session) : GjennomforingRepository, GjennomforingQueryHandler {
     fun upsert(gjennomforing: GjennomforingDbo) {
         @Language("PostgreSQL")
         val query = """
@@ -235,7 +236,7 @@ class GjennomforingQueries(private val session: Session) : GjennomforingReposito
         execute(queryOf(deleteAdministratorer, id, createArrayOfValue(administratorer) { it.value }))
     }
 
-    fun getAdministratorer(id: UUID): List<GjennomforingAvtaleDetaljer.Administrator>? {
+    override fun getAdministratorer(id: UUID): List<GjennomforingAvtaleDetaljer.Administrator>? {
         @Language("PostgreSQL")
         val query = """
             select administratorer_json
@@ -316,21 +317,21 @@ class GjennomforingQueries(private val session: Session) : GjennomforingReposito
         session.execute(queryOf(query, params))
     }
 
-    fun getAll(
-        pagination: Pagination = Pagination.all(),
-        search: String? = null,
-        navEnheter: List<NavEnhetNummer> = emptyList(),
-        tiltakstyper: List<UUID> = emptyList(),
-        statuser: List<GjennomforingStatusType> = emptyList(),
-        sortering: String? = null,
-        sluttDatoGreaterThanOrEqualTo: LocalDate? = null,
-        avtaleId: UUID? = null,
-        arrangorIds: List<UUID> = emptyList(),
-        arrangorOrgnr: List<Organisasjonsnummer> = emptyList(),
-        administratorNavIdent: NavIdent? = null,
-        publisert: Boolean? = null,
-        koordinatorNavIdent: NavIdent? = null,
-        typer: List<GjennomforingType> = listOf(),
+    override fun getAll(
+        pagination: Pagination,
+        search: String?,
+        navEnheter: List<NavEnhetNummer>,
+        tiltakstyper: List<UUID>,
+        statuser: List<GjennomforingStatusType>,
+        sortering: String?,
+        sluttDatoGreaterThanOrEqualTo: LocalDate?,
+        avtaleId: UUID?,
+        arrangorIds: List<UUID>,
+        arrangorOrgnr: List<Organisasjonsnummer>,
+        administratorNavIdent: NavIdent?,
+        publisert: Boolean?,
+        koordinatorNavIdent: NavIdent?,
+        typer: List<GjennomforingType>,
     ): PaginatedResult<GjennomforingKompakt> = with(session) {
         val parameters = mapOf(
             "search" to search?.toFTSPrefixQuery(),
@@ -463,7 +464,7 @@ class GjennomforingQueries(private val session: Session) : GjennomforingReposito
         )
     }
 
-    fun getGjennomforingAvtaleDetaljerOrError(id: UUID): GjennomforingAvtaleDetaljer {
+    override fun getGjennomforingAvtaleDetaljerOrError(id: UUID): GjennomforingAvtaleDetaljer {
         return checkNotNull(getGjennomforingAvtaleDetaljer(id)) { "Detaljer om gjennomføring med id $id finnes ikke" }
     }
 
@@ -496,7 +497,7 @@ class GjennomforingQueries(private val session: Session) : GjennomforingReposito
         return requireNotNull(getPrismodell(id)) { "Gjennomføring med id $id mangler prismodell" }
     }
 
-    fun getPrismodell(id: UUID): Prismodell? {
+    override fun getPrismodell(id: UUID): Prismodell? {
         @Language("PostgreSQL")
         val query = """
             select prismodell.id as prismodell_id,

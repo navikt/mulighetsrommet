@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.fixtures
 
+import no.nav.mulighetsrommet.admin.gjennomforing.GjennomforingRequest
 import no.nav.mulighetsrommet.api.domain.avtale.Avtale
 import no.nav.mulighetsrommet.api.domain.gjennomforing.Gjennomforing
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingAvtale
@@ -8,9 +9,6 @@ import no.nav.mulighetsrommet.api.domain.testing.fixture.ArrangorFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.PrismodellFixtures
 import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
-import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingDetaljerRequest
-import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingRequest
-import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingVeilederinfoRequest
 import no.nav.mulighetsrommet.api.persistence.testing.fixture.GjennomforingDboFixtures
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingPameldingType
@@ -24,6 +22,7 @@ import no.nav.mulighetsrommet.model.Valuta
 import java.time.Instant
 import java.time.LocalDate
 import java.util.UUID
+import no.nav.mulighetsrommet.admin.testing.GjennomforingFixtures as AdminGjennomforingFixtures
 
 object GjennomforingFixtures {
     val Oppfolging1 = GjennomforingDboFixtures.Oppfolging1
@@ -96,34 +95,17 @@ object GjennomforingFixtures {
         navRegioner: Set<NavEnhetNummer> = setOf(NavEnhetFixtures.Innlandet.enhetsnummer),
         navKontorer: Set<NavEnhetNummer> = setOf(NavEnhetFixtures.Gjovik.enhetsnummer),
         administratorer: Set<NavIdent> = setOf(NavIdent("DD1")),
-    ): GjennomforingRequest {
-        return GjennomforingRequest(
-            id = id,
-            avtaleId = avtale.id,
-            detaljer = GjennomforingDetaljerRequest(
-                navn = "Gjennomføring for ${avtale.navn}",
-                startDato = startDato,
-                sluttDato = sluttDato,
-                oppstart = oppstart,
-                pameldingType = pamelding,
-                prismodellId = prismodellId,
-                arrangorId = arrangorId,
-                arrangorKontaktpersoner = setOf(),
-                administratorer = administratorer,
-                antallPlasser = 1,
-                deltidsprosent = 100.0,
-                oppmoteSted = null,
-                tilgjengeligForArrangorDato = null,
-                amoKategorisering = null,
-            ),
-            veilederinformasjon = GjennomforingVeilederinfoRequest(
-                navRegioner = navRegioner,
-                navKontorer = navKontorer,
-                navAndreEnheter = setOf(),
-                faneinnhold = null,
-                beskrivelse = null,
-                kontaktpersoner = emptySet(),
-            ),
-        )
-    }
+    ): GjennomforingRequest = AdminGjennomforingFixtures.createGjennomforingRequest(
+        avtale = avtale,
+        id = id,
+        prismodellId = prismodellId,
+        arrangorId = arrangorId,
+        startDato = startDato,
+        sluttDato = sluttDato,
+        oppstart = oppstart,
+        pamelding = pamelding,
+        navRegioner = navRegioner,
+        navKontorer = navKontorer,
+        administratorer = administratorer,
+    )
 }

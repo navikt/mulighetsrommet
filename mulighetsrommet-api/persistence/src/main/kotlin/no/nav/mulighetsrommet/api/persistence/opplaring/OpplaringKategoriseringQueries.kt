@@ -23,7 +23,7 @@ import org.intellij.lang.annotations.Language
 import java.util.UUID
 
 class OpplaringKategoriseringQueries(private val session: Session) : OpplaringKategoriseringQueryHandler {
-    fun upsert(
+    override fun upsert(
         kategoriseringId: UUID,
         kategorisering: OpplaringKategorisering?,
     ): Unit = withTransaction(session) {
@@ -210,7 +210,7 @@ class OpplaringKategoriseringQueries(private val session: Session) : OpplaringKa
         update(queryOf(query, kategoriseringId))
     }
 
-    fun get(kategoriseringId: UUID): OpplaringKategoriseringDetaljer? {
+    override fun get(kategoriseringId: UUID): OpplaringKategoriseringDetaljer? {
         @Language("PostgreSQL")
         val query = """
             select *

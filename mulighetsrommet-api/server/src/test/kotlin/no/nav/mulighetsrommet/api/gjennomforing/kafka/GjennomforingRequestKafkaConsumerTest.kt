@@ -18,6 +18,7 @@ import no.nav.mulighetsrommet.admin.arrangor.SyncArrangorError
 import no.nav.mulighetsrommet.admin.arrangor.SyncArrangorIfMissing
 import no.nav.mulighetsrommet.admin.arrangor.SyncArrangorUseCase
 import no.nav.mulighetsrommet.admin.enhetsregister.EnhetsregisterError
+import no.nav.mulighetsrommet.admin.gjennomforing.GjennomforingEnkeltplassService
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingEnkeltplassStatus
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsattRolle
@@ -29,7 +30,6 @@ import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
 import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeFeature
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollStatus
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
-import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingEnkeltplassService
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.NOK
 import no.nav.mulighetsrommet.model.NavEnhetNummer
@@ -85,7 +85,7 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
 
     fun createService(): GjennomforingEnkeltplassService {
         return GjennomforingEnkeltplassService(
-            database.api,
+            database.admin,
             mockk(),
             TiltakstypeService(TiltakstypeService.Config(), database.admin),
         )

@@ -4,11 +4,11 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.mockk.mockk
+import no.nav.mulighetsrommet.admin.gjennomforing.GjennomforingAvtaleService
 import no.nav.mulighetsrommet.api.domain.testing.fixture.AvtaleFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
-import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingAvtaleService
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import java.time.LocalDate
@@ -41,7 +41,7 @@ class UpdateApentForPameldingTest : FunSpec({
         }
 
         val service = GjennomforingAvtaleService(
-            db = database.api,
+            db = database.admin,
             navAnsattService = mockk(),
         )
 

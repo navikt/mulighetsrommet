@@ -10,8 +10,8 @@ import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
+import no.nav.mulighetsrommet.admin.avtale.AmoKategoriseringRequest
 import no.nav.mulighetsrommet.api.avtale.AvtaleValidator.Ctx
-import no.nav.mulighetsrommet.api.avtale.api.AmoKategoriseringRequest
 import no.nav.mulighetsrommet.api.avtale.api.DetaljerRequest
 import no.nav.mulighetsrommet.api.avtale.api.VeilederinfoRequest
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSatsRequest

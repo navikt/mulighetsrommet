@@ -5,8 +5,12 @@ import no.nav.mulighetsrommet.admin.QueryContext
 import no.nav.mulighetsrommet.admin.arrangor.ArrangorQueryHandler
 import no.nav.mulighetsrommet.admin.avtale.AvtaleQueryHandler
 import no.nav.mulighetsrommet.admin.endringshistorikk.EndringshistorikkQueryHandler
+import no.nav.mulighetsrommet.admin.gjennomforing.EnkeltplassPrisendringHandler
+import no.nav.mulighetsrommet.admin.gjennomforing.GjennomforingQueryHandler
+import no.nav.mulighetsrommet.admin.gjennomforing.GjennomforingWriter
 import no.nav.mulighetsrommet.admin.kostnadssted.KostnadsstedQueryHandler
 import no.nav.mulighetsrommet.admin.navansatt.NavAnsattDtoQueryHandler
+import no.nav.mulighetsrommet.admin.notifications.NotificationWriter
 import no.nav.mulighetsrommet.admin.opplaring.OpplaringKategoriseringQueryHandler
 import no.nav.mulighetsrommet.admin.tiltak.AdminTiltakstypeQueryHandler
 import no.nav.mulighetsrommet.admin.tiltakbeskrivelse.TiltakBeskrivelseQueryHandler
@@ -15,9 +19,11 @@ import no.nav.mulighetsrommet.api.domain.arrangor.ArrangorRepository
 import no.nav.mulighetsrommet.api.domain.avtale.AvtaleRepository
 import no.nav.mulighetsrommet.api.domain.deltaker.DeltakerForslagRepository
 import no.nav.mulighetsrommet.api.domain.deltaker.DeltakerRepository
+import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingRepository
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsattRepository
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetRepository
 import no.nav.mulighetsrommet.api.domain.redaksjoneltinnhold.RedaksjoneltInnholdLenkeRepository
+import no.nav.mulighetsrommet.api.domain.tiltak.PrismodellRepository
 import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeRepository
 import no.nav.mulighetsrommet.api.domain.tiltakbeskrivelse.TiltakBeskrivelseRepository
 import no.nav.mulighetsrommet.api.domain.utdanning.UtdanningsprogramRepository
@@ -26,7 +32,10 @@ import no.nav.mulighetsrommet.api.persistence.avtale.AvtaleQueries
 import no.nav.mulighetsrommet.api.persistence.deltaker.DeltakerForslagQueries
 import no.nav.mulighetsrommet.api.persistence.deltaker.DeltakerQueries
 import no.nav.mulighetsrommet.api.persistence.endringshistorikk.EndringshistorikkQueries
+import no.nav.mulighetsrommet.api.persistence.gjennomforing.EnkeltplassPrisendringQueries
 import no.nav.mulighetsrommet.api.persistence.gjennomforing.GjennomforingQueries
+import no.nav.mulighetsrommet.api.persistence.gjennomforing.SqlEnkeltplassPrisendringHandler
+import no.nav.mulighetsrommet.api.persistence.gjennomforing.SqlGjennomforingWriter
 import no.nav.mulighetsrommet.api.persistence.kostnadssted.KostnadsstedQueries
 import no.nav.mulighetsrommet.api.persistence.navansatt.NavAnsattDtoQueries
 import no.nav.mulighetsrommet.api.persistence.navansatt.NavAnsattQueries
@@ -40,6 +49,9 @@ import no.nav.mulighetsrommet.api.persistence.totrinnskontroll.TotrinnskontrollQ
 import no.nav.mulighetsrommet.api.persistence.utdanning.UtdanningQueries
 import no.nav.mulighetsrommet.api.persistence.veilederflate.DelMedBrukerQueries
 import no.nav.mulighetsrommet.api.persistence.veilederflate.VeilederflateTiltakQueries
+import no.nav.mulighetsrommet.kafka.KafkaProducerRecordQueries
+import no.nav.mulighetsrommet.notifications.NotificationQueries
+import no.nav.mulighetsrommet.notifications.SqlNotificationWriter
 
 /**
  * Concrete [QueryContext] backed by JDBC/kotliquery.
@@ -64,6 +76,9 @@ class SqlQueryContext(session: Session, topics: OutboxTopics) : QueryContext() {
     val delMedBruker = DelMedBrukerQueries(session)
     val gjennomforing = GjennomforingQueries(session)
     val veilederTiltak = VeilederflateTiltakQueries(session)
+    val enkeltplassPrisendring = EnkeltplassPrisendringQueries(session)
+    val kafkaProducerRecord = KafkaProducerRecordQueries(session)
+    val notifications = NotificationQueries(session)
 
     override val repository = object : Repositories() {
         override val tiltakstype: TiltakstypeRepository = this@SqlQueryContext.tiltakstype
@@ -76,6 +91,8 @@ class SqlQueryContext(session: Session, topics: OutboxTopics) : QueryContext() {
         override val tiltakBeskrivelse: TiltakBeskrivelseRepository = this@SqlQueryContext.tiltakBeskrivelse
         override val deltaker: DeltakerRepository = this@SqlQueryContext.deltaker
         override val deltakerForslag: DeltakerForslagRepository = this@SqlQueryContext.deltakerForslag
+        override val gjennomforing: GjennomforingRepository = this@SqlQueryContext.gjennomforing
+        override val prismodell: PrismodellRepository = this@SqlQueryContext.prismodell
     }
 
     override val queries = object : Queries() {
@@ -88,6 +105,14 @@ class SqlQueryContext(session: Session, topics: OutboxTopics) : QueryContext() {
         override val arrangor: ArrangorQueryHandler = this@SqlQueryContext.arrangor
         override val opplaering: OpplaringKategoriseringQueryHandler = this@SqlQueryContext.opplaering
         override val tiltakBeskrivelse: TiltakBeskrivelseQueryHandler = this@SqlQueryContext.tiltakBeskrivelse
+        override val gjennomforing: GjennomforingQueryHandler = this@SqlQueryContext.gjennomforing
+    }
+
+    override val commands = object : Commands() {
+        override val gjennomforing: GjennomforingWriter = SqlGjennomforingWriter(this@SqlQueryContext.gjennomforing)
+        override val enkeltplassPrisendring: EnkeltplassPrisendringHandler =
+            SqlEnkeltplassPrisendringHandler(this@SqlQueryContext.enkeltplassPrisendring)
+        override val notifications: NotificationWriter = SqlNotificationWriter(this@SqlQueryContext.notifications)
     }
 
     override val outbox = SqlAdminOutbox(session, topics)

@@ -5,6 +5,8 @@ import no.nav.mulighetsrommet.admin.arrangor.SyncArrangorError
 import no.nav.mulighetsrommet.admin.arrangor.SyncArrangorIfMissing
 import no.nav.mulighetsrommet.admin.arrangor.SyncArrangorUseCase
 import no.nav.mulighetsrommet.admin.enhetsregister.EnhetsregisterError
+import no.nav.mulighetsrommet.admin.gjennomforing.GjennomforingAvtaleService
+import no.nav.mulighetsrommet.admin.gjennomforing.GjennomforingEnkeltplassService
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.domain.arrangor.Arrangor
@@ -14,8 +16,6 @@ import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.domain.tiltakbeskrivelse.TiltakBeskrivelse
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingArenaService
-import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingAvtaleService
-import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingEnkeltplassService
 import no.nav.mulighetsrommet.api.gjennomforing.service.OpprettGjennomforingArena
 import no.nav.mulighetsrommet.arena.ArenaGjennomforingDbo
 import no.nav.mulighetsrommet.arena.ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate

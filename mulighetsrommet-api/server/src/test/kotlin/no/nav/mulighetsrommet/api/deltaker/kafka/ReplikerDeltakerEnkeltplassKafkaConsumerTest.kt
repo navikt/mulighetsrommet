@@ -5,6 +5,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.mockk
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
+import no.nav.mulighetsrommet.admin.gjennomforing.GjennomforingEnkeltplassService
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingAvtaleStatus
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingEnkeltplassStatus
@@ -14,7 +15,6 @@ import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeFeature
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.EnkelAmo
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
-import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingEnkeltplassService
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
@@ -28,7 +28,7 @@ class ReplikerDeltakerEnkeltplassKafkaConsumerTest : FunSpec({
         features: Map<Tiltakskode, Set<TiltakstypeFeature>> = mapOf(),
     ): ReplikerDeltakerEnkeltplassKafkaConsumer {
         val service = GjennomforingEnkeltplassService(
-            database.api,
+            database.admin,
             mockk(),
             TiltakstypeService(TiltakstypeService.Config(features), database.admin),
         )

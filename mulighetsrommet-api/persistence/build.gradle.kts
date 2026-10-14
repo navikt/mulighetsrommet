@@ -19,6 +19,8 @@ dependencies {
     implementation(projects.common.databaseHelpers)
     implementation(projects.common.kafka)
     implementation(libs.kotlinx.serialization.json)
+    implementation(libs.arrow.core)
+    implementation(libs.arrow.core.serialization)
     implementation(libs.kotlinx.coroutines.core)
     implementation(projects.common.kafka)
 
@@ -26,6 +28,10 @@ dependencies {
     testFixturesImplementation(projects.mulighetsrommetApi.domain)
     testFixturesImplementation(testFixtures(projects.mulighetsrommetApi.domain))
     testFixturesImplementation(projects.common.domain)
+    testFixturesImplementation(projects.common.database)
+    testFixturesImplementation(projects.common.slack)
+    testFixturesImplementation(projects.mulighetsrommetApi.admin)
+    testFixturesImplementation(libs.kotest.junit)
 
     testImplementation(libs.arrow.core)
     testImplementation(testFixtures(projects.common.database))

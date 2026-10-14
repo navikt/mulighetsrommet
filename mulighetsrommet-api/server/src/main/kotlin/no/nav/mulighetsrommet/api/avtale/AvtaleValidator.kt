@@ -2,7 +2,7 @@ package no.nav.mulighetsrommet.api.avtale
 
 import arrow.core.Either
 import arrow.core.right
-import no.nav.mulighetsrommet.api.avtale.api.AmoKategoriseringRequest
+import no.nav.mulighetsrommet.admin.avtale.AmoKategoriseringRequest
 import no.nav.mulighetsrommet.api.avtale.api.DetaljerRequest
 import no.nav.mulighetsrommet.api.avtale.api.OpprettAvtaleRequest
 import no.nav.mulighetsrommet.api.avtale.api.OpprettOpsjonLoggRequest

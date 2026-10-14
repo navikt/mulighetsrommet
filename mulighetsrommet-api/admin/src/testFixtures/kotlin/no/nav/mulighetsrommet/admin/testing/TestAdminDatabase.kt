@@ -7,6 +7,7 @@ class TestAdminDatabase(private val ctx: TestQueryContext = TestQueryContext()) 
     val queries: QueryContext.Queries = ctx.queries
     val repository: QueryContext.Repositories = ctx.repository
     val outbox: QueryContext.Outbox = ctx.outbox
+    val commands: QueryContext.Commands = ctx.commands
 
     override fun <T> session(block: QueryContext.() -> T): T = block(ctx)
 
