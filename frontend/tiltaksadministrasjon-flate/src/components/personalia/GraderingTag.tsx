@@ -21,7 +21,7 @@ export function GraderingTag({ gradering }: Props) {
 
   const { Ikon, label, color } = visning;
   return (
-    <Tag size="small" variant="moderate" data-color={color} icon={<Ikon aria-hidden />}>
+    <Tag size="small" variant="outline" data-color={color} icon={<Ikon aria-hidden />}>
       {label}
     </Tag>
   );
