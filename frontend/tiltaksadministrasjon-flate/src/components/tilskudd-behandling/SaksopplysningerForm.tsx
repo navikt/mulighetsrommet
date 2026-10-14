@@ -40,6 +40,8 @@ export function SaksopplysningerForm({ arrangorId }: Props) {
 
   const { data: kostnadssteder } = useKostnadssteder();
 
+  const sisteDatoIAar = new Date(new Date().getFullYear(), 11, 31);
+
   function totaltBelop(): ValutaBelop {
     const tilskudd = watch("tilskudd");
     return {
@@ -65,22 +67,26 @@ export function SaksopplysningerForm({ arrangorId }: Props) {
                   label="Journalpost-ID i Gosys"
                   name={`tilskudd.${index}.soknadJournalpostId`}
                   autoFocus
-                  rules={{ required: "Journalpost-ID må fylles ut" }}
+                  rules={{ required: "Journalpost-ID er påkrevd" }}
                 />
                 <FormDateInput
                   name={`tilskudd.${index}.soknadDato`}
                   label="Søknadsdato"
-                  rules={{ required: "Søknadsdato må fylles ut" }}
+                  rules={{ required: "Søknadsdato er påkrevd" }}
                 />
                 <FormDateInput
                   name={`tilskudd.${index}.periodeStart`}
                   label="Periodestart"
-                  rules={{ required: "Periodestart må fylles ut" }}
+                  rules={{ required: "Periodestart er påkrevd" }}
+                  toDate={sisteDatoIAar}
+                  invalidDatoEtterPeriode="Periodestart kan ikke være etter siste dag i inneværende år"
                 />
                 <FormDateInput
                   name={`tilskudd.${index}.periodeSlutt`}
                   label="Periodeslutt"
-                  rules={{ required: "Periodeslutt må fylles ut" }}
+                  rules={{ required: "Periodeslutt er påkrevd" }}
+                  toDate={sisteDatoIAar}
+                  invalidDatoEtterPeriode="Periodeslutt kan ikke være etter siste dag i inneværende år"
                 />
                 <VelgKostnadssted
                   name={`tilskudd.${index}.kostnadssted`}
@@ -90,7 +96,7 @@ export function SaksopplysningerForm({ arrangorId }: Props) {
                 <FormSelect
                   label="Tilskuddstype"
                   name={`tilskudd.${index}.tilskuddOpplaeringType`}
-                  rules={{ required: "Tilskuddstype må fylles ut" }}
+                  rules={{ required: "Tilskuddstype er påkrevd" }}
                 >
                   <option value="">-- Velg tilskuddstype --</option>
                   {(Object.keys(OpplaeringtilskuddKode) as OpplaeringtilskuddKode[]).map(

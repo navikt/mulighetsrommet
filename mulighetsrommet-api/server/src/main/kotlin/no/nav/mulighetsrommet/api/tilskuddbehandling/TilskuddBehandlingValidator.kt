@@ -27,6 +27,7 @@ import no.nav.mulighetsrommet.model.ValutaBelop
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import no.nav.mulighetsrommet.validation.Validated
 import no.nav.mulighetsrommet.validation.validation
+import java.time.LocalDate
 import kotlin.contracts.ExperimentalContracts
 
 @OptIn(ExperimentalContracts::class)
@@ -77,6 +78,18 @@ object TilskuddBehandlingValidator {
             FieldError("/tilskudd/$index/periodeSlutt", "Periodeslutt er påkrevd")
         }
         if (periodeStart != null && periodeSlutt != null) {
+            validate(periodeSlutt.year <= LocalDate.now().year) {
+                FieldError(
+                    "/tilskudd/$index/periodeSlutt",
+                    "Periodestart kan ikke være etter siste dag i inneværende år",
+                )
+            }
+            validate(periodeSlutt.year <= LocalDate.now().year) {
+                FieldError(
+                    "/tilskudd/$index/periodeSlutt",
+                    "Periodeslutt kan ikke være etter siste dag i inneværende år",
+                )
+            }
             validate(!periodeStart.isAfter(periodeSlutt)) {
                 FieldError("/tilskudd/$index/periodeStart", "Periodestart må være før sluttdato")
             }
