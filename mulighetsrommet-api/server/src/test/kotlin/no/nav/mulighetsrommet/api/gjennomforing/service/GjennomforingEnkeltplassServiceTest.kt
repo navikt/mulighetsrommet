@@ -829,7 +829,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
                     assertSisteEndringsloggOperation(
                         GjennomforingFixtures.EnkelAmo.id,
-                        "Periode er oppdatert fra deltakelse",
+                        "Periode er oppdatert på deltakelsen",
                     )
                 }
 
@@ -845,7 +845,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
                     assertSisteEndringsloggOperation(
                         GjennomforingFixtures.EnkelAmo.id,
-                        "Status er oppdatert fra deltakelse",
+                        "Status er oppdatert på deltakelsen",
                     )
                 }
 
@@ -862,7 +862,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
                     assertSisteEndringsloggOperation(
                         GjennomforingFixtures.EnkelAmo.id,
-                        "Deltidsprosent er oppdatert fra deltakelse",
+                        "Deltidsprosent er oppdatert på deltakelsen",
                     )
                 }
 
@@ -878,7 +878,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
                     assertSisteEndringsloggOperation(
                         GjennomforingFixtures.EnkelAmo.id,
-                        "Periode og status er oppdatert fra deltakelse",
+                        "Periode og status er oppdatert på deltakelsen",
                     )
                 }
 
@@ -895,7 +895,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
                     assertSisteEndringsloggOperation(
                         GjennomforingFixtures.EnkelAmo.id,
-                        "Periode og deltidsprosent er oppdatert fra deltakelse",
+                        "Periode og deltidsprosent er oppdatert på deltakelsen",
                     )
                 }
 
@@ -912,7 +912,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
                     assertSisteEndringsloggOperation(
                         GjennomforingFixtures.EnkelAmo.id,
-                        "Status og deltidsprosent er oppdatert fra deltakelse",
+                        "Status og deltidsprosent er oppdatert på deltakelsen",
                     )
                 }
 
@@ -929,7 +929,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
                     assertSisteEndringsloggOperation(
                         GjennomforingFixtures.EnkelAmo.id,
-                        "Periode, status og deltidsprosent er oppdatert fra deltakelse",
+                        "Periode, status og deltidsprosent er oppdatert på deltakelsen",
                     )
                 }
             }

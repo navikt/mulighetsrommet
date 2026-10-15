@@ -329,7 +329,7 @@ class GjennomforingEnkeltplassService(
             2 -> "$forsteEndring og ${muligeEndringer[1]}"
             else -> "$forsteEndring, ${muligeEndringer.drop(1).dropLast(1).joinToString(", ")} og ${muligeEndringer.last()}"
         }
-        return "$endringer er oppdatert fra deltakelse"
+        return "$endringer er oppdatert på deltakelsen"
     }
 
     fun get(id: UUID): Enkeltplass? = db.session {
