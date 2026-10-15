@@ -161,6 +161,7 @@ object GjennomforingFixtures {
         startDato = startDato,
         sluttDato = sluttDato,
         status = GjennomforingEnkeltplassStatus.Deltar,
+        kontorstruktur = emptyList(),
     )
 
     fun createGjennomforingRequest(

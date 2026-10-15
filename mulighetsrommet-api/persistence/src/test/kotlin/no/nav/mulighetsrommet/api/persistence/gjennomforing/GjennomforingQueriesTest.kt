@@ -818,6 +818,25 @@ class GjennomforingQueriesTest : FunSpec({
             }
         }
 
+        test("filtrering på Nav-enhet treffer enkeltplass på ansvarlig enhet og dens overordnede enhet") {
+            database.runAndRollback {
+                val enkeltplass = EnkelAmo.copy(ansvarligEnhet = Gjovik.enhetsnummer)
+                AdminTestDomain(
+                    navEnheter = listOf(Innlandet, Gjovik, Sel),
+                    gjennomforinger = listOf(enkeltplass),
+                ).initialize()
+
+                queries.gjennomforing.getAll(navEnheter = listOf(Gjovik.enhetsnummer))
+                    .items shouldContainExactlyIds listOf(enkeltplass.id)
+
+                queries.gjennomforing.getAll(navEnheter = listOf(Innlandet.enhetsnummer))
+                    .items shouldContainExactlyIds listOf(enkeltplass.id)
+
+                queries.gjennomforing.getAll(navEnheter = listOf(Sel.enhetsnummer))
+                    .totalCount shouldBe 0
+            }
+        }
+
         test("filtrering på type gjennomføring") {
             database.runAndRollback {
                 AdminTestDomain(

@@ -350,7 +350,7 @@ private fun GjennomforingKompakt.toKompaktDto(): GjennomforingKompaktDto = when 
         arrangor = arrangor,
         tiltakstype = tiltakstype,
         publisert = false,
-        kontorstruktur = listOf(),
+        kontorstruktur = kontorstruktur,
         type = GjennomforingType.ENKELTPLASS,
     )
 
