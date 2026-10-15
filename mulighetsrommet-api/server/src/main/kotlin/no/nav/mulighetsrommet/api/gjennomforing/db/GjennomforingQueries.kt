@@ -5,6 +5,7 @@ import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.admin.navenhet.Kontorstruktur
+import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetType
 import no.nav.mulighetsrommet.admin.navenhet.NavEnhetDto
 import no.nav.mulighetsrommet.admin.opplaring.OpplaringKategoriseringDetaljer
 import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
@@ -383,6 +384,11 @@ class GjennomforingQueries(private val session: Session) {
                    arrangor_organisasjonsnummer,
                    arrangor_navn,
                    nav_enheter_json,
+                   ansvarlig_enhet_enhetsnummer,
+                   ansvarlig_enhet_navn,
+                   ansvarlig_enhet_type,
+                   ansvarlig_enhet_overordnet_enhetsnummer,
+                   ansvarlig_enhet_overordnet_navn,
                    count(*) over () as total_count
             from view_gjennomforing_kompakt
             where (:tiltakstype_ids::uuid[] is null or tiltakstype_id = any(:tiltakstype_ids))
@@ -391,6 +397,8 @@ class GjennomforingQueries(private val session: Session) {
               and (:arrangor_orgnrs::text[] is null or arrangor_organisasjonsnummer = any(:arrangor_orgnrs))
               and (:search::text is null or fts @@ to_tsquery('norwegian', :search))
               and (:nav_enheter::text[] is null or
+                   ansvarlig_enhet_enhetsnummer = any (:nav_enheter) or
+                   ansvarlig_enhet_overordnet_enhetsnummer = any (:nav_enheter) or
                    exists(select true
                           from jsonb_array_elements(nav_enheter_json) as nav_enhet
                           where nav_enhet ->> 'enhetsnummer' = any (:nav_enheter)))
@@ -737,6 +745,7 @@ private fun Row.toGjennomforingKompakt(): GjennomforingKompakt {
                 status = GjennomforingEnkeltplassStatus.from(GjennomforingStatusType.valueOf(string("status"))),
                 arrangor = arrangor,
                 tiltakstype = tiltakstype,
+                kontorstruktur = toAnsvarligEnhetKontorstruktur(),
             )
         }
 
@@ -836,6 +845,22 @@ private fun Row.toStengtePerioder(): List<GjennomforingAvtale.StengtPeriode> {
     return stringOrNull("stengt_perioder_json")
         ?.let { Json.decodeFromString<List<GjennomforingAvtale.StengtPeriode>>(it) }
         ?: emptyList()
+}
+
+private fun Row.toAnsvarligEnhetKontorstruktur(): List<Kontorstruktur> {
+    val enhetsnummer = stringOrNull("ansvarlig_enhet_enhetsnummer") ?: return emptyList()
+    val kontor = Kontorstruktur.Kontor(
+        navn = string("ansvarlig_enhet_navn"),
+        enhetsnummer = NavEnhetNummer(enhetsnummer),
+        type = when (NavEnhetType.valueOf(string("ansvarlig_enhet_type"))) {
+            NavEnhetType.LOKAL -> Kontorstruktur.Kontortype.LOKAL
+            else -> Kontorstruktur.Kontortype.SPESIALENHET
+        },
+    )
+    val region = stringOrNull("ansvarlig_enhet_overordnet_enhetsnummer")
+        ?.let { Kontorstruktur.Region(string("ansvarlig_enhet_overordnet_navn"), NavEnhetNummer(it)) }
+        ?: Kontorstruktur.Region(kontor.navn, kontor.enhetsnummer)
+    return listOf(Kontorstruktur(region = region, kontorer = listOf(kontor)))
 }
 
 private fun Row.toNavEnheter(): List<NavEnhetDto> {
