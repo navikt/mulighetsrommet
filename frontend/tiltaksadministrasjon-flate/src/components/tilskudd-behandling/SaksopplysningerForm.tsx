@@ -5,6 +5,7 @@ import { FormDateInput } from "@/components/skjema/FormDateInput";
 import { FormSelect } from "@/components/skjema/FormSelect";
 import { FormTextField } from "@/components/skjema/FormTextField";
 import {
+  GjennomforingEnkeltplassDtoAnsvarligEnhet,
   OpplaeringtilskuddKode,
   TilskuddBehandlingRequest,
   TilskuddBehandlingRequestTilskuddRequest,
@@ -23,9 +24,10 @@ import { TilskuddFormGroup } from "@/layouts/TilskuddFormGroup";
 
 interface Props {
   arrangorId: string;
+  ansvarligEnhet: GjennomforingEnkeltplassDtoAnsvarligEnhet;
 }
 
-export function SaksopplysningerForm({ arrangorId }: Props) {
+export function SaksopplysningerForm({ arrangorId, ansvarligEnhet }: Props) {
   const {
     control,
     watch,
@@ -174,7 +176,7 @@ export function SaksopplysningerForm({ arrangorId }: Props) {
             variant="secondary"
             icon={<PlusIcon aria-hidden />}
             onClick={() =>
-              append(defaultTilskuddRequest(), {
+              append(defaultTilskuddRequest(ansvarligEnhet.enhetsnummer), {
                 focusName: `tilskudd.${fields.length}.soknadJournalpostId`,
               })
             }
