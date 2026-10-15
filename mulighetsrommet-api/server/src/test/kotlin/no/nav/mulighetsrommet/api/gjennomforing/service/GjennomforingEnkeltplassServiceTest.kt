@@ -131,6 +131,16 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
         return TotrinnskontrollBehandling(UUID.randomUUID(), opprettetAv, begrunnelse)
     }
 
+    fun assertSisteEndringsloggOperation(
+        gjennomforingId: UUID,
+        expected: String,
+    ) {
+        database.run {
+            queries.endringshistorikk.getEndringshistorikk(EndringshistorikkType.GJENNOMFORING, gjennomforingId)
+                .entries.shouldHaveSize(1).first().operation shouldBe expected
+        }
+    }
+
     context("opprettUtkast") {
         val service = createService()
 
@@ -804,6 +814,124 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                 val (gjennomforing) = createService(migrert).updateFromDeltaker(deltaker, norskIdent)
 
                 gjennomforing.deltidsprosent shouldBe 100.0
+            }
+
+            context("endringslogg fra deltakelse") {
+                test("skriver endringslogg for kun periode") {
+                    val deltaker = DeltakerFixtures.createDeltaker(
+                        gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
+                        status = DeltakerStatusType.DELTAR,
+                        startDato = LocalDate.of(2025, 2, 1),
+                        sluttDato = LocalDate.of(2025, 11, 30),
+                    )
+
+                    createService(migrert).updateFromDeltaker(deltaker, norskIdent)
+
+                    assertSisteEndringsloggOperation(
+                        GjennomforingFixtures.EnkelAmo.id,
+                        "Periode er oppdatert på deltakelsen",
+                    )
+                }
+
+                test("skriver endringslogg for kun status") {
+                    val deltaker = DeltakerFixtures.createDeltaker(
+                        gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
+                        status = DeltakerStatusType.FULLFORT,
+                        startDato = GjennomforingFixtures.EnkelAmo.startDato,
+                        sluttDato = GjennomforingFixtures.EnkelAmo.sluttDato,
+                    )
+
+                    createService(migrert).updateFromDeltaker(deltaker, norskIdent)
+
+                    assertSisteEndringsloggOperation(
+                        GjennomforingFixtures.EnkelAmo.id,
+                        "Status er oppdatert på deltakelsen",
+                    )
+                }
+
+                test("skriver endringslogg for kun deltidsprosent") {
+                    val deltaker = DeltakerFixtures.createDeltakerMedDeltakelsesmengder(
+                        gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
+                        status = DeltakerStatusType.DELTAR,
+                        startDato = GjennomforingFixtures.EnkelAmo.startDato!!,
+                        sluttDato = GjennomforingFixtures.EnkelAmo.sluttDato,
+                        deltakelsesprosent = 75.0,
+                    )
+
+                    createService(migrert).updateFromDeltaker(deltaker, norskIdent)
+
+                    assertSisteEndringsloggOperation(
+                        GjennomforingFixtures.EnkelAmo.id,
+                        "Deltidsprosent er oppdatert på deltakelsen",
+                    )
+                }
+
+                test("skriver endringslogg for periode og status") {
+                    val deltaker = DeltakerFixtures.createDeltaker(
+                        gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
+                        status = DeltakerStatusType.FULLFORT,
+                        startDato = LocalDate.of(2025, 2, 1),
+                        sluttDato = LocalDate.of(2025, 11, 30),
+                    )
+
+                    createService(migrert).updateFromDeltaker(deltaker, norskIdent)
+
+                    assertSisteEndringsloggOperation(
+                        GjennomforingFixtures.EnkelAmo.id,
+                        "Periode og status er oppdatert på deltakelsen",
+                    )
+                }
+
+                test("skriver endringslogg for periode og deltidsprosent") {
+                    val deltaker = DeltakerFixtures.createDeltakerMedDeltakelsesmengder(
+                        gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
+                        status = DeltakerStatusType.DELTAR,
+                        startDato = LocalDate.of(2025, 2, 1),
+                        sluttDato = LocalDate.of(2025, 11, 30),
+                        deltakelsesprosent = 75.0,
+                    )
+
+                    createService(migrert).updateFromDeltaker(deltaker, norskIdent)
+
+                    assertSisteEndringsloggOperation(
+                        GjennomforingFixtures.EnkelAmo.id,
+                        "Periode og deltidsprosent er oppdatert på deltakelsen",
+                    )
+                }
+
+                test("skriver endringslogg for status og deltidsprosent") {
+                    val deltaker = DeltakerFixtures.createDeltakerMedDeltakelsesmengder(
+                        gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
+                        status = DeltakerStatusType.FULLFORT,
+                        startDato = GjennomforingFixtures.EnkelAmo.startDato!!,
+                        sluttDato = GjennomforingFixtures.EnkelAmo.sluttDato,
+                        deltakelsesprosent = 75.0,
+                    )
+
+                    createService(migrert).updateFromDeltaker(deltaker, norskIdent)
+
+                    assertSisteEndringsloggOperation(
+                        GjennomforingFixtures.EnkelAmo.id,
+                        "Status og deltidsprosent er oppdatert på deltakelsen",
+                    )
+                }
+
+                test("skriver endringslogg for periode, status og deltidsprosent") {
+                    val deltaker = DeltakerFixtures.createDeltakerMedDeltakelsesmengder(
+                        gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
+                        status = DeltakerStatusType.FULLFORT,
+                        startDato = LocalDate.of(2025, 2, 1),
+                        sluttDato = LocalDate.of(2025, 11, 30),
+                        deltakelsesprosent = 75.0,
+                    )
+
+                    createService(migrert).updateFromDeltaker(deltaker, norskIdent)
+
+                    assertSisteEndringsloggOperation(
+                        GjennomforingFixtures.EnkelAmo.id,
+                        "Periode, status og deltidsprosent er oppdatert på deltakelsen",
+                    )
+                }
             }
 
             test("persisterer oppdatert gjennomføring i databasen og publiserer til kafka") {
