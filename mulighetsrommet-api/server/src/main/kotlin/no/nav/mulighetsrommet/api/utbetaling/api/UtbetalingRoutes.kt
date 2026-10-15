@@ -8,6 +8,7 @@ import io.github.smiley4.ktoropenapi.get
 import io.github.smiley4.ktoropenapi.post
 import io.github.smiley4.ktoropenapi.put
 import io.ktor.http.HttpStatusCode
+import io.ktor.server.http.content.default
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
@@ -361,33 +362,6 @@ fun Route.utbetalingRoutes() {
                 call.respondWithStatusResponse(result)
             }
 
-            put("/avbryt/godkjenn", {
-                description = "Godkjenn avbrytelse av utbetaling"
-                tags = setOf("Utbetaling")
-                operationId = "godkjennAvbrytelseUtbetaling"
-                request {
-                    pathParameterUuid("id")
-                }
-                response {
-                    code(HttpStatusCode.OK) {
-                        description = "Utbetaling ble avbrutt"
-                    }
-                    default {
-                        description = "Problem details"
-                        body<ProblemDetail>()
-                    }
-                }
-            }) {
-                val id = call.parameters.getOrFail<UUID>("id")
-                val navIdent = getNavIdent()
-
-                val result = utbetalingService.godkjennAvbrytelse(id, navIdent)
-                    .mapLeft { toProblemDetail(it) }
-                    .map { HttpStatusCode.OK }
-
-                call.respondWithStatusResponse(result)
-            }
-
             put("/avbryt/avsla", {
                 description = "Avslå avbrytelse av utbetaling"
                 tags = setOf("Utbetaling")
@@ -413,6 +387,35 @@ fun Route.utbetalingRoutes() {
                 val result = request.validate()
                     .mapLeft { UtbetalingError.Valideringsfeil(it) }
                     .flatMap { utbetalingService.avslaAvbrytelse(id, navIdent, it) }
+                    .mapLeft { toProblemDetail(it) }
+                    .map { HttpStatusCode.OK }
+
+                call.respondWithStatusResponse(result)
+            }
+        }
+
+        authorize(anyOf = setOf(Rolle.OKONOMI_ATTESTANT_GRUPPETILTAK, Rolle.OKONOMI_BESLUTTER_ENKELTPLASS)) {
+            put("/avbryt/godkjenn", {
+                description = "Godkjenn avbrytelse av utbetaling"
+                tags = setOf("Utbetaling")
+                operationId = "godkjennAvbrytelseUtbetaling"
+                request {
+                    pathParameterUuid("id")
+                }
+                response {
+                    code(HttpStatusCode.OK) {
+                        description = "Utbetaling ble avbrutt"
+                    }
+                    default {
+                        description = "Problem details"
+                        body<ProblemDetail>()
+                    }
+                }
+            }) {
+                val id = call.parameters.getOrFail<UUID>("id")
+                val navIdent = getNavIdent()
+
+                val result = utbetalingService.godkjennAvbrytelse(id, navIdent)
                     .mapLeft { toProblemDetail(it) }
                     .map { HttpStatusCode.OK }
 
