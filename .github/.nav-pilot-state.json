@@ -1,9 +1,9 @@
 {
   "collection": "(à la carte)",
-  "version": "2026.10.15-100838-659ca78",
+  "version": "2026.10.15-104854-f55d019",
   "scope": "repo",
   "source_repo": "navikt/copilot",
-  "source_sha": "69ca1ae8a86b846c956b8912c7df323275bfaaa1",
+  "source_sha": "f55d019974d00902b328ee85dea2e233ff5029b2",
   "installed_at": "2026-10-15T12:59:17Z",
   "files": [
     {
