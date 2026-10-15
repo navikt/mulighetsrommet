@@ -55,6 +55,7 @@ data class GjennomforingEnkeltplassKompakt(
     override val startDato: LocalDate?,
     override val sluttDato: LocalDate?,
     val status: GjennomforingEnkeltplassStatus,
+    val kontorstruktur: List<Kontorstruktur>,
 ) : GjennomforingKompakt()
 
 data class GjennomforingArenaKompakt(
