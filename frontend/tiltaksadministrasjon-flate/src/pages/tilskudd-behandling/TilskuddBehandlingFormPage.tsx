@@ -81,7 +81,7 @@ export function TilskuddBehandlingFormPage() {
     : {
         id: v4(),
         gjennomforingId,
-        tilskudd: [defaultTilskuddRequest()],
+        tilskudd: [defaultTilskuddRequest(gjennomforing.ansvarligEnhet.enhetsnummer)],
       };
 
   const form = useForm<TilskuddBehandlingRequest>({
@@ -208,7 +208,10 @@ export function TilskuddBehandlingFormPage() {
               <TwoColumnGrid separator>
                 <Box>
                   <Tabs.Panel value="saksopplysninger">
-                    <SaksopplysningerForm arrangorId={gjennomforing.arrangor.id} />
+                    <SaksopplysningerForm
+                      arrangorId={gjennomforing.arrangor.id}
+                      ansvarligEnhet={gjennomforing.ansvarligEnhet}
+                    />
                   </Tabs.Panel>
                   <Tabs.Panel value="vedtak">
                     <VedtakForm arrangorId={gjennomforing.arrangor.id} />

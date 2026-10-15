@@ -310,7 +310,28 @@ class GjennomforingEnkeltplassService(
         upsert(upsert)
             .also { publishTiltaksgjennomforingV2ToKafka(it) }
             .also { haandterAvsluttendeStatus(enkeltplass, deltaker.status.type) }
-            .let { logEndring("Oppdatert fra deltaker", it.id, Tiltaksadministrasjon) }
+            .let { logEndring(endringsloggFraDeltakelse(upsert, enkeltplass.gjennomforing), it.id, Tiltaksadministrasjon) }
+    }
+
+    private fun endringsloggFraDeltakelse(
+        upsert: UpsertArenaEnkeltplass,
+        gjennomforing: GjennomforingEnkeltplass,
+    ): String {
+        val muligeEndringer = listOfNotNull(
+            "periode".takeIf { upsert.startDato != gjennomforing.startDato || upsert.sluttDato != gjennomforing.sluttDato },
+            "status".takeIf { upsert.status != gjennomforing.status },
+            "deltidsprosent".takeIf { upsert.deltidsprosent != gjennomforing.deltidsprosent },
+        )
+        // Vi er garantert at minst en av disser er forskjellig etter harEnkeltplassEndringer-sjekken,
+        // Hvis det ikke lengre er tilfellet, burde man se på dette på nytt
+        require(muligeEndringer.isNotEmpty())
+        val forsteEndring = muligeEndringer[0].replaceFirstChar { it.uppercase() }
+        val endringer = when (muligeEndringer.size) {
+            1 -> forsteEndring
+            2 -> "$forsteEndring og ${muligeEndringer[1]}"
+            else -> "$forsteEndring, ${muligeEndringer.drop(1).dropLast(1).joinToString(", ")} og ${muligeEndringer.last()}"
+        }
+        return "$endringer er oppdatert på deltakelsen"
     }
 
     fun get(id: UUID): Enkeltplass? = db.session {
