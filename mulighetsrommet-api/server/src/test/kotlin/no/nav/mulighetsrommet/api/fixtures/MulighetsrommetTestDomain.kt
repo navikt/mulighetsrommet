@@ -16,7 +16,7 @@ import no.nav.mulighetsrommet.api.domain.testing.fixture.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
 import no.nav.mulighetsrommet.api.domain.tiltak.Tiltakstype
 import no.nav.mulighetsrommet.api.domain.utdanning.Utdanningsprogram
-import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
+import no.nav.mulighetsrommet.api.persistence.gjennomforing.GjennomforingDbo
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingLinjeDbo

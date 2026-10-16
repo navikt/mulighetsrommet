@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.admin.tiltakbeskrivelse
 
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.admin.navenhet.Kontorstruktur
+import no.nav.mulighetsrommet.api.domain.navenhet.Kontorstruktur
 import no.nav.mulighetsrommet.model.Faneinnhold
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent

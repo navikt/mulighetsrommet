@@ -1,8 +1,8 @@
 package no.nav.mulighetsrommet.api.tilsagn.model
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingType
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhet
-import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingType
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode

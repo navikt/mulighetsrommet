@@ -1,0 +1,59 @@
+package no.nav.mulighetsrommet.api.persistence.gjennomforing
+
+import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingType
+import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
+import no.nav.mulighetsrommet.model.GjennomforingPameldingType
+import no.nav.mulighetsrommet.model.GjennomforingStatusType
+import no.nav.mulighetsrommet.model.NavEnhetNummer
+import no.nav.mulighetsrommet.model.NavIdent
+import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.model.Tiltaksnummer
+import java.time.LocalDate
+import java.util.UUID
+
+data class GjennomforingDbo(
+    val id: UUID,
+    val type: GjennomforingType,
+    val tiltakskode: Tiltakskode,
+    val arrangorId: UUID,
+    val navn: String,
+    val startDato: LocalDate?,
+    val sluttDato: LocalDate?,
+    val status: GjennomforingStatusType,
+    val deltidsprosent: Double,
+    val antallPlasser: Int,
+    val oppstart: GjennomforingOppstartstype,
+    val pameldingType: GjennomforingPameldingType,
+    val avtaleId: UUID?,
+    val prismodellId: UUID?,
+    val ansvarligEnhet: NavEnhetNummer?,
+    val arenaTiltaksnummer: Tiltaksnummer?,
+    val arenaAnsvarligEnhet: String?,
+)
+
+data class GjennomforingDetaljerDbo(
+    val id: UUID,
+    val arrangorId: UUID,
+    val oppstart: GjennomforingOppstartstype,
+    val pameldingType: GjennomforingPameldingType,
+    val navn: String,
+    val startDato: LocalDate?,
+    val sluttDato: LocalDate?,
+    val status: GjennomforingStatusType,
+    val deltidsprosent: Double,
+    val antallPlasser: Int,
+    val prismodellId: UUID?,
+    val oppmoteSted: String?,
+    val tilgjengeligForArrangorDato: LocalDate?,
+)
+
+data class GjennomforingArenaDataDbo(
+    val id: UUID,
+    val tiltaksnummer: Tiltaksnummer? = null,
+    val arenaAnsvarligEnhet: String? = null,
+)
+
+data class GjennomforingKontaktpersonDbo(
+    val navIdent: NavIdent,
+    val beskrivelse: String?,
+)

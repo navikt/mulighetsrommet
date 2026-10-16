@@ -7,9 +7,9 @@ import io.ktor.server.routing.Route
 import io.ktor.server.routing.route
 import io.ktor.server.util.getValue
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.admin.gjennomforing.EnkeltplassBeslutningError
+import no.nav.mulighetsrommet.admin.gjennomforing.GjennomforingEnkeltplassService
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
-import no.nav.mulighetsrommet.api.gjennomforing.service.EnkeltplassBeslutningError
-import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingEnkeltplassService
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid

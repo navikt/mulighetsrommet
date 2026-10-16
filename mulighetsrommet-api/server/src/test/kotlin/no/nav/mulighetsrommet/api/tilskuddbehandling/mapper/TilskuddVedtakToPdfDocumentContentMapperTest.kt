@@ -7,6 +7,9 @@ import io.kotest.core.spec.style.FunSpec
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.serialization.json.Json
+import no.nav.mulighetsrommet.api.domain.personalia.AvvistGrunn
+import no.nav.mulighetsrommet.api.domain.personalia.Gradering
+import no.nav.mulighetsrommet.api.domain.personalia.Personalia
 import no.nav.mulighetsrommet.api.domain.testing.fixture.ArrangorFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.DeltakerFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavAnsattFixture.DonaldDuck
@@ -22,9 +25,6 @@ import no.nav.mulighetsrommet.api.fixtures.setGodkjent
 import no.nav.mulighetsrommet.api.fixtures.setTilBehandling
 import no.nav.mulighetsrommet.api.pdfgen.PdfDocumentContent
 import no.nav.mulighetsrommet.api.tilskuddbehandling.task.hentVedtaksbrevInnhold
-import no.nav.mulighetsrommet.api.utbetaling.service.AvvistGrunn
-import no.nav.mulighetsrommet.api.utbetaling.service.Gradering
-import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.NavIdent

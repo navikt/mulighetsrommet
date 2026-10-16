@@ -4,7 +4,6 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import kotlinx.serialization.json.JsonClassDiscriminator
-import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeKombinasjon
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.domain.redaksjoneltinnhold.RedaksjoneltInnholdLenke
 import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeFeature
@@ -147,7 +146,7 @@ data class VeilederflateTiltakstype(
     val beskrivelse: String?,
     val faneinnhold: Faneinnhold?,
     val faglenker: List<RedaksjoneltInnholdLenke>?,
-    val kanKombineresMed: List<TiltakstypeKombinasjon>,
+    val kanKombineresMed: List<VeilederflateTiltakstypeKombinasjon>,
 )
 
 @Serializable

@@ -5,13 +5,13 @@ import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.serialization.json.Json
 import no.nav.common.kafka.producer.KafkaProducerClient
+import no.nav.mulighetsrommet.admin.gjennomforing.GjennomforingDetaljerService
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
 import no.nav.mulighetsrommet.api.contracts.gjennomforing.TiltaksgjennomforingV2Dto
 import no.nav.mulighetsrommet.api.domain.testing.fixture.ArrangorFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
-import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingDetaljerService
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.Tiltakskode
 import org.apache.kafka.clients.producer.ProducerRecord
@@ -43,7 +43,14 @@ class InitialLoadGjennomforingerTest : FunSpec({
     ): InitialLoadGjennomforinger = InitialLoadGjennomforinger(
         InitialLoadGjennomforinger.Config(gjennomforinvV2Topic),
         database.api,
-        GjennomforingDetaljerService(database.api, TiltakstypeService(db = database.admin), mockk(), mockk(), mockk()),
+        GjennomforingDetaljerService(
+            database.admin,
+            TiltakstypeService(db = database.admin),
+            mockk(),
+            mockk(),
+            mockk(),
+            mockk(),
+        ),
         producerClient,
     )
 

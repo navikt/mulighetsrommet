@@ -18,10 +18,10 @@ import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.serialization.json.Json
 import no.nav.common.kafka.util.KafkaUtils
+import no.nav.mulighetsrommet.admin.aarsakerbegrunnelse.AarsakerOgBegrunnelseRequest
 import no.nav.mulighetsrommet.admin.arrangor.BetalingsinformasjonQuery
 import no.nav.mulighetsrommet.admin.endringshistorikk.EndringshistorikkType
 import no.nav.mulighetsrommet.api.ApplicationConfigTest
-import no.nav.mulighetsrommet.api.aarsakerbegrunnelse.AarsakerOgBegrunnelseRequest
 import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsattRolle
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle

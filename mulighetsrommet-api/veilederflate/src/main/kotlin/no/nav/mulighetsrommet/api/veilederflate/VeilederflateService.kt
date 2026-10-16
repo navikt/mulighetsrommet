@@ -4,7 +4,6 @@ import arrow.core.NonEmptyList
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
-import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
 import no.nav.mulighetsrommet.api.clients.sanity.SanityPerspective
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetType
 import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeFeature
@@ -21,7 +20,7 @@ import java.util.UUID
 
 class VeilederflateService(
     private val db: VeilederflateDatabase,
-    private val tiltakstypeService: TiltakstypeService,
+    private val tiltakstypeFeatures: Map<Tiltakskode, Set<TiltakstypeFeature>>,
     private val sanityService: VeilederflateSanityService,
 ) {
     private val cachedAllTiltakstyper = CachedComputation<List<VeilederflateTiltakstype>>(
@@ -40,7 +39,7 @@ class VeilederflateService(
 
     suspend fun hentTiltakstyper(): List<VeilederflateTiltakstype> {
         return getAllTiltakstyper().filter {
-            tiltakstypeService.isEnabled(it.tiltakskode, TiltakstypeFeature.VISES_I_MODIA)
+            isEnabled(it.tiltakskode, TiltakstypeFeature.VISES_I_MODIA)
         }
     }
 
@@ -80,7 +79,7 @@ class VeilederflateService(
         }
 
         (tiltakBeskrivelser.await() + gruppeGjennomforinger.await()).filter {
-            tiltakstypeService.isEnabled(it.tiltakstype.tiltakskode, TiltakstypeFeature.VISES_I_MODIA)
+            isEnabled(it.tiltakstype.tiltakskode, TiltakstypeFeature.VISES_I_MODIA)
         }
     }
 
@@ -105,7 +104,7 @@ class VeilederflateService(
                         navn = tiltakstype.navn,
                         tiltakskode = tiltakstype.tiltakskode,
                         system = tiltakstype.tiltakskode.system,
-                        features = tiltakstypeService.getFeatures(tiltakstype.tiltakskode),
+                        features = getFeatures(tiltakstype.tiltakskode),
                         egenskaper = tiltakstype.tiltakskode.egenskaper,
                         tiltaksgruppe = tiltakstype.tiltakskode.gruppe?.tittel,
                         innsatsgrupper = tiltakstype.innsatsgrupper,
@@ -117,6 +116,14 @@ class VeilederflateService(
                 }
             }
         }
+    }
+
+    private fun getFeatures(tiltakskode: Tiltakskode): Set<TiltakstypeFeature> {
+        return tiltakstypeFeatures[tiltakskode].orEmpty()
+    }
+
+    private fun isEnabled(tiltakskode: Tiltakskode, feature: TiltakstypeFeature): Boolean {
+        return getFeatures(tiltakskode).contains(feature)
     }
 
     private suspend fun hentTiltakBeskrivelser(

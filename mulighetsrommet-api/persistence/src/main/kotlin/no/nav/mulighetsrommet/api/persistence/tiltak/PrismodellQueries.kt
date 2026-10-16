@@ -7,15 +7,16 @@ import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd
 import no.nav.mulighetsrommet.api.domain.tiltak.AvtaltSats
 import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
+import no.nav.mulighetsrommet.api.domain.tiltak.PrismodellRepository
 import no.nav.mulighetsrommet.api.domain.tiltak.PrismodellType
 import no.nav.mulighetsrommet.database.requireSingle
 import no.nav.mulighetsrommet.model.Valuta
 import org.intellij.lang.annotations.Language
 import java.util.UUID
 
-class PrismodellQueries(private val session: Session) {
+class PrismodellQueries(private val session: Session) : PrismodellRepository {
 
-    fun upsert(prismodell: Prismodell) {
+    override fun upsert(prismodell: Prismodell) {
         @Language("PostgreSQL")
         val query = """
             insert into prismodell(id,
@@ -68,7 +69,7 @@ class PrismodellQueries(private val session: Session) {
         session.execute(queryOf(query, params))
     }
 
-    fun getOrError(id: UUID): Prismodell {
+    override fun getOrError(id: UUID): Prismodell {
         @Language("PostgreSQL")
         val query = """
             select id as prismodell_id,
@@ -104,7 +105,7 @@ class PrismodellQueries(private val session: Session) {
         return session.single(queryOf(query, systemId)) { it.toPrismodell() }
     }
 
-    fun deletePrismodell(id: UUID) {
+    override fun deletePrismodell(id: UUID) {
         @Language("PostgreSQL")
         val query = """
             delete from prismodell

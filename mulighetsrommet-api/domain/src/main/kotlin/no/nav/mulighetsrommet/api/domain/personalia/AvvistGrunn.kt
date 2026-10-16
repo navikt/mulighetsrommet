@@ -1,0 +1,18 @@
+package no.nav.mulighetsrommet.api.domain.personalia
+
+enum class AvvistGrunn {
+    AVVIST_STRENGT_FORTROLIG_ADRESSE,
+    AVVIST_STRENGT_FORTROLIG_UTLAND,
+    AVVIST_FORTROLIG_ADRESSE,
+    AVVIST_SKJERMING,
+    AVVIST_HABILITET,
+    AVVIST_VERGE,
+    AVVIST_GEOGRAFISK,
+    AVVIST_AVDOED,
+    AVVIST_VERGEMAAL,
+    AVVIST_PERSON_UTLAND,
+    AVVIST_UKJENT_BOSTED,
+    ;
+
+    companion object {}
+}

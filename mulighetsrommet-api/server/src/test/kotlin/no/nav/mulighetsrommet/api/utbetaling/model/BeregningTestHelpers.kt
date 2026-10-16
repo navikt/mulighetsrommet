@@ -2,15 +2,15 @@ package no.nav.mulighetsrommet.api.utbetaling.model
 
 import no.nav.mulighetsrommet.api.domain.deltaker.Deltakelsesmengde
 import no.nav.mulighetsrommet.api.domain.deltaker.Deltaker
+import no.nav.mulighetsrommet.api.domain.gjennomforing.Gjennomforing
+import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingAvtale
+import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingAvtaleStatus
+import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingType
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhet
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetStatus
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetType
 import no.nav.mulighetsrommet.api.domain.tiltak.AvtaltSats
 import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
-import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingType
-import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAnnenAvtaltPris
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus

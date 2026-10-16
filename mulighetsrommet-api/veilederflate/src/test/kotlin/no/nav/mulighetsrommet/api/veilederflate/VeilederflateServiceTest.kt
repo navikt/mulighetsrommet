@@ -9,7 +9,6 @@ import io.kotest.matchers.types.shouldBeInstanceOf
 import io.ktor.http.HttpStatusCode
 import io.mockk.every
 import io.mockk.mockk
-import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
 import no.nav.mulighetsrommet.api.domain.testing.fixture.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeFeature
 import no.nav.mulighetsrommet.api.sanity.VeilederflateSanityService
@@ -36,7 +35,7 @@ class VeilederflateServiceTest : FunSpec({
         db.repository.tiltakstype.save(TiltakstypeFixtures.Arbeidstrening)
         val service = VeilederflateService(
             db = db,
-            tiltakstypeService = TiltakstypeService(TiltakstypeService.Config(features), mockk(relaxed = true)),
+            tiltakstypeFeatures = features,
             sanityService = mockk<VeilederflateSanityService>(relaxed = true),
         )
         return db to service

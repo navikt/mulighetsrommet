@@ -3,9 +3,9 @@ package no.nav.mulighetsrommet.api.tilsagn.kafka
 import no.nav.common.kafka.consumer.util.deserializer.Deserializers.uuidDeserializer
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.contracts.totrinnskontroll.TotrinnskontrollHendelse
+import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.task.SendTilsagnsbrevSaga
 import no.nav.mulighetsrommet.api.totrinnskontroll.kafka.TotrinnskontrollHendelseDeserializer

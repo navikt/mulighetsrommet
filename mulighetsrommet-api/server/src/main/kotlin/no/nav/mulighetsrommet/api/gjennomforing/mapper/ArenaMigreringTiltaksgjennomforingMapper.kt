@@ -2,12 +2,12 @@ package no.nav.mulighetsrommet.api.gjennomforing.mapper
 
 import no.nav.mulighetsrommet.api.contracts.arenamigrering.ArenaMigreringTiltaksgjennomforingDto
 import no.nav.mulighetsrommet.api.contracts.arenamigrering.ArenaTiltaksgjennomforingStatus
-import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingArena
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleStatus
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplassStatus
+import no.nav.mulighetsrommet.api.domain.gjennomforing.Gjennomforing
+import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingArena
+import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingAvtale
+import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingAvtaleStatus
+import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingEnkeltplass
+import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingEnkeltplassStatus
 import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskLocalDateTime
 
 object ArenaMigreringTiltaksgjennomforingMapper {

@@ -10,7 +10,6 @@ base {
 
 dependencies {
     implementation(projects.mulighetsrommetApi.domain)
-    implementation(projects.mulighetsrommetApi.admin)
     implementation(projects.mulighetsrommetApi.clients)
 
     implementation(projects.common.domain)
@@ -28,7 +27,6 @@ dependencies {
     implementation(libs.caffeine)
     implementation(libs.slf4j)
 
-    testFixturesImplementation(projects.mulighetsrommetApi.admin)
     testFixturesImplementation(projects.mulighetsrommetApi.domain)
     testFixturesImplementation(testFixtures(projects.mulighetsrommetApi.domain))
     testFixturesImplementation(libs.mockk)

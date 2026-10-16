@@ -3,6 +3,8 @@ package no.nav.mulighetsrommet.admin.navenhet
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
 import no.nav.mulighetsrommet.admin.AdminDatabase
+import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetDto
+import no.nav.mulighetsrommet.api.domain.navenhet.toDto
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import java.util.concurrent.TimeUnit
 

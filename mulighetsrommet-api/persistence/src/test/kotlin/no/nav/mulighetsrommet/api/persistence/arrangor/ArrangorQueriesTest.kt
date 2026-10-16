@@ -8,13 +8,19 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
+import no.nav.mulighetsrommet.admin.arrangor.ArrangorDto
+import no.nav.mulighetsrommet.admin.arrangor.ArrangorKobling
 import no.nav.mulighetsrommet.admin.arrangor.ArrangorType
 import no.nav.mulighetsrommet.admin.arrangor.toDto
 import no.nav.mulighetsrommet.api.domain.arrangor.Arrangor
 import no.nav.mulighetsrommet.api.domain.arrangor.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.domain.testing.fixture.ArrangorFixtures
+import no.nav.mulighetsrommet.api.domain.testing.fixture.AvtaleFixtures
+import no.nav.mulighetsrommet.api.domain.testing.fixture.TiltakstypeFixtures
+import no.nav.mulighetsrommet.api.persistence.AdminTestDomain
 import no.nav.mulighetsrommet.api.persistence.SqlAdminDatabaseTestListener
+import no.nav.mulighetsrommet.api.persistence.testing.fixture.GjennomforingDboFixtures
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import java.time.LocalDate
 import java.util.UUID
@@ -140,6 +146,33 @@ class ArrangorQueriesTest : FunSpec({
                 }
                 queries.arrangor.getAll(slettet = true).items shouldContainExactlyInAnyOrder listOf(underenhet1.toDto())
                 queries.arrangor.getAll(slettet = false).items shouldContainExactlyInAnyOrder listOf(hovedenhet.toDto())
+            }
+        }
+
+        test("Filter på avtale eller gjennomforing") {
+            val hovedenhet = ArrangorFixtures.hovedenhet
+            val underenhet = ArrangorFixtures.underenhet1
+
+            val domain = AdminTestDomain(
+                arrangorer = listOf(hovedenhet, underenhet),
+                tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
+                avtaler = listOf(AvtaleFixtures.oppfolging),
+                gjennomforinger = listOf(GjennomforingDboFixtures.Oppfolging1),
+            )
+
+            database.runAndRollback {
+                domain.initialize()
+
+                queries.arrangor.getAll().items shouldContainExactlyInAnyOrder listOf(
+                    hovedenhet.toDto(),
+                    underenhet.toDto(),
+                )
+                queries.arrangor.getAll(kobling = ArrangorKobling.AVTALE).should {
+                    it.items shouldContainExactlyIds listOf(hovedenhet.id)
+                }
+                queries.arrangor.getAll(kobling = ArrangorKobling.TILTAKSGJENNOMFORING).should {
+                    it.items shouldContainExactlyIds listOf(underenhet.id)
+                }
             }
         }
     }
@@ -282,3 +315,7 @@ class ArrangorQueriesTest : FunSpec({
         }
     }
 })
+
+private infix fun Collection<ArrangorDto>.shouldContainExactlyIds(listOf: Collection<UUID>) {
+    map { it.id }.shouldContainExactlyInAnyOrder(listOf)
+}

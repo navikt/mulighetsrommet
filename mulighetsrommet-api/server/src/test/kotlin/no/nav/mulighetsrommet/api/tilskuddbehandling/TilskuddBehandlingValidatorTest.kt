@@ -14,8 +14,8 @@ import io.mockk.mockk
 import no.nav.mulighetsrommet.admin.journalpost.ForventetBruker
 import no.nav.mulighetsrommet.admin.journalpost.JournalpostValidator
 import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsinformasjon
+import no.nav.mulighetsrommet.api.domain.gjennomforing.Gjennomforing
 import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd
-import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandling
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddVedtak

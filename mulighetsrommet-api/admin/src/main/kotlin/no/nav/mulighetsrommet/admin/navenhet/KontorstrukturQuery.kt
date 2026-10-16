@@ -1,9 +1,11 @@
 package no.nav.mulighetsrommet.admin.navenhet
 
 import no.nav.mulighetsrommet.admin.AdminDatabase
+import no.nav.mulighetsrommet.api.domain.navenhet.Kontorstruktur
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetHelpers
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetStatus
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetType
+import no.nav.mulighetsrommet.api.domain.navenhet.toDto
 
 class KontorstrukturQuery(
     private val db: AdminDatabase,

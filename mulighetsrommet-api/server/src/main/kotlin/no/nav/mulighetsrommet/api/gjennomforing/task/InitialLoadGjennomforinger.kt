@@ -6,9 +6,9 @@ import com.github.kagkarlsson.scheduler.task.helper.Tasks
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import no.nav.common.kafka.producer.KafkaProducerClient
+import no.nav.mulighetsrommet.admin.gjennomforing.GjennomforingDetaljerService
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.contracts.gjennomforing.TiltaksgjennomforingV2Dto
-import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingDetaljerService
 import no.nav.mulighetsrommet.api.shared.Pagination
 import no.nav.mulighetsrommet.database.utils.DatabaseUtils.paginateFanOut
 import no.nav.mulighetsrommet.model.Tiltakskode

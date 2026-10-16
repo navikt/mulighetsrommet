@@ -9,10 +9,10 @@ import io.ktor.server.util.getValue
 import no.nav.mulighetsrommet.admin.AdminDatabase
 import no.nav.mulighetsrommet.admin.opplaring.OpplaringKategoriseringMapper
 import no.nav.mulighetsrommet.admin.opplaring.OpplaringKategoriseringResponse
-import no.nav.mulighetsrommet.admin.opplaring.UtdanningslopDetaljer
 import no.nav.mulighetsrommet.admin.tiltak.PrismodellInfo
 import no.nav.mulighetsrommet.api.avtale.model.AvtaletypeInfo
 import no.nav.mulighetsrommet.api.domain.opplaring.Sertifisering
+import no.nav.mulighetsrommet.api.domain.opplaring.UtdanningslopDetaljer
 import no.nav.mulighetsrommet.api.domain.tiltak.Prismodeller
 import no.nav.mulighetsrommet.api.janzz.PamOntologiService
 import no.nav.mulighetsrommet.ktor.exception.BadRequest

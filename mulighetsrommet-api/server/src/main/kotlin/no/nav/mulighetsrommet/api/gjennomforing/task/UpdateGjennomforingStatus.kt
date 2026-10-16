@@ -4,8 +4,8 @@ import com.github.kagkarlsson.scheduler.task.helper.RecurringTask
 import com.github.kagkarlsson.scheduler.task.helper.Tasks
 import com.github.kagkarlsson.scheduler.task.schedule.Daily
 import kotliquery.queryOf
+import no.nav.mulighetsrommet.admin.gjennomforing.GjennomforingAvtaleService
 import no.nav.mulighetsrommet.api.ApiDatabase
-import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingAvtaleService
 import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory

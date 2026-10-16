@@ -15,14 +15,15 @@ import no.nav.mulighetsrommet.admin.endringshistorikk.EndringshistorikkType
 import no.nav.mulighetsrommet.admin.journalpost.ForventetBruker
 import no.nav.mulighetsrommet.admin.journalpost.JournalpostValidator
 import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollDto
+import no.nav.mulighetsrommet.admin.totrinnskontroll.toFieldErrors
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.TransactionalQueryContext
+import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingType
+import no.nav.mulighetsrommet.api.domain.navansatt.OkonomiAuthorization
+import no.nav.mulighetsrommet.api.domain.navansatt.OkonomiBeslutningContext
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.Totrinnskontroll
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
-import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingType
-import no.nav.mulighetsrommet.api.navansatt.OkonomiAuthorization
-import no.nav.mulighetsrommet.api.navansatt.OkonomiBeslutningContext
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandling
 import no.nav.mulighetsrommet.api.tilskuddbehandling.mapper.TilskuddVedtakToPdfDocumentContentMapper
@@ -37,7 +38,6 @@ import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingSta
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingType
 import no.nav.mulighetsrommet.api.tilskuddbehandling.task.JournalforVedtaksbrev
 import no.nav.mulighetsrommet.api.tilskuddbehandling.task.hentForhandsvisningVedtaksbrevInnhold
-import no.nav.mulighetsrommet.api.totrinnskontroll.api.toFieldErrors
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingException
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.featuretoggle.model.FeatureToggle

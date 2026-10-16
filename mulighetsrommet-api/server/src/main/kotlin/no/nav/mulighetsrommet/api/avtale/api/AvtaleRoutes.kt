@@ -19,6 +19,8 @@ import io.ktor.server.routing.RoutingContext
 import io.ktor.server.routing.route
 import io.ktor.server.util.getValue
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.admin.aarsakerbegrunnelse.AarsakerOgBegrunnelseRequest
+import no.nav.mulighetsrommet.admin.avtale.AmoKategoriseringRequest
 import no.nav.mulighetsrommet.admin.avtale.AvtaleDto
 import no.nav.mulighetsrommet.admin.avtale.AvtaleDtoQuery
 import no.nav.mulighetsrommet.admin.avtale.AvtaleFilter
@@ -27,7 +29,6 @@ import no.nav.mulighetsrommet.admin.avtale.GetAvtaleDto
 import no.nav.mulighetsrommet.admin.avtale.GetExcelExport
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.MrExceptions
-import no.nav.mulighetsrommet.api.aarsakerbegrunnelse.AarsakerOgBegrunnelseRequest
 import no.nav.mulighetsrommet.api.avtale.AvtaleService
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellRequest
 import no.nav.mulighetsrommet.api.domain.avtale.AvbrytAvtaleAarsak

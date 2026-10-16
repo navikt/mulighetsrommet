@@ -3,12 +3,12 @@ package no.nav.mulighetsrommet.api.fixtures
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetaling
 import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsinformasjon
+import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingType
 import no.nav.mulighetsrommet.api.domain.testing.fixture.ArrangorFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavAnsattFixture
 import no.nav.mulighetsrommet.api.domain.testing.fixture.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
-import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingType
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingLinjeDbo
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling

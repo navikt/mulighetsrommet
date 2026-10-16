@@ -10,7 +10,7 @@ import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.ApiDatabase
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleDetaljer
+import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingAvtaleDetaljer
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingNotificationDto
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.notifications.NotificationMetadata

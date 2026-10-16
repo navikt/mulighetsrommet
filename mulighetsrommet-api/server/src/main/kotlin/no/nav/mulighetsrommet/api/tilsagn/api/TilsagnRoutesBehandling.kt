@@ -8,7 +8,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.server.request.receive
 import io.ktor.server.routing.Route
 import io.ktor.server.util.getOrFail
-import no.nav.mulighetsrommet.api.aarsakerbegrunnelse.AarsakerOgBegrunnelseRequest
+import no.nav.mulighetsrommet.admin.aarsakerbegrunnelse.AarsakerOgBegrunnelseRequest
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.plugins.getNavIdent

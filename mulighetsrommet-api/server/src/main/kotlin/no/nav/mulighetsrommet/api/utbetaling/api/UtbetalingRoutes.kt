@@ -17,9 +17,10 @@ import io.ktor.server.routing.route
 import io.ktor.server.util.getOrFail
 import io.ktor.server.util.getValue
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.admin.aarsakerbegrunnelse.AarsakerOgBegrunnelseRequest
 import no.nav.mulighetsrommet.api.ApiDatabase
-import no.nav.mulighetsrommet.api.aarsakerbegrunnelse.AarsakerOgBegrunnelseRequest
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
+import no.nav.mulighetsrommet.api.domain.personalia.Personalia
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.plugins.getAccessType
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
@@ -36,7 +37,6 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningOutputDelt
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeReturnertAarsak
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusAarsak
 import no.nav.mulighetsrommet.api.utbetaling.service.AdminUtbetalingService
-import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.api.utbetaling.service.UtbetalingError
 import no.nav.mulighetsrommet.api.utbetaling.service.UtbetalingValidator

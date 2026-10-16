@@ -16,12 +16,13 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import no.nav.mulighetsrommet.admin.aarsakerbegrunnelse.AarsakerOgBegrunnelseRequest
 import no.nav.mulighetsrommet.admin.navansatt.EntraGroupNavAnsattRolleMapping
 import no.nav.mulighetsrommet.api.ApplicationConfigTest
-import no.nav.mulighetsrommet.api.aarsakerbegrunnelse.AarsakerOgBegrunnelseRequest
 import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
 import no.nav.mulighetsrommet.api.createAuthConfig
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
+import no.nav.mulighetsrommet.api.domain.personalia.Gradering
 import no.nav.mulighetsrommet.api.domain.testing.fixture.AvtaleFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.DeltakerFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavAnsattFixture
@@ -43,7 +44,6 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPe
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningOutputDeltakelse
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeReturnertAarsak
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusAarsak
-import no.nav.mulighetsrommet.api.utbetaling.service.Gradering
 import no.nav.mulighetsrommet.api.withTestApplication
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.ktor.createMockEngine

@@ -5,16 +5,16 @@ import kotliquery.Row
 import kotliquery.Session
 import kotliquery.TransactionalSession
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.admin.opplaring.OpplaringKategoriseringDetaljer
 import no.nav.mulighetsrommet.admin.opplaring.OpplaringKategoriseringQueryHandler
-import no.nav.mulighetsrommet.admin.opplaring.UtdanningslopDetaljer
 import no.nav.mulighetsrommet.api.domain.opplaring.Bransje
 import no.nav.mulighetsrommet.api.domain.opplaring.ForerkortKlasse
 import no.nav.mulighetsrommet.api.domain.opplaring.InnholdElement
 import no.nav.mulighetsrommet.api.domain.opplaring.Kurstype
 import no.nav.mulighetsrommet.api.domain.opplaring.OpplaringKategorisering
+import no.nav.mulighetsrommet.api.domain.opplaring.OpplaringKategoriseringDetaljer
 import no.nav.mulighetsrommet.api.domain.opplaring.Sertifisering
 import no.nav.mulighetsrommet.api.domain.opplaring.Utdanningslop
+import no.nav.mulighetsrommet.api.domain.opplaring.UtdanningslopDetaljer
 import no.nav.mulighetsrommet.database.createArrayOfValue
 import no.nav.mulighetsrommet.database.createBigintArray
 import no.nav.mulighetsrommet.database.createUuidArray
@@ -23,7 +23,7 @@ import org.intellij.lang.annotations.Language
 import java.util.UUID
 
 class OpplaringKategoriseringQueries(private val session: Session) : OpplaringKategoriseringQueryHandler {
-    fun upsert(
+    override fun upsert(
         kategoriseringId: UUID,
         kategorisering: OpplaringKategorisering?,
     ): Unit = withTransaction(session) {
@@ -210,7 +210,7 @@ class OpplaringKategoriseringQueries(private val session: Session) : OpplaringKa
         update(queryOf(query, kategoriseringId))
     }
 
-    fun get(kategoriseringId: UUID): OpplaringKategoriseringDetaljer? {
+    override fun get(kategoriseringId: UUID): OpplaringKategoriseringDetaljer? {
         @Language("PostgreSQL")
         val query = """
             select *

@@ -18,6 +18,7 @@ import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.domain.avtale.Avtale
 import no.nav.mulighetsrommet.api.domain.deltaker.Deltaker
 import no.nav.mulighetsrommet.api.domain.deltaker.DeltakerForslag
+import no.nav.mulighetsrommet.api.domain.gjennomforing.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.domain.testing.fixture.ArrangorFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.AvtaleFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.DeltakerFixtures
@@ -31,7 +32,6 @@ import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures
 import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures.utbetaling1
 import no.nav.mulighetsrommet.api.fixtures.setTilsagnStatus
-import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFastSatsPerBenyttetPlassPerManed
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus

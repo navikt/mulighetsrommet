@@ -3,9 +3,9 @@ package no.nav.mulighetsrommet.api.utbetaling.model
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingType
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures.utbetalingDto1
-import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingType
 import no.nav.mulighetsrommet.model.FieldError
 
 class UtbetalingTest : FunSpec({

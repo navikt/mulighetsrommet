@@ -18,6 +18,8 @@ import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokdistClient
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokdistRequest
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokdistResponse
 import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd
+import no.nav.mulighetsrommet.api.domain.personalia.Gradering
+import no.nav.mulighetsrommet.api.domain.personalia.Personalia
 import no.nav.mulighetsrommet.api.domain.testing.fixture.DeltakerFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
@@ -29,8 +31,6 @@ import no.nav.mulighetsrommet.api.tilskuddbehandling.gyldigJournalpostValidator
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingRequest
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
 import no.nav.mulighetsrommet.api.utbetaling.api.ValutaBelopRequest
-import no.nav.mulighetsrommet.api.utbetaling.service.Gradering
-import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.NavEnhetNummer
