@@ -265,13 +265,13 @@ function PrisendringTilGodkjenning({
             {utledBehandletAvNavn(totrinnskontroll)} sendte en prisendring til godkjenning den{" "}
             {formaterDato(totrinnskontroll.behandling.tidspunkt)}.
           </BodyShort>
+          <PrisOgBetalingsbetingelser prismodell={prismodell} />
           {totrinnskontroll.behandling.begrunnelse && (
             <MetadataFritekstfelt
               label="Begrunnelse fra veileder"
               value={totrinnskontroll.behandling.begrunnelse}
             />
           )}
-          <PrisOgBetalingsbetingelser prismodell={prismodell} />
         </VStack>
       </InfoCard.Content>
     </InfoCard>
