@@ -144,6 +144,7 @@ class TilskuddBehandlingQueries(private val session: Session) {
                 kommentar_intern,
                 utbetaling_mottaker,
                 kid,
+                forskudd_til_bruker,
                 belop,
                 valuta
             ) values (
@@ -162,6 +163,7 @@ class TilskuddBehandlingQueries(private val session: Session) {
              :kommentar_intern,
              :utbetaling_mottaker,
              :kid,
+             :forskudd_til_bruker,
              :belop,
              :valuta::currency
          ) on conflict (id) do update set
@@ -178,6 +180,7 @@ class TilskuddBehandlingQueries(private val session: Session) {
               kommentar_intern = excluded.kommentar_intern,
               utbetaling_mottaker = excluded.utbetaling_mottaker,
               kid = excluded.kid,
+              forskudd_til_bruker = excluded.forskudd_til_bruker,
               belop = excluded.belop,
               valuta = excluded.valuta
          returning id)
@@ -199,6 +202,7 @@ class TilskuddBehandlingQueries(private val session: Session) {
             "kommentar_intern" to tilskuddVedtak.kommentarIntern,
             "utbetaling_mottaker" to tilskuddVedtak.utbetalingMottaker.name,
             "kid" to tilskuddVedtak.kid?.value,
+            "forskudd_til_bruker" to tilskuddVedtak.forskuddsUtbetalingTilBruker,
             "belop" to tilskuddVedtak.utbetalingBelop?.belop,
             "valuta" to tilskuddVedtak.utbetalingBelop?.valuta?.name,
         )
@@ -374,6 +378,8 @@ private data class TilskuddVedtakViewRow(
     val vedtakResultat: VedtakResultatViewRow,
     val kommentarVedtaksbrev: String?,
     val utbetalingMottaker: TilskuddMottaker,
+    @SerialName("forskudd_til_bruker")
+    val forskuddsUtbetalingTilBruker: Boolean,
     val kid: Kid?,
     val kommentarIntern: String?,
     val vedtakJournalpostId: String?,
@@ -432,9 +438,17 @@ private fun TilskuddVedtakViewRow.toDto(): TilskuddOpplaeringDto {
         ),
         vedtakResultat = VedtakResultatDto(vedtakResultat.type),
         kommentarVedtaksbrev = kommentarVedtaksbrev,
-        utbetalingMottaker = utbetalingMottaker,
-        kid = kid,
-        utbetalingBelop = utbetalingBelop,
+        utbetalingMottaker = when (utbetalingMottaker) {
+            TilskuddMottaker.BRUKER -> TilskuddOpplaeringDto.UtbetalingMottaker.Bruker(
+                forskuddsUtbetaling = forskuddsUtbetalingTilBruker,
+                utbetalingBelop = utbetalingBelop,
+            )
+
+            TilskuddMottaker.ARRANGOR -> TilskuddOpplaeringDto.UtbetalingMottaker.Arrangor(
+                kid = kid,
+                utbetalingBelop = utbetalingBelop,
+            )
+        },
         kommentarIntern = kommentarIntern,
         vedtakJournalpostId = vedtakJournalpostId,
     )

@@ -36,6 +36,7 @@ import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingSta
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatusAarsak
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatusDto
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingType
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddOpplaeringDto
 import no.nav.mulighetsrommet.api.tilskuddbehandling.task.JournalforVedtaksbrev
 import no.nav.mulighetsrommet.api.tilskuddbehandling.task.hentForhandsvisningVedtaksbrevInnhold
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingException
@@ -313,7 +314,15 @@ class TilskuddBehandlingService(
             tilskudd = listOf(
                 forrigeTilskuddVedtak.copy(
                     id = UUID.randomUUID(),
-                    utbetalingBelop = forrigeTilskuddVedtak.utbetalingBelop?.copy(belop = 0),
+                    utbetalingMottaker = when (val mottaker = forrigeTilskuddVedtak.utbetalingMottaker) {
+                        is TilskuddOpplaeringDto.UtbetalingMottaker.Bruker -> mottaker.copy(
+                            utbetalingBelop = mottaker.utbetalingBelop?.copy(belop = 0),
+                        )
+
+                        is TilskuddOpplaeringDto.UtbetalingMottaker.Arrangor -> mottaker.copy(
+                            utbetalingBelop = mottaker.utbetalingBelop?.copy(belop = 0),
+                        )
+                    },
                 ),
             ),
             behandlendeEnhet = behandlendeEnhet,

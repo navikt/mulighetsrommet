@@ -96,6 +96,7 @@ class TilskuddBehandlingValidatorTest : FunSpec({
                     vedtakResultat = VedtakResultat.INNVILGELSE,
                     utbetalingMottaker = TilskuddMottaker.ARRANGOR,
                     kid = Kid.parse("116"),
+                    forskuddsUtbetalingTilBruker = false,
                     utbetalingBelop = ValutaBelop(2000, Valuta.NOK),
                     kommentarIntern = "Intern kommentar",
                     kommentarVedtaksbrev = "Vedtakskommentar",

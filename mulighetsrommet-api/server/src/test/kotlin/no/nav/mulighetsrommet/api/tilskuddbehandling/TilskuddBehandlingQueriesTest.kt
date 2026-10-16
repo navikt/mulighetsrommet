@@ -1,8 +1,13 @@
 package no.nav.mulighetsrommet.api.tilskuddbehandling
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.TransactionalQueryContext
 import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd
@@ -15,6 +20,7 @@ import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddVedtak
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatus
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingType
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddOpplaeringDto
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.JournalpostId
@@ -54,6 +60,7 @@ class TilskuddBehandlingQueriesTest : FunSpec({
                 kommentarVedtaksbrev = "k1",
                 utbetalingMottaker = TilskuddMottaker.BRUKER,
                 kid = null,
+                forskuddsUtbetalingTilBruker = false,
                 soknadJournalpostId = JournalpostId("123"),
                 soknadDato = LocalDate.of(2024, 1, 15),
                 periode = Periode(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 7, 1)),
@@ -76,6 +83,7 @@ class TilskuddBehandlingQueriesTest : FunSpec({
                 kommentarVedtaksbrev = "k2",
                 utbetalingMottaker = TilskuddMottaker.ARRANGOR,
                 kid = Kid.parse("116"),
+                forskuddsUtbetalingTilBruker = false,
                 soknadJournalpostId = JournalpostId("123"),
                 soknadDato = LocalDate.of(2024, 1, 15),
                 periode = Periode(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 7, 1)),
@@ -95,6 +103,7 @@ class TilskuddBehandlingQueriesTest : FunSpec({
                 kommentarVedtaksbrev = "k2",
                 utbetalingMottaker = TilskuddMottaker.ARRANGOR,
                 kid = null,
+                forskuddsUtbetalingTilBruker = false,
                 soknadJournalpostId = JournalpostId("123"),
                 soknadDato = LocalDate.of(2024, 1, 15),
                 periode = Periode(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 7, 1)),
@@ -128,10 +137,12 @@ class TilskuddBehandlingQueriesTest : FunSpec({
                         v.soknadBelop.valuta shouldBe Valuta.SEK
                         v.vedtakResultat.type shouldBe VedtakResultat.INNVILGELSE
                         v.kommentarVedtaksbrev shouldBe "k1"
-                        v.utbetalingMottaker shouldBe TilskuddMottaker.BRUKER
-                        v.kid shouldBe null
-                        v.utbetalingBelop?.valuta shouldBe Valuta.NOK
-                        v.utbetalingBelop?.belop shouldBe 100
+                        v.utbetalingMottaker shouldBe
+                            TilskuddOpplaeringDto.UtbetalingMottaker.Bruker(
+                                forskuddsUtbetaling = false,
+                                utbetalingBelop = ValutaBelop(100, Valuta.NOK),
+                            )
+                        v.toTilskuddVedtak() shouldBe behandling.tilskudd[0]
                         v.soknadJournalpostId shouldBe behandling.tilskudd[0].soknadJournalpostId
                         v.soknadDato shouldBe behandling.tilskudd[0].soknadDato
                         v.periode shouldBe behandling.tilskudd[0].periode
@@ -146,10 +157,12 @@ class TilskuddBehandlingQueriesTest : FunSpec({
                         v.soknadBelop.valuta shouldBe Valuta.NOK
                         v.vedtakResultat.type shouldBe VedtakResultat.INNVILGELSE
                         v.kommentarVedtaksbrev shouldBe "k2"
-                        v.utbetalingMottaker shouldBe TilskuddMottaker.ARRANGOR
-                        v.kid shouldBe Kid.parse("116")
-                        v.utbetalingBelop?.belop shouldBe 200
-                        v.utbetalingBelop?.valuta shouldBe Valuta.NOK
+                        v.utbetalingMottaker shouldBe
+                            TilskuddOpplaeringDto.UtbetalingMottaker.Arrangor(
+                                kid = Kid.parse("116")!!,
+                                utbetalingBelop = ValutaBelop(200, Valuta.NOK),
+                            )
+                        v.toTilskuddVedtak() shouldBe behandling.tilskudd[1]
                         v.soknadJournalpostId shouldBe behandling.tilskudd[1].soknadJournalpostId
                         v.soknadDato shouldBe behandling.tilskudd[1].soknadDato
                         v.periode shouldBe behandling.tilskudd[1].periode
@@ -160,7 +173,11 @@ class TilskuddBehandlingQueriesTest : FunSpec({
                         v.id shouldBe behandling.tilskudd[2].id
                         v.tilskuddId shouldBe behandling.tilskudd[2].tilskuddId
                         v.tilskuddOpplaeringType shouldBe Opplaeringtilskudd.Kode.INTEGRERT_BOTILBUD
-                        v.utbetalingBelop shouldBe null
+                        v.utbetalingMottaker shouldBe
+                            TilskuddOpplaeringDto.UtbetalingMottaker.Arrangor(
+                                kid = null,
+                                utbetalingBelop = null,
+                            )
                         v.vedtakResultat.type shouldBe VedtakResultat.AVSLAG
                         v.soknadJournalpostId shouldBe behandling.tilskudd[2].soknadJournalpostId
                         v.soknadDato shouldBe behandling.tilskudd[2].soknadDato

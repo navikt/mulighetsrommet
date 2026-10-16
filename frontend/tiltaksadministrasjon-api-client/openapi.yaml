@@ -9452,15 +9452,7 @@ components:
           - "null"
           - string
         utbetalingMottaker:
-          $ref: "#/components/schemas/TilskuddMottaker"
-        kid:
-          type:
-          - "null"
-          - string
-        utbetalingBelop:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/ValutaBelop"
+          $ref: "#/components/schemas/TilskuddOpplaeringDto.UtbetalingMottaker"
         kommentarIntern:
           type:
           - "null"
@@ -9471,7 +9463,6 @@ components:
           - string
       required:
       - id
-      - kid
       - kommentarIntern
       - kommentarVedtaksbrev
       - kostnadssted
@@ -9482,10 +9473,49 @@ components:
       - tilskuddId
       - tilskuddOpplaeringType
       - tilskuddsnummer
-      - utbetalingBelop
       - utbetalingMottaker
       - vedtakJournalpostId
       - vedtakResultat
+    TilskuddOpplaeringDto.UtbetalingMottaker:
+      anyOf:
+      - $ref: "#/components/schemas/ARRANGOR"
+      - $ref: "#/components/schemas/BRUKER"
+      discriminator:
+        propertyName: type
+        mapping:
+          ARRANGOR: "#/components/schemas/ARRANGOR"
+          BRUKER: "#/components/schemas/BRUKER"
+    ARRANGOR:
+      type: object
+      properties:
+        utbetalingId:
+          type:
+          - "null"
+          - string
+          format: uuid
+        kid:
+          type:
+          - "null"
+          - string
+        belop:
+          $ref: "#/components/schemas/ValutaBelop"
+      required:
+      - belop
+      - kid
+      - utbetalingId
+    BRUKER:
+      type: object
+      properties:
+        brukerUtbetalingId:
+          type:
+          - "null"
+          - string
+          format: uuid
+        belop:
+          $ref: "#/components/schemas/ValutaBelop"
+      required:
+      - belop
+      - brukerUtbetalingId
     TilskuddBehandlingStatusDto:
       type: object
       properties:
@@ -9821,37 +9851,6 @@ components:
         mapping:
           ARRANGOR: "#/components/schemas/ARRANGOR"
           BRUKER: "#/components/schemas/BRUKER"
-    ARRANGOR:
-      type: object
-      properties:
-        utbetalingId:
-          type:
-          - "null"
-          - string
-          format: uuid
-        kid:
-          type:
-          - "null"
-          - string
-        belop:
-          $ref: "#/components/schemas/ValutaBelop"
-      required:
-      - belop
-      - kid
-      - utbetalingId
-    BRUKER:
-      type: object
-      properties:
-        brukerUtbetalingId:
-          type:
-          - "null"
-          - string
-          format: uuid
-        belop:
-          $ref: "#/components/schemas/ValutaBelop"
-      required:
-      - belop
-      - brukerUtbetalingId
     TilskuddHandling:
       type: string
       enum:

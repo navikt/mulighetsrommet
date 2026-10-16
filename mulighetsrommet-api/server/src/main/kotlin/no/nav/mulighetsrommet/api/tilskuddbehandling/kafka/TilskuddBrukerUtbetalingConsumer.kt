@@ -15,7 +15,6 @@ import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd
 import no.nav.mulighetsrommet.api.domain.personalia.Personalia
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
-import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingDto
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingType
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddOpplaeringDto
@@ -98,7 +97,7 @@ class TilskuddBrukerUtbetalingConsumer(
 
         behandling.tilskudd
             .filter { it.vedtakResultat.type == VedtakResultat.INNVILGELSE }
-            .filter { it.utbetalingMottaker == TilskuddMottaker.BRUKER }
+            .filter { it.utbetalingMottaker is TilskuddOpplaeringDto.UtbetalingMottaker.Bruker }
             .forEach { tilskudd ->
                 if (totrinnskontroll.type != TotrinnskontrollType.TILSKUDD_OPPHOR) {
                     throw IllegalStateException("Revurdering av tilskudd med type ${totrinnskontroll.type} støttes ikke for utbetaling til bruker")
@@ -133,7 +132,7 @@ class TilskuddBrukerUtbetalingConsumer(
 
         behandling.tilskudd
             .filter { it.vedtakResultat.type == VedtakResultat.INNVILGELSE }
-            .filter { it.utbetalingMottaker == TilskuddMottaker.BRUKER }
+            .filter { it.utbetalingMottaker is TilskuddOpplaeringDto.UtbetalingMottaker.Bruker }
             .forEach { tilskuddVedtak ->
                 db.transaction {
                     // Idempotency check
@@ -150,7 +149,7 @@ class TilskuddBrukerUtbetalingConsumer(
                             id = UUID.randomUUID(),
                             sakId = tilskuddVedtak.tilskuddsnummer,
                             transaksjonsDato = besluttetDato.tilNorskDato(),
-                            belop = requireNotNull(tilskuddVedtak.utbetalingBelop?.belop) {
+                            belop = requireNotNull(tilskuddVedtak.utbetalingMottaker.utbetalingBelop?.belop) {
                                 "utbetalingBelop var null"
                             },
                             tilskuddstype = tilskuddVedtak.tilskuddOpplaeringType.toHelVedTilskuddstype(),
@@ -188,7 +187,9 @@ class TilskuddBrukerUtbetalingConsumer(
 
         queries.brukerUtbetaling.insert(
             UpsertBrukerUtbetalingDbo(
-                belop = tilskudd.utbetalingBelop!!.belop,
+                belop = requireNotNull(tilskudd.utbetalingMottaker.utbetalingBelop?.belop) {
+                    "Utbetaling beløp var null ved opphør av tilskudd til bruker"
+                },
                 saksbehandler = saksbehandler,
                 beslutter = beslutter,
                 besluttetTidspunkt = besluttetTidspunkt,

@@ -14,8 +14,8 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningType
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnInputLinjeRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
-import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingDto
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddOpplaeringDto
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
 import no.nav.mulighetsrommet.api.totrinnskontroll.kafka.TotrinnskontrollHendelseDeserializer
 import no.nav.mulighetsrommet.api.utbetaling.model.AutomatisertUtbetalingResult
@@ -60,7 +60,7 @@ class TilskuddArrangorUtbetalingConsumer(
     private suspend fun utbetalTilskuddTilArrangor(behandling: TilskuddBehandlingDto) {
         behandling.tilskudd
             .filter { it.vedtakResultat.type == VedtakResultat.INNVILGELSE }
-            .filter { it.utbetalingMottaker == TilskuddMottaker.ARRANGOR }
+            .filter { it.utbetalingMottaker is TilskuddOpplaeringDto.UtbetalingMottaker.Arrangor }
             .forEach { tilskuddVedtak ->
                 db.transaction {
                     // Idempotency check
@@ -75,7 +75,7 @@ class TilskuddArrangorUtbetalingConsumer(
                         gjennomforingId = behandling.gjennomforingId,
                         kostnadssted = tilskuddVedtak.kostnadssted.enhetsnummer,
                         periode = tilskuddVedtak.periode,
-                        belop = requireNotNull(tilskuddVedtak.utbetalingBelop) {
+                        belop = requireNotNull(tilskuddVedtak.utbetalingMottaker.utbetalingBelop) {
                             "Utbetaling beløp var null ved inngivelse av tilskudd til arrangør"
                         },
                         prisbetingelser = null,
@@ -83,8 +83,10 @@ class TilskuddArrangorUtbetalingConsumer(
                     val utbetaling = opprettOgBetalUtbetaling(
                         gjennomforingId = behandling.gjennomforingId,
                         periode = tilskuddVedtak.periode,
-                        belop = tilskuddVedtak.utbetalingBelop,
-                        kid = tilskuddVedtak.kid,
+                        belop = requireNotNull(tilskuddVedtak.utbetalingMottaker.utbetalingBelop) {
+                            "Utbetaling beløp var null ved inngivelse av tilskudd til arrangør"
+                        },
+                        kid = (tilskuddVedtak.utbetalingMottaker as TilskuddOpplaeringDto.UtbetalingMottaker.Arrangor).kid,
                     )
                     queries.tilskuddBehandling.setUtbetalingTilskuddVedtak(tilskuddVedtak.id, utbetaling.id)
                 }

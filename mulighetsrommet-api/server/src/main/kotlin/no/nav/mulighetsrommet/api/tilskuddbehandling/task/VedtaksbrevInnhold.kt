@@ -10,6 +10,7 @@ import no.nav.mulighetsrommet.api.domain.personalia.Personalia
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandling
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddOpplaeringDto
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskLocalDateTime
@@ -94,13 +95,16 @@ suspend fun QueryContext.hentVedtaksbrevInnhold(
             tilskuddType = tilskudd.tilskuddOpplaeringType.toDisplayName(),
             vedtakResultat = tilskudd.vedtakResultat.type,
             begrunnelse = tilskudd.kommentarVedtaksbrev,
-            belop = tilskudd.utbetalingBelop?.belop?.let {
+            belop = tilskudd.utbetalingMottaker.utbetalingBelop?.let {
                 Belop(
-                    belop = it,
-                    valuta = tilskudd.utbetalingBelop.valuta.name,
+                    belop = it.belop,
+                    valuta = it.valuta.name,
                 )
             },
-            utbetalingMottaker = tilskudd.utbetalingMottaker,
+            utbetalingMottaker = when (tilskudd.utbetalingMottaker) {
+                is TilskuddOpplaeringDto.UtbetalingMottaker.Bruker -> TilskuddMottaker.BRUKER
+                is TilskuddOpplaeringDto.UtbetalingMottaker.Arrangor -> TilskuddMottaker.ARRANGOR
+            },
         )
     }
 
