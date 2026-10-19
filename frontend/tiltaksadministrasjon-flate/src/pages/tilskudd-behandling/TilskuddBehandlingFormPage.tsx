@@ -49,7 +49,7 @@ export function TilskuddBehandlingFormPage() {
           utbetalingMottaker: t.utbetalingMottaker,
           belop: t.utbetalingBelop?.belop ?? null,
           kidNummer: t.kid,
-          forskuddsutbetalingTilBruker: t.forskuddsutbetalingTilBruker,
+          brukerUtbetalingType: t.brukerUtbetalingType,
           soknadJournalpostId: t.soknadJournalpostId,
           kostnadssted: t.kostnadssted.enhetsnummer,
           soknadDato: t.soknadDato,

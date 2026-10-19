@@ -16,6 +16,7 @@ import { FormDateInput } from "@/components/skjema/FormDateInput";
 import { FormSelect } from "@/components/skjema/FormSelect";
 import { FormTextField } from "@/components/skjema/FormTextField";
 import {
+  BrukerUtbetalingType,
   GjennomforingEnkeltplassDtoAnsvarligEnhet,
   OpplaeringtilskuddKode,
   TilskuddBehandlingRequest,
@@ -206,12 +207,16 @@ function MottakerValg({ index, arrangorId }: MottakerValgProps) {
         <>
           <ControlledRadioGroup
             size="small"
-            name={`tilskudd.${index}.forskuddsutbetalingTilBruker`}
+            name={`tilskudd.${index}.brukerUtbetalingType`}
             legend="Har bruker lagt ut for tilskuddet selv?"
             horisontal
           >
-            <Radio value={false}>Ja, bruker har betalt til utdanningsinstitusjonen</Radio>
-            <Radio value={true}>Nei, det skal utbetales som forskudd</Radio>
+            <Radio value={BrukerUtbetalingType.REFUSJON}>
+              Ja, bruker har betalt til utdanningsinstitusjonen
+            </Radio>
+            <Radio value={BrukerUtbetalingType.FORSKUDD}>
+              Nei, det skal utbetales som forskudd
+            </Radio>
           </ControlledRadioGroup>
           <Bleed marginBlock="space-16 space-0">
             <BodyShort size="small">

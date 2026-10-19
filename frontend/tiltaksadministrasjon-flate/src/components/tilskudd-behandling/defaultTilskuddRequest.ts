@@ -20,7 +20,7 @@ export function defaultTilskuddRequest(
     vedtakResultat: null,
     utbetalingMottaker: null,
     kidNummer: null,
-    forskuddsutbetalingTilBruker: null,
+    brukerUtbetalingType: null,
     soknadJournalpostId: null,
     soknadDato: null,
     periodeStart: null,

@@ -115,7 +115,7 @@ private fun Row.toTilskuddUtbetaling(mottaker: TilskuddMottaker): Tilskudd.Vedta
             Tilskudd.Vedtak.Utbetaling.Bruker(
                 uuidOrNull("bruker_utbetaling_id"),
                 utbetalingBelop,
-                forskuddsUtbetaling = boolean("forskudd_til_bruker"),
+                brukerUtbetalingType = BrukerUtbetalingType.valueOf(string("bruker_utbetaling_type")),
             )
 
         TilskuddMottaker.ARRANGOR ->

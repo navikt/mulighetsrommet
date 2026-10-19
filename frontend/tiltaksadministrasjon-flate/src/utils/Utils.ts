@@ -16,6 +16,7 @@ import {
   ValidationError,
   OpplaeringtilskuddKode,
   UtbetalingStatusAarsak,
+  BrukerUtbetalingType,
 } from "@tiltaksadministrasjon/api-client";
 import { FieldErrors } from "react-hook-form";
 
@@ -180,15 +181,26 @@ export function opplaeringTilskuddToString(tilskuddType: OpplaeringtilskuddKode)
 
 export function tilskuddMottakerToString(
   mottaker: TilskuddMottaker,
-  forskuddsutbetalingTilBruker: boolean | null,
+  brukerUtbetalingType: BrukerUtbetalingType | null,
 ): string {
   switch (mottaker) {
-    case TilskuddMottaker.BRUKER: {
-      const postfix = forskuddsutbetalingTilBruker ? ", som forskudd" : ", som refusjon av utlegg";
-      return "Brukeren" + postfix;
-    }
+    case TilskuddMottaker.BRUKER:
+      if (!brukerUtbetalingType) {
+        return "Brukeren";
+      }
+      return brukerUtbetalingTypeToString(brukerUtbetalingType);
+
     case TilskuddMottaker.ARRANGOR:
       return "Arrangøren";
+  }
+}
+
+function brukerUtbetalingTypeToString(brukerUtbetalingType: BrukerUtbetalingType): string {
+  switch (brukerUtbetalingType) {
+    case BrukerUtbetalingType.FORSKUDD:
+      return "Brukeren, som forskudd";
+    case BrukerUtbetalingType.REFUSJON:
+      return "Brukeren, som refusjon av utlegg";
   }
 }
 
