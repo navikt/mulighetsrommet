@@ -7,6 +7,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.serialization.json.Json
+import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd
 import no.nav.mulighetsrommet.api.domain.personalia.AvvistGrunn
 import no.nav.mulighetsrommet.api.domain.personalia.Gradering
 import no.nav.mulighetsrommet.api.domain.personalia.Personalia
@@ -24,12 +25,14 @@ import no.nav.mulighetsrommet.api.fixtures.TilskuddFixtures
 import no.nav.mulighetsrommet.api.fixtures.setGodkjent
 import no.nav.mulighetsrommet.api.fixtures.setTilBehandling
 import no.nav.mulighetsrommet.api.pdfgen.PdfDocumentContent
+import no.nav.mulighetsrommet.api.tilskuddbehandling.db.BrukerUtbetalingType
 import no.nav.mulighetsrommet.api.tilskuddbehandling.task.hentVedtaksbrevInnhold
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.NorskIdent
 import java.time.Instant
+import java.util.UUID
 
 class TilskuddVedtakToPdfDocumentContentMapperTest : FunSpec({
     val database = extension(ApiDatabaseTestListener())
@@ -39,7 +42,14 @@ class TilskuddVedtakToPdfDocumentContentMapperTest : FunSpec({
         prettyPrintIndent = "  "
     }
 
-    val tilskudd = listOf(TilskuddFixtures.TilskuddVedtakInnvilgelse, TilskuddFixtures.TilskuddVedtakAvslag)
+    val innvilgetForskuddsutbetalingTilBruker = TilskuddFixtures.TilskuddVedtakInnvilgelse.copy(
+        id = UUID.randomUUID(),
+        tilskuddId = UUID.randomUUID(),
+        tilskuddOpplaeringType = Opplaeringtilskudd.Kode.SEMESTERAVGIFT,
+        brukerUtbetalingType = BrukerUtbetalingType.FORSKUDD,
+    )
+
+    val tilskudd = listOf(TilskuddFixtures.TilskuddVedtakInnvilgelse, innvilgetForskuddsutbetalingTilBruker, TilskuddFixtures.TilskuddVedtakAvslag)
     val behandling = TilskuddFixtures.Behandling.copy(gjennomforingId = HoyereUtdanning.id, tilskudd = tilskudd)
     val deltaker = DeltakerFixtures.createDeltaker(
         gjennomforingId = HoyereUtdanning.id,
