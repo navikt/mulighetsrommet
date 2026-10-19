@@ -56,7 +56,7 @@ jobs:
       - name: Build
         run: npx turbo run build --filter=arena-adapter-manager
       - name: Upload to Nav CDN
-        uses: nais/deploy/actions/cdn-upload/v2@9850be311389ca754d9a9f2280615419d738c891 # v3
+        uses: nais/deploy/actions/cdn-upload/v2@d003bddf74ce5b96fa3056ae60bd4b9b3bbc89ef # v3
         with:
           team: team-mulighetsrommet
           source: frontend/arena-adapter-manager/dist
@@ -78,7 +78,7 @@ jobs:
       - name: Build
         run: npx turbo run build --filter=arena-adapter-manager
       - name: Upload to Nav CDN
-        uses: nais/deploy/actions/cdn-upload/v2@9850be311389ca754d9a9f2280615419d738c891 # v3
+        uses: nais/deploy/actions/cdn-upload/v2@d003bddf74ce5b96fa3056ae60bd4b9b3bbc89ef # v3
         with:
           team: team-mulighetsrommet
           source: frontend/arena-adapter-manager/dist
