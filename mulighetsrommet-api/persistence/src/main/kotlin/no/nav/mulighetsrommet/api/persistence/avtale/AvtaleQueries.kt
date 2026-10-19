@@ -705,7 +705,6 @@ private fun Row.toPrismodeller(): List<Prismodell> = JsonIgnoreUnknownKeys.decod
         row.tilsagnPerDeltaker,
         row.totalbelop,
         row.tilskudd,
-        row.aarsak,
     )
 }
 
@@ -720,7 +719,6 @@ private data class PrismodellRow(
     val tilsagnPerDeltaker: Boolean?,
     val totalbelop: Int?,
     val tilskudd: Map<Opplaeringtilskudd.Kode, Int>?,
-    val aarsak: String?,
 )
 
 fun Session.createArrayOfAvtaleStatus(

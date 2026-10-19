@@ -11,7 +11,6 @@ import no.nav.mulighetsrommet.admin.gjennomforing.TotrinnskontrollBehandling
 import no.nav.mulighetsrommet.admin.gjennomforing.UpsertEnkeltplass
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
 import no.nav.mulighetsrommet.api.domain.arrangor.Arrangor
-import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollError
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.KategoriseringMapper
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
@@ -148,10 +147,6 @@ private fun toPrismodell(
         )
 
         is GjennomforingRequest.EnkeltplassPrisinformasjon.IngenKostnader -> UpsertEnkeltplass.Prismodell.IngenKostnader(
-            aarsak = when (prisinformasjon.aarsak) {
-                GjennomforingRequest.EnkeltplassPrisinformasjon.IngenKostnader.Aarsak.OPPLAERINGEN_ER_EGENFINANSIERT -> Prismodell.IngenKostnader.Aarsak.OPPLAERINGEN_ER_EGENFINANSIERT
-                GjennomforingRequest.EnkeltplassPrisinformasjon.IngenKostnader.Aarsak.OPPLAERINGEN_ER_KOSTNADSFRI -> Prismodell.IngenKostnader.Aarsak.OPPLAERINGEN_ER_KOSTNADSFRI
-            },
             tilleggsopplysninger = prisinformasjon.tilleggsopplysninger,
         )
     }

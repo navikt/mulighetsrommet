@@ -20,7 +20,6 @@ data class PrismodellDto(
     val tilsagnPerDeltaker: Boolean?,
     val tilskudd: List<TilskuddOgBelop>,
     val totalbelop: ValutaBelop?,
-    val aarsak: Prismodell.IngenKostnader.Aarsak?,
 ) {
     val navn: String = type.navn
     val beskrivelse: List<String> = type.beskrivelse
@@ -80,21 +79,6 @@ fun Prismodell.toPrismodellDto(): PrismodellDto {
         -> null
     }
 
-    val aarsak = when (this) {
-        is Prismodell.IngenKostnader -> aarsak
-
-        is Prismodell.AnnenAvtaltPris,
-        is Prismodell.AnskaffetEnkeltplass,
-        is Prismodell.AvtaltPrisPerBenyttetPlassPerHeleUke,
-        is Prismodell.AvtaltPrisPerBenyttetPlassPerManed,
-        is Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker,
-        is Prismodell.AvtaltPrisPerBenyttetPlassPerUke,
-        is Prismodell.FastSatsPerAvtaltPlassPerManed,
-        is Prismodell.FastSatsPerBenyttetPlassPerManed,
-        is Prismodell.TilskuddTilOpplaering,
-        -> null
-    }
-
     return PrismodellDto(
         id = id,
         type = type,
@@ -106,6 +90,5 @@ fun Prismodell.toPrismodellDto(): PrismodellDto {
         tilsagnPerDeltaker = tilsagnPerDeltaker,
         tilskudd = tilskudd,
         totalbelop = totalbelop,
-        aarsak = aarsak,
     )
 }

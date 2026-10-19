@@ -177,6 +177,25 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
             }
         }
 
+        test("oppretter enkeltplass uten kostnader") {
+            val consumer = createConsumer(service)
+            val ingenKostnader = request.copy(
+                payload = payload.copy(
+                    prisinformasjon = GjennomforingRequest.EnkeltplassPrisinformasjon.IngenKostnader(
+                        tilleggsopplysninger = "Opplæringen er kostnadsfri",
+                    ),
+                ),
+            )
+
+            consumer.consume(gjennomforingId, Json.encodeToJsonElement<GjennomforingRequest>(ingenKostnader))
+
+            database.run {
+                queries.gjennomforing.getPrismodellOrError(gjennomforingId)
+                    .shouldBeTypeOf<Prismodell.IngenKostnader>()
+                    .tilleggsopplysninger shouldBe "Opplæringen er kostnadsfri"
+            }
+        }
+
         test("kaster feil dersom arrangør ikke kan hentes fra brreg") {
             val mockArrangorIkkeFunnet = mockk<SyncArrangorUseCase> {
                 coEvery {

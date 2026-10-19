@@ -71,8 +71,7 @@ data class UpsertEnkeltplass(
         ) : UpsertEnkeltplass.Prismodell
 
         data class IngenKostnader(
-            val aarsak: Prismodell.IngenKostnader.Aarsak,
-            val tilleggsopplysninger: String?,
+            val tilleggsopplysninger: String,
         ) : UpsertEnkeltplass.Prismodell
     }
 }
@@ -671,7 +670,6 @@ class GjennomforingEnkeltplassService(
             id = id,
             valuta = Valuta.NOK,
             tilleggsopplysninger = prismodell.tilleggsopplysninger,
-            aarsak = prismodell.aarsak,
         )
     }
 
@@ -831,7 +829,6 @@ private fun toUpsertPrismodell(prismodell: Prismodell): UpsertEnkeltplass.Prismo
     is Prismodell.AnskaffetEnkeltplass -> UpsertEnkeltplass.Prismodell.Anskaffelse(prismodell.totalbelop.belop)
 
     is Prismodell.IngenKostnader -> UpsertEnkeltplass.Prismodell.IngenKostnader(
-        prismodell.aarsak,
         prismodell.tilleggsopplysninger,
     )
 

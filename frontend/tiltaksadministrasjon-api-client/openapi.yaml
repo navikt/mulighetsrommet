@@ -5287,10 +5287,6 @@ components:
           oneOf:
           - type: "null"
           - $ref: "#/components/schemas/ValutaBelop"
-        aarsak:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/Prismodell.IngenKostnader.Aarsak"
         navn:
           type: string
         beskrivelse:
@@ -5298,7 +5294,6 @@ components:
           items:
             type: string
       required:
-      - aarsak
       - beskrivelse
       - id
       - navn
@@ -5355,11 +5350,6 @@ components:
       - EKSAMENSGEBYR
       - SEMESTERAVGIFT
       - INTEGRERT_BOTILBUD
-    Prismodell.IngenKostnader.Aarsak:
-      type: string
-      enum:
-      - OPPLAERINGEN_ER_KOSTNADSFRI
-      - OPPLAERINGEN_ER_EGENFINANSIERT
     AvtaleDto:
       type: object
       properties:
