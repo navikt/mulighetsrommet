@@ -22,6 +22,7 @@ data class TilskuddVedtak(
     val vedtakResultat: VedtakResultat,
     val utbetalingMottaker: TilskuddMottaker,
     val kid: Kid?,
+    val forskuddsUtbetalingTilBruker: Boolean,
     val utbetalingBelop: ValutaBelop?,
     val kommentarIntern: String?,
     val kommentarVedtaksbrev: String?,

@@ -9447,6 +9447,8 @@ components:
           type:
           - "null"
           - string
+        forskuddsutbetalingTilBruker:
+          type: boolean
         utbetalingBelop:
           oneOf:
           - type: "null"
@@ -9460,6 +9462,7 @@ components:
           - "null"
           - string
       required:
+      - forskuddsutbetalingTilBruker
       - id
       - kid
       - kommentarIntern

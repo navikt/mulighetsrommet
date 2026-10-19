@@ -194,6 +194,7 @@ object TilskuddBehandlingValidator {
             } else {
                 null
             },
+            forskuddsUtbetalingTilBruker = false, // TODO: Implementer logikk for forskuddsutbetaling til bruker
             kommentarIntern = req.kommentarIntern,
             kommentarVedtaksbrev = req.kommentarVedtaksbrev,
         )

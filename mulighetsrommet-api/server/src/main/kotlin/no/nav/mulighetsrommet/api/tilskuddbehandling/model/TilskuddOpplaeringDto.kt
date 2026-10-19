@@ -33,6 +33,7 @@ data class TilskuddOpplaeringDto(
     val kommentarVedtaksbrev: String?,
     val utbetalingMottaker: TilskuddMottaker,
     val kid: Kid?,
+    val forskuddsutbetalingTilBruker: Boolean,
     val utbetalingBelop: ValutaBelop?,
     val kommentarIntern: String?,
     val vedtakJournalpostId: String?,
@@ -50,6 +51,7 @@ data class TilskuddOpplaeringDto(
         kommentarVedtaksbrev = this.kommentarVedtaksbrev,
         utbetalingMottaker = this.utbetalingMottaker,
         kid = this.kid,
+        forskuddsUtbetalingTilBruker = this.forskuddsutbetalingTilBruker,
         kommentarIntern = this.kommentarIntern,
         utbetalingBelop = this.utbetalingBelop,
     )
