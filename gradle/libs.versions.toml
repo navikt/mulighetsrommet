@@ -1,13 +1,13 @@
 [versions]
 common-java-modules = "4.2026.09.01_09.49-e681e09ca089"
-flyway = "13.9.0"
+flyway = "13.10.0"
 jackson2 = "2.22.3"
 jackson3 = "3.2.3"
 koin-bom = "4.2.2"
 kotest = "6.2.5"
-kotlin = "2.4.20"
+kotlin = "2.4.21"
 ktor = "3.6.0"
-netty = "4.2.18.Final"
+netty = "4.2.19.Final"
 logback = "1.6.5"
 metrics = "4.2.40"
 arrow = "2.2.3"
@@ -132,7 +132,7 @@ mockk = "io.mockk:mockk:1.14.11"
 
 nav-common-auditLog = { module = "no.nav.common:audit-log", version.ref = "common-java-modules" }
 nav-common-kafka = { module = "no.nav.common:kafka", version.ref = "common-java-modules" }
-nav-mockOauth2Server = "no.nav.security:mock-oauth2-server:6.0.4"
+nav-mockOauth2Server = "no.nav.security:mock-oauth2-server:6.0.5"
 nav-poaoTilgang-client = "no.nav.poao-tilgang:client:2025.11.03_13.40-18456d0598be"
 
 netty-codec-http2 = { module = "io.netty:netty-codec-http2", version.ref = "netty" }
@@ -146,9 +146,9 @@ netty-transport-native-kqueue = { module = "io.netty:netty-transport-native-kque
 netty-transport-native-unix-common = { module = "io.netty:netty-transport-native-unix-common", version.ref = "netty" }
 netty-transport = { module = "io.netty:netty-transport", version.ref = "netty" }
 
-opentelemetry = "io.opentelemetry:opentelemetry-sdk-trace:1.66.0"
+opentelemetry = "io.opentelemetry:opentelemetry-sdk-trace:1.67.0"
 
-postgresql = "org.postgresql:postgresql:42.7.13"
+postgresql = "org.postgresql:postgresql:42.7.14"
 
 prometheus-caffeine = "io.prometheus:simpleclient_caffeine:0.16.0"
 
