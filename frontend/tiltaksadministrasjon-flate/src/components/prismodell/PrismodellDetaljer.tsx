@@ -7,7 +7,7 @@ import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { AvtaltSatsDto, PrismodellDto, PrismodellType } from "@tiltaksadministrasjon/api-client";
 import { formaterDato } from "@mr/frontend-common/utils/date";
 import { formaterValuta, formaterValutaBelop } from "@mr/frontend-common/utils/utils";
-import { ingenKostnaderAarsakToString, opplaeringTilskuddToString } from "@/utils/Utils";
+import { opplaeringTilskuddToString } from "@/utils/Utils";
 import { Definisjonsliste } from "@mr/frontend-common/components/definisjonsliste/Definisjonsliste";
 
 interface PrismodellDetaljerProps {
@@ -135,21 +135,13 @@ function PrisOgBetalingsbetingelserIngenKostnader({ prismodell }: PrismodellDeta
   return (
     <VStack gap="space-8">
       <Heading level="4" size="xsmall">
-        Ingen kostnader
+        Nav skal ikke betale for opplæringen
       </Heading>
       <BodyShort>Ikke aktuelt med betaling eller refusjon fra Nav</BodyShort>
-      {prismodell.aarsak && (
-        <>
-          <Heading level="4" size="xsmall">
-            Årsaken til at det ikke er aktuelt med betaling eller refusjon fra Nav
-          </Heading>
-          <BodyShort>{ingenKostnaderAarsakToString(prismodell.aarsak)}</BodyShort>
-        </>
-      )}
       {prismodell.prisbetingelser && (
         <>
           <Heading level="4" size="xsmall">
-            Tilleggsopplysninger om egenfinansieringen
+            Tilleggsopplysninger
           </Heading>
           <BodyShort>{prismodell.prisbetingelser}</BodyShort>
         </>

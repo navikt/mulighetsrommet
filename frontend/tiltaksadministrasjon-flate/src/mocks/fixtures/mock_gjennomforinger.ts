@@ -28,7 +28,6 @@ const arrangor: GjennomforingDtoArrangor = {
 };
 
 const prismodellAnnenAvtaltPris: PrismodellDto = {
-  aarsak: null,
   id: "d136d6a4-c812-4d28-81db-b688187e4e32",
   totalbelop: null,
   tilskudd: [],

@@ -2,7 +2,6 @@ package no.nav.mulighetsrommet.api.persistence.tiltak
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.maps.shouldBeEmpty
-import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
@@ -82,36 +81,12 @@ class PrismodellQueriesTest : FunSpec({
     }
 
     context("IngenKostnader") {
-        test("lagrer og henter aarsak") {
-            database.runAndRollback {
-                val ingenKostnader = Prismodell.IngenKostnader(
-                    id = UUID.randomUUID(),
-                    valuta = Valuta.NOK,
-                    tilleggsopplysninger = null,
-                    aarsak = Prismodell.IngenKostnader.Aarsak.OPPLAERINGEN_ER_KOSTNADSFRI,
-                )
-
-                prismodell.upsert(ingenKostnader)
-
-                prismodell.getOrError(ingenKostnader.id).shouldBeTypeOf<Prismodell.IngenKostnader>().should {
-                    it.aarsak shouldBe Prismodell.IngenKostnader.Aarsak.OPPLAERINGEN_ER_KOSTNADSFRI
-                }
-
-                prismodell.upsert(ingenKostnader.copy(aarsak = Prismodell.IngenKostnader.Aarsak.OPPLAERINGEN_ER_EGENFINANSIERT))
-
-                prismodell.getOrError(ingenKostnader.id).shouldBeTypeOf<Prismodell.IngenKostnader>().should {
-                    it.aarsak shouldBe Prismodell.IngenKostnader.Aarsak.OPPLAERINGEN_ER_EGENFINANSIERT
-                }
-            }
-        }
-
         test("lagrer og henter tilleggsopplysninger") {
             database.runAndRollback {
                 val ingenKostnader = Prismodell.IngenKostnader(
                     id = UUID.randomUUID(),
                     valuta = Valuta.NOK,
                     tilleggsopplysninger = "Finansiert av arbeidsgiver",
-                    aarsak = Prismodell.IngenKostnader.Aarsak.OPPLAERINGEN_ER_KOSTNADSFRI,
                 )
 
                 prismodell.upsert(ingenKostnader)
@@ -120,10 +95,10 @@ class PrismodellQueriesTest : FunSpec({
                     it.tilleggsopplysninger shouldBe "Finansiert av arbeidsgiver"
                 }
 
-                prismodell.upsert(ingenKostnader.copy(tilleggsopplysninger = null))
+                prismodell.upsert(ingenKostnader.copy(tilleggsopplysninger = "Opplæringen er kostnadsfri"))
 
                 prismodell.getOrError(ingenKostnader.id).shouldBeTypeOf<Prismodell.IngenKostnader>().should {
-                    it.tilleggsopplysninger.shouldBeNull()
+                    it.tilleggsopplysninger shouldBe "Opplæringen er kostnadsfri"
                 }
             }
         }

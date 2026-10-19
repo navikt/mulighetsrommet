@@ -136,16 +136,10 @@ sealed interface Prismodell {
         @Serializable(with = UUIDSerializer::class)
         override val id: UUID,
         override val valuta: Valuta,
-        val aarsak: Aarsak,
-        val tilleggsopplysninger: String?,
+        val tilleggsopplysninger: String,
     ) : Prismodell {
         @Transient
         override val type = PrismodellType.INGEN_KOSTNADER
-
-        enum class Aarsak {
-            OPPLAERINGEN_ER_KOSTNADSFRI,
-            OPPLAERINGEN_ER_EGENFINANSIERT,
-        }
     }
 
     fun satser(): List<AvtaltSats> = when (this) {
@@ -191,7 +185,6 @@ sealed interface Prismodell {
             tilsagnPerDeltaker: Boolean?,
             totalbelop: Int? = null,
             tilskudd: Map<Opplaeringtilskudd.Kode, Int>? = null,
-            aarsak: String? = null,
         ): Prismodell {
             return when (type) {
                 PrismodellType.ANNEN_AVTALT_PRIS -> AnnenAvtaltPris(
@@ -257,8 +250,7 @@ sealed interface Prismodell {
                 PrismodellType.INGEN_KOSTNADER -> IngenKostnader(
                     id = id,
                     valuta = valuta,
-                    tilleggsopplysninger = prisbetingelser,
-                    aarsak = IngenKostnader.Aarsak.valueOf(requireNotNull(aarsak)),
+                    tilleggsopplysninger = requireNotNull(prisbetingelser),
                 )
             }
         }

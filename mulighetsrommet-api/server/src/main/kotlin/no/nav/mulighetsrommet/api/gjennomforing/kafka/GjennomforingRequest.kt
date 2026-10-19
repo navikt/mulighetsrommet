@@ -94,14 +94,8 @@ sealed interface GjennomforingRequest {
         @Serializable
         @SerialName("IngenKostnader")
         data class IngenKostnader(
-            val aarsak: Aarsak,
-            val tilleggsopplysninger: String?,
-        ) : EnkeltplassPrisinformasjon {
-            enum class Aarsak {
-                OPPLAERINGEN_ER_KOSTNADSFRI,
-                OPPLAERINGEN_ER_EGENFINANSIERT,
-            }
-        }
+            val tilleggsopplysninger: String,
+        ) : EnkeltplassPrisinformasjon
     }
 
     @Serializable
