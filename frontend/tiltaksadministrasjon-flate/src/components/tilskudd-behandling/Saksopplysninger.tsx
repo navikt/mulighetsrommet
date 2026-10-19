@@ -21,6 +21,7 @@ interface SaksopplysningerProps {
   utbetalingMottaker: TilskuddMottaker | null;
   belop: number | null;
   kid: string | null;
+  forskuddsutbetalingTilBruker: boolean | null;
   betalingsinformasjon: Betalingsinformasjon | null;
 }
 
@@ -33,6 +34,7 @@ export function Saksopplysninger({
   utbetalingMottaker,
   belop,
   kid,
+  forskuddsutbetalingTilBruker,
   betalingsinformasjon,
 }: SaksopplysningerProps) {
   return (
@@ -61,7 +63,9 @@ export function Saksopplysninger({
         },
         {
           key: "Hvem skal motta utbetalingen?",
-          value: utbetalingMottaker ? tilskuddMottakerToString(utbetalingMottaker) : "-",
+          value: utbetalingMottaker
+            ? tilskuddMottakerToString(utbetalingMottaker, forskuddsutbetalingTilBruker)
+            : "-",
           spanColumns: true,
         },
         ...(utbetalingMottaker === TilskuddMottaker.ARRANGOR &&

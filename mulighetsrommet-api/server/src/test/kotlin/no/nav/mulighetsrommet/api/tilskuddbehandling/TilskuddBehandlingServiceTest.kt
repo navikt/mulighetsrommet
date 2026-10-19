@@ -90,6 +90,7 @@ class TilskuddBehandlingServiceTest : FunSpec({
                 kommentarVedtaksbrev = null,
                 utbetalingMottaker = TilskuddMottaker.ARRANGOR,
                 kidNummer = "116",
+                brukerUtbetalingType = null,
                 belop = 100,
                 periodeStart = "2025-01-01",
                 periodeSlutt = "2025-07-01",

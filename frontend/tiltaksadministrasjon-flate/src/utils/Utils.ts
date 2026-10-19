@@ -178,7 +178,21 @@ export function opplaeringTilskuddToString(tilskuddType: OpplaeringtilskuddKode)
   }
 }
 
-export function tilskuddMottakerToString(mottaker: TilskuddMottaker): string {
+export function tilskuddMottakerToString(
+  mottaker: TilskuddMottaker,
+  forskuddsutbetalingTilBruker: boolean | null,
+): string {
+  switch (mottaker) {
+    case TilskuddMottaker.BRUKER: {
+      const postfix = forskuddsutbetalingTilBruker ? ", som forskudd" : ", som refusjon av utlegg";
+      return "Brukeren" + postfix;
+    }
+    case TilskuddMottaker.ARRANGOR:
+      return "Arrangøren";
+  }
+}
+
+export function tilskuddMottakerTabellToString(mottaker: TilskuddMottaker): string {
   switch (mottaker) {
     case TilskuddMottaker.BRUKER:
       return "Utbetales til brukeren";

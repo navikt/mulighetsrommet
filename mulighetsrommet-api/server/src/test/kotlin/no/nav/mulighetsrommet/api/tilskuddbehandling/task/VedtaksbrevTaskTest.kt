@@ -248,6 +248,7 @@ private suspend fun opprettOgGodkjennTilskudd(
                 vedtakResultat = VedtakResultat.INNVILGELSE,
                 kommentarVedtaksbrev = null,
                 utbetalingMottaker = TilskuddMottaker.BRUKER,
+                forskuddsutbetalingTilBruker = false,
                 kidNummer = null,
                 belop = 5000,
                 kommentarIntern = null,
