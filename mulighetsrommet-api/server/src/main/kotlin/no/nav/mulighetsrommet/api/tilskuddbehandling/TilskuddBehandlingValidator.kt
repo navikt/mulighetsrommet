@@ -8,7 +8,6 @@ import no.nav.mulighetsrommet.admin.journalpost.ForventetBruker
 import no.nav.mulighetsrommet.admin.journalpost.JournalpostValidator
 import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.domain.gjennomforing.Gjennomforing
-import no.nav.mulighetsrommet.api.tilskuddbehandling.db.BrukerUtbetalingType
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandling
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddVedtak
@@ -133,6 +132,14 @@ object TilskuddBehandlingValidator {
                 )
             }
         }
+        if (req.utbetalingMottaker == TilskuddMottaker.BRUKER) {
+            validateNotNull(req.brukerUtbetalingType) {
+                FieldError(
+                    "/tilskudd/$index/brukerUtbetalingType",
+                    "Du må gjøre et valg",
+                )
+            }
+        }
         validate((req.kommentarVedtaksbrev?.length ?: 0) <= 500) {
             FieldError(
                 "/tilskudd/$index/kommentarVedtaksbrev",
@@ -186,7 +193,7 @@ object TilskuddBehandlingValidator {
             kostnadssted = req.kostnadssted,
             vedtakResultat = req.vedtakResultat,
             utbetalingMottaker = req.utbetalingMottaker,
-            kid = kid,
+            kid = kid.takeIf { req.utbetalingMottaker == TilskuddMottaker.ARRANGOR },
             utbetalingBelop = if (req.vedtakResultat == VedtakResultat.INNVILGELSE) {
                 ValutaBelop(
                     requireNotNull(req.belop),
@@ -195,7 +202,7 @@ object TilskuddBehandlingValidator {
             } else {
                 null
             },
-            brukerUtbetalingType = BrukerUtbetalingType.REFUSJON.takeIf { req.utbetalingMottaker == TilskuddMottaker.BRUKER }, // TODO: Implementer logikk for forskuddsutbetaling til bruker
+            brukerUtbetalingType = req.brukerUtbetalingType.takeIf { req.utbetalingMottaker == TilskuddMottaker.BRUKER },
             kommentarIntern = req.kommentarIntern,
             kommentarVedtaksbrev = req.kommentarVedtaksbrev,
         )

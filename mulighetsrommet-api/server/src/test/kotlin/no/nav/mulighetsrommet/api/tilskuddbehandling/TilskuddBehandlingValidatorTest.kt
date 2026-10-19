@@ -59,6 +59,7 @@ class TilskuddBehandlingValidatorTest : FunSpec({
         kommentarVedtaksbrev = "Vedtakskommentar",
         utbetalingMottaker = TilskuddMottaker.ARRANGOR,
         kidNummer = "116",
+        brukerUtbetalingType = null,
         belop = 2000,
         periodeStart = periodeStart.toString(),
         periodeSlutt = periodeSlutt.toString(),

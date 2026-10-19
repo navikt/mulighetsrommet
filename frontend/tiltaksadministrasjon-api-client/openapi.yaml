@@ -9614,6 +9614,10 @@ components:
           type:
           - "null"
           - string
+        forskuddsutbetalingTilBruker:
+          type:
+          - "null"
+          - boolean
         belop:
           type:
           - "null"
@@ -9637,6 +9641,7 @@ components:
           - string
       required:
       - belop
+      - forskuddsutbetalingTilBruker
       - id
       - kidNummer
       - kommentarIntern
@@ -9849,9 +9854,12 @@ components:
           format: uuid
         belop:
           $ref: "#/components/schemas/ValutaBelop"
+        forskuddsUtbetaling:
+          type: boolean
       required:
       - belop
       - brukerUtbetalingId
+      - forskuddsUtbetaling
     TilskuddHandling:
       type: string
       enum:
