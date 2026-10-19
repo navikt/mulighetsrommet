@@ -92,8 +92,9 @@ export function TilskuddDetaljerPage() {
                         key: "Utbetaling mottaker",
                         value: tilskuddMottakerToString(
                           vedtak.utbetalingMottaker,
-                          vedtak.utbetaling?.type === "BRUKER" &&
-                            vedtak.utbetaling.forskuddsUtbetaling,
+                          (vedtak.utbetaling?.type === "BRUKER" &&
+                            vedtak.utbetaling.brukerUtbetalingType) ||
+                            null,
                         ),
                       },
                       { key: "Kommentar til brukeren", value: vedtak.kommentarVedtaksbrev ?? "-" },

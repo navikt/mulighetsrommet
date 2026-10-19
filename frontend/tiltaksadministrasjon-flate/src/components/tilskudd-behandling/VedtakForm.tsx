@@ -74,7 +74,7 @@ export function VedtakForm({ arrangorId }: { arrangorId: string }) {
                 utbetalingMottaker={t.utbetalingMottaker}
                 tilskuddOpplaeringType={t.tilskuddOpplaeringType}
                 kid={t.kidNummer}
-                forskuddsutbetalingTilBruker={t.forskuddsutbetalingTilBruker}
+                brukerUtbetalingType={t.brukerUtbetalingType}
                 betalingsinformasjon={betalingsinformasjon ?? null}
               />
               <Separator />

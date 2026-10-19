@@ -55,7 +55,7 @@ data class Tilskudd(
                 @Serializable(with = UUIDSerializer::class)
                 val brukerUtbetalingId: UUID?,
                 val belop: ValutaBelop,
-                val forskuddsUtbetaling: Boolean,
+                val brukerUtbetalingType: BrukerUtbetalingType,
             ) : Utbetaling
 
             @Serializable
