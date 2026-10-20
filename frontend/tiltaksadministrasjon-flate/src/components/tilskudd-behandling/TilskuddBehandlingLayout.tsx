@@ -6,8 +6,6 @@ import { GjennomforingEnkeltplassHeader } from "../gjennomforing/GjennomforingEn
 import { HeaderBanner } from "@/layouts/HeaderBanner";
 import { TilskuddIkon } from "@/components/ikoner/TilskuddIkon";
 
-export type TilskuddBehandlingTab = "saksopplysninger" | "vedtak";
-
 interface Props {
   gjennomforingId: string;
   children: React.ReactNode;
