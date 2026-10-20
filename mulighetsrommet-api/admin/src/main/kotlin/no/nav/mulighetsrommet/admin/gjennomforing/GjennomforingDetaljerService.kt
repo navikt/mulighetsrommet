@@ -41,6 +41,7 @@ import no.nav.mulighetsrommet.spreadsheet.ExcelWorkbookBuilder
 import no.nav.mulighetsrommet.spreadsheet.buildExcelWorkbook
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import java.io.File
+import java.time.LocalDate
 import java.util.UUID
 import kotlin.io.path.createTempFile
 import kotlin.io.path.outputStream
@@ -115,7 +116,7 @@ class GjennomforingDetaljerService(
                     val veilederNavn = deltaker.navVeileder?.navIdent?.let {
                         navAnsattService.getNavAnsattNavnFromAzure(it, AccessType.M2M)
                     }
-                    DeltakerDto.from(deltaker, personalia, veilederNavn)
+                    DeltakerDto.from(deltaker, personalia, veilederNavn, dato = LocalDate.now())
                 }
 
                 val opplaringKategorisering = db.session { queries.opplaering.get(gjennomforing.id) }
