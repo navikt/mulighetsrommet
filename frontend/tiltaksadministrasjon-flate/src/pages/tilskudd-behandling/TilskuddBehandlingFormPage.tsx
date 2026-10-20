@@ -1,10 +1,7 @@
 import { useOpprettTilskuddBehandling } from "@/api/tilskudd-behandling/mutations";
 import { defaultTilskuddRequest } from "@/components/tilskudd-behandling/defaultTilskuddRequest";
-import {
-  SaksopplysningerForm,
-  saksopplysningerSchema,
-} from "@/components/tilskudd-behandling/SaksopplysningerForm";
-import { VedtakForm, vedtakSchema } from "@/components/tilskudd-behandling/VedtakForm";
+import { SaksopplysningerForm } from "@/components/tilskudd-behandling/SaksopplysningerForm";
+import { VedtakForm } from "@/components/tilskudd-behandling/VedtakForm";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
 import { TilskuddBehandlingRequest, ValidationError } from "@tiltaksadministrasjon/api-client";
 import { Box, Button, HStack } from "@navikt/ds-react";
@@ -25,6 +22,7 @@ import { useVedtaksbrevPdfBlobPost } from "@/api/tilskudd-behandling/useVedtaksb
 import { PrisOgBetalingsbetingelser } from "@/components/prismodell/PrisOgBetalingsbetingelser";
 import { WizardStep } from "@/hooks/useWizardForm";
 import { WizardForm } from "@/components/skjema/WizardForm";
+import { saksopplysningerSchema, vedtakSchema } from "@/components/tilskudd-behandling/validation";
 
 export function TilskuddBehandlingFormPage() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);

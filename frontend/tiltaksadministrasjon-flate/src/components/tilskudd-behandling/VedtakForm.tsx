@@ -19,7 +19,6 @@ import { Saksopplysninger } from "./Saksopplysninger";
 import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
 import { opplaeringTilskuddToString } from "@/utils/Utils";
 import { useArrangorBetalingsinformasjon } from "@/api/arrangor/useArrangorBetalingsinformasjon";
-import z from "zod";
 
 export function VedtakForm({ arrangorId }: { arrangorId: string }) {
   const {
@@ -152,37 +151,3 @@ export function VedtakForm({ arrangorId }: { arrangorId: string }) {
     </>
   );
 }
-
-export const vedtakSchema = z
-  .object({
-    tilskudd: z.array(
-      z
-        .object({
-          vedtakResultat: z.enum(VedtakResultat, { error: "Vedtaksresultat er påkrevd" }),
-          belop: z.number().int("Beløp må være et heltall").nullable(),
-          kommentarVedtaksbrev: z.string().nullable(),
-          kommentarIntern: z.string().nullable(),
-        })
-        .loose()
-        .superRefine((tilskudd, ctx) => {
-          if (tilskudd.vedtakResultat === VedtakResultat.INNVILGELSE && tilskudd.belop === null) {
-            ctx.addIssue({
-              code: "custom",
-              path: ["belop"],
-              message: "Beløp må være et heltall",
-            });
-          }
-          if (
-            tilskudd.vedtakResultat === VedtakResultat.AVSLAG &&
-            !tilskudd.kommentarVedtaksbrev?.trim()
-          ) {
-            ctx.addIssue({
-              code: "custom",
-              path: ["kommentarVedtaksbrev"],
-              message: "Kommentar til deltaker må fylles ut ved avslag",
-            });
-          }
-        }),
-    ),
-  })
-  .loose();
