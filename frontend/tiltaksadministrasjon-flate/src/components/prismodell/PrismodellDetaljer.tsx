@@ -135,9 +135,9 @@ function PrisOgBetalingsbetingelserIngenKostnader({ prismodell }: PrismodellDeta
   return (
     <VStack gap="space-8">
       <Heading level="4" size="xsmall">
-        Nav skal ikke betale for opplæringen
+        Ingen kostnader
       </Heading>
-      <BodyShort>Ikke aktuelt med betaling eller refusjon fra Nav</BodyShort>
+      <BodyShort>Nav skal ikke betale for opplæringen</BodyShort>
       {prismodell.prisbetingelser && (
         <>
           <Heading level="4" size="xsmall">
