@@ -5,6 +5,8 @@ import {
 } from "@tiltaksadministrasjon/api-client";
 import z from "zod";
 
+const belopFraFakturaError = "Beløp fra faktura må være positivt";
+
 export const saksopplysningerSchema = z
   .object({
     tilskudd: z
@@ -29,13 +31,12 @@ export const saksopplysningerSchema = z
             tilskuddOpplaeringType: z.enum(OpplaeringtilskuddKode, {
               error: "Tilskuddstype er påkrevd",
             }),
-            soknadBelop: z
-              .object({
-                belop: z
-                  .number({ error: "Beløp må være et heltall" })
-                  .int("Beløp må være et heltall"),
-              })
-              .loose(),
+            soknadBelop: z.object({
+              belop: z
+                .number({ error: belopFraFakturaError })
+                .int(belopFraFakturaError)
+                .positive(belopFraFakturaError),
+            }),
             utbetalingMottaker: z.enum(TilskuddMottaker, {
               error: "Mottaker må være satt",
             }),
@@ -46,13 +47,19 @@ export const saksopplysningerSchema = z
   })
   .loose();
 
+const belopTilUtbetalingError = "Beløp til utbetaling må være positivt";
+
 export const vedtakSchema = z
   .object({
     tilskudd: z.array(
       z
         .object({
           vedtakResultat: z.enum(VedtakResultat, { error: "Vedtaksresultat er påkrevd" }),
-          belop: z.number().int("Beløp må være et heltall").nullable(),
+          belop: z
+            .number(belopTilUtbetalingError)
+            .int(belopTilUtbetalingError)
+            .positive(belopTilUtbetalingError)
+            .nullable(),
           kommentarVedtaksbrev: z.string().nullable(),
           kommentarIntern: z.string().nullable(),
         })
@@ -62,7 +69,7 @@ export const vedtakSchema = z
             ctx.addIssue({
               code: "custom",
               path: ["belop"],
-              message: "Beløp må være et heltall",
+              message: "Beløp til utbetaling må oppgis ved innvilgelse",
             });
           }
           if (
