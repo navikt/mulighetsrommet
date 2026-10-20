@@ -62,10 +62,10 @@ jobs:
         uses: ./.github/actions/setup-frontend
         env:
           NODE_AUTH_TOKEN: ${{ secrets.READER_TOKEN }}
-      - name: Generate React Router types
-        run: npx turbo run typegen --filter=@arrangor-utbetalinger/flate
+      - name: Typecheck & Lint
+        run: npx turbo run typecheck lint --filter=@arrangor-utbetalinger/flate
       - name: Test
-        run: npx turbo run lint typecheck test playwright --filter=@arrangor-utbetalinger/flate
+        run: npx turbo run test playwright --filter=@arrangor-utbetalinger/flate
 
   deploy-til-demo:
     name: Deploy demo
