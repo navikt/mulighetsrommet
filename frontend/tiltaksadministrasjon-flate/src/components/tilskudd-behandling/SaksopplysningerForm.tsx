@@ -52,6 +52,9 @@ export function SaksopplysningerForm({ arrangorId, ansvarligEnhet }: Props) {
     };
   }
 
+  const tilskuddstype = Object.keys(OpplaeringtilskuddKode) as OpplaeringtilskuddKode[];
+  tilskuddstype.sort((a: OpplaeringtilskuddKode, b: OpplaeringtilskuddKode) => a.localeCompare(b));
+
   return (
     <>
       <Heading size="medium" level="3" spacing>
@@ -101,13 +104,11 @@ export function SaksopplysningerForm({ arrangorId, ansvarligEnhet }: Props) {
                   rules={{ required: "Tilskuddstype er påkrevd" }}
                 >
                   <option value="">-- Velg tilskuddstype --</option>
-                  {(Object.keys(OpplaeringtilskuddKode) as OpplaeringtilskuddKode[]).map(
-                    (tilskudd) => (
-                      <option key={tilskudd} value={tilskudd}>
-                        {opplaeringTilskuddToString(tilskudd)}
-                      </option>
-                    ),
-                  )}
+                  {tilskuddstype.map((tilskudd) => (
+                    <option key={tilskudd} value={tilskudd}>
+                      {opplaeringTilskuddToString(tilskudd)}
+                    </option>
+                  ))}
                 </FormSelect>
                 <HStack gap="space-16" align="start">
                   <TextField
