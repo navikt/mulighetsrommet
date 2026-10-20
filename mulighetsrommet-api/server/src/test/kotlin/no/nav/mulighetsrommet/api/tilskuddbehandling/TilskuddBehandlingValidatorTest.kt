@@ -170,6 +170,20 @@ class TilskuddBehandlingValidatorTest : FunSpec({
             )
     }
 
+    test("avviser søknadsdato frem i tid") {
+        val request = validTilskuddRequest().copy(soknadDato = LocalDate.now().plusDays(1))
+
+        TilskuddBehandlingValidator.validateTilskuddRequest(
+            req = request,
+            index = 0,
+            gjennomforing = createGjennomforing(),
+            gyldigTilsagnPeriode = gyldigTilsagnPeriode,
+            arrangorBetalingsinformasjon = arrangorBetalingsinformasjon,
+        ) { journalpostId, _ -> JournalpostId(journalpostId).right() } shouldBeLeft listOf(
+            FieldError("/tilskudd/0/soknadDato", "Søknadsdato kan ikke være frem i tid"),
+        )
+    }
+
     test("krever vedtaksresultat") {
         val request = validTilskuddRequest().copy(vedtakResultat = null)
 
