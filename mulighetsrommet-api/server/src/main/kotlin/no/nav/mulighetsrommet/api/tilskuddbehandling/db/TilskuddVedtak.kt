@@ -22,7 +22,7 @@ data class TilskuddVedtak(
     val vedtakResultat: VedtakResultat,
     val utbetalingMottaker: TilskuddMottaker,
     val kid: Kid?,
-    val forskuddsUtbetalingTilBruker: Boolean,
+    val brukerUtbetalingType: BrukerUtbetalingType?,
     val utbetalingBelop: ValutaBelop?,
     val kommentarIntern: String?,
     val kommentarVedtaksbrev: String?,
@@ -31,4 +31,9 @@ data class TilskuddVedtak(
 enum class TilskuddMottaker {
     BRUKER,
     ARRANGOR,
+}
+
+enum class BrukerUtbetalingType {
+    FORSKUDD,
+    REFUSJON,
 }

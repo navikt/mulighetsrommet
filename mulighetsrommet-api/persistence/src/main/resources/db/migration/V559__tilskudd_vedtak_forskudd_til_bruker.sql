@@ -1,11 +1,15 @@
 drop view if exists view_tilskudd_vedtak;
 drop view if exists view_tilskudd_behandling;
 
-alter table tilskudd_vedtak add column forskudd_til_bruker boolean;
+create table bruker_utbetaling_type (
+    value text primary key
+);
+
+insert into bruker_utbetaling_type (value) values ('FORSKUDD'), ('REFUSJON');
+
+alter table tilskudd_vedtak add column bruker_utbetaling_type text references bruker_utbetaling_type(value);
 
 update tilskudd_vedtak
-    set forskudd_til_bruker = false
-where forskudd_til_bruker is null;
+    set bruker_utbetaling_type = 'REFUSJON'
+where utbetaling_mottaker = 'BRUKER';
 
-alter table tilskudd_vedtak
-    alter column forskudd_til_bruker set not null;

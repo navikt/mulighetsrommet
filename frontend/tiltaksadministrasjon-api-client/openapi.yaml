@@ -9447,8 +9447,10 @@ components:
           type:
           - "null"
           - string
-        forskuddsutbetalingTilBruker:
-          type: boolean
+        brukerUtbetalingType:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/BrukerUtbetalingType"
         utbetalingBelop:
           oneOf:
           - type: "null"
@@ -9462,7 +9464,7 @@ components:
           - "null"
           - string
       required:
-      - forskuddsutbetalingTilBruker
+      - brukerUtbetalingType
       - id
       - kid
       - kommentarIntern
@@ -9479,6 +9481,11 @@ components:
       - utbetalingMottaker
       - vedtakJournalpostId
       - vedtakResultat
+    BrukerUtbetalingType:
+      type: string
+      enum:
+      - FORSKUDD
+      - REFUSJON
     TilskuddBehandlingStatusDto:
       type: object
       properties:

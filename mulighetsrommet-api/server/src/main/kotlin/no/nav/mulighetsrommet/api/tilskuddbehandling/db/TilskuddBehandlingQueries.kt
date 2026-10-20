@@ -144,7 +144,7 @@ class TilskuddBehandlingQueries(private val session: Session) {
                 kommentar_intern,
                 utbetaling_mottaker,
                 kid,
-                forskudd_til_bruker,
+                bruker_utbetaling_type,
                 belop,
                 valuta
             ) values (
@@ -163,7 +163,7 @@ class TilskuddBehandlingQueries(private val session: Session) {
              :kommentar_intern,
              :utbetaling_mottaker,
              :kid,
-             :forskudd_til_bruker,
+             :bruker_utbetaling_type,
              :belop,
              :valuta::currency
          ) on conflict (id) do update set
@@ -180,7 +180,7 @@ class TilskuddBehandlingQueries(private val session: Session) {
               kommentar_intern = excluded.kommentar_intern,
               utbetaling_mottaker = excluded.utbetaling_mottaker,
               kid = excluded.kid,
-              forskudd_til_bruker = excluded.forskudd_til_bruker,
+              bruker_utbetaling_type = excluded.bruker_utbetaling_type,
               belop = excluded.belop,
               valuta = excluded.valuta
          returning id)
@@ -202,7 +202,7 @@ class TilskuddBehandlingQueries(private val session: Session) {
             "kommentar_intern" to tilskuddVedtak.kommentarIntern,
             "utbetaling_mottaker" to tilskuddVedtak.utbetalingMottaker.name,
             "kid" to tilskuddVedtak.kid?.value,
-            "forskudd_til_bruker" to tilskuddVedtak.forskuddsUtbetalingTilBruker,
+            "bruker_utbetaling_type" to tilskuddVedtak.brukerUtbetalingType?.name,
             "belop" to tilskuddVedtak.utbetalingBelop?.belop,
             "valuta" to tilskuddVedtak.utbetalingBelop?.valuta?.name,
         )
@@ -378,8 +378,8 @@ private data class TilskuddVedtakViewRow(
     val vedtakResultat: VedtakResultatViewRow,
     val kommentarVedtaksbrev: String?,
     val utbetalingMottaker: TilskuddMottaker,
-    @SerialName("forskudd_til_bruker")
-    val forskuddsutbetalingTilBruker: Boolean,
+    @SerialName("bruker_utbetaling_type")
+    val brukerUtbetalingType: BrukerUtbetalingType?,
     val kid: Kid?,
     val kommentarIntern: String?,
     val vedtakJournalpostId: String?,
@@ -440,7 +440,7 @@ private fun TilskuddVedtakViewRow.toDto(): TilskuddOpplaeringDto {
         kommentarVedtaksbrev = kommentarVedtaksbrev,
         utbetalingMottaker = utbetalingMottaker,
         kid = kid,
-        forskuddsutbetalingTilBruker = forskuddsutbetalingTilBruker,
+        brukerUtbetalingType = brukerUtbetalingType,
         utbetalingBelop = utbetalingBelop,
         kommentarIntern = kommentarIntern,
         vedtakJournalpostId = vedtakJournalpostId,

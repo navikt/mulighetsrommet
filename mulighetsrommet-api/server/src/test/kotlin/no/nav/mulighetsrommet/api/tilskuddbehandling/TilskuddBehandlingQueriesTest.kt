@@ -10,6 +10,7 @@ import no.nav.mulighetsrommet.api.domain.testing.fixture.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures
+import no.nav.mulighetsrommet.api.tilskuddbehandling.db.BrukerUtbetalingType
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandling
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddVedtak
@@ -54,7 +55,7 @@ class TilskuddBehandlingQueriesTest : FunSpec({
                 kommentarVedtaksbrev = "k1",
                 utbetalingMottaker = TilskuddMottaker.BRUKER,
                 kid = null,
-                forskuddsUtbetalingTilBruker = false,
+                brukerUtbetalingType = BrukerUtbetalingType.REFUSJON,
                 soknadJournalpostId = JournalpostId("123"),
                 soknadDato = LocalDate.of(2024, 1, 15),
                 periode = Periode(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 7, 1)),
@@ -77,7 +78,7 @@ class TilskuddBehandlingQueriesTest : FunSpec({
                 kommentarVedtaksbrev = "k2",
                 utbetalingMottaker = TilskuddMottaker.ARRANGOR,
                 kid = Kid.parse("116"),
-                forskuddsUtbetalingTilBruker = false,
+                brukerUtbetalingType = null,
                 soknadJournalpostId = JournalpostId("123"),
                 soknadDato = LocalDate.of(2024, 1, 15),
                 periode = Periode(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 7, 1)),
@@ -97,7 +98,7 @@ class TilskuddBehandlingQueriesTest : FunSpec({
                 kommentarVedtaksbrev = "k2",
                 utbetalingMottaker = TilskuddMottaker.ARRANGOR,
                 kid = null,
-                forskuddsUtbetalingTilBruker = false,
+                brukerUtbetalingType = null,
                 soknadJournalpostId = JournalpostId("123"),
                 soknadDato = LocalDate.of(2024, 1, 15),
                 periode = Periode(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 7, 1)),
