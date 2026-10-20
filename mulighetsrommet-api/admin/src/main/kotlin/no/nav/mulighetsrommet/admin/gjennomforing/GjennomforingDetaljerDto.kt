@@ -183,20 +183,27 @@ data class DeltakerDto(
     val dagerPerUke: Float?,
 ) {
     companion object {
-        fun from(deltaker: Deltaker, personalia: Personalia, navVeilederNavn: String?) = DeltakerDto(
-            id = deltaker.id,
-            status = deltaker.status.type.toDataElement(),
-            innholdAnnet = deltaker.innholdAnnet,
-            navn = personalia.navn(),
-            norskIdent = personalia.norskIdent(),
-            oppfolgingEnhet = personalia.oppfolgingEnhet(),
-            avvistGrunn = personalia.avvistGrunn,
-            gradering = personalia.gradering,
-            startDato = deltaker.startDato,
-            sluttDato = deltaker.sluttDato,
-            navVeilederNavn = navVeilederNavn,
-            dagerPerUke = deltaker.deltakelsesmengder.lastOrNull { it.gyldigFra <= LocalDate.now() }?.dagerPerUke,
-        )
+        fun from(deltaker: Deltaker, personalia: Personalia, navVeilederNavn: String?, dato: LocalDate): DeltakerDto {
+            val deltakelsesmengde = deltaker.deltakelsesmengder
+                .filter { it.gyldigFra <= dato }
+                .maxByOrNull { it.gyldigFra }
+                ?: deltaker.deltakelsesmengder.minByOrNull { it.gyldigFra }
+
+            return DeltakerDto(
+                id = deltaker.id,
+                status = deltaker.status.type.toDataElement(),
+                innholdAnnet = deltaker.innholdAnnet,
+                navn = personalia.navn(),
+                norskIdent = personalia.norskIdent(),
+                oppfolgingEnhet = personalia.oppfolgingEnhet(),
+                avvistGrunn = personalia.avvistGrunn,
+                gradering = personalia.gradering,
+                startDato = deltaker.startDato,
+                sluttDato = deltaker.sluttDato,
+                navVeilederNavn = navVeilederNavn,
+                dagerPerUke = deltakelsesmengde?.dagerPerUke,
+            )
+        }
     }
 }
 
