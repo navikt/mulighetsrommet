@@ -35,7 +35,9 @@ import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NorskIdent
+import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.ProblemDetail
+import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import java.time.LocalDate
@@ -146,6 +148,11 @@ class VedtaksbrevTaskTest : FunSpec({
             distribuerVedtaksbrev = mockk(relaxed = true),
         )
         val service = TilskuddBehandlingService(
+            config = TilskuddBehandlingService.Config(
+                gyldigTilsagnPeriode = Tiltakskode.entries.associateWith {
+                    Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2027, 1, 1))
+                },
+            ),
             db = database.api,
             journalforVedtaksbrev = mockk(relaxed = true),
             pdf = mockk(relaxed = true),
@@ -256,6 +263,11 @@ private suspend fun opprettOgGodkjennTilskudd(
     )
 
     val service = TilskuddBehandlingService(
+        config = TilskuddBehandlingService.Config(
+            gyldigTilsagnPeriode = Tiltakskode.entries.associateWith {
+                Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2027, 1, 1))
+            },
+        ),
         db = db,
         journalforVedtaksbrev = mockk(relaxed = true),
         pdf = mockk(relaxed = true),

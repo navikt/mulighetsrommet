@@ -16,6 +16,7 @@ import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingReq
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatus
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingType
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
+import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.api.utils.DatoUtils.parseOrNull
 import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.JournalpostId
@@ -35,6 +36,7 @@ object TilskuddBehandlingValidator {
     fun validate(
         request: TilskuddBehandlingRequest,
         gjennomforing: Gjennomforing,
+        gyldigTilsagnPeriode: Periode?,
         arrangorBetalingsinformasjon: Betalingsinformasjon?,
         behandlendeEnhet: NavEnhetNummer,
         journalpostValidator: (String, Int) -> Validated<JournalpostId>,
@@ -44,6 +46,7 @@ object TilskuddBehandlingValidator {
                 req = v,
                 index = index,
                 gjennomforing = gjennomforing,
+                gyldigTilsagnPeriode = gyldigTilsagnPeriode,
                 arrangorBetalingsinformasjon = arrangorBetalingsinformasjon,
                 journalpostValidator,
             ).bind()
@@ -63,6 +66,7 @@ object TilskuddBehandlingValidator {
         req: TilskuddRequest,
         index: Int,
         gjennomforing: Gjennomforing,
+        gyldigTilsagnPeriode: Periode?,
         arrangorBetalingsinformasjon: Betalingsinformasjon?,
         journalpostValidator: (String, Int) -> Validated<JournalpostId>,
     ): Validated<TilskuddVedtak> = validation {
@@ -78,9 +82,9 @@ object TilskuddBehandlingValidator {
             FieldError("/tilskudd/$index/periodeSlutt", "Periodeslutt er påkrevd")
         }
         if (periodeStart != null && periodeSlutt != null) {
-            validate(periodeSlutt.year <= LocalDate.now().year) {
+            validate(periodeStart.year <= LocalDate.now().year) {
                 FieldError(
-                    "/tilskudd/$index/periodeSlutt",
+                    "/tilskudd/$index/periodeStart",
                     "Periodestart kan ikke være etter siste dag i inneværende år",
                 )
             }
@@ -88,6 +92,12 @@ object TilskuddBehandlingValidator {
                 FieldError(
                     "/tilskudd/$index/periodeSlutt",
                     "Periodeslutt kan ikke være etter siste dag i inneværende år",
+                )
+            }
+            validate(periodeStart.year == periodeSlutt.year) {
+                FieldError(
+                    pointer = "/tilskudd/$index/periodeSlutt",
+                    detail = "Periode kan ikke strekke seg over årsskiftet",
                 )
             }
             validate(!periodeStart.isAfter(periodeSlutt)) {
@@ -98,6 +108,28 @@ object TilskuddBehandlingValidator {
                     "/tilskudd/$index/periodeSlutt",
                     "Periodeslutt kan ikke være etter gjennomføringsperioden",
                 )
+            }
+            if (req.vedtakResultat == VedtakResultat.INNVILGELSE && req.utbetalingMottaker == TilskuddMottaker.ARRANGOR) {
+                requireNotNull(gyldigTilsagnPeriode) {
+                    FieldError(
+                        pointer = "/tilskudd/$index/periodeStart",
+                        detail = "Tilsagn for tiltakstype ${gjennomforing.tiltakstype.navn} er ikke støttet enda",
+                    )
+                }
+                validate(!periodeStart.isBefore(gyldigTilsagnPeriode.start)) {
+                    val dato = gyldigTilsagnPeriode.start.formaterDatoTilEuropeiskDatoformat()
+                    FieldError(
+                        pointer = "/tilskudd/$index/periodeStart",
+                        detail = "Minimum startdato for tilsagn til ${gjennomforing.tiltakstype.navn} er $dato",
+                    )
+                }
+                validate(!periodeSlutt.isAfter(gyldigTilsagnPeriode.getLastInclusiveDate())) {
+                    val dato = gyldigTilsagnPeriode.getLastInclusiveDate().formaterDatoTilEuropeiskDatoformat()
+                    FieldError(
+                        pointer = "/tilskudd/$index/periodeSlutt",
+                        detail = "Maksimum sluttdato for tilsagn til ${gjennomforing.tiltakstype.navn} er $dato",
+                    )
+                }
             }
         }
         validateNotNull(req.soknadDato) {
@@ -129,6 +161,14 @@ object TilskuddBehandlingValidator {
                 FieldError(
                     "/tilskudd/$index/utbetalingMottaker",
                     "Betalingsinformasjon for arrangøren må være registrert",
+                )
+            }
+        }
+        if (req.vedtakResultat == VedtakResultat.INNVILGELSE && req.utbetalingMottaker == TilskuddMottaker.ARRANGOR) {
+            validate(!gjennomforing.arrangor.slettet) {
+                FieldError(
+                    "/tilskudd/$index/utbetalingMottaker",
+                    "Tilskudd kan ikke opprettes fordi arrangøren er slettet i Brreg",
                 )
             }
         }

@@ -48,12 +48,15 @@ import no.nav.mulighetsrommet.model.JournalpostId
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.NorskIdent
+import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.ProblemDetail
+import no.nav.mulighetsrommet.model.Tiltakskode
 import java.time.Instant
 import java.time.LocalDateTime
 import java.util.UUID
 
 class TilskuddBehandlingService(
+    private val config: Config,
     private val db: ApiDatabase,
     private val journalforVedtaksbrev: JournalforVedtaksbrev,
     private val pdf: PdfGenClient,
@@ -62,6 +65,10 @@ class TilskuddBehandlingService(
     private val featureToggleService: FeatureToggleService,
     private val betalingsinformasjon: BetalingsinformasjonQuery,
 ) {
+    data class Config(
+        val gyldigTilsagnPeriode: Map<Tiltakskode, Periode>,
+    )
+
     suspend fun upsert(
         request: TilskuddBehandlingRequest,
         navIdent: NavIdent,
@@ -87,7 +94,14 @@ class TilskuddBehandlingService(
         )
 
         return TilskuddBehandlingValidator
-            .validate(request, gjennomforing, betalingsinformasjonArrangor, behandlendeEnhet, journalpostValidatorFunc)
+            .validate(
+                request = request,
+                gjennomforing = gjennomforing,
+                gyldigTilsagnPeriode = config.gyldigTilsagnPeriode[gjennomforing.tiltakstype.tiltakskode],
+                arrangorBetalingsinformasjon = betalingsinformasjonArrangor,
+                behandlendeEnhet = behandlendeEnhet,
+                journalpostValidator = journalpostValidatorFunc,
+            )
             .map { dbo ->
                 db.transaction {
                     queries.tilskuddBehandling.upsert(dbo)
@@ -380,7 +394,14 @@ class TilskuddBehandlingService(
 
         return TilskuddBehandlingValidator
             // Dummy journalpost validator her
-            .validate(request, gjennomforing, betalingsinformasjonArrangor, behandlendeEnhet) { _, _ -> JournalpostId("123").right() }
+            .validate(
+                request = request,
+                gjennomforing = gjennomforing,
+                gyldigTilsagnPeriode = config.gyldigTilsagnPeriode[gjennomforing.tiltakstype.tiltakskode],
+                arrangorBetalingsinformasjon = betalingsinformasjonArrangor,
+                behandlendeEnhet = behandlendeEnhet,
+                journalpostValidator = { _, _ -> JournalpostId("123").right() },
+            )
             .map { dbo ->
                 vedtaksbrevForhandsvisPdf(dbo).getOrElse { throw IllegalStateException("Klarte ikke lage vedtaksbrev pdf") }
             }

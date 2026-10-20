@@ -32,6 +32,8 @@ import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
 import no.nav.mulighetsrommet.api.utbetaling.api.ValutaBelopRequest
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.NavEnhetNummer
+import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Valuta
 import java.time.LocalDate
 import java.util.UUID
@@ -105,6 +107,11 @@ class TilskuddBehandlingServiceTest : FunSpec({
         val betalingsinformasjon = mockk<BetalingsinformasjonQuery>()
         coEvery { betalingsinformasjon.execute(any()) } returns arrangorBetalingsinformasjon
         return TilskuddBehandlingService(
+            config = TilskuddBehandlingService.Config(
+                gyldigTilsagnPeriode = Tiltakskode.entries.associateWith {
+                    Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2027, 1, 1))
+                },
+            ),
             db = database.api,
             journalforVedtaksbrev = mockk(relaxed = true),
             pdf = mockk(relaxed = true),

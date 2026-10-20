@@ -626,7 +626,20 @@ private fun services(appConfig: AppConfig) = module {
         )
     }
     single { TilsagnDtoQuery(get(), get()) }
-    single { TilskuddBehandlingService(get(), get(), get(), get(), get(), get(), get()) }
+    single {
+        TilskuddBehandlingService(
+            config = TilskuddBehandlingService.Config(
+                gyldigTilsagnPeriode = appConfig.okonomi.gyldigTilsagnPeriode,
+            ),
+            db = get(),
+            journalforVedtaksbrev = get(),
+            pdf = get(),
+            personaliaService = get(),
+            journalpostValidator = get(),
+            featureToggleService = get(),
+            betalingsinformasjon = get(),
+        )
+    }
     single { TilskuddService(get(), get(), get()) }
     single { AltinnRettigheterService(db = get(), altinnClient = get()) }
     single { OppgaverService(get(), get()) }

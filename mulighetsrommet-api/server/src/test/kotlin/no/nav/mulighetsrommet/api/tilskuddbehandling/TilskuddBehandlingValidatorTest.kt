@@ -41,11 +41,15 @@ class TilskuddBehandlingValidatorTest : FunSpec({
     val periodeStart = LocalDate.of(2025, 1, 1)
     val periodeSlutt = LocalDate.of(2025, 7, 1)
     val gjennomforingSluttDato = LocalDate.of(2025, 12, 31)
+    val gyldigTilsagnPeriode = Periode.fromInclusiveDates(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 12, 31))
     val behandlendeEnhet = NavEnhetNummer("0502")
     val arrangorBetalingsinformasjon = mockk<Betalingsinformasjon>(relaxed = true)
+    val tiltakstypeNavn = "Arbeidsforberedende trening"
 
     fun createGjennomforing(sluttDato: LocalDate? = gjennomforingSluttDato): Gjennomforing = mockk<Gjennomforing>().also { gjennomforing ->
         every { gjennomforing.sluttDato } returns sluttDato
+        every { gjennomforing.tiltakstype.navn } returns tiltakstypeNavn
+        every { gjennomforing.arrangor.slettet } returns false
     }
 
     fun validTilskuddRequest() = TilskuddBehandlingRequest.TilskuddRequest(
@@ -78,6 +82,7 @@ class TilskuddBehandlingValidatorTest : FunSpec({
         TilskuddBehandlingValidator.validate(
             request = request,
             gjennomforing = createGjennomforing(),
+            gyldigTilsagnPeriode = gyldigTilsagnPeriode,
             arrangorBetalingsinformasjon = arrangorBetalingsinformasjon,
             behandlendeEnhet = behandlendeEnhet,
         ) { journalpostId, _ -> JournalpostId(journalpostId).right() } shouldBeRight TilskuddBehandling(
@@ -117,6 +122,7 @@ class TilskuddBehandlingValidatorTest : FunSpec({
             req = request,
             index = 0,
             gjennomforing = createGjennomforing(),
+            gyldigTilsagnPeriode = gyldigTilsagnPeriode,
             arrangorBetalingsinformasjon = arrangorBetalingsinformasjon,
         ) { journalpostId, _ -> JournalpostId(journalpostId).right() }.shouldBeRight()
 
@@ -143,6 +149,7 @@ class TilskuddBehandlingValidatorTest : FunSpec({
             req = request,
             index = 2,
             gjennomforing = createGjennomforing(),
+            gyldigTilsagnPeriode = gyldigTilsagnPeriode,
             arrangorBetalingsinformasjon = null,
         ) { journalpostId, _ -> JournalpostId(journalpostId).right() }.shouldBeLeft()
             .shouldContainExactlyInAnyOrder(
@@ -170,6 +177,7 @@ class TilskuddBehandlingValidatorTest : FunSpec({
             req = request,
             index = 0,
             gjennomforing = createGjennomforing(),
+            gyldigTilsagnPeriode = gyldigTilsagnPeriode,
             arrangorBetalingsinformasjon = arrangorBetalingsinformasjon,
         ) { journalpostId, _ -> JournalpostId(journalpostId).right() } shouldBeLeft listOf(
             FieldError("/tilskudd/0/vedtakResultat", "Du må velge et resultat"),
@@ -183,6 +191,7 @@ class TilskuddBehandlingValidatorTest : FunSpec({
             req = request,
             index = 0,
             gjennomforing = createGjennomforing(),
+            gyldigTilsagnPeriode = gyldigTilsagnPeriode,
             arrangorBetalingsinformasjon = null,
         ) { journalpostId, _ -> JournalpostId(journalpostId).right() } shouldBeLeft listOf(
             FieldError("/tilskudd/0/utbetalingMottaker", "Betalingsinformasjon for arrangøren må være registrert"),
@@ -199,6 +208,7 @@ class TilskuddBehandlingValidatorTest : FunSpec({
             req = request,
             index = 1,
             gjennomforing = createGjennomforing(LocalDate.of(2025, 6, 30)),
+            gyldigTilsagnPeriode = gyldigTilsagnPeriode,
             arrangorBetalingsinformasjon = arrangorBetalingsinformasjon,
         ) { journalpostId, _ -> JournalpostId(journalpostId).right() }.shouldBeLeft()
             .shouldContainExactlyInAnyOrder(
@@ -219,11 +229,89 @@ class TilskuddBehandlingValidatorTest : FunSpec({
         TilskuddBehandlingValidator.validate(
             request = request,
             gjennomforing = createGjennomforing(),
+            gyldigTilsagnPeriode = gyldigTilsagnPeriode,
             arrangorBetalingsinformasjon = arrangorBetalingsinformasjon,
             behandlendeEnhet = behandlendeEnhet,
         ) { journalpostId, _ -> JournalpostId(journalpostId).right() } shouldBeLeft listOf(
             FieldError("/tilskudd/1/kostnadssted", "Kostnadssted er påkrevd"),
         )
+    }
+
+    test("avviser innvilgelse til arrangør når sluttdato er etter gyldig tilsagnsperiode") {
+        val request = validTilskuddRequest().copy(
+            periodeStart = "2026-01-01",
+            periodeSlutt = "2026-07-01",
+        )
+        val validPeriode = Periode.fromInclusiveDates(LocalDate.of(2026, 1, 1), LocalDate.of(2026, 6, 30))
+
+        TilskuddBehandlingValidator.validateTilskuddRequest(
+            req = request,
+            index = 0,
+            gjennomforing = createGjennomforing(sluttDato = null),
+            gyldigTilsagnPeriode = validPeriode,
+            arrangorBetalingsinformasjon = arrangorBetalingsinformasjon,
+        ) { journalpostId, _ -> JournalpostId(journalpostId).right() }.shouldBeLeft()
+            .shouldContainExactlyInAnyOrder(
+                FieldError(
+                    "/tilskudd/0/periodeSlutt",
+                    "Maksimum sluttdato for tilsagn til $tiltakstypeNavn er 30.06.2026",
+                ),
+            )
+    }
+
+    test("avviser periode som går over årsskiftet") {
+        val request = validTilskuddRequest().copy(
+            periodeStart = "2025-12-31",
+            periodeSlutt = "2026-01-01",
+        )
+        val validPeriode = Periode.fromInclusiveDates(LocalDate.of(2025, 1, 1), LocalDate.of(2026, 12, 31))
+
+        TilskuddBehandlingValidator.validateTilskuddRequest(
+            req = request,
+            index = 0,
+            gjennomforing = createGjennomforing(sluttDato = null),
+            gyldigTilsagnPeriode = validPeriode,
+            arrangorBetalingsinformasjon = arrangorBetalingsinformasjon,
+        ) { journalpostId, _ -> JournalpostId(journalpostId).right() }.shouldBeLeft()
+            .shouldContainExactlyInAnyOrder(
+                FieldError("/tilskudd/0/periodeSlutt", "Periode kan ikke strekke seg over årsskiftet"),
+            )
+    }
+
+    test("avviser innvilgelse til slettet arrangør") {
+        val gjennomforing = createGjennomforing().also { g ->
+            every { g.arrangor.slettet } returns true
+        }
+
+        TilskuddBehandlingValidator.validateTilskuddRequest(
+            req = validTilskuddRequest(),
+            index = 0,
+            gjennomforing = gjennomforing,
+            gyldigTilsagnPeriode = gyldigTilsagnPeriode,
+            arrangorBetalingsinformasjon = arrangorBetalingsinformasjon,
+        ) { journalpostId, _ -> JournalpostId(journalpostId).right() }.shouldBeLeft()
+            .shouldContainExactlyInAnyOrder(
+                FieldError(
+                    "/tilskudd/0/utbetalingMottaker",
+                    "Tilskudd kan ikke opprettes fordi arrangøren er slettet i Brreg",
+                ),
+            )
+    }
+
+    test("avslag utløser ikke tilsagnsperiodevalidering") {
+        val request = validTilskuddRequest().copy(
+            vedtakResultat = VedtakResultat.AVSLAG,
+            belop = null,
+        )
+        val validPeriode = Periode.fromInclusiveDates(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 6, 30))
+
+        TilskuddBehandlingValidator.validateTilskuddRequest(
+            req = request,
+            index = 0,
+            gjennomforing = createGjennomforing(),
+            gyldigTilsagnPeriode = validPeriode,
+            arrangorBetalingsinformasjon = arrangorBetalingsinformasjon,
+        ) { journalpostId, _ -> JournalpostId(journalpostId).right() }.shouldBeRight()
     }
 
     test("journalpostvalidator uten oppslag godtar kun journalpost-id med tall") {
