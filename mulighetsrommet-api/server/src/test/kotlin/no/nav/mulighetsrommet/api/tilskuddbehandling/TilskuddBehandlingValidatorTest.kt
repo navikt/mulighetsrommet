@@ -222,7 +222,7 @@ class TilskuddBehandlingValidatorTest : FunSpec({
             gjennomforing = createGjennomforing(),
             arrangorBetalingsinformasjon = null,
         ) { journalpostId, _ -> JournalpostId(journalpostId).right() } shouldBeLeft listOf(
-            FieldError("/tilskudd/1/brukerUtbetalingType", "Du må gjøre et valg"),
+            FieldError("/tilskudd/1/brukerUtbetalingType", "Du må velge forskudd eller refusjon"),
         )
     }
 
