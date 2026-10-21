@@ -136,7 +136,7 @@ object TilskuddBehandlingValidator {
             validateNotNull(req.brukerUtbetalingType) {
                 FieldError(
                     "/tilskudd/$index/brukerUtbetalingType",
-                    "Du må gjøre et valg",
+                    "Du må velge forskudd eller refusjon",
                 )
             }
         }
