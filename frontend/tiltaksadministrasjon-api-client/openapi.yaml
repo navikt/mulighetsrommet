@@ -9448,6 +9448,10 @@ components:
           type:
           - "null"
           - string
+        brukerUtbetalingType:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/BrukerUtbetalingType"
         utbetalingBelop:
           oneOf:
           - type: "null"
@@ -9461,6 +9465,7 @@ components:
           - "null"
           - string
       required:
+      - brukerUtbetalingType
       - id
       - kid
       - kommentarIntern
@@ -9477,6 +9482,11 @@ components:
       - utbetalingMottaker
       - vedtakJournalpostId
       - vedtakResultat
+    BrukerUtbetalingType:
+      type: string
+      enum:
+      - FORSKUDD
+      - REFUSJON
     TilskuddBehandlingStatusDto:
       type: object
       properties:
