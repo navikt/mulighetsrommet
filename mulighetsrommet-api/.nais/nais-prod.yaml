@@ -150,6 +150,32 @@ spec:
           - id: "92b61aff-7958-4fec-b0c2-604530f45ed5"
           # 5700-CA-Tiltaksadministrasjon_beslutter-tilsagn
           - id: "93b27697-0d6d-4f1f-bf63-2f2134bf2cca"
+          # 0000-CA-Tiltaksadministrasjon_saksbehandler-økonomi-enkeltplass
+          - id: "5c5e58f4-ae56-4142-9665-cafaaa454eb8"
+          # 0200-CA-Tiltaksadministrasjon_beslutter-økonomi-enkeltplass
+          - id: "1ecf4d2c-c1ff-4543-bde7-afe4f44dbfb9"
+          # 0300-CA-Tiltaksadministrasjon_beslutter-økonomi-enkeltplass
+          - id: "ea8aeb8d-00c3-41f4-bb1e-c03b38b1957a"
+          # 0400-CA-Tiltaksadministrasjon_beslutter-økonomi-enkeltplass
+          - id: "1303755d-f907-413b-9a79-949be9ea8dd0"
+          # 0600-CA-Tiltaksadministrasjon_beslutter-økonomi-enkeltplass
+          - id: "7d8936f0-9401-43d0-b99a-137d596ee0b0"
+          # 0800-CA-Tiltaksadministrasjon_beslutter-økonomi-enkeltplass
+          - id: "ba20de22-0449-4500-8eb6-1643143d0ad9"
+          # 1000-CA-Tiltaksadministrasjon_beslutter-økonomi-enkeltplass
+          - id: "043a11b2-9c37-4f75-91c1-ae05bc551663"
+          # 1100-CA-Tiltaksadministrasjon_beslutter-økonomi-enkeltplass
+          - id: "1b02901b-0577-401e-b8a6-7a1427e6aada"
+          # 1200-CA-Tiltaksadministrasjon_beslutter-økonomi-enkeltplass
+          - id: "61c03174-2113-487f-bd22-2960b3ef2ee0"
+          # 1500-CA-Tiltaksadministrasjon_beslutter-økonomi-enkeltplass
+          - id: "75ba3a75-a0b9-426a-92c9-ea74186a618c"
+          # 1800-CA-Tiltaksadministrasjon_beslutter-økonomi-enkeltplass
+          - id: "2587bc80-cbde-45ab-9ec8-14a014b002e2"
+          # 1900-CA-Tiltaksadministrasjon_beslutter-økonomi-enkeltplass
+          - id: "6b8367d7-0b3b-40a5-8deb-593c38468ae0"
+          # 5700-CA-Tiltaksadministrasjon_beslutter-økonomi-enkeltplass
+          - id: "867f9052-68c3-43b5-b052-13fb0f035c32"
         extra:
           - NAVident
           - azp_name
