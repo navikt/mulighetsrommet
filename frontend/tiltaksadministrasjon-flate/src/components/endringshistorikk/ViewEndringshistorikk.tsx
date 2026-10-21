@@ -22,12 +22,7 @@ export function ViewEndringshistorikk(props: ViewEndringshistorikkProps) {
         const user = erNavAnsatt(editedBy) ? formaterNavAnsatt(editedBy) : editedBy.navn;
 
         return (
-          <li
-            className={
-              !erNavAnsatt(editedBy) ? "italic font-thin text-ax-text-neutral-subtle" : undefined
-            }
-            key={editedAt}
-          >
+          <li key={editedAt}>
             {formaterDatoTid(editedAt)} - <b>{operation}</b> - {user}
           </li>
         );
