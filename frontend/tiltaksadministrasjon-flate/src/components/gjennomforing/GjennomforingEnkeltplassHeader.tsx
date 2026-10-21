@@ -2,7 +2,11 @@ import { MetadataVStack, Separator } from "@mr/frontend-common/components/datadr
 import { formaterDato } from "@mr/frontend-common/utils/date";
 import { PersonIcon } from "@navikt/aksel-icons";
 import { Box, CopyButton, HGrid, HStack, VStack } from "@navikt/ds-react";
-import { DeltakerDto, GjennomforingEnkeltplassDto, Gradering } from "@tiltaksadministrasjon/api-client";
+import {
+  DeltakerDto,
+  GjennomforingEnkeltplassDto,
+  Gradering,
+} from "@tiltaksadministrasjon/api-client";
 import { DataElementStatusTag } from "@mr/frontend-common";
 import { GraderingTag } from "../personalia/GraderingTag";
 
@@ -18,7 +22,7 @@ export function GjennomforingEnkeltplassHeader({ gjennomforing, deltaker, short 
     <Box asChild background="default">
       <VStack padding="space-8">
         <Separator />
-        <HGrid gap="space-4" columns="repeat(auto-fit, minmax(10rem, 1fr))" >
+        <HGrid gap="space-4" columns="repeat(auto-fit, minmax(10rem, 1fr))">
           <MetadataVStack
             label={
               <HStack gap="space-4" wrap={false}>
@@ -50,10 +54,18 @@ export function GjennomforingEnkeltplassHeader({ gjennomforing, deltaker, short 
               <MetadataVStack label="Arrangør" value={gjennomforing.arrangor.navn} />
               <MetadataVStack label="Startdato" value={formaterDato(deltaker.startDato)} />
               <MetadataVStack label="Sluttdato" value={formaterDato(deltaker.sluttDato)} />
-              <MetadataVStack label="Status" value={<DataElementStatusTag {...deltaker.status} />} />
+              <MetadataVStack
+                label="Status"
+                value={<DataElementStatusTag {...deltaker.status} />}
+              />
             </>
           )}
-          {gradering && <MetadataVStack label="Gradering" value={<GraderingTag gradering={deltaker.gradering} />} />}
+          {gradering && (
+            <MetadataVStack
+              label="Gradering"
+              value={<GraderingTag gradering={deltaker.gradering} />}
+            />
+          )}
         </HGrid>
         <Separator />
       </VStack>
