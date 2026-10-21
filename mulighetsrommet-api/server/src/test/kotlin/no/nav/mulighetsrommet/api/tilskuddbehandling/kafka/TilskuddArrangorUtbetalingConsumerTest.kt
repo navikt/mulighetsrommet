@@ -87,6 +87,7 @@ class TilskuddArrangorUtbetalingConsumerTest : FunSpec({
                 utbetalingMottaker = TilskuddMottaker.ARRANGOR,
                 kidNummer = "116",
                 belop = 100,
+                brukerUtbetalingType = null,
                 kommentarIntern = null,
             ),
         ),

@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.tilskuddbehandling.model
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd
+import no.nav.mulighetsrommet.api.tilskuddbehandling.db.BrukerUtbetalingType
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
 import no.nav.mulighetsrommet.api.utbetaling.api.ValutaBelopRequest
 import no.nav.mulighetsrommet.model.NavEnhetNummer
@@ -33,6 +34,7 @@ data class TilskuddBehandlingRequest(
         val kommentarVedtaksbrev: String?,
         val utbetalingMottaker: TilskuddMottaker?,
         val kidNummer: String?,
+        val brukerUtbetalingType: BrukerUtbetalingType?,
         val belop: Int?,
         val periodeStart: String?,
         val periodeSlutt: String?,
