@@ -267,6 +267,7 @@ class GjennomforingDetaljerService(
         return setOfNotNull(
             GjennomforingHandling.OPPRETT_TILSAGN,
             GjennomforingHandling.OPPRETT_UTBETALING,
+            GjennomforingHandling.OPPRETT_TILSKUDDSBEHANDLING,
             GjennomforingHandling.SETT_PA_VENT_ENKELTPLASS_OKONOMI.takeIf {
                 okonomiKanBehandlesAvNavAnsatt && okonomi.kanSettesPaVent()
             },
@@ -317,6 +318,7 @@ class GjennomforingDetaljerService(
                 GjennomforingHandling.OPPRETT_EKSTRATILSAGN,
                 GjennomforingHandling.OPPRETT_TILSAGN_FOR_INVESTERINGER,
                 GjennomforingHandling.OPPRETT_UTBETALING,
+                GjennomforingHandling.OPPRETT_TILSKUDDSBEHANDLING,
                 -> OkonomiAuthorization.erSaksbehandler(ansatt, gjennomforingType)
 
                 GjennomforingHandling.SETT_PA_VENT_ENKELTPLASS_OKONOMI,
