@@ -12,7 +12,10 @@ import {
 } from "@mr/frontend-common/utils/date";
 import { opplaeringTilskuddToString } from "@/utils/Utils";
 import { TableColumnHeader } from "@navikt/ds-react/Table";
-import { GjennomforingHandling, TilskuddBehandlingKompakt } from "@tiltaksadministrasjon/api-client";
+import {
+  GjennomforingHandling,
+  TilskuddBehandlingKompakt,
+} from "@tiltaksadministrasjon/api-client";
 import { useGjennomforingHandlinger } from "@/api/gjennomforing/useGjennomforing";
 
 export function TilskuddBehandlingerPage() {
