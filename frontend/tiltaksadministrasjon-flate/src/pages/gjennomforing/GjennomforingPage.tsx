@@ -1,7 +1,7 @@
 import { Laster } from "@/components/laster/Laster";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
-import { Box, HStack, Tabs } from "@navikt/ds-react";
+import { Box, Tabs } from "@navikt/ds-react";
 import React from "react";
 import { useGjennomforing } from "@/api/gjennomforing/useGjennomforing";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
@@ -21,7 +21,6 @@ import { erGodkjent } from "@/utils/totrinnskontroll";
 import { isGjennomforingAvtaleDetaljer } from "@/api/gjennomforing/utils";
 import { GjennomforingEnkeltplassHeader } from "@/components/gjennomforing/GjennomforingEnkeltplassHeader";
 import { DataElementStatusTag } from "@mr/frontend-common";
-import { GraderingTag } from "@/components/personalia/GraderingTag";
 
 export function GjennomforingPage() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
@@ -50,15 +49,6 @@ export function GjennomforingPage() {
     currentTab === "utbetalinger" ? { tittel: "Utbetalinger" } : undefined,
     currentTab === "deltakerliste" ? { tittel: "Deltakerliste" } : undefined,
   ];
-  const headerTag =
-    "deltaker" in detaljer && detaljer.deltaker ? (
-      <HStack gap="space-8">
-        <GraderingTag gradering={detaljer.deltaker.gradering} />
-        <DataElementStatusTag {...detaljer.gjennomforing.status} />
-      </HStack>
-    ) : (
-      <DataElementStatusTag {...detaljer.gjennomforing.status} />
-    );
 
   return (
     <>
@@ -73,7 +63,7 @@ export function GjennomforingPage() {
           )
         }
         heading={detaljer.gjennomforing.navn}
-        tag={headerTag}
+        tag={<DataElementStatusTag {...detaljer.gjennomforing.status} />}
       />
       {"deltaker" in detaljer && detaljer.deltaker && (
         <GjennomforingEnkeltplassHeader
@@ -202,8 +192,8 @@ function useTabs(
   const filteredTabConfigs = enableTilskuddsbehandling
     ? tabConfigs
     : tabConfigs.filter(
-        (tab) => !["tilskudd-behandling", "tilskudd-utbetalinger", "tilskudd"].includes(tab.key),
-      );
+      (tab) => !["tilskudd-behandling", "tilskudd-utbetalinger", "tilskudd"].includes(tab.key),
+    );
 
   const tabs: Tab[] = filteredTabConfigs.map(({ key, label }) => ({
     key,
