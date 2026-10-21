@@ -8,6 +8,8 @@ import no.nav.mulighetsrommet.admin.journalpost.ForventetBruker
 import no.nav.mulighetsrommet.admin.journalpost.JournalpostValidator
 import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.domain.gjennomforing.Gjennomforing
+import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd
+import no.nav.mulighetsrommet.api.tilskuddbehandling.db.BrukerUtbetalingType
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandling
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddVedtak
@@ -30,22 +32,36 @@ import no.nav.mulighetsrommet.validation.validation
 import java.time.LocalDate
 import kotlin.contracts.ExperimentalContracts
 
+data class Saksopplysninger(
+    val periode: Periode,
+    val soknadDato: LocalDate,
+    val soknadJournalpostId: JournalpostId,
+    val kostnadssted: NavEnhetNummer,
+    val tilskuddOpplaeringType: Opplaeringtilskudd.Kode,
+    val soknadBelop: Int,
+    val utbetalingMottaker: TilskuddMottaker,
+    val kid: Kid?,
+    val brukerUtbetalingType: BrukerUtbetalingType?,
+)
+
 @OptIn(ExperimentalContracts::class)
 object TilskuddBehandlingValidator {
+    data class Ctx(
+        val gjennomforing: Gjennomforing,
+        val betalingsinformasjonArrangor: Betalingsinformasjon?,
+        val journalpostValidator: (String, Int) -> Validated<JournalpostId>,
+    )
+
     fun validate(
         request: TilskuddBehandlingRequest,
-        gjennomforing: Gjennomforing,
-        arrangorBetalingsinformasjon: Betalingsinformasjon?,
         behandlendeEnhet: NavEnhetNummer,
-        journalpostValidator: (String, Int) -> Validated<JournalpostId>,
+        ctx: Ctx,
     ): Validated<TilskuddBehandling> = validation {
         val tilskudd = request.tilskudd.mapIndexed { index, v ->
             validateTilskuddRequest(
                 req = v,
                 index = index,
-                gjennomforing = gjennomforing,
-                arrangorBetalingsinformasjon = arrangorBetalingsinformasjon,
-                journalpostValidator,
+                ctx = ctx,
             ).bind()
         }
 
@@ -62,13 +78,83 @@ object TilskuddBehandlingValidator {
     fun validateTilskuddRequest(
         req: TilskuddRequest,
         index: Int,
-        gjennomforing: Gjennomforing,
-        arrangorBetalingsinformasjon: Betalingsinformasjon?,
-        journalpostValidator: (String, Int) -> Validated<JournalpostId>,
+        ctx: Ctx,
     ): Validated<TilskuddVedtak> = validation {
+        validateNotNull(req.vedtakResultat) {
+            FieldError(
+                "/tilskudd/$index/vedtakResultat",
+                "Du må velge et resultat",
+            )
+        }
+
+        validate((req.kommentarVedtaksbrev?.length ?: 0) <= 500) {
+            FieldError(
+                "/tilskudd/$index/kommentarVedtaksbrev",
+                "Kommentar kan ikke inneholde mer enn 500 tegn",
+            )
+        }
+
+        if (req.vedtakResultat == VedtakResultat.INNVILGELSE) {
+            validate(req.belop != null && req.belop > 0) {
+                FieldError(
+                    "/tilskudd/$index/belop",
+                    "Beløp til utbetaling må være positivt",
+                )
+            }
+        }
+        requireNotNull(req.vedtakResultat)
+        val saksopplysninger = validateSaksopplysningTilskuddVedtak(req, index, ctx).bind()
+        TilskuddVedtak(
+            id = req.id,
+            tilskuddId = req.tilskuddId,
+            tilskuddOpplaeringType = saksopplysninger.tilskuddOpplaeringType,
+            soknadJournalpostId = saksopplysninger.soknadJournalpostId,
+            soknadDato = saksopplysninger.soknadDato,
+            soknadBelop = ValutaBelop(saksopplysninger.soknadBelop, Valuta.NOK),
+            periode = saksopplysninger.periode,
+            kostnadssted = saksopplysninger.kostnadssted,
+            utbetalingMottaker = saksopplysninger.utbetalingMottaker,
+            kid = saksopplysninger.kid,
+            brukerUtbetalingType = saksopplysninger.brukerUtbetalingType,
+            vedtakResultat = req.vedtakResultat,
+            utbetalingBelop = if (req.vedtakResultat == VedtakResultat.INNVILGELSE) {
+                ValutaBelop(
+                    requireNotNull(req.belop),
+                    Valuta.NOK,
+                )
+            } else {
+                null
+            },
+            kommentarIntern = req.kommentarIntern,
+            kommentarVedtaksbrev = req.kommentarVedtaksbrev,
+        )
+    }
+
+    fun validateSaksopplysninger(
+        request: TilskuddBehandlingRequest,
+        ctx: Ctx,
+    ): Validated<Unit> = validation {
+        request.tilskudd.forEachIndexed { index, req ->
+            validateSaksopplysningTilskuddVedtak(
+                req = req,
+                index = index,
+                ctx,
+            ).fold(
+                ifLeft = { fieldErrors -> fieldErrors.forEach { fieldError -> error { fieldError } } },
+                ifRight = {},
+            )
+        }
+    }
+
+    fun validateSaksopplysningTilskuddVedtak(
+        req: TilskuddRequest,
+        index: Int,
+        ctx: Ctx,
+    ): Validated<Saksopplysninger> = validation {
         validateNotNull(req.kostnadssted) {
             FieldError("/tilskudd/$index/kostnadssted", "Kostnadssted er påkrevd")
         }
+
         val periodeStart = req.periodeStart?.parseOrNull()
         validateNotNull(periodeStart) {
             FieldError("/tilskudd/$index/periodeStart", "Periodestart er påkrevd")
@@ -93,7 +179,7 @@ object TilskuddBehandlingValidator {
             validate(!periodeStart.isAfter(periodeSlutt)) {
                 FieldError("/tilskudd/$index/periodeStart", "Periodestart må være før sluttdato")
             }
-            validate(gjennomforing.sluttDato == null || !periodeSlutt.isAfter(gjennomforing.sluttDato)) {
+            validate(ctx.gjennomforing.sluttDato == null || !periodeSlutt.isAfter(ctx.gjennomforing.sluttDato)) {
                 FieldError(
                     "/tilskudd/$index/periodeSlutt",
                     "Periodeslutt kan ikke være etter gjennomføringsperioden",
@@ -112,12 +198,6 @@ object TilskuddBehandlingValidator {
                 "Du må velge en tilskuddstype",
             )
         }
-        validateNotNull(req.vedtakResultat) {
-            FieldError(
-                "/tilskudd/$index/vedtakResultat",
-                "Du må velge et resultat",
-            )
-        }
         validateNotNull(req.utbetalingMottaker) {
             FieldError(
                 "/tilskudd/$index/utbetalingMottaker",
@@ -125,11 +205,19 @@ object TilskuddBehandlingValidator {
             )
         }
         if (req.utbetalingMottaker == TilskuddMottaker.ARRANGOR) {
-            validateNotNull(arrangorBetalingsinformasjon) {
+            validateNotNull(ctx.betalingsinformasjonArrangor) {
                 FieldError(
                     "/tilskudd/$index/utbetalingMottaker",
                     "Betalingsinformasjon for arrangøren må være registrert",
                 )
+            }
+            req.kidNummer?.let { value ->
+                validateNotNull(Kid.parse(value)) {
+                    FieldError(
+                        "/tilskudd/$index/kidNummer",
+                        "Ugyldig kid",
+                    )
+                }
             }
         }
         if (req.utbetalingMottaker == TilskuddMottaker.BRUKER) {
@@ -140,71 +228,39 @@ object TilskuddBehandlingValidator {
                 )
             }
         }
-        validate((req.kommentarVedtaksbrev?.length ?: 0) <= 500) {
-            FieldError(
-                "/tilskudd/$index/kommentarVedtaksbrev",
-                "Kommentar kan ikke inneholde mer enn 500 tegn",
-            )
-        }
-        val kid = req.kidNummer?.let { value ->
-            validateNotNull(Kid.parse(value)) {
-                FieldError(
-                    "/tilskudd/$index/kidNummer",
-                    "Ugyldig kid",
-                )
-            }
-        }
+
         validate(req.soknadBelop?.belop != null && req.soknadBelop.belop > 0) {
             FieldError(
                 "/tilskudd/$index/soknadBelop/belop",
                 "Beløp fra faktura må være positivt",
             )
         }
-        if (req.vedtakResultat == VedtakResultat.INNVILGELSE) {
-            validate(req.belop != null && req.belop > 0) {
-                FieldError(
-                    "/tilskudd/$index/belop",
-                    "Beløp til utbetaling må være positivt",
-                )
-            }
-        }
 
         requireValid(periodeStart == null || !periodeStart.isAfter(periodeSlutt))
-        val periode = Periode.fromInclusiveDates(requireNotNull(periodeStart), requireNotNull(periodeSlutt))
+        val periode = Periode.fromInclusiveDates(
+            requireNotNull(periodeStart),
+            requireNotNull(periodeSlutt),
+        )
 
         requireNotNull(req.soknadDato)
         requireNotNull(req.soknadJournalpostId)
         requireNotNull(req.kostnadssted)
         requireNotNull(req.tilskuddOpplaeringType)
-        requireNotNull(req.vedtakResultat)
         requireNotNull(req.utbetalingMottaker)
         requireNotNull(req.soknadBelop?.belop)
 
-        val jId = journalpostValidator(req.soknadJournalpostId, index).bind()
+        val jId = ctx.journalpostValidator(req.soknadJournalpostId, index).bind()
 
-        TilskuddVedtak(
-            id = req.id,
-            tilskuddId = req.tilskuddId,
-            tilskuddOpplaeringType = req.tilskuddOpplaeringType,
-            soknadJournalpostId = jId,
-            soknadDato = req.soknadDato,
-            soknadBelop = ValutaBelop(req.soknadBelop.belop, Valuta.NOK),
+        Saksopplysninger(
             periode = periode,
+            soknadDato = req.soknadDato,
+            soknadJournalpostId = jId,
             kostnadssted = req.kostnadssted,
-            vedtakResultat = req.vedtakResultat,
+            tilskuddOpplaeringType = req.tilskuddOpplaeringType,
+            soknadBelop = req.soknadBelop.belop,
             utbetalingMottaker = req.utbetalingMottaker,
-            kid = kid.takeIf { req.utbetalingMottaker == TilskuddMottaker.ARRANGOR },
-            utbetalingBelop = if (req.vedtakResultat == VedtakResultat.INNVILGELSE) {
-                ValutaBelop(
-                    requireNotNull(req.belop),
-                    Valuta.NOK,
-                )
-            } else {
-                null
-            },
+            kid = req.kidNummer?.let { Kid.parse(it) }.takeIf { req.utbetalingMottaker == TilskuddMottaker.ARRANGOR },
             brukerUtbetalingType = req.brukerUtbetalingType.takeIf { req.utbetalingMottaker == TilskuddMottaker.BRUKER },
-            kommentarIntern = req.kommentarIntern,
-            kommentarVedtaksbrev = req.kommentarVedtaksbrev,
         )
     }
 
