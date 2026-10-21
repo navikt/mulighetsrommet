@@ -32,17 +32,21 @@ export function GjennomforingEnkeltplassHeader({ gjennomforing, deltaker, short 
             }
             value={deltaker.navn}
           />
-          <HStack>
+          <MetadataVStack
+            label="Fødselsnummer"
+            value={
+              <HStack gap="space-4" align="center" wrap={false}>
+                {deltaker.norskIdent}
+                <CopyButton size="xsmall" copyText={deltaker.norskIdent ?? ""} />
+              </HStack>
+            }
+          />
+          {gradering && (
             <MetadataVStack
-              label="Fødselsnummer"
-              value={
-                <HStack gap="space-4" align="center" wrap={false}>
-                  {deltaker.norskIdent}
-                  <CopyButton size="xsmall" copyText={deltaker.norskIdent ?? ""} />
-                </HStack>
-              }
+              label="Gradering"
+              value={<GraderingTag gradering={deltaker.gradering} />}
             />
-          </HStack>
+          )}
           <MetadataVStack label="Enhet" value={deltaker.oppfolgingEnhet?.navn} />
           {short && (
             <>
@@ -59,12 +63,6 @@ export function GjennomforingEnkeltplassHeader({ gjennomforing, deltaker, short 
                 value={<DataElementStatusTag {...deltaker.status} />}
               />
             </>
-          )}
-          {gradering && (
-            <MetadataVStack
-              label="Gradering"
-              value={<GraderingTag gradering={deltaker.gradering} />}
-            />
           )}
         </HGrid>
         <Separator />
