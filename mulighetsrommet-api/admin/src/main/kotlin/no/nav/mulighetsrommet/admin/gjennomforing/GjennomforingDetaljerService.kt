@@ -298,7 +298,7 @@ class GjennomforingDetaljerService(
                 GjennomforingHandling.ENDRE_APEN_FOR_PAMELDING,
                 GjennomforingHandling.ENDRE_TILGJENGELIG_FOR_ARRANGOR,
                 GjennomforingHandling.REGISTRER_ESTIMERT_VENTETID,
-                    -> skrivGjennomforing || oppfolgerGjennomforing
+                -> skrivGjennomforing || oppfolgerGjennomforing
 
                 GjennomforingHandling.PUBLISER,
                 GjennomforingHandling.AVBRYT,
@@ -306,20 +306,20 @@ class GjennomforingDetaljerService(
                 GjennomforingHandling.REGISTRER_STENGT_HOS_ARRANGOR,
                 GjennomforingHandling.DUPLISER,
                 GjennomforingHandling.REDIGER,
-                    -> skrivGjennomforing
+                -> skrivGjennomforing
 
                 GjennomforingHandling.OPPRETT_TILSAGN,
                 GjennomforingHandling.OPPRETT_EKSTRATILSAGN,
                 GjennomforingHandling.OPPRETT_TILSAGN_FOR_INVESTERINGER,
                 GjennomforingHandling.OPPRETT_UTBETALING,
                 GjennomforingHandling.OPPRETT_TILSKUDDSBEHANDLING,
-                    -> OkonomiAuthorization.erSaksbehandler(ansatt, gjennomforingType)
+                -> OkonomiAuthorization.erSaksbehandler(ansatt, gjennomforingType)
 
                 GjennomforingHandling.SETT_PA_VENT_ENKELTPLASS_OKONOMI,
                 GjennomforingHandling.GODKJENN_ENKELTPLASS_OKONOMI,
                 GjennomforingHandling.SETT_PA_VENT_ENKELTPLASS_PRISENDRING,
                 GjennomforingHandling.GODKJENN_ENKELTPLASS_PRISENDRING,
-                    -> OkonomiAuthorization.erOkonomiBeslutter(
+                -> OkonomiAuthorization.erOkonomiBeslutter(
                     ansatt,
                     OkonomiBeslutningContext(gjennomforingType, enheter.toNonEmptySetOrThrow()),
                 )
