@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.admin.gjennomforing
 
 import arrow.core.Either
 import arrow.core.left
+import arrow.core.raise.context.either
 import arrow.core.right
 import arrow.core.toNonEmptySetOrThrow
 import no.nav.mulighetsrommet.admin.AdminDatabase
@@ -77,8 +78,10 @@ class GjennomforingDetaljerService(
         id: UUID,
         accessType: AccessType.OBO.AzureAd,
         navIdent: NavIdent,
-    ): Either<AvvistGrunn, GjennomforingDetaljerDto?> {
-        val gjennomforing = getGjennomforingTiltaksadministrasjon(id) ?: return null.right()
+    ): Either<GjennomforingDetaljerError, GjennomforingDetaljerDto> = either {
+        val gjennomforing = getGjennomforingTiltaksadministrasjon(id)
+            ?: return GjennomforingDetaljerError.IkkeFunnet("Gjennomføring med id=$id finnes ikke").left()
+
         return when (gjennomforing) {
             is GjennomforingAvtale -> db.session {
                 val detaljer = queries.gjennomforing.getGjennomforingAvtaleDetaljerOrError(gjennomforing.id)
@@ -86,6 +89,10 @@ class GjennomforingDetaljerService(
             }
 
             is GjennomforingEnkeltplass -> {
+                val ansatt = db.session { repository.navAnsatt.getOrError(navIdent) }
+                if (!OkonomiAuthorization.kanLeseEnkeltplass(ansatt)) {
+                    return GjennomforingDetaljerError.ManglerTilgang("Du mangler lesetilgang til enkeltplass").left()
+                }
                 val enkeltplass = enkeltplassService.get(gjennomforing.id)
                     ?: error("Fant ikke enkeltplass med id=${gjennomforing.id}")
 
@@ -103,13 +110,12 @@ class GjennomforingDetaljerService(
                     Triple(okonomi, prisendring, getDeltaker(gjennomforing.id))
                 }
 
-                // Personalia og tilgangssjekk hentes utenfor databasesesjonen siden kallene er suspend
                 val deltakerDto = deltaker?.let { deltaker ->
                     val personalia = personaliaPort.getPersonalia(deltaker.id, accessType)
                     val norskIdent = personalia.norskIdent()
                     val avvistGrunn = personalia.avvistGrunn
                     if (avvistGrunn != null) {
-                        return avvistGrunn.left()
+                        return GjennomforingDetaljerError.PersonaliaSjekkAvvist(avvistGrunn).left()
                     } else if (norskIdent != null) {
                         auditLog.visEnkeltplassDeltaker(gjennomforing.id, navIdent, norskIdent)
                     }
@@ -386,4 +392,10 @@ private fun ExcelWorkbookBuilder.createGjennomforingerSheet(
             )
         }
     }
+}
+
+sealed class GjennomforingDetaljerError {
+    data class IkkeFunnet(val message: String) : GjennomforingDetaljerError()
+    data class ManglerTilgang(val message: String) : GjennomforingDetaljerError()
+    data class PersonaliaSjekkAvvist(val avvistGrunn: AvvistGrunn) : GjennomforingDetaljerError()
 }
