@@ -40,7 +40,7 @@ const defaultValues = {
   },
 };
 
-const steps: WizardStep[] = [
+const steps: WizardStep<TiltakBeskrivelseFormValues>[] = [
   {
     key: "Detaljer",
     schema: tiltakBeskrivelseDetaljerSchema,
