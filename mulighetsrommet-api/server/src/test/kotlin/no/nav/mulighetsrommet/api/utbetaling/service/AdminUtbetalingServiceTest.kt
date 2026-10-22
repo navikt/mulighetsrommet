@@ -45,6 +45,7 @@ import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures.utbetalingLinje2
 import no.nav.mulighetsrommet.api.fixtures.setTilsagnStatus
 import no.nav.mulighetsrommet.api.fixtures.setUtbetalingLinjeStatus
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
+import no.nav.mulighetsrommet.api.tilsagn.model.GyldigTilsagnPeriode
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAnnenAvtaltPris
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.OpprettUtbetalingLinje
@@ -94,7 +95,7 @@ class AdminUtbetalingServiceTest : FunSpec({
     )
 
     fun createTilsagnService(): TilsagnService = TilsagnService(
-        TilsagnService.Config(gyldigTilsagnPeriode = mapOf()),
+        GyldigTilsagnPeriode(emptyMap()),
         db = database.api,
         navAnsattService = mockk(),
     )

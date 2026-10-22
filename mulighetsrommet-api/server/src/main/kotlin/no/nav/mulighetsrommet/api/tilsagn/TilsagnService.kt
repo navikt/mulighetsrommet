@@ -26,6 +26,7 @@ import no.nav.mulighetsrommet.api.domain.totrinnskontroll.Totrinnskontroll
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
 import no.nav.mulighetsrommet.api.tilsagn.model.BeregnTilsagnRequest
+import no.nav.mulighetsrommet.api.tilsagn.model.GyldigTilsagnPeriode
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregning
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAnnenAvtaltPris
@@ -50,7 +51,6 @@ import no.nav.mulighetsrommet.model.NOK
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
-import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.model.ValutaBelop
 import no.nav.mulighetsrommet.model.withValuta
@@ -68,14 +68,10 @@ import java.time.LocalDateTime
 import java.util.UUID
 
 class TilsagnService(
-    val config: Config,
+    private val gyldigTilsagnPeriode: GyldigTilsagnPeriode,
     private val db: ApiDatabase,
     private val navAnsattService: NavAnsattService,
 ) {
-    data class Config(
-        val gyldigTilsagnPeriode: Map<Tiltakskode, Periode>,
-    )
-
     fun upsert(request: TilsagnRequest, agent: Agent): Either<TilsagnError, Tilsagn> = db.transaction {
         upsertInTx(request, agent)
     }
@@ -104,7 +100,7 @@ class TilsagnService(
                 previous = previous,
                 tiltakstypeNavn = gjennomforing.tiltakstype.navn,
                 arrangorSlettet = gjennomforing.arrangor.slettet,
-                gyldigTilsagnPeriode = config.gyldigTilsagnPeriode[gjennomforing.tiltakstype.tiltakskode],
+                gyldigTilsagnPeriode = gyldigTilsagnPeriode.forTiltakskode(gjennomforing.tiltakstype.tiltakskode),
                 gjennomforingSluttDato = gjennomforing.sluttDato,
                 prismodell = gjennomforing.prismodell,
                 stengt = stengt,

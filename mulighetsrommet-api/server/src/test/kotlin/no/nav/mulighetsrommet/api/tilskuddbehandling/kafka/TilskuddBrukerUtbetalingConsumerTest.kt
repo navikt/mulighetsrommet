@@ -24,6 +24,7 @@ import no.nav.mulighetsrommet.api.domain.testing.fixture.NavAnsattFixture
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
+import no.nav.mulighetsrommet.api.tilsagn.model.GyldigTilsagnPeriode
 import no.nav.mulighetsrommet.api.tilskuddbehandling.TilskuddBehandlingService
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
 import no.nav.mulighetsrommet.api.tilskuddbehandling.gyldigJournalpostValidator
@@ -57,9 +58,11 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
     val deltakerId = UUID.randomUUID()
     val deltakerNorskIdent = NorskIdent("12345678901")
 
-    val gyldigTilsagnPeriode = Tiltakskode.entries.associateWith {
-        ModelPeriode(LocalDate.of(2025, 1, 1), LocalDate.of(2027, 1, 1))
-    }
+    val gyldigTilsagnPeriode = GyldigTilsagnPeriode(
+        Tiltakskode.entries.associateWith {
+            ModelPeriode(LocalDate.of(2025, 1, 1), LocalDate.of(2027, 1, 1))
+        },
+    )
 
     beforeEach {
         clearMocks(brukerUtbetalingService)
@@ -151,7 +154,7 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
 
     test("oppretter hel ved utbetaling for innvilget tilskudd til bruker") {
         val service = TilskuddBehandlingService(
-            config = TilskuddBehandlingService.Config(gyldigTilsagnPeriode),
+            gyldigTilsagnPeriode = gyldigTilsagnPeriode,
             database.api,
             journalforVedtaksbrev,
             mockk(relaxed = true),
@@ -178,7 +181,7 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
 
     test("behandler ikke tilskudd to ganger hvis utbetaling allerede eksisterer") {
         val service = TilskuddBehandlingService(
-            config = TilskuddBehandlingService.Config(gyldigTilsagnPeriode),
+            gyldigTilsagnPeriode = gyldigTilsagnPeriode,
             database.api,
             journalforVedtaksbrev,
             mockk(relaxed = true),
@@ -198,7 +201,7 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
 
     test("hopper over brukerutbetaling når utbetaling allerede finnes") {
         val service = TilskuddBehandlingService(
-            config = TilskuddBehandlingService.Config(gyldigTilsagnPeriode),
+            gyldigTilsagnPeriode = gyldigTilsagnPeriode,
             database.api,
             journalforVedtaksbrev,
             mockk(relaxed = true),
@@ -222,7 +225,7 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
 
     test("hopper over brukerutbetaling når revurdering allerede finnes") {
         val service = TilskuddBehandlingService(
-            config = TilskuddBehandlingService.Config(gyldigTilsagnPeriode),
+            gyldigTilsagnPeriode = gyldigTilsagnPeriode,
             database.api,
             journalforVedtaksbrev,
             mockk(relaxed = true),
@@ -263,7 +266,7 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
 
     test("bruker besluttet tidspunkt som periode for utbetaling") {
         val service = TilskuddBehandlingService(
-            config = TilskuddBehandlingService.Config(gyldigTilsagnPeriode),
+            gyldigTilsagnPeriode = gyldigTilsagnPeriode,
             database.api,
             journalforVedtaksbrev,
             mockk(relaxed = true),
@@ -300,7 +303,7 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
 
     test("håndterer opphørsrevurdering av tilskudd lagres som ny utbetaling og sender hel ved utbetaling") {
         val service = TilskuddBehandlingService(
-            config = TilskuddBehandlingService.Config(gyldigTilsagnPeriode),
+            gyldigTilsagnPeriode = gyldigTilsagnPeriode,
             database.api,
             journalforVedtaksbrev,
             mockk(relaxed = true),

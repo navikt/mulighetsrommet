@@ -25,6 +25,7 @@ import no.nav.mulighetsrommet.api.domain.navansatt.OkonomiBeslutningContext
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.Totrinnskontroll
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
+import no.nav.mulighetsrommet.api.tilsagn.model.GyldigTilsagnPeriode
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandling
 import no.nav.mulighetsrommet.api.tilskuddbehandling.mapper.TilskuddVedtakToPdfDocumentContentMapper
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingDetaljerDto
@@ -48,15 +49,13 @@ import no.nav.mulighetsrommet.model.JournalpostId
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.NorskIdent
-import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.ProblemDetail
-import no.nav.mulighetsrommet.model.Tiltakskode
 import java.time.Instant
 import java.time.LocalDateTime
 import java.util.UUID
 
 class TilskuddBehandlingService(
-    private val config: Config,
+    private val gyldigTilsagnPeriode: GyldigTilsagnPeriode,
     private val db: ApiDatabase,
     private val journalforVedtaksbrev: JournalforVedtaksbrev,
     private val pdf: PdfGenClient,
@@ -65,10 +64,6 @@ class TilskuddBehandlingService(
     private val featureToggleService: FeatureToggleService,
     private val betalingsinformasjon: BetalingsinformasjonQuery,
 ) {
-    data class Config(
-        val gyldigTilsagnPeriode: Map<Tiltakskode, Periode>,
-    )
-
     suspend fun upsert(
         request: TilskuddBehandlingRequest,
         navIdent: NavIdent,
@@ -97,7 +92,7 @@ class TilskuddBehandlingService(
             .validate(
                 request = request,
                 gjennomforing = gjennomforing,
-                gyldigTilsagnPeriode = config.gyldigTilsagnPeriode[gjennomforing.tiltakstype.tiltakskode],
+                gyldigTilsagnPeriode = gyldigTilsagnPeriode.forTiltakskode(gjennomforing.tiltakstype.tiltakskode),
                 arrangorBetalingsinformasjon = betalingsinformasjonArrangor,
                 behandlendeEnhet = behandlendeEnhet,
                 journalpostValidator = journalpostValidatorFunc,
@@ -397,7 +392,7 @@ class TilskuddBehandlingService(
             .validate(
                 request = request,
                 gjennomforing = gjennomforing,
-                gyldigTilsagnPeriode = config.gyldigTilsagnPeriode[gjennomforing.tiltakstype.tiltakskode],
+                gyldigTilsagnPeriode = gyldigTilsagnPeriode.forTiltakskode(gjennomforing.tiltakstype.tiltakskode),
                 arrangorBetalingsinformasjon = betalingsinformasjonArrangor,
                 behandlendeEnhet = behandlendeEnhet,
                 journalpostValidator = { _, _ -> JournalpostId("123").right() },

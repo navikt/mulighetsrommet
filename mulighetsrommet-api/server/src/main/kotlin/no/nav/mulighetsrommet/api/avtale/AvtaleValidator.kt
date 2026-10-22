@@ -30,6 +30,7 @@ import no.nav.mulighetsrommet.api.domain.tiltak.AvtaltSats
 import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
 import no.nav.mulighetsrommet.api.domain.tiltak.PrismodellType
 import no.nav.mulighetsrommet.api.domain.tiltak.Prismodeller
+import no.nav.mulighetsrommet.api.tilsagn.model.GyldigTilsagnPeriode
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.model.AvtaleStatusType
 import no.nav.mulighetsrommet.model.Avtaletype
@@ -38,7 +39,6 @@ import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
-import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.SakarkivNummer
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Valuta
@@ -210,7 +210,7 @@ object AvtaleValidator {
         val tiltakskode: Tiltakskode,
         val tiltakstypeNavn: String,
         val avtaleStartDato: LocalDate,
-        val gyldigTilsagnPeriode: Map<Tiltakskode, Periode>,
+        val gyldigTilsagnPeriode: GyldigTilsagnPeriode,
         val bruktePrismodeller: Set<UUID>,
         val systembestemtPrismodell: Prismodell?,
     )
@@ -540,7 +540,7 @@ object AvtaleValidator {
             val minSatsDato = satser.first().gjelderFra
             val requiredMinSatsDato = maxOf(
                 context.avtaleStartDato,
-                context.gyldigTilsagnPeriode[context.tiltakskode]?.start ?: context.avtaleStartDato,
+                context.gyldigTilsagnPeriode.forTiltakskode(context.tiltakskode)?.start ?: context.avtaleStartDato,
             )
             validate(minSatsDato <= requiredMinSatsDato) {
                 FieldError(

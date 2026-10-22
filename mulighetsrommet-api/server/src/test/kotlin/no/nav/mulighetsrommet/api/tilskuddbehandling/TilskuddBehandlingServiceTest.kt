@@ -23,6 +23,7 @@ import no.nav.mulighetsrommet.api.domain.testing.fixture.DeltakerFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
+import no.nav.mulighetsrommet.api.tilsagn.model.GyldigTilsagnPeriode
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingHandling
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingRequest
@@ -107,8 +108,8 @@ class TilskuddBehandlingServiceTest : FunSpec({
         val betalingsinformasjon = mockk<BetalingsinformasjonQuery>()
         coEvery { betalingsinformasjon.execute(any()) } returns arrangorBetalingsinformasjon
         return TilskuddBehandlingService(
-            config = TilskuddBehandlingService.Config(
-                gyldigTilsagnPeriode = Tiltakskode.entries.associateWith {
+            gyldigTilsagnPeriode = GyldigTilsagnPeriode(
+                Tiltakskode.entries.associateWith {
                     Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2027, 1, 1))
                 },
             ),

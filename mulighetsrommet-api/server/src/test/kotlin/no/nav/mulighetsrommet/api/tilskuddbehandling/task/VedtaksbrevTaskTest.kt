@@ -25,6 +25,7 @@ import no.nav.mulighetsrommet.api.domain.testing.fixture.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
+import no.nav.mulighetsrommet.api.tilsagn.model.GyldigTilsagnPeriode
 import no.nav.mulighetsrommet.api.tilskuddbehandling.TilskuddBehandlingService
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
 import no.nav.mulighetsrommet.api.tilskuddbehandling.gyldigJournalpostValidator
@@ -148,8 +149,8 @@ class VedtaksbrevTaskTest : FunSpec({
             distribuerVedtaksbrev = mockk(relaxed = true),
         )
         val service = TilskuddBehandlingService(
-            config = TilskuddBehandlingService.Config(
-                gyldigTilsagnPeriode = Tiltakskode.entries.associateWith {
+            gyldigTilsagnPeriode = GyldigTilsagnPeriode(
+                Tiltakskode.entries.associateWith {
                     Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2027, 1, 1))
                 },
             ),
@@ -263,8 +264,8 @@ private suspend fun opprettOgGodkjennTilskudd(
     )
 
     val service = TilskuddBehandlingService(
-        config = TilskuddBehandlingService.Config(
-            gyldigTilsagnPeriode = Tiltakskode.entries.associateWith {
+        gyldigTilsagnPeriode = GyldigTilsagnPeriode(
+            Tiltakskode.entries.associateWith {
                 Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2027, 1, 1))
             },
         ),
