@@ -294,7 +294,7 @@ fun resolveTilsagnDefaults(
         is Prismodell.AnnenAvtaltPris -> null
 
         is Prismodell.AnskaffetEnkeltplass,
-        -> getAnskaffetEnkeltplassPeriode(config, gjennomforing, tilsagn)
+        -> getAnskaffetEnkeltplassPeriode(config, gjennomforing)
 
         is Prismodell.FastSatsPerBenyttetPlassPerManed,
         is Prismodell.FastSatsPerAvtaltPlassPerManed,
@@ -392,12 +392,10 @@ private fun getAnskaffetTiltakPeriode(
 private fun getAnskaffetEnkeltplassPeriode(
     config: OkonomiConfig,
     gjennomforing: Gjennomforing,
-    tilsagn: Tilsagn?,
 ): Periode {
     val periodeStart = listOfNotNull(
         config.gyldigTilsagnPeriode[gjennomforing.tiltakstype.tiltakskode]?.start,
         gjennomforing.startDato,
-        tilsagn?.periode?.slutt,
     ).max()
 
     val lastDayOfYear = periodeStart.with(lastDayOfYear())
