@@ -10,7 +10,7 @@ import { useFormContext } from "react-hook-form";
 import { useNavigate, useParams } from "react-router";
 import { v4 } from "uuid";
 import { TilskuddBehandlingLayout } from "@/components/tilskudd-behandling/TilskuddBehandlingLayout";
-import { usePotentialTilskuddBehandling } from "@/api/tilskudd-behandling/useTilskuddBehandling";
+import { useTilskuddBehandling } from "@/api/tilskudd-behandling/useTilskuddBehandling";
 import { subDuration, yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
 import { useEnkeltplassGjennomforingOrError } from "@/api/gjennomforing/useGjennomforing";
 import { TotrinnskontrollReturnert } from "@/components/totrinnskontroll/TotrinnskontrollReturnert";
@@ -25,10 +25,26 @@ import { WizardForm } from "@/components/skjema/WizardForm";
 import { saksopplysningerSchema, vedtakSchema } from "@/components/tilskudd-behandling/validation";
 
 export function TilskuddBehandlingFormPage() {
+  const { behandlingId } = useParams();
+  return behandlingId ? (
+    <RedigerTilskuddBehandling behandlingId={behandlingId} />
+  ) : (
+    <TilskuddBehandlingForm data={undefined} />
+  );
+}
+
+function RedigerTilskuddBehandling({ behandlingId }: { behandlingId: string }) {
+  const { data } = useTilskuddBehandling(behandlingId);
+  return <TilskuddBehandlingForm data={data} />;
+}
+
+function TilskuddBehandlingForm({
+  data,
+}: {
+  data: ReturnType<typeof useTilskuddBehandling>["data"] | undefined;
+}) {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
   const { gjennomforing, prismodell } = useEnkeltplassGjennomforingOrError(gjennomforingId);
-  const { behandlingId } = useParams();
-  const { data } = usePotentialTilskuddBehandling(behandlingId ?? null);
   const behandling = data?.behandling;
   const navigate = useNavigate();
   const mutation = useOpprettTilskuddBehandling(gjennomforingId);
