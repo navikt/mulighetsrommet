@@ -4,9 +4,7 @@ import { SaksopplysningerForm } from "@/components/tilskudd-behandling/Saksopply
 import { VedtakForm } from "@/components/tilskudd-behandling/VedtakForm";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
 import { TilskuddBehandlingRequest, ValidationError } from "@tiltaksadministrasjon/api-client";
-import { Box, Button, HStack } from "@navikt/ds-react";
-import { useState } from "react";
-import { useFormContext } from "react-hook-form";
+import { Box } from "@navikt/ds-react";
 import { useNavigate, useParams } from "react-router";
 import { v4 } from "uuid";
 import { TilskuddBehandlingLayout } from "@/components/tilskudd-behandling/TilskuddBehandlingLayout";
@@ -16,13 +14,12 @@ import { useEnkeltplassGjennomforingOrError } from "@/api/gjennomforing/useGjenn
 import { TotrinnskontrollReturnert } from "@/components/totrinnskontroll/TotrinnskontrollReturnert";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { applyValidationErrors } from "@/components/skjema/helpers";
-import { FilePdfIcon } from "@navikt/aksel-icons";
-import { VedtaksbrevPdfModal } from "@/components/tilskudd-behandling/VedtaksbrevPdfModal";
-import { useVedtaksbrevPdfBlobPost } from "@/api/tilskudd-behandling/useVedtaksbrevPdfBlob";
 import { PrisOgBetalingsbetingelser } from "@/components/prismodell/PrisOgBetalingsbetingelser";
 import { WizardStep } from "@/hooks/useWizardForm";
 import { WizardForm } from "@/components/skjema/WizardForm";
 import { saksopplysningerSchema, vedtakSchema } from "@/components/tilskudd-behandling/validation";
+import { Vedtaksbrev } from "@/components/tilskudd-behandling/Vedtaksbrev";
+import z from "zod";
 
 export function TilskuddBehandlingFormPage() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
@@ -103,9 +100,6 @@ export function TilskuddBehandlingFormPage() {
             <VedtakForm arrangorId={gjennomforing.arrangor.id} />
           </Box>
           <Box>
-            <HStack align="end">
-              <VedtaksbrevKnappOgModal />
-            </HStack>
             <PrisOgBetalingsbetingelser prismodell={prismodell} size="medium" />
           </Box>
         </TwoColumnGrid>
@@ -113,15 +107,23 @@ export function TilskuddBehandlingFormPage() {
     ),
   };
 
+  const vedtaksbrevSteg: WizardStep = {
+    key: "Vedtaksbrev",
+    schema: z.object({
+      ...saksopplysningerSchema.shape,
+      ...vedtakSchema.shape,
+    }),
+    Component: <Vedtaksbrev />,
+  };
+
   const wizardLabels = {
     submit: "Send til godkjenning",
-    next: `Neste: ${vedtakOgBeregningSteg.key}`,
   };
 
   return (
     <TilskuddBehandlingLayout gjennomforingId={gjennomforingId}>
       <WizardForm<TilskuddBehandlingRequest>
-        steps={[saksopplysningerSteg, vedtakOgBeregningSteg]}
+        steps={[saksopplysningerSteg, vedtakOgBeregningSteg, vedtaksbrevSteg]}
         defaultValues={defaultValues}
         onCancel={() => navigate(listUrl)}
         onSubmit={(data, form) => {
@@ -134,40 +136,5 @@ export function TilskuddBehandlingFormPage() {
         labels={wizardLabels}
       />
     </TilskuddBehandlingLayout>
-  );
-}
-
-function VedtaksbrevKnappOgModal() {
-  const vedtaksbrevMutation = useVedtaksbrevPdfBlobPost();
-  const [pdfPreviewOpen, setPdfPreviewOpen] = useState(false);
-  const form = useFormContext<TilskuddBehandlingRequest>();
-  function onVisVedtaksbrev() {
-    const data = form.getValues();
-    vedtaksbrevMutation.mutate(data, {
-      onSuccess: () => setPdfPreviewOpen(true),
-      onValidationError: (error: ValidationError) => applyValidationErrors(form, error),
-    });
-  }
-  return (
-    <>
-      <Button
-        className="ml-auto"
-        variant="tertiary"
-        size="small"
-        type="button"
-        onClick={onVisVedtaksbrev}
-        disabled={vedtaksbrevMutation.isPending}
-        icon={<FilePdfIcon aria-hidden />}
-      >
-        Vis vedtaksbrev
-      </Button>
-      <VedtaksbrevPdfModal
-        blob={vedtaksbrevMutation.data}
-        isLoading={vedtaksbrevMutation.isPending}
-        isError={vedtaksbrevMutation.isError}
-        open={pdfPreviewOpen}
-        onClose={() => setPdfPreviewOpen(false)}
-      />
-    </>
   );
 }
