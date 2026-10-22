@@ -32,7 +32,7 @@ import no.nav.mulighetsrommet.validation.validation
 import java.time.LocalDate
 import kotlin.contracts.ExperimentalContracts
 
-data class Saksopplysninger(
+data class TilskuddSaksopplysninger(
     val periode: Periode,
     val soknadDato: LocalDate,
     val soknadJournalpostId: JournalpostId,
@@ -150,7 +150,7 @@ object TilskuddBehandlingValidator {
         req: TilskuddRequest,
         index: Int,
         ctx: Ctx,
-    ): Validated<Saksopplysninger> = validation {
+    ): Validated<TilskuddSaksopplysninger> = validation {
         validateNotNull(req.kostnadssted) {
             FieldError("/tilskudd/$index/kostnadssted", "Kostnadssted er påkrevd")
         }
@@ -251,7 +251,7 @@ object TilskuddBehandlingValidator {
 
         val jId = ctx.journalpostValidator(req.soknadJournalpostId, index).bind()
 
-        Saksopplysninger(
+        TilskuddSaksopplysninger(
             periode = periode,
             soknadDato = req.soknadDato,
             soknadJournalpostId = jId,

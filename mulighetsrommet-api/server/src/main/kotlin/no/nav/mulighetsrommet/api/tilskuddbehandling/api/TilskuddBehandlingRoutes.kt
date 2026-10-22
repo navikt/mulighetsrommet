@@ -156,7 +156,11 @@ fun Route.tilskuddBehandlingRoutes() {
                 },
             ) {
                 val request = call.receive<TilskuddBehandlingRequest>()
-                val result = service.validerSaksopplysninger(request).mapLeft { ValidationError(errors = it) }
+                val navIdent = getNavIdent()
+                val result =
+                    service.validerRequest(request, navIdent)
+                        .mapLeft { ValidationError(errors = it) }
+                        .map {} // Bryr oss bare om valideringsfeil, hvis de eksisterer
 
                 call.respondWithStatusResponse(result)
             }
