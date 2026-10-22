@@ -1,5 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { JSX, useState } from "react";
+import { JSX, useRef, useState } from "react";
+import { ValidationError } from "@tiltaksadministrasjon/api-client";
+import { applyValidationErrors } from "../components/skjema/helpers";
 import {
   DefaultValues,
   FieldValues,
@@ -10,14 +12,15 @@ import {
 } from "react-hook-form";
 import { ZodObject } from "zod";
 
-export interface WizardStep {
+export interface WizardStep<TFormValues extends FieldValues> {
   key: string;
   schema: ZodObject;
   Component: JSX.Element;
+  validateAsync?: (data: TFormValues) => Promise<ValidationError | undefined>;
 }
 
 interface UseWizardOptions<TFormValues extends FieldValues> {
-  steps: WizardStep[];
+  steps: WizardStep<TFormValues>[];
   defaultValues: DefaultValues<TFormValues>;
   onSubmit: (data: TFormValues, form: UseFormReturn<TFormValues>) => void | Promise<void>;
   onCancel: () => void;
@@ -30,24 +33,30 @@ export function useWizardForm<TFormValues extends FieldValues>({
   onCancel,
 }: UseWizardOptions<TFormValues>) {
   const [activeStep, setActiveStep] = useState(1);
-  const [collectedData, setCollectedData] = useState<DefaultValues<TFormValues>>(defaultValues);
+  const [isValidating, setIsValidating] = useState(false);
+  const validating = useRef(false);
 
   const currentStep = steps[activeStep - 1];
   const isLastStep = activeStep === steps.length;
 
   const form = useForm<TFormValues>({
     resolver: zodResolver(currentStep.schema as ZodObject<any>) as Resolver<TFormValues>,
-    defaultValues: collectedData,
+    defaultValues,
   });
 
   const handleStepChange = async (val: number) => {
-    await form.trigger();
-    if (form.formState.isValid) {
+    if (validating.current || val === activeStep || val < 1 || val > steps.length) return;
+    if (val < activeStep) {
       setActiveStep(val);
+      return;
+    }
+    if (val === activeStep + 1) {
+      await form.handleSubmit(handleStepForward)();
     }
   };
 
   const handleStepBack = () => {
+    if (validating.current) return;
     if (activeStep === 1) {
       onCancel();
     } else {
@@ -55,14 +64,32 @@ export function useWizardForm<TFormValues extends FieldValues>({
     }
   };
 
-  const handleStepForward: SubmitHandler<TFormValues> = async (data) => {
-    const mergedData = { ...collectedData, ...data } as DefaultValues<TFormValues>;
-    setCollectedData(mergedData);
+  const handleStepForward: SubmitHandler<TFormValues> = async () => {
+    if (validating.current) return;
+    const values = form.getValues();
 
     if (!isLastStep) {
-      setActiveStep(activeStep + 1);
+      validating.current = true;
+      setIsValidating(true);
+      form.clearErrors("root.server");
+      try {
+        const error = await currentStep.validateAsync?.(values);
+        if (error?.errors.length) {
+          applyValidationErrors(form, error);
+          return;
+        }
+        setActiveStep(activeStep + 1);
+      } catch {
+        form.setError("root.server", {
+          type: "custom",
+          message: "Kunne ikke validere skjemaet. Prøv igjen.",
+        });
+      } finally {
+        validating.current = false;
+        setIsValidating(false);
+      }
     } else {
-      await onSubmit(mergedData as TFormValues, form);
+      await onSubmit(values, form);
     }
   };
 
@@ -70,6 +97,7 @@ export function useWizardForm<TFormValues extends FieldValues>({
     activeStep,
     currentStep,
     isLastStep,
+    isValidating,
     form,
     handleStepChange,
     handleStepBack,

@@ -1,4 +1,8 @@
-import { useOpprettTilskuddBehandling } from "@/api/tilskudd-behandling/mutations";
+import {
+  useOpprettTilskuddBehandling,
+  useValidateSaksopplysninger,
+  useValidateTilskuddBehandling,
+} from "@/api/tilskudd-behandling/mutations";
 import { defaultTilskuddRequest } from "@/components/tilskudd-behandling/defaultTilskuddRequest";
 import { SaksopplysningerForm } from "@/components/tilskudd-behandling/SaksopplysningerForm";
 import { VedtakForm } from "@/components/tilskudd-behandling/VedtakForm";
@@ -45,6 +49,8 @@ function TilskuddBehandlingForm({
   const behandling = data?.behandling;
   const navigate = useNavigate();
   const mutation = useOpprettTilskuddBehandling(gjennomforingId);
+  const mutationValidationSaksopplysninger = useValidateSaksopplysninger();
+  const mutationValidationBehandling = useValidateTilskuddBehandling();
 
   const defaultValues: TilskuddBehandlingRequest = behandling
     ? {
@@ -85,9 +91,10 @@ function TilskuddBehandlingForm({
       />
     </Box>
   );
-  const saksopplysningerSteg: WizardStep = {
+  const saksopplysningerSteg: WizardStep<TilskuddBehandlingRequest> = {
     key: "Saksopplysninger",
     schema: saksopplysningerSchema,
+    validateAsync: (data) => mutationValidationSaksopplysninger.mutateAsync(data),
     Component: (
       <>
         {retunert}
@@ -105,9 +112,10 @@ function TilskuddBehandlingForm({
       </>
     ),
   };
-  const vedtakOgBeregningSteg: WizardStep = {
+  const vedtakOgBeregningSteg: WizardStep<TilskuddBehandlingRequest> = {
     key: "Vedtak og beregning",
     schema: vedtakSchema,
+    validateAsync: (data) => mutationValidationBehandling.mutateAsync(data),
     Component: (
       <>
         {retunert}
@@ -123,7 +131,7 @@ function TilskuddBehandlingForm({
     ),
   };
 
-  const vedtaksbrevSteg: WizardStep = {
+  const vedtaksbrevSteg: WizardStep<TilskuddBehandlingRequest> = {
     key: "Vedtaksbrev",
     schema: z.object({
       ...saksopplysningerSchema.shape,

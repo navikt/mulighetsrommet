@@ -36,7 +36,7 @@ export function OpprettGjennomforingPage() {
   const { data: ansatt } = useHentAnsatt();
   const createGjennomforing = useCreateGjennomforing();
 
-  const steps: WizardStep[] = [
+  const steps: WizardStep<GjennomforingFormValues>[] = [
     {
       key: "Detaljer",
       schema: gjennomforingDetaljerSchema,

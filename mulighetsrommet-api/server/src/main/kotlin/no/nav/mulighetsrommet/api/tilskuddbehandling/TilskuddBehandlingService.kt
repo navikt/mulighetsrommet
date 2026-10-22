@@ -44,11 +44,11 @@ import no.nav.mulighetsrommet.featuretoggle.model.FeatureToggle
 import no.nav.mulighetsrommet.featuretoggle.service.FeatureToggleService
 import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.FieldError
-import no.nav.mulighetsrommet.model.JournalpostId
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.ProblemDetail
+import no.nav.mulighetsrommet.validation.Validated
 import java.time.Instant
 import java.time.LocalDateTime
 import java.util.UUID
@@ -65,12 +65,60 @@ class TilskuddBehandlingService(
     suspend fun upsert(
         request: TilskuddBehandlingRequest,
         navIdent: NavIdent,
+    ): Either<List<FieldError>, Unit> = validerRequest(request, navIdent)
+        .map { dbo ->
+            db.transaction {
+                queries.tilskuddBehandling.upsert(dbo)
+                val opprettelse = when (dbo.type) {
+                    TilskuddBehandlingType.REGISTRERING -> Totrinnskontroll.opprett(
+                        UUID.randomUUID(),
+                        dbo.id,
+                        TotrinnskontrollType.TILSKUDD_OPPRETTELSE,
+                        navIdent,
+                    )
+
+                    TilskuddBehandlingType.REVURDERING -> Totrinnskontroll.opprett(
+                        UUID.randomUUID(),
+                        dbo.id,
+                        TotrinnskontrollType.TILSKUDD_OPPHOR,
+                        navIdent,
+                    )
+                }
+                queries.totrinnskontroll.upsert(opprettelse)
+                outbox.publish(opprettelse)
+                logEndring("Sendt til godkjenning", dbo.id, navIdent)
+            }
+        }
+
+    suspend fun validerSaksopplysninger(
+        request: TilskuddBehandlingRequest,
     ): Either<List<FieldError>, Unit> {
-        val gjennomforing = db.session { queries.gjennomforing.getGjennomforing(request.gjennomforingId) }
-            ?: throw IllegalStateException("Fant ikke gjennomføring for tilskuddsbehandling")
+        val ctx = hentValideringsContext(request.gjennomforingId)
+        return TilskuddBehandlingValidator.validateSaksopplysninger(
+            request,
+            ctx,
+        )
+    }
+
+    suspend fun validerRequest(
+        request: TilskuddBehandlingRequest,
+        navIdent: NavIdent,
+    ): Validated<TilskuddBehandling> {
         val behandlendeEnhet = db.session { queries.ansatt.get(navIdent) }?.hovedenhet
             ?: throw IllegalArgumentException("Fant ikke enhet for ansatt $navIdent")
 
+        val ctx = hentValideringsContext(request.gjennomforingId)
+
+        return TilskuddBehandlingValidator.validate(
+            request,
+            behandlendeEnhet,
+            ctx,
+        )
+    }
+
+    private suspend fun hentValideringsContext(gjennomforingId: UUID): TilskuddBehandlingValidator.Ctx {
+        val gjennomforing = db.session { queries.gjennomforing.getGjennomforing(gjennomforingId) }
+            ?: throw IllegalStateException("Fant ikke gjennomføring for tilskuddsbehandling")
         val forventetBruker = hentDeltakerNorskIdentOrError(gjennomforing.id).let {
             ForventetBruker.PersonEllerBedrift(
                 norskIdent = it,
@@ -86,31 +134,11 @@ class TilskuddBehandlingService(
             valideringEnabled = featureToggleService.isEnabled(FeatureToggle.TILTAKSADMINISTRASJON_JOURNALPOST_VALIDERING),
         )
 
-        return TilskuddBehandlingValidator
-            .validate(request, gjennomforing, betalingsinformasjonArrangor, behandlendeEnhet, journalpostValidatorFunc)
-            .map { dbo ->
-                db.transaction {
-                    queries.tilskuddBehandling.upsert(dbo)
-                    val opprettelse = when (dbo.type) {
-                        TilskuddBehandlingType.REGISTRERING -> Totrinnskontroll.opprett(
-                            UUID.randomUUID(),
-                            dbo.id,
-                            TotrinnskontrollType.TILSKUDD_OPPRETTELSE,
-                            navIdent,
-                        )
-
-                        TilskuddBehandlingType.REVURDERING -> Totrinnskontroll.opprett(
-                            UUID.randomUUID(),
-                            dbo.id,
-                            TotrinnskontrollType.TILSKUDD_OPPHOR,
-                            navIdent,
-                        )
-                    }
-                    queries.totrinnskontroll.upsert(opprettelse)
-                    outbox.publish(opprettelse)
-                    logEndring("Sendt til godkjenning", dbo.id, navIdent)
-                }
-            }
+        return TilskuddBehandlingValidator.Ctx(
+            gjennomforing,
+            betalingsinformasjonArrangor,
+            journalpostValidatorFunc,
+        )
     }
 
     private suspend fun hentDeltakerNorskIdentOrError(gjennomforingId: UUID): NorskIdent {
@@ -372,15 +400,11 @@ class TilskuddBehandlingService(
         request: TilskuddBehandlingRequest,
         navIdent: NavIdent,
     ): Either<List<FieldError>, ByteArray> = db.session {
-        val gjennomforing = db.session { queries.gjennomforing.getGjennomforing(request.gjennomforingId) }
-            ?: throw IllegalStateException("Fant ikke gjennomføring for tilskuddsbehandling")
         val behandlendeEnhet = db.session { queries.ansatt.get(navIdent) }?.hovedenhet
             ?: throw IllegalArgumentException("Fant ikke enhet for ansatt $navIdent")
-        val betalingsinformasjonArrangor = betalingsinformasjon.execute(HentBetalingsinformasjon(gjennomforing.arrangor.id))
-
+        val ctx = hentValideringsContext(request.gjennomforingId)
         return TilskuddBehandlingValidator
-            // Dummy journalpost validator her
-            .validate(request, gjennomforing, betalingsinformasjonArrangor, behandlendeEnhet) { _, _ -> JournalpostId("123").right() }
+            .validate(request, behandlendeEnhet, ctx)
             .map { dbo ->
                 vedtaksbrevForhandsvisPdf(dbo).getOrElse { throw IllegalStateException("Klarte ikke lage vedtaksbrev pdf") }
             }

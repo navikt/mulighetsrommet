@@ -23,7 +23,7 @@ import { v4 as uuidv4 } from "uuid";
 import { defaultAvtaleData } from "@/pages/avtaler/form/defaults";
 import { HeaderBanner } from "@/layouts/HeaderBanner";
 
-const steps: WizardStep[] = [
+const steps: WizardStep<AvtaleFormValues>[] = [
   {
     key: "Detaljer",
     schema: avtaleDetaljerFormSchema,
