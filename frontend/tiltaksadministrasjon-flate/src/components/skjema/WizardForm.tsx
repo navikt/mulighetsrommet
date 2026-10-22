@@ -1,7 +1,7 @@
 import { ValideringsfeilOppsummering } from "@/components/skjema/ValideringsfeilOppsummering";
 import { useWizardForm, WizardStep } from "@/hooks/useWizardForm";
 import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
-import { Box, Button, FormProgress, Heading, HStack, VStack } from "@navikt/ds-react";
+import { Box, Button, HStack, Stepper, VStack } from "@navikt/ds-react";
 import { DefaultValues, FieldValues, FormProvider, UseFormReturn } from "react-hook-form";
 
 interface WizardFormProps<TFormValues extends FieldValues> {
@@ -48,18 +48,16 @@ export function WizardForm<TFormValues extends FieldValues>({
       padding="space-16"
       background="default"
     >
-      <Heading size="medium" spacing level="2" id="stepper-heading">
-        Steg
-      </Heading>
-      <FormProgress
-        totalSteps={steps.length}
+      <Stepper
+        aria-label="Stepper"
         activeStep={activeStep}
         onStepChange={handleStepChange}
+        orientation="horizontal"
       >
         {steps.map((step) => (
-          <FormProgress.Step key={step.key}>{step.key}</FormProgress.Step>
+          <Stepper.Step key={step.key}>{step.key}</Stepper.Step>
         ))}
-      </FormProgress>
+      </Stepper>
       <Separator />
       <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(handleStepForward)}>

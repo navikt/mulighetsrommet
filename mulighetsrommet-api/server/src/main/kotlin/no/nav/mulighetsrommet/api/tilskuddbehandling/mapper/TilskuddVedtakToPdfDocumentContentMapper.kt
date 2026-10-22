@@ -5,6 +5,7 @@ import no.nav.mulighetsrommet.api.pdfgen.PdfDocumentContent
 import no.nav.mulighetsrommet.api.pdfgen.PdfDocumentContentBuilder
 import no.nav.mulighetsrommet.api.pdfgen.Signature
 import no.nav.mulighetsrommet.api.pdfgen.TopSection
+import no.nav.mulighetsrommet.api.tilskuddbehandling.db.BrukerUtbetalingType
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
 import no.nav.mulighetsrommet.api.tilskuddbehandling.task.TilskuddBrevVedtak
@@ -100,7 +101,7 @@ object TilskuddVedtakToPdfDocumentContentMapper {
             paragraph { regular(HJEMMEL) }
         }
         when (tilskudd.utbetalingMottaker) {
-            TilskuddMottaker.BRUKER -> utbetalingBrukerSection()
+            TilskuddMottaker.BRUKER -> utbetalingBrukerSection(tilskudd, arrangorNavn)
 
             TilskuddMottaker.ARRANGOR -> utbetalingArrangorSection(
                 arrangorNavn,
@@ -123,7 +124,7 @@ object TilskuddVedtakToPdfDocumentContentMapper {
         }
     }
 
-    private fun PdfDocumentContentBuilder.utbetalingBrukerSection() {
+    private fun PdfDocumentContentBuilder.utbetalingBrukerSection(tilskudd: TilskuddBrevVedtak, arrangorNavn: String) {
         section("Når får du pengene?", level = 3) {
             paragraph {
                 regular(
@@ -141,7 +142,7 @@ object TilskuddVedtakToPdfDocumentContentMapper {
                 regular("Kontakt oss på telefon 55 55 33 33 hvis du trenger hjelp. ")
             }
         }
-        dinePlikterSection()
+        dinePlikterSection(tilskudd, arrangorNavn)
     }
 }
 
@@ -155,8 +156,16 @@ private fun PdfDocumentContentBuilder.utbetalingArrangorSection(arrangorNavn: St
     }
 }
 
-private fun PdfDocumentContentBuilder.dinePlikterSection() {
+private fun PdfDocumentContentBuilder.dinePlikterSection(tilskudd: TilskuddBrevVedtak, arrangorNavn: String) {
     section("Dine plikter", level = 3) {
+        if (tilskudd.brukerUtbetalingType == BrukerUtbetalingType.FORSKUDD) {
+            paragraph {
+                regular(
+                    "Pengene skal kun brukes til å betale ${tilskudd.tilskuddType} til $arrangorNavn. " +
+                        "Hvis du bruker pengene til noe annet, vil Nav kunne avbryte tiltaket.",
+                )
+            }
+        }
         paragraph {
             regular(
                 "Hvis du har fått utbetalt for mye, må du vanligvis betale tilbake pengene. Det er derfor viktig " +

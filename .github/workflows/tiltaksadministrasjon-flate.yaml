@@ -62,7 +62,7 @@ jobs:
       - name: Playwright test
         run: npx turbo run playwright --filter=@tiltaksadministrasjon/flate
 
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: ${{ !cancelled() }}
         with:
           name: playwright-report
@@ -87,7 +87,7 @@ jobs:
         env:
           VITE_BASE: https://cdn.nav.no/team-mulighetsrommet/dev/tiltaksadministrasjon-flate/dist
       - name: Upload to Nav CDN
-        uses: nais/deploy/actions/cdn-upload/v2@9850be311389ca754d9a9f2280615419d738c891 # v3
+        uses: nais/deploy/actions/cdn-upload/v2@d003bddf74ce5b96fa3056ae60bd4b9b3bbc89ef # v3
         with:
           team: team-mulighetsrommet
           source: frontend/tiltaksadministrasjon-flate/dist
@@ -115,7 +115,7 @@ jobs:
         env:
           VITE_BASE: https://cdn.nav.no/team-mulighetsrommet/prod/tiltaksadministrasjon-flate/dist
       - name: Upload to Nav CDN
-        uses: nais/deploy/actions/cdn-upload/v2@9850be311389ca754d9a9f2280615419d738c891 # v3
+        uses: nais/deploy/actions/cdn-upload/v2@d003bddf74ce5b96fa3056ae60bd4b9b3bbc89ef # v3
         with:
           team: team-mulighetsrommet
           source: frontend/tiltaksadministrasjon-flate/dist

@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.admin.gjennomforing
 
 import arrow.core.Either
 import arrow.core.left
+import arrow.core.raise.context.either
 import arrow.core.right
 import arrow.core.toNonEmptySetOrThrow
 import no.nav.mulighetsrommet.admin.AdminDatabase
@@ -41,6 +42,7 @@ import no.nav.mulighetsrommet.spreadsheet.ExcelWorkbookBuilder
 import no.nav.mulighetsrommet.spreadsheet.buildExcelWorkbook
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import java.io.File
+import java.time.LocalDate
 import java.util.UUID
 import kotlin.io.path.createTempFile
 import kotlin.io.path.outputStream
@@ -76,8 +78,10 @@ class GjennomforingDetaljerService(
         id: UUID,
         accessType: AccessType.OBO.AzureAd,
         navIdent: NavIdent,
-    ): Either<AvvistGrunn, GjennomforingDetaljerDto?> {
-        val gjennomforing = getGjennomforingTiltaksadministrasjon(id) ?: return null.right()
+    ): Either<GjennomforingDetaljerError, GjennomforingDetaljerDto> = either {
+        val gjennomforing = getGjennomforingTiltaksadministrasjon(id)
+            ?: return GjennomforingDetaljerError.IkkeFunnet("Gjennomføring med id=$id finnes ikke").left()
+
         return when (gjennomforing) {
             is GjennomforingAvtale -> db.session {
                 val detaljer = queries.gjennomforing.getGjennomforingAvtaleDetaljerOrError(gjennomforing.id)
@@ -85,6 +89,10 @@ class GjennomforingDetaljerService(
             }
 
             is GjennomforingEnkeltplass -> {
+                val ansatt = db.session { repository.navAnsatt.getOrError(navIdent) }
+                if (!OkonomiAuthorization.kanLeseEnkeltplass(ansatt)) {
+                    return GjennomforingDetaljerError.ManglerTilgang("Du mangler lesetilgang til enkeltplass").left()
+                }
                 val enkeltplass = enkeltplassService.get(gjennomforing.id)
                     ?: error("Fant ikke enkeltplass med id=${gjennomforing.id}")
 
@@ -102,20 +110,19 @@ class GjennomforingDetaljerService(
                     Triple(okonomi, prisendring, getDeltaker(gjennomforing.id))
                 }
 
-                // Personalia og tilgangssjekk hentes utenfor databasesesjonen siden kallene er suspend
                 val deltakerDto = deltaker?.let { deltaker ->
                     val personalia = personaliaPort.getPersonalia(deltaker.id, accessType)
                     val norskIdent = personalia.norskIdent()
                     val avvistGrunn = personalia.avvistGrunn
                     if (avvistGrunn != null) {
-                        return avvistGrunn.left()
+                        return GjennomforingDetaljerError.PersonaliaSjekkAvvist(avvistGrunn).left()
                     } else if (norskIdent != null) {
                         auditLog.visEnkeltplassDeltaker(gjennomforing.id, navIdent, norskIdent)
                     }
                     val veilederNavn = deltaker.navVeileder?.navIdent?.let {
                         navAnsattService.getNavAnsattNavnFromAzure(it, AccessType.M2M)
                     }
-                    DeltakerDto.from(deltaker, personalia, veilederNavn)
+                    DeltakerDto.from(deltaker, personalia, veilederNavn, dato = LocalDate.now())
                 }
 
                 val opplaringKategorisering = db.session { queries.opplaering.get(gjennomforing.id) }
@@ -260,6 +267,7 @@ class GjennomforingDetaljerService(
         return setOfNotNull(
             GjennomforingHandling.OPPRETT_TILSAGN,
             GjennomforingHandling.OPPRETT_UTBETALING,
+            GjennomforingHandling.OPPRETT_TILSKUDDSBEHANDLING,
             GjennomforingHandling.SETT_PA_VENT_ENKELTPLASS_OKONOMI.takeIf {
                 okonomiKanBehandlesAvNavAnsatt && okonomi.kanSettesPaVent()
             },
@@ -310,6 +318,7 @@ class GjennomforingDetaljerService(
                 GjennomforingHandling.OPPRETT_EKSTRATILSAGN,
                 GjennomforingHandling.OPPRETT_TILSAGN_FOR_INVESTERINGER,
                 GjennomforingHandling.OPPRETT_UTBETALING,
+                GjennomforingHandling.OPPRETT_TILSKUDDSBEHANDLING,
                 -> OkonomiAuthorization.erSaksbehandler(ansatt, gjennomforingType)
 
                 GjennomforingHandling.SETT_PA_VENT_ENKELTPLASS_OKONOMI,
@@ -385,4 +394,10 @@ private fun ExcelWorkbookBuilder.createGjennomforingerSheet(
             )
         }
     }
+}
+
+sealed class GjennomforingDetaljerError {
+    data class IkkeFunnet(val message: String) : GjennomforingDetaljerError()
+    data class ManglerTilgang(val message: String) : GjennomforingDetaljerError()
+    data class PersonaliaSjekkAvvist(val avvistGrunn: AvvistGrunn) : GjennomforingDetaljerError()
 }

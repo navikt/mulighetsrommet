@@ -130,6 +130,12 @@ object TilskuddBehandlingValidator {
                         detail = "Maksimum sluttdato for tilsagn til ${gjennomforing.tiltakstype.navn} er $dato",
                     )
                 }
+                validate(!gjennomforing.arrangor.slettet) {
+                    FieldError(
+                        "/tilskudd/$index/utbetalingMottaker",
+                        "Tilskudd kan ikke opprettes fordi arrangøren er slettet i Brreg",
+                    )
+                }
             }
         }
         validateNotNull(req.soknadDato) {
@@ -169,11 +175,11 @@ object TilskuddBehandlingValidator {
                 )
             }
         }
-        if (req.vedtakResultat == VedtakResultat.INNVILGELSE && req.utbetalingMottaker == TilskuddMottaker.ARRANGOR) {
-            validate(!gjennomforing.arrangor.slettet) {
+        if (req.utbetalingMottaker == TilskuddMottaker.BRUKER) {
+            validateNotNull(req.brukerUtbetalingType) {
                 FieldError(
-                    "/tilskudd/$index/utbetalingMottaker",
-                    "Tilskudd kan ikke opprettes fordi arrangøren er slettet i Brreg",
+                    "/tilskudd/$index/brukerUtbetalingType",
+                    "Du må velge forskudd eller refusjon",
                 )
             }
         }
@@ -230,7 +236,7 @@ object TilskuddBehandlingValidator {
             kostnadssted = req.kostnadssted,
             vedtakResultat = req.vedtakResultat,
             utbetalingMottaker = req.utbetalingMottaker,
-            kid = kid,
+            kid = kid.takeIf { req.utbetalingMottaker == TilskuddMottaker.ARRANGOR },
             utbetalingBelop = if (req.vedtakResultat == VedtakResultat.INNVILGELSE) {
                 ValutaBelop(
                     requireNotNull(req.belop),
@@ -239,6 +245,7 @@ object TilskuddBehandlingValidator {
             } else {
                 null
             },
+            brukerUtbetalingType = req.brukerUtbetalingType.takeIf { req.utbetalingMottaker == TilskuddMottaker.BRUKER },
             kommentarIntern = req.kommentarIntern,
             kommentarVedtaksbrev = req.kommentarVedtaksbrev,
         )

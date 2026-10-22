@@ -4,6 +4,15 @@ import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingType
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 
 object OkonomiAuthorization {
+    fun kanLeseEnkeltplass(ansatt: NavAnsatt): Boolean {
+        return hasAnyRole(
+            ansatt,
+            Rolle.OKONOMI_LES,
+            Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS,
+            Rolle.OKONOMI_BESLUTTER_ENKELTPLASS,
+        )
+    }
+
     fun kanLeseTilsagn(ansatt: NavAnsatt, type: GjennomforingType): Boolean = when (type) {
         GjennomforingType.AVTALE -> hasAnyRole(
             ansatt,

@@ -1,5 +1,6 @@
 import {
   Betalingsinformasjon,
+  BrukerUtbetalingType,
   KostnadsstedDto,
   OpplaeringtilskuddKode,
   Periode,
@@ -21,6 +22,7 @@ interface SaksopplysningerProps {
   utbetalingMottaker: TilskuddMottaker | null;
   belop: number | null;
   kid: string | null;
+  brukerUtbetalingType: BrukerUtbetalingType | null;
   betalingsinformasjon: Betalingsinformasjon | null;
 }
 
@@ -33,6 +35,7 @@ export function Saksopplysninger({
   utbetalingMottaker,
   belop,
   kid,
+  brukerUtbetalingType,
   betalingsinformasjon,
 }: SaksopplysningerProps) {
   return (
@@ -61,7 +64,9 @@ export function Saksopplysninger({
         },
         {
           key: "Hvem skal motta utbetalingen?",
-          value: utbetalingMottaker ? tilskuddMottakerToString(utbetalingMottaker) : "-",
+          value: utbetalingMottaker
+            ? tilskuddMottakerToString(utbetalingMottaker, brukerUtbetalingType)
+            : "-",
           spanColumns: true,
         },
         ...(utbetalingMottaker === TilskuddMottaker.ARRANGOR &&

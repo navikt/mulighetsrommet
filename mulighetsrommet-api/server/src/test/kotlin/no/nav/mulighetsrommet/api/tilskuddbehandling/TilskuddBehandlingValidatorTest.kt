@@ -16,6 +16,7 @@ import no.nav.mulighetsrommet.admin.journalpost.JournalpostValidator
 import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.domain.gjennomforing.Gjennomforing
 import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd
+import no.nav.mulighetsrommet.api.tilskuddbehandling.db.BrukerUtbetalingType
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandling
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddVedtak
@@ -63,6 +64,7 @@ class TilskuddBehandlingValidatorTest : FunSpec({
         kommentarVedtaksbrev = "Vedtakskommentar",
         utbetalingMottaker = TilskuddMottaker.ARRANGOR,
         kidNummer = "116",
+        brukerUtbetalingType = null,
         belop = 2000,
         periodeStart = periodeStart.toString(),
         periodeSlutt = periodeSlutt.toString(),
@@ -101,6 +103,7 @@ class TilskuddBehandlingValidatorTest : FunSpec({
                     vedtakResultat = VedtakResultat.INNVILGELSE,
                     utbetalingMottaker = TilskuddMottaker.ARRANGOR,
                     kid = Kid.parse("116"),
+                    brukerUtbetalingType = null,
                     utbetalingBelop = ValutaBelop(2000, Valuta.NOK),
                     kommentarIntern = "Intern kommentar",
                     kommentarVedtaksbrev = "Vedtakskommentar",
@@ -210,6 +213,56 @@ class TilskuddBehandlingValidatorTest : FunSpec({
         ) { journalpostId, _ -> JournalpostId(journalpostId).right() } shouldBeLeft listOf(
             FieldError("/tilskudd/0/utbetalingMottaker", "Betalingsinformasjon for arrangøren må være registrert"),
         )
+    }
+
+    BrukerUtbetalingType.entries.forEach { brukerUtbetalingType ->
+        test("setter type utbetaling til $brukerUtbetalingType når mottaker er bruker") {
+            val request = validTilskuddRequest().copy(
+                utbetalingMottaker = TilskuddMottaker.BRUKER,
+                brukerUtbetalingType = brukerUtbetalingType,
+            )
+
+            val result = TilskuddBehandlingValidator.validateTilskuddRequest(
+                req = request,
+                gyldigTilsagnPeriode = gyldigTilsagnPeriode,
+                index = 0,
+                gjennomforing = createGjennomforing(),
+                arrangorBetalingsinformasjon = null,
+            ) { journalpostId, _ -> JournalpostId(journalpostId).right() }.shouldBeRight()
+
+            result.brukerUtbetalingType shouldBe brukerUtbetalingType
+        }
+    }
+
+    test("krever valg om type utbetaling når mottaker er bruker") {
+        val request = validTilskuddRequest().copy(
+            utbetalingMottaker = TilskuddMottaker.BRUKER,
+            brukerUtbetalingType = null,
+        )
+
+        TilskuddBehandlingValidator.validateTilskuddRequest(
+            req = request,
+            index = 1,
+            gyldigTilsagnPeriode = gyldigTilsagnPeriode,
+            gjennomforing = createGjennomforing(),
+            arrangorBetalingsinformasjon = null,
+        ) { journalpostId, _ -> JournalpostId(journalpostId).right() } shouldBeLeft listOf(
+            FieldError("/tilskudd/1/brukerUtbetalingType", "Du må velge forskudd eller refusjon"),
+        )
+    }
+
+    test("ignorerer forskuddsutbetalingTilBruker når mottaker er arrangør") {
+        val request = validTilskuddRequest().copy(brukerUtbetalingType = BrukerUtbetalingType.FORSKUDD)
+
+        val result = TilskuddBehandlingValidator.validateTilskuddRequest(
+            req = request,
+            index = 0,
+            gyldigTilsagnPeriode = gyldigTilsagnPeriode,
+            gjennomforing = createGjennomforing(),
+            arrangorBetalingsinformasjon = arrangorBetalingsinformasjon,
+        ) { journalpostId, _ -> JournalpostId(journalpostId).right() }.shouldBeRight()
+
+        result.brukerUtbetalingType shouldBe null
     }
 
     test("validerer periodens rekkefølge og grensen for gjennomføringen") {

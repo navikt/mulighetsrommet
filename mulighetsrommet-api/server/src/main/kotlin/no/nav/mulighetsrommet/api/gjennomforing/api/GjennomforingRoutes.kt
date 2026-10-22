@@ -25,6 +25,7 @@ import no.nav.mulighetsrommet.admin.aarsakerbegrunnelse.AarsakerOgBegrunnelseReq
 import no.nav.mulighetsrommet.admin.gjennomforing.AdminTiltaksgjennomforingFilter
 import no.nav.mulighetsrommet.admin.gjennomforing.GjennomforingAvtaleService
 import no.nav.mulighetsrommet.admin.gjennomforing.GjennomforingDetaljerDto
+import no.nav.mulighetsrommet.admin.gjennomforing.GjennomforingDetaljerError
 import no.nav.mulighetsrommet.admin.gjennomforing.GjennomforingDetaljerRequest
 import no.nav.mulighetsrommet.admin.gjennomforing.GjennomforingDetaljerService
 import no.nav.mulighetsrommet.admin.gjennomforing.GjennomforingHandling
@@ -48,6 +49,8 @@ import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.utbetaling.service.ManglerTilgangTilPerson
 import no.nav.mulighetsrommet.api.utils.DatoUtils.parseOrNull
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
+import no.nav.mulighetsrommet.ktor.exception.Forbidden
+import no.nav.mulighetsrommet.ktor.exception.NotFound
 import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
 import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
@@ -547,14 +550,11 @@ fun Route.gjennomforingRoutes() {
             val accessType = call.getAccessType().requireAzureAd()
             val navIdent = getNavIdent()
 
-            gjennomforinger.getGjennomforingDetaljerDto(id, accessType, navIdent)
-                .onLeft {
-                    call.respondWithProblemDetail(ManglerTilgangTilPerson.fromAvvistGrunn(it))
+            val result = gjennomforinger.getGjennomforingDetaljerDto(id, accessType, navIdent)
+                .mapLeft {
+                    toProblemDetail(it)
                 }
-                .onRight {
-                    it?.let { call.respond(it) }
-                        ?: call.respondUkjentGjennomforing(id)
-                }
+            call.respondWithStatusResponse(result)
         }
 
         get("{id}/tiltaksnummer", {
@@ -650,6 +650,12 @@ fun Route.gjennomforingRoutes() {
 
 private suspend fun RoutingCall.respondUkjentGjennomforing(id: UUID) {
     respondWithProblemDetail(BadRequest("Ingen tiltaksgjennomføring med id=$id"))
+}
+
+fun toProblemDetail(error: GjennomforingDetaljerError): ProblemDetail = when (error) {
+    is GjennomforingDetaljerError.IkkeFunnet -> NotFound(error.message)
+    is GjennomforingDetaljerError.ManglerTilgang -> Forbidden(error.message)
+    is GjennomforingDetaljerError.PersonaliaSjekkAvvist -> ManglerTilgangTilPerson.fromAvvistGrunn(error.avvistGrunn)
 }
 
 @Serializable

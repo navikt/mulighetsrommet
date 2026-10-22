@@ -1,4 +1,4 @@
-import { Heading, HStack, Radio, Select, TextField, VStack } from "@navikt/ds-react";
+import { ExpansionCard, Heading, HStack, Radio, Select, TextField, VStack } from "@navikt/ds-react";
 import { useFormContext } from "react-hook-form";
 import { FormTextarea } from "@/components/skjema/FormTextarea";
 import { ControlledRadioGroup } from "@/components/skjema/ControlledRadioGroup";
@@ -14,7 +14,6 @@ import {
 } from "@mr/frontend-common/utils/date";
 import { TotaltBelopBox } from "./TotaltBelopBox";
 import { useKostnadssteder } from "@/api/enhet/useKostnadssteder";
-import { TilskuddFormGroup } from "@/layouts/TilskuddFormGroup";
 import { Saksopplysninger } from "./Saksopplysninger";
 import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
 import { opplaeringTilskuddToString } from "@/utils/Utils";
@@ -55,82 +54,84 @@ export function VedtakForm({ arrangorId }: { arrangorId: string }) {
       <VStack gap="space-20">
         {tilskudd.map((t, index) => {
           const periode = valgtPeriode(t.periodeStart, t.periodeSlutt) ?? null;
+          const title =
+            t.tilskuddOpplaeringType && periode
+              ? `${opplaeringTilskuddToString(t.tilskuddOpplaeringType)} ${formaterPeriode(periode)}`
+              : "Tilskudd";
           return (
-            <TilskuddFormGroup key={index}>
-              {t.tilskuddOpplaeringType && periode && (
-                <>
-                  <Heading size="small" level="3" spacing>
-                    {`${opplaeringTilskuddToString(t.tilskuddOpplaeringType)} for perioden ${formaterPeriode(periode)}`}
-                  </Heading>
-                  <Separator />
-                </>
-              )}
-              <Saksopplysninger
-                journalpostId={t.soknadJournalpostId}
-                soknadsdato={t.soknadDato}
-                periode={periode}
-                kostnadssted={valgtKostnadsted(t.kostnadssted)}
-                belop={t.soknadBelop?.belop ?? 0}
-                utbetalingMottaker={t.utbetalingMottaker}
-                tilskuddOpplaeringType={t.tilskuddOpplaeringType}
-                kid={t.kidNummer}
-                betalingsinformasjon={betalingsinformasjon ?? null}
-              />
-              <Separator />
-              <Heading size="small" level="3" spacing>
-                Vedtak
-              </Heading>
-              <VStack gap="space-20">
-                <HStack gap="space-24" align="start" justify="space-between">
-                  <ControlledRadioGroup
-                    size="small"
-                    name={`tilskudd.${index}.vedtakResultat`}
-                    legend="Vedtaksresultat"
-                    horisontal
-                  >
-                    <Radio value={VedtakResultat.INNVILGELSE}>Innvilgelse</Radio>
-                    <Radio value={VedtakResultat.AVSLAG}>Avslag</Radio>
-                  </ControlledRadioGroup>
-                </HStack>
-                {watch("tilskudd")[index].vedtakResultat === VedtakResultat.INNVILGELSE && (
-                  <HStack align="start" gap="space-8">
-                    <TextField
-                      className="w-40"
+            <ExpansionCard aria-label={title} size="small" key={index} defaultOpen>
+              <ExpansionCard.Header>
+                <ExpansionCard.Title size="small">{title}</ExpansionCard.Title>
+              </ExpansionCard.Header>
+              <ExpansionCard.Content>
+                <Saksopplysninger
+                  journalpostId={t.soknadJournalpostId}
+                  soknadsdato={t.soknadDato}
+                  periode={periode}
+                  kostnadssted={valgtKostnadsted(t.kostnadssted)}
+                  belop={t.soknadBelop?.belop ?? 0}
+                  utbetalingMottaker={t.utbetalingMottaker}
+                  tilskuddOpplaeringType={t.tilskuddOpplaeringType}
+                  kid={t.kidNummer}
+                  brukerUtbetalingType={t.brukerUtbetalingType}
+                  betalingsinformasjon={betalingsinformasjon ?? null}
+                />
+                <Separator />
+                <Heading size="small" level="3" spacing>
+                  Vedtak
+                </Heading>
+                <VStack gap="space-20">
+                  <HStack gap="space-24" align="start" justify="space-between">
+                    <ControlledRadioGroup
                       size="small"
-                      type="text"
-                      label="Beløp til utbetaling"
-                      error={errors.tilskudd?.[index]?.belop?.message}
-                      {...register(`tilskudd.${index}.belop`, {
-                        setValueAs: (v: string) => (v === "" ? null : Number(v)),
-                        validate: (value: number | null) => {
-                          if (!Number.isInteger(value)) return "Beløp må være et heltall";
-                          return true;
-                        },
-                      })}
-                    />
-                    <Select size="small" readOnly value={Valuta.NOK} label="Valuta">
-                      <option value={Valuta.NOK}>NOK</option>
-                    </Select>
+                      name={`tilskudd.${index}.vedtakResultat`}
+                      legend="Vedtaksresultat"
+                      horisontal
+                    >
+                      <Radio value={VedtakResultat.INNVILGELSE}>Innvilgelse</Radio>
+                      <Radio value={VedtakResultat.AVSLAG}>Avslag</Radio>
+                    </ControlledRadioGroup>
                   </HStack>
-                )}
-                <FormTextarea
-                  label="Kommentar til deltaker (vil vises i vedtaksbrev)"
-                  name={`tilskudd.${index}.kommentarVedtaksbrev`}
-                  rules={{
-                    validate: (value: string | null) => {
-                      if (t.vedtakResultat === VedtakResultat.AVSLAG && !value?.trim()) {
-                        return "Kommentar til deltaker må fylles ut ved avslag";
-                      }
-                      return true;
-                    },
-                  }}
-                />
-                <FormTextarea
-                  label="Kommentar (internt i Nav)"
-                  name={`tilskudd.${index}.kommentarIntern`}
-                />
-              </VStack>
-            </TilskuddFormGroup>
+                  {watch("tilskudd")[index].vedtakResultat === VedtakResultat.INNVILGELSE && (
+                    <HStack align="start" gap="space-8">
+                      <TextField
+                        className="w-40"
+                        size="small"
+                        type="text"
+                        label="Beløp til utbetaling"
+                        error={errors.tilskudd?.[index]?.belop?.message}
+                        {...register(`tilskudd.${index}.belop`, {
+                          setValueAs: (v: string) => (v === "" ? null : Number(v)),
+                          validate: (value: number | null) => {
+                            if (!Number.isInteger(value)) return "Beløp må være et heltall";
+                            return true;
+                          },
+                        })}
+                      />
+                      <Select size="small" readOnly value={Valuta.NOK} label="Valuta">
+                        <option value={Valuta.NOK}>NOK</option>
+                      </Select>
+                    </HStack>
+                  )}
+                  <FormTextarea
+                    label="Kommentar til deltaker (vil vises i vedtaksbrev)"
+                    name={`tilskudd.${index}.kommentarVedtaksbrev`}
+                    rules={{
+                      validate: (value: string | null) => {
+                        if (t.vedtakResultat === VedtakResultat.AVSLAG && !value?.trim()) {
+                          return "Kommentar til deltaker må fylles ut ved avslag";
+                        }
+                        return true;
+                      },
+                    }}
+                  />
+                  <FormTextarea
+                    label="Kommentar (internt i Nav)"
+                    name={`tilskudd.${index}.kommentarIntern`}
+                  />
+                </VStack>
+              </ExpansionCard.Content>
+            </ExpansionCard>
           );
         })}
         <TotaltBelopBox

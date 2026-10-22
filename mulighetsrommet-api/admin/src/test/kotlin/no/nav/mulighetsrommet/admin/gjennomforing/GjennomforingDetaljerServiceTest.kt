@@ -31,7 +31,6 @@ import no.nav.mulighetsrommet.api.shared.PaginatedResult
 import no.nav.mulighetsrommet.api.shared.Pagination
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.NavEnhetNummer
-import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.NorskIdentHasher
 import no.nav.mulighetsrommet.tokenprovider.AccessType
@@ -106,6 +105,7 @@ class GjennomforingDetaljerServiceTest : FunSpec({
         test("returnerer detaljer for en gruppetiltak-gjennomføring (AVTALE)") {
             val db = TestAdminDatabase()
             val gjennomforing = GjennomforingFixtures.createGjennomforingAvtale(navn = "Oppfølging 1")
+            db.repository.navAnsatt.save(NavAnsattFixture.MikkeMus.medRoller(setOf(NavAnsattRolle.generell(Rolle.OKONOMI_LES))))
             every { db.repository.gjennomforing.getGjennomforing(gjennomforing.id) } returns gjennomforing
             every {
                 db.queries.gjennomforing.getGjennomforingAvtaleDetaljerOrError(gjennomforing.id)
@@ -115,7 +115,7 @@ class GjennomforingDetaljerServiceTest : FunSpec({
             val dto = service.getGjennomforingDetaljerDto(
                 gjennomforing.id,
                 AccessType.OBO.AzureAd("X123456"),
-                NavIdent("Z123456"),
+                NavAnsattFixture.MikkeMus.navIdent,
             ).shouldBeRight().shouldNotBeNull().shouldBeTypeOf<GjennomforingAvtaleDetaljerDto>()
 
             dto.gjennomforing.type shouldBe GjennomforingAvtaleDto.Type.AVTALE
@@ -126,6 +126,7 @@ class GjennomforingDetaljerServiceTest : FunSpec({
         test("returnerer detaljer om deltaker for en enkeltplass-gjennomføring") {
             val db = TestAdminDatabase()
             val gjennomforing = GjennomforingFixtures.createGjennomforingEnkeltplass()
+            db.repository.navAnsatt.save(NavAnsattFixture.MikkeMus.medRoller(setOf(NavAnsattRolle.generell(Rolle.OKONOMI_LES))))
             val deltaker = DeltakerFixtures.createDeltaker(
                 gjennomforingId = gjennomforing.id,
                 startDato = LocalDate.of(2025, 1, 1),
@@ -149,7 +150,7 @@ class GjennomforingDetaljerServiceTest : FunSpec({
             val dto = service.getGjennomforingDetaljerDto(
                 gjennomforing.id,
                 AccessType.OBO.AzureAd("X123456"),
-                NavIdent("Z123456"),
+                NavAnsattFixture.MikkeMus.navIdent,
             ).shouldBeRight().shouldNotBeNull().shouldBeTypeOf<GjennomforingEnkeltplassDetaljerDto>()
 
             dto.gjennomforing.type shouldBe GjennomforingEnkeltplassDto.Type.ENKELTPLASS
@@ -160,13 +161,14 @@ class GjennomforingDetaljerServiceTest : FunSpec({
                 it.avvistGrunn.shouldBeNull()
             }
             verify {
-                auditLog.visEnkeltplassDeltaker(gjennomforing.id, NavIdent("Z123456"), NorskIdent("12345678901"))
+                auditLog.visEnkeltplassDeltaker(gjennomforing.id, NavAnsattFixture.MikkeMus.navIdent, NorskIdent("12345678901"))
             }
         }
 
         test("returnerer avvist grunn når deltaker er adressebeskyttet") {
             val db = TestAdminDatabase()
             val gjennomforing = GjennomforingFixtures.createGjennomforingEnkeltplass()
+            db.repository.navAnsatt.save(NavAnsattFixture.MikkeMus.medRoller(setOf(NavAnsattRolle.generell(Rolle.OKONOMI_LES))))
             val deltaker = DeltakerFixtures.createDeltaker(gjennomforingId = gjennomforing.id)
             val personaliaPort = mockk<PersonaliaPort>()
             val enkeltplassService = mockk<GjennomforingEnkeltplassService>()
@@ -185,8 +187,8 @@ class GjennomforingDetaljerServiceTest : FunSpec({
             service.getGjennomforingDetaljerDto(
                 gjennomforing.id,
                 AccessType.OBO.AzureAd("X123456"),
-                NavIdent("Z123456"),
-            ).shouldBeLeft() shouldBe AvvistGrunn.AVVIST_FORTROLIG_ADRESSE
+                NavAnsattFixture.MikkeMus.navIdent,
+            ).shouldBeLeft() shouldBe GjennomforingDetaljerError.PersonaliaSjekkAvvist(avvistGrunn = AvvistGrunn.AVVIST_FORTROLIG_ADRESSE)
         }
 
         test("returnerer null når gjennomføring ikke finnes") {
@@ -198,8 +200,8 @@ class GjennomforingDetaljerServiceTest : FunSpec({
             service.getGjennomforingDetaljerDto(
                 id,
                 AccessType.OBO.AzureAd("X123456"),
-                NavIdent("Z123456"),
-            ).shouldBeRight().shouldBeNull()
+                NavAnsattFixture.MikkeMus.navIdent,
+            ).shouldBeLeft().shouldBeTypeOf<GjennomforingDetaljerError.IkkeFunnet>()
         }
     }
 

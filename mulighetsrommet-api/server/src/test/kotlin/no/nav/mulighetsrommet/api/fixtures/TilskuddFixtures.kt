@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.fixtures
 import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.EnkelAmo
+import no.nav.mulighetsrommet.api.tilskuddbehandling.db.BrukerUtbetalingType
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandling
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddVedtak
@@ -33,7 +34,8 @@ object TilskuddFixtures {
         vedtakResultat = VedtakResultat.INNVILGELSE,
         kommentarVedtaksbrev = null,
         utbetalingMottaker = TilskuddMottaker.BRUKER,
-        kid = Kid.parse("116"),
+        kid = null,
+        brukerUtbetalingType = BrukerUtbetalingType.REFUSJON,
         soknadJournalpostId = JournalpostId("123"),
         soknadDato = LocalDate.of(2024, 1, 15),
         periode = Periode(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 7, 1)),
@@ -57,6 +59,7 @@ object TilskuddFixtures {
         kommentarVedtaksbrev = "Vilkårene for tilskuddet er ikke oppfylt, derfor avslås søknaden.",
         utbetalingMottaker = TilskuddMottaker.ARRANGOR,
         kid = Kid.parse("116"),
+        brukerUtbetalingType = null,
         soknadJournalpostId = JournalpostId("123"),
         soknadDato = LocalDate.of(2024, 1, 15),
         periode = Periode(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 7, 1)),

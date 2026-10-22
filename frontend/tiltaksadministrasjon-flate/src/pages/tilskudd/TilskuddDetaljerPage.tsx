@@ -90,7 +90,12 @@ export function TilskuddDetaljerPage() {
                       { key: "Vedtaksresultat", value: vedtak.vedtakResultat },
                       {
                         key: "Utbetaling mottaker",
-                        value: tilskuddMottakerToString(vedtak.utbetalingMottaker),
+                        value: tilskuddMottakerToString(
+                          vedtak.utbetalingMottaker,
+                          (vedtak.utbetaling?.type === "BRUKER" &&
+                            vedtak.utbetaling.brukerUtbetalingType) ||
+                            null,
+                        ),
                       },
                       { key: "Kommentar til brukeren", value: vedtak.kommentarVedtaksbrev ?? "-" },
                       { key: "Intern kommentar", value: vedtak.kommentarIntern ?? "-" },

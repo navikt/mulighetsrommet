@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.tilskuddbehandling.model
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd
 import no.nav.mulighetsrommet.api.tilsagn.api.KostnadsstedDto
+import no.nav.mulighetsrommet.api.tilskuddbehandling.db.BrukerUtbetalingType
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddVedtak
 import no.nav.mulighetsrommet.model.DataElement
@@ -33,6 +34,7 @@ data class TilskuddOpplaeringDto(
     val kommentarVedtaksbrev: String?,
     val utbetalingMottaker: TilskuddMottaker,
     val kid: Kid?,
+    val brukerUtbetalingType: BrukerUtbetalingType?,
     val utbetalingBelop: ValutaBelop?,
     val kommentarIntern: String?,
     val vedtakJournalpostId: String?,
@@ -50,6 +52,7 @@ data class TilskuddOpplaeringDto(
         kommentarVedtaksbrev = this.kommentarVedtaksbrev,
         utbetalingMottaker = this.utbetalingMottaker,
         kid = this.kid,
+        brukerUtbetalingType = this.brukerUtbetalingType,
         kommentarIntern = this.kommentarIntern,
         utbetalingBelop = this.utbetalingBelop,
     )
