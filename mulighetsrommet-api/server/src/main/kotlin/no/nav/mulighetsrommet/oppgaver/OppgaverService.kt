@@ -492,8 +492,21 @@ private fun tilAvbrytelseOppgave(data: UtbetalingBehandlingOppgaveData, ansatt: 
     createdAt = data.avbrytelseBehandletTidspunkt ?: data.createdAt,
     arrangor = data.arrangor,
 ).takeIf {
-    OkonomiAuthorization.erSaksbehandler(ansatt, data.gjennomforing.type) &&
-        data.avbrytelseBehandletAv != ansatt.navIdent
+    val harRolle = if (data.kostnadssteder.isEmpty()) {
+        // TODO: Fiks når gjennomføring får definitiv ansvarlig enhet vi kan sjekke mot
+        // Dette vil nok svært sjeldent inntreffe da nesten alle gjennomføringer har en eller annen
+        // enhet på seg. Men ja her sjekker vi feil rolle.
+        OkonomiAuthorization.erSaksbehandler(ansatt, data.gjennomforing.type)
+    } else {
+        OkonomiAuthorization.erAttestantUtbetaling(
+            ansatt,
+            OkonomiBeslutningContext(
+                gjennomforingType = data.gjennomforing.type,
+                kostnadssteder = data.kostnadssteder.toNonEmptySetOrThrow(),
+            ),
+        )
+    }
+    harRolle && data.avbrytelseBehandletAv != ansatt.navIdent
 }
 
 private fun AvtaleManglerAdministratorOppgaveData.toOppgave(ansatt: NavAnsatt) = Oppgave(
