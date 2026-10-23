@@ -68,10 +68,7 @@ import { TiltakBeskrivelsePage } from "./pages/tiltak-beskrivelse/TiltakBeskrive
 import { TiltakBeskrivelseDetaljer } from "./pages/tiltak-beskrivelse/TiltakBeskrivelseDetaljer";
 import { TiltakBeskrivelseRedaksjoneltInnhold } from "./pages/tiltak-beskrivelse/TiltakBeskrivelseRedaksjoneltInnhold";
 import { RedigerTiltakBeskrivelsePage } from "./pages/tiltak-beskrivelse/RedigerTiltakBeskrivelsePage";
-import { TilskuddPage } from "./pages/tilskudd/TilskuddPage";
-
 import { APPLICATION_NAME } from "./constants";
-import { TilskuddDetaljerPage } from "./pages/tilskudd/TilskuddDetaljerPage";
 
 const head = createHead();
 
@@ -150,7 +147,6 @@ const GJENNOMFORING_ROUTES: RouteObject[] = [
   { path: "redaksjonelt-innhold", element: <GjennomforingRedaksjoneltInnhold /> },
   { path: "deltakerliste/*", element: <DeltakerlisteContainer /> },
   { path: "tilskudd-behandling", element: <TilskuddBehandlingerPage /> },
-  { path: "tilskudd", element: <TilskuddPage /> },
   { path: "tilsagn", element: <TilsagnForGjennomforingPage /> },
   { path: "utbetalinger", element: <UtbetalingerForGjennomforingContainer /> },
   { path: "tilskudd-utbetalinger", element: <TilskuddUtbetalingerForGjennomforingContainer /> },
@@ -257,15 +253,6 @@ const routes: RouteObject[] = [
         path: "gjennomforinger/:gjennomforingId/tilsagn",
         element: <TilsagnPage />,
         children: TILSAGN_ROUTES,
-      }),
-      {
-        path: "gjennomforinger/:gjennomforingId/tilskudd",
-        element: <TilskuddPage />,
-      },
-
-      route({
-        path: "gjennomforinger/:gjennomforingId/tilskudd/:tilskuddId",
-        element: <TilskuddDetaljerPage />,
       }),
       {
         path: "gjennomforinger/:gjennomforingId/tilskudd-behandling",
