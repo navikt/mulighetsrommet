@@ -112,6 +112,7 @@ import no.nav.mulighetsrommet.api.tilsagn.TilsagnDtoQuery
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.kafka.ReplikerBestillingStatusConsumer
 import no.nav.mulighetsrommet.api.tilsagn.kafka.SendTilsagnsbrevConsumer
+import no.nav.mulighetsrommet.api.tilsagn.model.GyldigTilsagnPeriode
 import no.nav.mulighetsrommet.api.tilsagn.task.SendTilsagnsbrevSaga
 import no.nav.mulighetsrommet.api.tilskuddbehandling.TilskuddBehandlingService
 import no.nav.mulighetsrommet.api.tilskuddbehandling.TilskuddService
@@ -505,9 +506,10 @@ private fun services(appConfig: AppConfig) = module {
             get(),
         )
     }
+    single { GyldigTilsagnPeriode(appConfig.okonomi.gyldigTilsagnPeriode) }
     single {
         AvtaleService(
-            config = AvtaleService.Config(appConfig.okonomi.gyldigTilsagnPeriode),
+            gyldigTilsagnPeriode = get(),
             get(),
             get(),
             get(),
@@ -581,9 +583,7 @@ private fun services(appConfig: AppConfig) = module {
     single { EnhetsregisterQuery(get(), get()) }
     single {
         GenererUtbetalingService(
-            config = GenererUtbetalingService.Config(
-                gyldigTilsagnPeriode = appConfig.okonomi.gyldigTilsagnPeriode,
-            ),
+            gyldigTilsagnPeriode = get(),
             db = get(),
             utbetalingService = get(),
             prismodeller = setOf(
@@ -618,15 +618,24 @@ private fun services(appConfig: AppConfig) = module {
     single { LagretFilterService(get()) }
     single {
         TilsagnService(
-            config = TilsagnService.Config(
-                gyldigTilsagnPeriode = appConfig.okonomi.gyldigTilsagnPeriode,
-            ),
+            gyldigTilsagnPeriode = get(),
             db = get(),
             navAnsattService = get(),
         )
     }
     single { TilsagnDtoQuery(get(), get()) }
-    single { TilskuddBehandlingService(get(), get(), get(), get(), get(), get(), get()) }
+    single {
+        TilskuddBehandlingService(
+            gyldigTilsagnPeriode = get(),
+            db = get(),
+            journalforVedtaksbrev = get(),
+            pdf = get(),
+            personaliaService = get(),
+            journalpostValidator = get(),
+            featureToggleService = get(),
+            betalingsinformasjon = get(),
+        )
+    }
     single { TilskuddService(get(), get(), get()) }
     single { AltinnRettigheterService(db = get(), altinnClient = get()) }
     single { OppgaverService(get(), get()) }

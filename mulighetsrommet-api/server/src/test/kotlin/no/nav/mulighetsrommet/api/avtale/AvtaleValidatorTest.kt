@@ -44,6 +44,7 @@ import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
 import no.nav.mulighetsrommet.api.domain.tiltak.PrismodellType
 import no.nav.mulighetsrommet.api.domain.tiltak.Tiltakstype
 import no.nav.mulighetsrommet.api.fixtures.createAvtaleRequest
+import no.nav.mulighetsrommet.api.tilsagn.model.GyldigTilsagnPeriode
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.model.AvtaleStatusType
 import no.nav.mulighetsrommet.model.Avtaletype
@@ -489,7 +490,7 @@ class AvtaleValidatorTest : FunSpec({
             avtaletype = avtaletype,
             tiltakskode = tiltakstype.tiltakskode,
             tiltakstypeNavn = tiltakstype.navn,
-            gyldigTilsagnPeriode = gyldigTilsagnPeriode,
+            gyldigTilsagnPeriode = GyldigTilsagnPeriode(gyldigTilsagnPeriode),
             avtaleStartDato = avtaleStartDato,
             bruktePrismodeller = emptySet(),
             systembestemtPrismodell = systembestemtPrismodell,
@@ -950,7 +951,7 @@ class AvtaleValidatorTest : FunSpec({
                         avtaletype = Avtaletype.AVTALE,
                         tiltakskode = previous.tiltakskode,
                         tiltakstypeNavn = ctx.tiltakstype.navn,
-                        gyldigTilsagnPeriode = emptyMap(),
+                        gyldigTilsagnPeriode = GyldigTilsagnPeriode(emptyMap()),
                         avtaleStartDato = LocalDate.now().minusDays(1),
                         bruktePrismodeller = previous.gjennomforinger.map { it.prismodellId }.toSet(),
                         systembestemtPrismodell = null,
@@ -980,7 +981,7 @@ class AvtaleValidatorTest : FunSpec({
                         avtaletype = Avtaletype.AVTALE,
                         tiltakskode = previous.tiltakskode,
                         tiltakstypeNavn = ctx.tiltakstype.navn,
-                        gyldigTilsagnPeriode = emptyMap(),
+                        gyldigTilsagnPeriode = GyldigTilsagnPeriode(emptyMap()),
                         avtaleStartDato = LocalDate.now().minusDays(1),
                         bruktePrismodeller = previous.gjennomforinger.map { it.prismodellId }.toSet(),
                         systembestemtPrismodell = null,

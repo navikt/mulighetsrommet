@@ -30,6 +30,7 @@ import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.tilsagn.model.BeregnTilsagnRequest
+import no.nav.mulighetsrommet.api.tilsagn.model.GyldigTilsagnPeriode
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAnnenAvtaltPris
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAvtaltPrisPerBenyttetPlassPerManed
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningRequest
@@ -139,8 +140,8 @@ class TilsagnServiceTest : FunSpec({
     ): TilsagnService {
         return TilsagnService(
             db = database.api,
-            config = TilsagnService.Config(
-                gyldigTilsagnPeriode = mapOf(
+            gyldigTilsagnPeriode = GyldigTilsagnPeriode(
+                mapOf(
                     Tiltakskode.ARBEIDSFORBEREDENDE_TRENING to gyldigTilsagnPeriode,
                     Tiltakskode.ARBEIDSRETTET_REHABILITERING to gyldigTilsagnPeriode,
                     Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING to gyldigTilsagnPeriode,

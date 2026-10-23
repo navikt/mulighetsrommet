@@ -35,6 +35,7 @@ import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.model.ValutaBelop
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import no.nav.mulighetsrommet.validation.FieldError
+import no.nav.mulighetsrommet.validation.Validated
 import java.time.LocalDate
 import java.util.UUID
 
@@ -42,20 +43,27 @@ class TilskuddBehandlingValidatorTest : FunSpec({
     val periodeStart = LocalDate.of(2025, 1, 1)
     val periodeSlutt = LocalDate.of(2025, 7, 1)
     val gjennomforingSluttDato = LocalDate.of(2025, 12, 31)
+    val gyldigTilsagnPeriode = Periode.fromInclusiveDates(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 12, 31))
     val behandlendeEnhet = NavEnhetNummer("0502")
     val arrangorBetalingsinformasjon = mockk<Betalingsinformasjon>(relaxed = true)
+    val tiltakstypeNavn = "Arbeidsforberedende trening"
 
     fun createGjennomforing(sluttDato: LocalDate? = gjennomforingSluttDato): Gjennomforing = mockk<Gjennomforing>().also { gjennomforing ->
         every { gjennomforing.sluttDato } returns sluttDato
+        every { gjennomforing.tiltakstype.navn } returns tiltakstypeNavn
+        every { gjennomforing.arrangor.slettet } returns false
     }
 
     fun createCtx(
         gjennomforing: Gjennomforing = createGjennomforing(),
         betalingsinformasjonArrangor: Betalingsinformasjon? = arrangorBetalingsinformasjon,
+        journalpostValidator: (String, Int) -> Validated<JournalpostId> = { journalpostId, _ -> JournalpostId(journalpostId).right() },
+        tilsagnPeriode: Periode = gyldigTilsagnPeriode,
     ) = TilskuddBehandlingValidator.Ctx(
         gjennomforing = gjennomforing,
         betalingsinformasjonArrangor = betalingsinformasjonArrangor,
-        journalpostValidator = { journalpostId, _ -> JournalpostId(journalpostId).right() },
+        journalpostValidator = journalpostValidator,
+        gyldigTilsagnPeriode = tilsagnPeriode,
     )
 
     fun validTilskuddRequest() = TilskuddBehandlingRequest.TilskuddRequest(
@@ -171,6 +179,20 @@ class TilskuddBehandlingValidatorTest : FunSpec({
             )
     }
 
+    test("avviser søknadsdato frem i tid") {
+        val request = validTilskuddRequest().copy(soknadDato = LocalDate.now().plusDays(1))
+
+        TilskuddBehandlingValidator.validateTilskuddRequest(
+            req = request,
+            index = 0,
+            ctx = createCtx(
+                journalpostValidator = { journalpostId, _ -> JournalpostId(journalpostId).right() },
+            ),
+        ) shouldBeLeft listOf(
+            FieldError("/tilskudd/0/soknadDato", "Søknadsdato kan ikke være frem i tid"),
+        )
+    }
+
     test("krever vedtaksresultat") {
         val request = validTilskuddRequest().copy(vedtakResultat = null)
 
@@ -272,6 +294,78 @@ class TilskuddBehandlingValidatorTest : FunSpec({
         ) shouldBeLeft listOf(
             FieldError("/tilskudd/1/kostnadssted", "Kostnadssted er påkrevd"),
         )
+    }
+
+    test("avviser innvilgelse til arrangør når sluttdato er etter gyldig tilsagnsperiode") {
+        val request = validTilskuddRequest().copy(
+            periodeStart = "2026-01-01",
+            periodeSlutt = "2026-07-01",
+        )
+        val validPeriode = Periode.fromInclusiveDates(LocalDate.of(2026, 1, 1), LocalDate.of(2026, 6, 30))
+
+        TilskuddBehandlingValidator.validateTilskuddRequest(
+            req = request,
+            index = 0,
+            ctx = createCtx(
+                gjennomforing = createGjennomforing(sluttDato = LocalDate.of(2027, 1, 1)),
+                tilsagnPeriode = validPeriode,
+            ),
+        ).shouldBeLeft()
+            .shouldContainExactlyInAnyOrder(
+                FieldError(
+                    "/tilskudd/0/periodeSlutt",
+                    "Maksimum sluttdato for tilsagn til $tiltakstypeNavn er 30.06.2026",
+                ),
+            )
+    }
+
+    test("avviser periode som går over årsskiftet") {
+        val request = validTilskuddRequest().copy(
+            periodeStart = "2025-12-31",
+            periodeSlutt = "2026-01-01",
+        )
+        val validPeriode = Periode.fromInclusiveDates(LocalDate.of(2025, 1, 1), LocalDate.of(2026, 12, 31))
+
+        TilskuddBehandlingValidator.validateTilskuddRequest(
+            req = request,
+            index = 0,
+            createCtx(gjennomforing = createGjennomforing(sluttDato = LocalDate.of(2028, 1, 1)), tilsagnPeriode = validPeriode),
+        ).shouldBeLeft()
+            .shouldContainExactlyInAnyOrder(
+                FieldError("/tilskudd/0/periodeSlutt", "Periode kan ikke strekke seg over årsskiftet"),
+            )
+    }
+
+    test("avviser innvilgelse til slettet arrangør") {
+        val gjennomforing = createGjennomforing().also { g ->
+            every { g.arrangor.slettet } returns true
+        }
+
+        TilskuddBehandlingValidator.validateTilskuddRequest(
+            req = validTilskuddRequest(),
+            index = 0,
+            createCtx(gjennomforing = gjennomforing),
+        ).shouldBeLeft()
+            .shouldContainExactlyInAnyOrder(
+                FieldError(
+                    "/tilskudd/0/utbetalingMottaker",
+                    "Tilskudd kan ikke opprettes fordi arrangøren er slettet i Brreg",
+                ),
+            )
+    }
+
+    test("avslag utløser ikke tilsagnsperiodevalidering") {
+        val request = validTilskuddRequest().copy(
+            vedtakResultat = VedtakResultat.AVSLAG,
+            belop = null,
+        )
+        val validPeriode = Periode.fromInclusiveDates(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 6, 30))
+
+        TilskuddBehandlingValidator.validateTilskuddRequest(
+            req = request,
+            index = 0,
+            createCtx(),
+        ).shouldBeRight()
     }
 
     test("samler feltfeil fra flere tilskudd i saksopplysningene") {

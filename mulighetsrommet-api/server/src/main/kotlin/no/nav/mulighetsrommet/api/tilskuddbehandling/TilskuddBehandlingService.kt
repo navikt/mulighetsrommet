@@ -25,6 +25,7 @@ import no.nav.mulighetsrommet.api.domain.navansatt.OkonomiBeslutningContext
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.Totrinnskontroll
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
+import no.nav.mulighetsrommet.api.tilsagn.model.GyldigTilsagnPeriode
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandling
 import no.nav.mulighetsrommet.api.tilskuddbehandling.mapper.TilskuddVedtakToPdfDocumentContentMapper
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingDetaljerDto
@@ -54,6 +55,7 @@ import java.time.LocalDateTime
 import java.util.UUID
 
 class TilskuddBehandlingService(
+    private val gyldigTilsagnPeriode: GyldigTilsagnPeriode,
     private val db: ApiDatabase,
     private val journalforVedtaksbrev: JournalforVedtaksbrev,
     private val pdf: PdfGenClient,
@@ -138,6 +140,7 @@ class TilskuddBehandlingService(
             gjennomforing,
             betalingsinformasjonArrangor,
             journalpostValidatorFunc,
+            gyldigTilsagnPeriode = gyldigTilsagnPeriode.forTiltakskode(gjennomforing.tiltakstype.tiltakskode),
         )
     }
 

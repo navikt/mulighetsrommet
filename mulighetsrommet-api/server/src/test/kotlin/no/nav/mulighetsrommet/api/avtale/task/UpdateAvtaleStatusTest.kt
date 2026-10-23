@@ -10,6 +10,7 @@ import no.nav.mulighetsrommet.api.domain.avtale.AvtaleStatus
 import no.nav.mulighetsrommet.api.domain.testing.fixture.AvtaleFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
+import no.nav.mulighetsrommet.api.tilsagn.model.GyldigTilsagnPeriode
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.AvtaleStatusType
 import java.time.LocalDate
@@ -22,7 +23,7 @@ class UpdateAvtaleStatusTest : FunSpec({
     fun createTask() = UpdateAvtaleStatus(
         database.api,
         AvtaleService(
-            config = AvtaleService.Config(mapOf()),
+            gyldigTilsagnPeriode = GyldigTilsagnPeriode(emptyMap()),
             db = database.api,
             syncArrangor = mockk(),
             tiltakstypeService = mockk(),
