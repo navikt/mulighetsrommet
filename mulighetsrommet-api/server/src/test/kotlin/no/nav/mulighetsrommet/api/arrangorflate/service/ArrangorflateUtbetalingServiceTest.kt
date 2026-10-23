@@ -68,12 +68,12 @@ import no.nav.mulighetsrommet.api.utbetaling.task.JournalforUtbetaling
 import no.nav.mulighetsrommet.clamav.Content
 import no.nav.mulighetsrommet.clamav.Vedlegg
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
-import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.NOK
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
 import no.nav.mulighetsrommet.model.ValutaBelop
+import no.nav.mulighetsrommet.validation.FieldError
 import no.nav.tiltak.okonomi.OkonomiBestillingMelding
 import no.nav.tiltak.okonomi.Tilskuddstype
 import no.nav.tiltak.okonomi.toOkonomiPart

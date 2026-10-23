@@ -36,12 +36,12 @@ import no.nav.mulighetsrommet.api.persistence.AdminTestDomain
 import no.nav.mulighetsrommet.api.persistence.SqlAdminDatabaseTestListener
 import no.nav.mulighetsrommet.api.persistence.SqlQueryContext
 import no.nav.mulighetsrommet.api.persistence.outboxConfig
-import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltaksnummer
+import no.nav.mulighetsrommet.validation.FieldError
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID

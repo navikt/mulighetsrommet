@@ -44,7 +44,6 @@ import no.nav.mulighetsrommet.api.persistence.AdminTestDomain
 import no.nav.mulighetsrommet.api.persistence.SqlAdminDatabaseTestListener
 import no.nav.mulighetsrommet.api.persistence.outboxConfig
 import no.nav.mulighetsrommet.model.DeltakerStatusType
-import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.NOK
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
@@ -52,6 +51,7 @@ import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.NorskIdentHasher
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Tiltaksnummer
+import no.nav.mulighetsrommet.validation.FieldError
 import java.time.Instant
 import java.time.LocalDate
 import java.util.UUID

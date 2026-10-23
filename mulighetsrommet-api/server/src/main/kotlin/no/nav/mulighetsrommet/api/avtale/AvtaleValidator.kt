@@ -34,7 +34,6 @@ import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatofo
 import no.nav.mulighetsrommet.model.AvtaleStatusType
 import no.nav.mulighetsrommet.model.Avtaletype
 import no.nav.mulighetsrommet.model.Avtaletyper
-import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
@@ -43,13 +42,12 @@ import no.nav.mulighetsrommet.model.SakarkivNummer
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.model.ValutaBelop
+import no.nav.mulighetsrommet.validation.FieldError
 import no.nav.mulighetsrommet.validation.FieldValidator
 import no.nav.mulighetsrommet.validation.validation
 import java.time.LocalDate
 import java.util.UUID
-import kotlin.contracts.ExperimentalContracts
 
-@OptIn(ExperimentalContracts::class)
 object AvtaleValidator {
     data class Ctx(
         val previous: Avtale?,

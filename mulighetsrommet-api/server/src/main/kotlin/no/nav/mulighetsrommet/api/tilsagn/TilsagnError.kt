@@ -1,6 +1,6 @@
 package no.nav.mulighetsrommet.api.tilsagn
 
-import no.nav.mulighetsrommet.model.FieldError
+import no.nav.mulighetsrommet.validation.FieldError
 
 sealed interface TilsagnError {
     data class ManglerTilgang(val message: String) : TilsagnError

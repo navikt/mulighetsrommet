@@ -30,13 +30,13 @@ import no.nav.mulighetsrommet.api.domain.testing.fixture.NavEnhetFixtures.Tiltak
 import no.nav.mulighetsrommet.api.domain.testing.fixture.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
 import no.nav.mulighetsrommet.model.Avtaletype
-import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.SakarkivNummer
 import no.nav.mulighetsrommet.model.Valuta
+import no.nav.mulighetsrommet.validation.FieldError
 import no.nav.mulighetsrommet.validation.Validated
 import java.time.LocalDate
 import java.time.LocalDateTime

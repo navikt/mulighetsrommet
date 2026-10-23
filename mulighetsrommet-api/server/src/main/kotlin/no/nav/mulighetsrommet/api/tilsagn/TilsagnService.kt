@@ -45,7 +45,6 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingInputHelper
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
 import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.Arena
-import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.NOK
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
@@ -56,6 +55,7 @@ import no.nav.mulighetsrommet.model.ValutaBelop
 import no.nav.mulighetsrommet.model.withValuta
 import no.nav.mulighetsrommet.notifications.NotificationMetadata
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
+import no.nav.mulighetsrommet.validation.FieldError
 import no.nav.tiltak.okonomi.AnnullerBestilling
 import no.nav.tiltak.okonomi.Bestillingsnummer
 import no.nav.tiltak.okonomi.GjorOppBestilling

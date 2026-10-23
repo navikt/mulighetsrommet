@@ -24,9 +24,9 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UpsertUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeReturnertAarsak
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusAarsak
-import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.withValuta
+import no.nav.mulighetsrommet.validation.FieldError
 import no.nav.mulighetsrommet.validation.validation
 import no.nav.tiltak.okonomi.FakturaStatusType
 import java.time.Instant

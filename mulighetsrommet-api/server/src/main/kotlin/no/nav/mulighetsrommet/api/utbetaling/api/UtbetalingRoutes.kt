@@ -41,7 +41,6 @@ import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.api.utbetaling.service.UtbetalingError
 import no.nav.mulighetsrommet.api.utbetaling.service.UtbetalingValidator
 import no.nav.mulighetsrommet.ktor.exception.Forbidden
-import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.model.Tiltakskode
@@ -50,11 +49,11 @@ import no.nav.mulighetsrommet.model.withValuta
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.tokenprovider.requireAzureAd
+import no.nav.mulighetsrommet.validation.FieldError
 import no.nav.mulighetsrommet.validation.validation
 import org.koin.ktor.ext.inject
 import java.time.LocalDate
 import java.util.UUID
-import kotlin.contracts.ExperimentalContracts
 
 fun Route.utbetalingRoutes() {
     val db: ApiDatabase by inject()
@@ -562,7 +561,6 @@ data class OpprettUtbetalingLinjerRequest(
     val utbetalingLinjer: List<UtbetalingLinjeRequest>,
     val begrunnelseMindreBetalt: String?,
 ) {
-    @OptIn(ExperimentalContracts::class)
     fun validate(): Either<List<FieldError>, OpprettUtbetalingLinjer> = validation {
         val linjer = utbetalingLinjer.mapIndexedNotNull { index, req ->
             val belop = req.pris?.belop ?: 0

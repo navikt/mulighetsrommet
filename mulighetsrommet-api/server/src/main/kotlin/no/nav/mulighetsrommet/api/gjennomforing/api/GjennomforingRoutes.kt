@@ -52,7 +52,6 @@ import no.nav.mulighetsrommet.ktor.exception.BadRequest
 import no.nav.mulighetsrommet.ktor.exception.Forbidden
 import no.nav.mulighetsrommet.ktor.exception.NotFound
 import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
-import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.ProblemDetail
@@ -60,11 +59,11 @@ import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.tokenprovider.requireAzureAd
+import no.nav.mulighetsrommet.validation.FieldError
 import no.nav.mulighetsrommet.validation.validation
 import org.koin.ktor.ext.inject
 import java.time.LocalDate
 import java.util.UUID
-import kotlin.contracts.ExperimentalContracts
 
 fun Route.gjennomforingRoutes() {
     val db: ApiDatabase by inject()
@@ -726,7 +725,6 @@ data class SetEstimertVentetidRequest(
     val verdi: Int?,
     val enhet: String?,
 ) {
-    @OptIn(ExperimentalContracts::class)
     fun validate(): Either<List<FieldError>, GjennomforingAvtaleDetaljer.EstimertVentetid?> = validation {
         if (verdi == null && enhet == null) {
             return@validation null

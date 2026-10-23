@@ -53,7 +53,6 @@ import no.nav.mulighetsrommet.ktor.exception.InternalServerError
 import no.nav.mulighetsrommet.ktor.exception.NotFound
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
-import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
@@ -61,12 +60,12 @@ import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
+import no.nav.mulighetsrommet.validation.FieldError
 import no.nav.mulighetsrommet.validation.Validated
 import no.nav.mulighetsrommet.validation.validation
 import org.koin.ktor.ext.inject
 import java.time.LocalDate
 import java.util.UUID
-import kotlin.contracts.ExperimentalContracts
 
 suspend fun RoutingContext.respondWithManglerTilgangHosArrangor() = call.respondWithProblemDetail(
     Forbidden(
@@ -544,7 +543,6 @@ data class GodkjennUtbetaling(
     val updatedAt: String,
     val kid: String?,
 ) {
-    @OptIn(ExperimentalContracts::class)
     fun validate(utbetaling: ArrangorflateUtbetaling): Validated<Kid?> = validation {
         validate(updatedAt == utbetaling.updatedAt.toString()) {
             FieldError.of("Informasjonen i kravet har endret seg. Vennligst se over på nytt.")
@@ -560,7 +558,6 @@ data class GodkjennUtbetaling(
 data class AvbrytUtbetaling(
     val begrunnelse: String?,
 ) {
-    @OptIn(ExperimentalContracts::class)
     fun validate(): Validated<String> = validation {
         requireValid(!begrunnelse.isNullOrBlank()) {
             FieldError.of("Begrunnelse må være satt", AvbrytUtbetaling::begrunnelse)
