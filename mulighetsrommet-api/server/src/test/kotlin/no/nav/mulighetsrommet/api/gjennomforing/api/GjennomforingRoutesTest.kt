@@ -32,8 +32,8 @@ import no.nav.mulighetsrommet.api.navansatt.ktor.NavAnsattManglerTilgang
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.withTestApplication
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
-import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
+import no.nav.mulighetsrommet.validation.FieldError
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import java.time.LocalDate
 import java.util.UUID

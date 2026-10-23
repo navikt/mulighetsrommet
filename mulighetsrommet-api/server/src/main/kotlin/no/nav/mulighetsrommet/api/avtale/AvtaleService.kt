@@ -38,7 +38,6 @@ import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadGjennomforinger
 import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.AvtaleStatusType
 import no.nav.mulighetsrommet.model.Avtaletype
-import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
@@ -47,6 +46,7 @@ import no.nav.mulighetsrommet.model.Personopplysning
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.TiltakstypeEgenskap
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
+import no.nav.mulighetsrommet.validation.FieldError
 import no.nav.mulighetsrommet.validation.validation
 import java.time.Instant
 import java.time.LocalDate

@@ -8,8 +8,8 @@ import no.nav.mulighetsrommet.api.avtale.model.RammedetaljerRequest
 import no.nav.mulighetsrommet.api.domain.avtale.Avtale
 import no.nav.mulighetsrommet.api.domain.testing.fixture.AvtaleFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.PrismodellFixtures
-import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.Valuta
+import no.nav.mulighetsrommet.validation.FieldError
 
 class RammedetaljerValidatorTest : FunSpec({
     context("rammedetaljer") {

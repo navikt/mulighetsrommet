@@ -26,11 +26,11 @@ import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.Arena
-import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.formaterDatoTilEuropeiskDatoformat
+import no.nav.mulighetsrommet.validation.FieldError
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime

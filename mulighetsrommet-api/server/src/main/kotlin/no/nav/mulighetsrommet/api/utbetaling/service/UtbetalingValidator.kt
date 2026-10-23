@@ -5,17 +5,15 @@ import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingRequest
 import no.nav.mulighetsrommet.api.utbetaling.api.ValutaBelopRequest
 import no.nav.mulighetsrommet.api.utbetaling.model.UpsertUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
-import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.JournalpostId
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.ValutaBelop
+import no.nav.mulighetsrommet.validation.FieldError
 import no.nav.mulighetsrommet.validation.validation
 import no.nav.tiltak.okonomi.Tilskuddstype
 import java.time.LocalDate
-import kotlin.contracts.ExperimentalContracts
 
-@OptIn(ExperimentalContracts::class)
 object UtbetalingValidator {
     const val MIN_ANTALL_VEDLEGG_OPPRETT_KRAV = 1
 

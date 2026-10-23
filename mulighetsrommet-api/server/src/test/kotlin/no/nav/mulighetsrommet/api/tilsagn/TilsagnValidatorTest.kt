@@ -12,10 +12,10 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningType
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnInputLinjeRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnRequest
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
-import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.NOK
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Valuta
+import no.nav.mulighetsrommet.validation.FieldError
 import java.time.LocalDate
 import java.util.UUID
 

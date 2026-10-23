@@ -19,7 +19,6 @@ import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingSta
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingType
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
 import no.nav.mulighetsrommet.api.utils.DatoUtils.parseOrNull
-import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.JournalpostId
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.NavEnhetNummer
@@ -27,10 +26,10 @@ import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.model.ValutaBelop
 import no.nav.mulighetsrommet.tokenprovider.AccessType
+import no.nav.mulighetsrommet.validation.FieldError
 import no.nav.mulighetsrommet.validation.Validated
 import no.nav.mulighetsrommet.validation.validation
 import java.time.LocalDate
-import kotlin.contracts.ExperimentalContracts
 
 data class TilskuddSaksopplysninger(
     val periode: Periode,
@@ -44,7 +43,6 @@ data class TilskuddSaksopplysninger(
     val brukerUtbetalingType: BrukerUtbetalingType?,
 )
 
-@OptIn(ExperimentalContracts::class)
 object TilskuddBehandlingValidator {
     data class Ctx(
         val gjennomforing: Gjennomforing,

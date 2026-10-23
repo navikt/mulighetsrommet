@@ -2,7 +2,7 @@ package no.nav.mulighetsrommet.admin.aarsakerbegrunnelse
 
 import arrow.core.Either
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.model.FieldError
+import no.nav.mulighetsrommet.validation.FieldError
 import no.nav.mulighetsrommet.validation.validation
 
 private const val BEGRUNNELSE_MAX_LENGTH = 500

@@ -16,7 +16,6 @@ import no.nav.mulighetsrommet.api.domain.opplaring.OpplaringKategorisering
 import no.nav.mulighetsrommet.api.domain.opplaring.Utdanningslop
 import no.nav.mulighetsrommet.api.domain.opplaring.UtdanningslopDetaljer
 import no.nav.mulighetsrommet.model.Avtaletype
-import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
@@ -24,15 +23,14 @@ import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.TiltakstypeEgenskap
+import no.nav.mulighetsrommet.validation.FieldError
 import no.nav.mulighetsrommet.validation.FieldValidator
 import no.nav.mulighetsrommet.validation.Validated
 import no.nav.mulighetsrommet.validation.validation
 import java.time.LocalDate
 import java.util.UUID
-import kotlin.contracts.ExperimentalContracts
 import kotlin.reflect.KProperty1
 
-@OptIn(ExperimentalContracts::class)
 object GjennomforingValidator {
     private const val MAKS_ANTALL_TEGN_OPPMOTE_STED = 500
 

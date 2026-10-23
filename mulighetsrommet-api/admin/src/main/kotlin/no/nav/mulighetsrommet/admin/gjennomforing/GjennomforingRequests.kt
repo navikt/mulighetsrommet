@@ -11,7 +11,6 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.admin.avtale.AmoKategoriseringRequest
 import no.nav.mulighetsrommet.api.domain.opplaring.Utdanningslop
 import no.nav.mulighetsrommet.model.Faneinnhold
-import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 import no.nav.mulighetsrommet.model.NavEnhetNummer
@@ -19,6 +18,7 @@ import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
+import no.nav.mulighetsrommet.validation.FieldError
 import java.time.LocalDate
 import java.util.UUID
 

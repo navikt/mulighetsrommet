@@ -39,12 +39,12 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskLocalDateTime
 import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.Arrangor
-import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
 import no.nav.mulighetsrommet.model.ValutaBelop
+import no.nav.mulighetsrommet.validation.FieldError
 import no.nav.mulighetsrommet.validation.Validated
 import no.nav.tiltak.okonomi.Bestillingsnummer
 import no.nav.tiltak.okonomi.FakturaStatusType

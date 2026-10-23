@@ -43,11 +43,11 @@ import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.featuretoggle.model.FeatureToggle
 import no.nav.mulighetsrommet.featuretoggle.service.FeatureToggleService
 import no.nav.mulighetsrommet.model.Agent
-import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.ProblemDetail
+import no.nav.mulighetsrommet.validation.FieldError
 import no.nav.mulighetsrommet.validation.Validated
 import java.time.Instant
 import java.time.LocalDateTime

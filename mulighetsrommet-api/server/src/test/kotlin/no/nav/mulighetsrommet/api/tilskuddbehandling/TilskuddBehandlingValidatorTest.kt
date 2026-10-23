@@ -25,7 +25,6 @@ import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingSta
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingType
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
 import no.nav.mulighetsrommet.api.utbetaling.api.ValutaBelopRequest
-import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.JournalpostId
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.NavEnhetNummer
@@ -35,6 +34,7 @@ import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.model.ValutaBelop
 import no.nav.mulighetsrommet.tokenprovider.AccessType
+import no.nav.mulighetsrommet.validation.FieldError
 import java.time.LocalDate
 import java.util.UUID
 

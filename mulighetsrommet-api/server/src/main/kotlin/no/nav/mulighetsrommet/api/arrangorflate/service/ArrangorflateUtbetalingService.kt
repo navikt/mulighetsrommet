@@ -33,9 +33,9 @@ import no.nav.mulighetsrommet.api.utbetaling.service.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.task.JournalforUtbetaling
 import no.nav.mulighetsrommet.clamav.Vedlegg
 import no.nav.mulighetsrommet.model.Arrangor
-import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.validation.FieldError
 import no.nav.mulighetsrommet.validation.Validated
 import no.nav.mulighetsrommet.validation.validation
 import no.nav.tiltak.okonomi.Tilskuddstype

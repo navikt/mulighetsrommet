@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.model
+package no.nav.mulighetsrommet.validation
 
 import kotlinx.serialization.Serializable
 import kotlin.reflect.KProperty1

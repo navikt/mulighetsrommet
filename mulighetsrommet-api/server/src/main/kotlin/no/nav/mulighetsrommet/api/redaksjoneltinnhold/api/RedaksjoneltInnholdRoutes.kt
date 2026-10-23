@@ -16,8 +16,8 @@ import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
-import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.ProblemDetail
+import no.nav.mulighetsrommet.validation.FieldError
 import org.koin.ktor.ext.inject
 import java.util.UUID
 

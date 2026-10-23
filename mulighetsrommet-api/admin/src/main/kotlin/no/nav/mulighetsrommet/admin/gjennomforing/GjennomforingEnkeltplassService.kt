@@ -35,7 +35,6 @@ import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollStatus
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
 import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.DeltakerStatusType
-import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 import no.nav.mulighetsrommet.model.NOK
@@ -47,6 +46,7 @@ import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Tiltaksnummer
 import no.nav.mulighetsrommet.model.Valuta
+import no.nav.mulighetsrommet.validation.FieldError
 import no.nav.mulighetsrommet.validation.Validated
 import java.time.LocalDate
 import java.time.LocalDateTime

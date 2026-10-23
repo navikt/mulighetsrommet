@@ -2,7 +2,7 @@ package no.nav.mulighetsrommet.admin.totrinnskontroll
 
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollError
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollStatus
-import no.nav.mulighetsrommet.model.FieldError
+import no.nav.mulighetsrommet.validation.FieldError
 
 fun TotrinnskontrollError.toFieldErrors(): List<FieldError> = when (this) {
     is TotrinnskontrollError.AlleredeBesluttet -> {
