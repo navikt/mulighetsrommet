@@ -1,10 +1,12 @@
 package no.nav.mulighetsrommet.api.avtale
 
 import arrow.core.Either
+import arrow.core.flatMap
 import arrow.core.left
 import arrow.core.mapOrAccumulate
 import arrow.core.nel
 import arrow.core.raise.either
+import arrow.core.raise.ensure
 import arrow.core.right
 import arrow.core.toNonEmptyListOrNull
 import kotlinx.serialization.json.Json
@@ -16,7 +18,6 @@ import no.nav.mulighetsrommet.admin.endringshistorikk.EndringshistorikkType
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
-import no.nav.mulighetsrommet.api.avtale.AvtaleValidator.ValidatePrismodellerContext
 import no.nav.mulighetsrommet.api.avtale.api.AvtaleHandling
 import no.nav.mulighetsrommet.api.avtale.api.DetaljerRequest
 import no.nav.mulighetsrommet.api.avtale.api.OpprettAvtaleRequest
@@ -33,12 +34,10 @@ import no.nav.mulighetsrommet.api.domain.avtale.OpsjonLoggStatus
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingAvtaleStatus
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsatt
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
-import no.nav.mulighetsrommet.api.domain.navenhet.toDto
 import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadGjennomforinger
 import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.AvtaleStatusType
 import no.nav.mulighetsrommet.model.Avtaletype
-import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
@@ -47,7 +46,6 @@ import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.TiltakstypeEgenskap
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
 import no.nav.mulighetsrommet.validation.FieldError
-import no.nav.mulighetsrommet.validation.validation
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -78,30 +76,38 @@ class AvtaleService(
         val createAvtaleContext = db.session {
             getValidatorCtx(
                 request = request.detaljer,
-                navEnheter = request.veilederinformasjon.navEnheter,
                 previous = null,
             ).bind()
         }
         val detaljer = AvtaleValidator.validateCreateAvtale(request, createAvtaleContext).bind()
 
-        val systembestemtPrismodell = if (request.detaljer.avtaletype == Avtaletype.FORHANDSGODKJENT) {
-            db.session { queries.prismodell.getBySystemId(request.detaljer.tiltakskode.name) }
+        val prisinfo = if (detaljer.avtaletype == Avtaletype.FORHANDSGODKJENT) {
+            val prismodell = db.session { queries.prismodell.getBySystemId(request.detaljer.tiltakskode.name) }
+            if (prismodell == null) {
+                raise(
+                    FieldError.of(
+                        "Systembestemt prismodell mangler for forhåndsgodkjent avtale",
+                        OpprettAvtaleRequest::prismodeller,
+                    ).nel(),
+                )
+            }
+            Avtale.Prisinfo.Systembestemt(prismodell)
         } else {
-            null
+            val context = AvtaleValidator.PrismodellParseContext(
+                tiltakskode = detaljer.tiltakskode,
+                avtaleStartDato = detaljer.startDato,
+                gyldigTilsagnPeriode = config.gyldigTilsagnPeriode,
+            )
+            val prismodeller = AvtaleValidator.parsePrismodeller(request.prismodeller, context).bind()
+            Avtale.Prisinfo.Egendefinert.of(detaljer.tiltakskode, prismodeller).bind()
         }
-        val createPrismodellerContext = ValidatePrismodellerContext(
-            avtaletype = detaljer.avtaletype,
-            tiltakskode = request.detaljer.tiltakskode,
-            tiltakstypeNavn = createAvtaleContext.tiltakstype.navn,
-            avtaleStartDato = detaljer.startDato,
-            gyldigTilsagnPeriode = config.gyldigTilsagnPeriode,
-            bruktePrismodeller = setOf(),
-            systembestemtPrismodell = systembestemtPrismodell,
-        )
-        val prismodeller = AvtaleValidator.validatePrismodeller(request.prismodeller, createPrismodellerContext).bind()
+
+        val personvern = request.personvern.toAvtalePersonvern().bind()
+
+        val veilederinfo = request.veilederinformasjon.toVeilederinfo().bind()
 
         db.transaction {
-            val avtale = request.toAvtale(detaljer, prismodeller)
+            val avtale = request.toAvtale(detaljer, prisinfo, personvern, veilederinfo)
             repository.avtale.save(avtale)
 
             dispatchNotificationToNewAdministrators(
@@ -141,7 +147,6 @@ class AvtaleService(
             )
             val context = getValidatorCtx(
                 request = request,
-                navEnheter = listOf(),
                 previous = previous,
             ).bind()
 
@@ -171,16 +176,11 @@ class AvtaleService(
         request: PersonvernRequest,
         navIdent: NavIdent,
     ): Either<List<FieldError>, Avtale> = either {
-        if ((request.annetChecked ?: false) && request.annetBeskrivelse.isNullOrBlank()) {
-            raise(listOf(FieldError("/personvern/annetBeskrivelse", "Beskrivelse er påkrevd når annet er valgt")))
-        }
-        if ((request.annetBeskrivelse?.length ?: 0) > 300) {
-            raise(listOf(FieldError("/personvern/annetBeskrivelse", "Beskrivelse kan maks være 300 tegn")))
-        }
+        val personvern = request.toAvtalePersonvern().bind()
+
         db.transaction {
             val previous = getOrError(avtaleId)
-            val personvern = request.toAvtalePersonvern()
-            repository.avtale.save(previous.copy(personvern = personvern))
+            repository.avtale.save(previous.medPersonvern(personvern))
 
             logEndring("Personvern oppdatert", previous.id, navIdent)
                 .also { schedulePublishGjennomforingerForAvtale(it) }
@@ -192,20 +192,12 @@ class AvtaleService(
         request: VeilederinfoRequest,
         navIdent: NavIdent,
     ): Either<List<FieldError>, Avtale> = either {
+        val veilederinfo = request.toVeilederinfo().bind()
+
         db.transaction {
             val previous = getOrError(avtaleId)
 
-            val navEnheter = request.navEnheter.mapNotNull {
-                queries.enhet.get(it)?.toDto()
-            }
-            val validatedNavEnheter = AvtaleValidator.validateNavEnheter(navEnheter).bind()
-            val veilederinfo = Avtale.VeilederInfo(
-                beskrivelse = request.beskrivelse,
-                faneinnhold = request.faneinnhold,
-                navEnheter = validatedNavEnheter,
-            )
-
-            repository.avtale.save(previous.copy(veilederinfo = veilederinfo))
+            repository.avtale.save(previous.medVeilederinfo(veilederinfo))
 
             logEndring("Veilederinformasjon oppdatert", previous.id, navIdent)
                 .also { schedulePublishGjennomforingerForAvtale(it) }
@@ -223,21 +215,23 @@ class AvtaleService(
             return FieldError.of("Prismodell kan ikke endres for forhåndsgodkjente avtaler").nel().left()
         }
 
-        val gjennomforinger = queries.gjennomforing.getByAvtale(id)
-        val tiltakstype = queries.tiltakstype.getByTiltakskode(avtale.tiltakskode)
-        // TODO: forenkle context - f.eks. hele tiltakstype + avtale i context?
-        val context = ValidatePrismodellerContext(
-            avtaletype = avtale.avtaletype,
+        val context = AvtaleValidator.PrismodellParseContext(
             tiltakskode = avtale.tiltakskode,
-            tiltakstypeNavn = tiltakstype.navn,
             avtaleStartDato = avtale.startDato,
             gyldigTilsagnPeriode = config.gyldigTilsagnPeriode,
-            bruktePrismodeller = gjennomforinger.map { it.prismodell.id }.toSet(),
-            systembestemtPrismodell = null,
         )
-
-        AvtaleValidator.validatePrismodeller(request, context).map { prisinfo ->
-            repository.avtale.save(avtale.copy(prisinfo = prisinfo))
+        AvtaleValidator.parsePrismodeller(request, context).flatMap { prismodeller ->
+            val bruktePrismodeller = queries.gjennomforing.getByAvtale(id).map { it.prismodell.id }.toSet()
+            if (bruktePrismodeller.any { id -> prismodeller.none { it.id == id } }) {
+                FieldError.of(
+                    "Prismodell kan ikke fjernes fordi en eller flere gjennomføringer er koblet til prismodellen",
+                    OpprettAvtaleRequest::prismodeller,
+                ).nel().left()
+            } else {
+                avtale.medPrismodeller(prismodeller)
+            }
+        }.map { oppdatert ->
+            repository.avtale.save(oppdatert)
 
             logEndring("Prismodell oppdatert", id, navIdent)
                 .also { schedulePublishGjennomforingerForAvtale(it) }
@@ -250,41 +244,22 @@ class AvtaleService(
         navIdent: NavIdent,
     ): Either<List<FieldError>, Avtale> = db.transaction {
         val avtale = getOrError(id)
-        if (request.totalRamme == null && request.utbetaltArena == null) {
-            return@transaction deleteRammedetaljer(id, navIdent).right()
-        }
-        RammedetaljerValidator.validateRammedetaljer(
-            context = RammedetaljerValidator.Ctx(avtale.id, avtale.prisinfo),
-            request,
-        ).map { rammedetalerDbo ->
-            queries.rammedetaljer.upsert(rammedetalerDbo)
+        avtale.medRammedetaljer(request.totalRamme, request.utbetaltArena).map { oppdatert ->
+            repository.avtale.save(oppdatert)
             logEndring("Rammedetaljer oppdatert", id, navIdent)
         }
     }
 
-    fun deleteRammedetaljer(
+    fun avsluttAvtale(
         id: UUID,
-        navIdent: NavIdent,
-    ): Avtale = db.transaction {
-        queries.rammedetaljer.delete(id)
-        logEndring("Rammedetaljer slettet", id, navIdent)
-    }
+        avsluttetTidspunkt: LocalDateTime,
+        endretAv: Agent,
+    ): Either<List<FieldError>, Avtale> = db.transaction {
+        getOrError(id).avslutt(avsluttetTidspunkt).map { oppdatert ->
+            repository.avtale.save(oppdatert)
 
-    fun avsluttAvtale(id: UUID, avsluttetTidspunkt: LocalDateTime, endretAv: Agent) = db.transaction {
-        val avtale = getOrError(id)
-
-        check(avtale.status == AvtaleStatus.Aktiv) {
-            "Avtalen må være aktiv for å kunne avsluttes"
+            logEndring("Avtalen ble avsluttet", id, endretAv)
         }
-
-        val tidspunktForSlutt = avtale.sluttDato?.plusDays(1)?.atStartOfDay()
-        check(tidspunktForSlutt != null && !avsluttetTidspunkt.isBefore(tidspunktForSlutt)) {
-            "Avtalen kan ikke avsluttes før sluttdato"
-        }
-
-        queries.avtale.setStatus(id, AvtaleStatusType.AVSLUTTET, null, null, null)
-
-        logEndring("Avtalen ble avsluttet", id, endretAv)
     }
 
     fun avbrytAvtale(
@@ -293,34 +268,25 @@ class AvtaleService(
         tidspunkt: LocalDateTime,
         aarsakerOgBegrunnelse: AarsakerOgBegrunnelseRequest<AvbrytAvtaleAarsak>,
     ): Either<List<FieldError>, Avtale> = db.transaction {
-        validation {
+        either {
             val avtale = getOrError(id)
-            when (avtale.status) {
-                is AvtaleStatus.Utkast, is AvtaleStatus.Aktiv -> Unit
-                is AvtaleStatus.Avbrutt -> error { FieldError.of("Avtalen er allerede avbrutt") }
-                is AvtaleStatus.Avsluttet -> error { FieldError.of("Avtalen er allerede avsluttet") }
-            }
 
             val antallAktiveGjennomforinger = queries.gjennomforing.getByAvtale(id).count {
                 it.status is GjennomforingAvtaleStatus.Gjennomfores
             }
-            validate(antallAktiveGjennomforinger == 0) {
+            ensure(antallAktiveGjennomforinger == 0) {
                 val message = listOf(
                     "Avtalen har",
                     antallAktiveGjennomforinger,
                     if (antallAktiveGjennomforinger > 1) "aktive gjennomføringer" else "aktiv gjennomføring",
                     "og kan derfor ikke avbrytes",
                 ).joinToString(" ")
-                FieldError.of(message)
+                FieldError.of(message).nel()
             }
-        }.map {
-            queries.avtale.setStatus(
-                id = id,
-                status = AvtaleStatusType.AVBRUTT,
-                tidspunkt = tidspunkt,
-                aarsaker = aarsakerOgBegrunnelse.aarsaker,
-                forklaring = aarsakerOgBegrunnelse.begrunnelse,
-            )
+
+            avtale.avbryt(tidspunkt, aarsakerOgBegrunnelse.aarsaker, aarsakerOgBegrunnelse.begrunnelse).bind()
+        }.map { oppdatert ->
+            repository.avtale.save(oppdatert)
 
             logEndring("Avtalen ble avbrutt", id, avbruttAv)
         }
@@ -398,12 +364,10 @@ class AvtaleService(
 
     private suspend fun QueryContext.getValidatorCtx(
         request: DetaljerRequest,
-        navEnheter: List<NavEnhetNummer>,
         previous: AvtaleValidator.Ctx.Avtale?,
     ): Either<List<FieldError>, AvtaleValidator.Ctx> = either {
         val tiltakstype = queries.tiltakstype.getByTiltakskode(request.tiltakskode)
         val administratorer = request.administratorer.mapNotNull { queries.ansatt.get(it) }
-        val navEnheter = navEnheter.mapNotNull { queries.enhet.get(it)?.toDto() }
 
         val arrangor = request.arrangor?.let {
             val (hovedenhet, underenheter) = syncArrangorerFromBrreg(it.hovedenhet, it.underenheter).bind()
@@ -426,27 +390,13 @@ class AvtaleService(
                 navn = tiltakstype.navn,
                 tiltakskode = tiltakstype.tiltakskode,
             ),
-            navEnheter = navEnheter,
             kategorisering = kategorisering,
         )
     }
 
     private fun QueryContext.updateAvtaleVarighet(avtaleId: UUID, nySluttDato: LocalDate, today: LocalDate) {
-        queries.avtale.setSluttDato(avtaleId, nySluttDato)
-
-        val currentStatus = getOrError(avtaleId).status.type
-        val newStatus = when (currentStatus) {
-            AvtaleStatusType.UTKAST, AvtaleStatusType.AVBRUTT -> currentStatus
-
-            AvtaleStatusType.AKTIV, AvtaleStatusType.AVSLUTTET -> if (!nySluttDato.isBefore(today)) {
-                AvtaleStatusType.AKTIV
-            } else {
-                AvtaleStatusType.AVSLUTTET
-            }
-        }
-        if (newStatus != currentStatus) {
-            queries.avtale.setStatus(avtaleId, newStatus, null, null, null)
-        }
+        val oppdatert = getOrError(avtaleId).oppdaterVarighet(nySluttDato, today)
+        repository.avtale.save(oppdatert)
     }
 
     private fun QueryContext.getOrError(id: UUID): Avtale {
@@ -486,6 +436,13 @@ class AvtaleService(
             Json.encodeToJsonElement(avtale)
         }
         return avtale
+    }
+
+    private fun VeilederinfoRequest.toVeilederinfo(): Either<List<FieldError>, Avtale.VeilederInfo> {
+        val navEnheter = db.session {
+            navEnheter.mapNotNull { queries.enhet.get(it) }.toSet()
+        }
+        return Avtale.VeilederInfo.of(beskrivelse, faneinnhold, navEnheter)
     }
 
     private suspend fun syncArrangorerFromBrreg(
@@ -573,6 +530,8 @@ class AvtaleService(
 private fun OpprettAvtaleRequest.toAvtale(
     detaljer: AvtaleValidator.ValidatedDetaljer,
     prisinfo: Avtale.Prisinfo,
+    personvern: Avtale.Personvern,
+    veilederinfo: Avtale.VeilederInfo,
 ): Avtale = Avtale(
     id = id,
     tiltakskode = detaljer.tiltakskode,
@@ -585,12 +544,8 @@ private fun OpprettAvtaleRequest.toAvtale(
     avtaletype = detaljer.avtaletype,
     status = detaljer.status.toAvtaleStatus(),
     administratorer = detaljer.administratorer.toSet(),
-    veilederinfo = Avtale.VeilederInfo(
-        beskrivelse = veilederinformasjon.beskrivelse,
-        faneinnhold = veilederinformasjon.faneinnhold,
-        navEnheter = veilederinformasjon.navEnheter.toSet(),
-    ),
-    personvern = personvern.toAvtalePersonvern(),
+    veilederinfo = veilederinfo,
+    personvern = personvern,
     opplaring = detaljer.opplaring,
     opsjoner = Avtale.Opsjoner(detaljer.opsjonsmodell, emptyList()),
     prisinfo = prisinfo,
@@ -615,7 +570,7 @@ private fun Avtale.toUpdatedAvtale(detaljer: AvtaleValidator.ValidatedDetaljer):
     prisinfo = prisinfo,
 )
 
-private fun PersonvernRequest.toAvtalePersonvern(): Avtale.Personvern {
+private fun PersonvernRequest.toAvtalePersonvern(): Either<List<FieldError>, Avtale.Personvern> {
     val typer = buildSet {
         addAll(personopplysninger)
         if (annetChecked == true) {
@@ -624,9 +579,9 @@ private fun PersonvernRequest.toAvtalePersonvern(): Avtale.Personvern {
             remove(Personopplysning.Type.ANNET)
         }
     }
-    return Avtale.Personvern(
+    return Avtale.Personvern.of(
         personopplysninger = typer,
-        annetBeskrivelse = annetBeskrivelse?.takeIf { Personopplysning.Type.ANNET in typer },
+        annetBeskrivelse = annetBeskrivelse,
         erBekreftet = personvernBekreftet,
     )
 }

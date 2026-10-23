@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.persistence.avtale
 
+import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.data.forAll
 import io.kotest.data.row
@@ -108,39 +109,35 @@ class AvtaleQueriesTest : FunSpec({
                 repository.avtale.save(AvtaleFixtures.oppfolging)
 
                 val tidspunkt = LocalDate.now().atStartOfDay()
-                avtale.setStatus(
-                    id = id,
-                    status = AvtaleStatusType.AVBRUTT,
+
+                val avbrutt1 = AvtaleFixtures.oppfolging.avbryt(
                     tidspunkt = tidspunkt,
                     aarsaker = listOf(AvbrytAvtaleAarsak.ANNET),
                     forklaring = ":)",
-                )
+                ).shouldBeRight()
+                repository.avtale.save(avbrutt1)
                 repository.avtale.getOrError(id).status shouldBe AvtaleStatus.Avbrutt(
                     tidspunkt = tidspunkt,
                     aarsaker = listOf(AvbrytAvtaleAarsak.ANNET),
                     forklaring = ":)",
                 )
 
-                avtale.setStatus(
-                    id = id,
-                    status = AvtaleStatusType.AVBRUTT,
+                val avbrutt2 = AvtaleFixtures.oppfolging.avbryt(
                     tidspunkt = tidspunkt,
                     aarsaker = listOf(AvbrytAvtaleAarsak.FEILREGISTRERING),
                     forklaring = null,
-                )
+                ).shouldBeRight()
+                repository.avtale.save(avbrutt2)
                 repository.avtale.getOrError(id).status shouldBe AvtaleStatus.Avbrutt(
                     tidspunkt = tidspunkt,
                     aarsaker = listOf(AvbrytAvtaleAarsak.FEILREGISTRERING),
                     forklaring = null,
                 )
 
-                avtale.setStatus(
-                    id = id,
-                    status = AvtaleStatusType.AVSLUTTET,
-                    tidspunkt = null,
-                    aarsaker = null,
-                    forklaring = null,
-                )
+                val avsluttet = AvtaleFixtures.oppfolging
+                    .avslutt(AvtaleFixtures.oppfolging.sluttDato!!.plusDays(1).atStartOfDay())
+                    .shouldBeRight()
+                repository.avtale.save(avsluttet)
                 repository.avtale.getOrError(id).status shouldBe AvtaleStatus.Avsluttet
             }
         }
@@ -628,17 +625,12 @@ class AvtaleQueriesTest : FunSpec({
                 )
                 repository.avtale.save(avtaleAvsluttet)
 
-                val avtaleAvbrutt = AvtaleFixtures.gruppeAmo.copy(
-                    id = UUID.randomUUID(),
-                )
+                val avtaleAvbrutt = AvtaleFixtures.gruppeAmo.copy(id = UUID.randomUUID()).avbryt(
+                    tidspunkt = LocalDateTime.now(),
+                    aarsaker = listOf(AvbrytAvtaleAarsak.FEILREGISTRERING),
+                    forklaring = null,
+                ).shouldBeRight()
                 repository.avtale.save(avtaleAvbrutt)
-                avtale.setStatus(
-                    avtaleAvbrutt.id,
-                    AvtaleStatusType.AVBRUTT,
-                    LocalDateTime.now(),
-                    listOf(AvbrytAvtaleAarsak.FEILREGISTRERING),
-                    null,
-                )
 
                 val avtaleUtkast = AvtaleFixtures.oppfolging.copy(
                     id = UUID.randomUUID(),
