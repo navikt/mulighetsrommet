@@ -58,7 +58,9 @@ export function WizardForm<TFormValues extends FieldValues>({
         orientation="horizontal"
       >
         {steps.map((step) => (
-          <Stepper.Step key={step.key}>{step.key}</Stepper.Step>
+          <Stepper.Step key={step.key} className="whitespace-nowrap">
+            {step.key}
+          </Stepper.Step>
         ))}
       </Stepper>
       <Separator />
