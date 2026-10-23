@@ -25,7 +25,6 @@ import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingSta
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingType
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
 import no.nav.mulighetsrommet.api.utbetaling.api.ValutaBelopRequest
-import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.JournalpostId
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.NavEnhetNummer
@@ -35,6 +34,8 @@ import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.model.ValutaBelop
 import no.nav.mulighetsrommet.tokenprovider.AccessType
+import no.nav.mulighetsrommet.validation.FieldError
+import no.nav.mulighetsrommet.validation.Validated
 import java.time.LocalDate
 import java.util.UUID
 
@@ -52,6 +53,18 @@ class TilskuddBehandlingValidatorTest : FunSpec({
         every { gjennomforing.tiltakstype.navn } returns tiltakstypeNavn
         every { gjennomforing.arrangor.slettet } returns false
     }
+
+    fun createCtx(
+        gjennomforing: Gjennomforing = createGjennomforing(),
+        betalingsinformasjonArrangor: Betalingsinformasjon? = arrangorBetalingsinformasjon,
+        journalpostValidator: (String, Int) -> Validated<JournalpostId> = { journalpostId, _ -> JournalpostId(journalpostId).right() },
+        tilsagnPeriode: Periode = gyldigTilsagnPeriode,
+    ) = TilskuddBehandlingValidator.Ctx(
+        gjennomforing = gjennomforing,
+        betalingsinformasjonArrangor = betalingsinformasjonArrangor,
+        journalpostValidator = journalpostValidator,
+        gyldigTilsagnPeriode = tilsagnPeriode,
+    )
 
     fun validTilskuddRequest() = TilskuddBehandlingRequest.TilskuddRequest(
         id = UUID.randomUUID(),
@@ -83,11 +96,9 @@ class TilskuddBehandlingValidatorTest : FunSpec({
 
         TilskuddBehandlingValidator.validate(
             request = request,
-            gjennomforing = createGjennomforing(),
-            gyldigTilsagnPeriode = gyldigTilsagnPeriode,
-            arrangorBetalingsinformasjon = arrangorBetalingsinformasjon,
             behandlendeEnhet = behandlendeEnhet,
-        ) { journalpostId, _ -> JournalpostId(journalpostId).right() } shouldBeRight TilskuddBehandling(
+            ctx = createCtx(),
+        ) shouldBeRight TilskuddBehandling(
             id = request.id,
             gjennomforingId = request.gjennomforingId,
             tilskudd = listOf(
@@ -124,10 +135,8 @@ class TilskuddBehandlingValidatorTest : FunSpec({
         val result = TilskuddBehandlingValidator.validateTilskuddRequest(
             req = request,
             index = 0,
-            gjennomforing = createGjennomforing(),
-            gyldigTilsagnPeriode = gyldigTilsagnPeriode,
-            arrangorBetalingsinformasjon = arrangorBetalingsinformasjon,
-        ) { journalpostId, _ -> JournalpostId(journalpostId).right() }.shouldBeRight()
+            ctx = createCtx(),
+        ).shouldBeRight()
 
         result.vedtakResultat shouldBe VedtakResultat.AVSLAG
         result.utbetalingBelop shouldBe null
@@ -151,10 +160,8 @@ class TilskuddBehandlingValidatorTest : FunSpec({
         TilskuddBehandlingValidator.validateTilskuddRequest(
             req = request,
             index = 2,
-            gjennomforing = createGjennomforing(),
-            gyldigTilsagnPeriode = gyldigTilsagnPeriode,
-            arrangorBetalingsinformasjon = null,
-        ) { journalpostId, _ -> JournalpostId(journalpostId).right() }.shouldBeLeft()
+            ctx = createCtx(betalingsinformasjonArrangor = null),
+        ).shouldBeLeft()
             .shouldContainExactlyInAnyOrder(
                 FieldError("/tilskudd/2/kostnadssted", "Kostnadssted er påkrevd"),
                 FieldError("/tilskudd/2/periodeStart", "Periodestart er påkrevd"),
@@ -167,7 +174,6 @@ class TilskuddBehandlingValidatorTest : FunSpec({
                     "/tilskudd/2/kommentarVedtaksbrev",
                     "Kommentar kan ikke inneholde mer enn 500 tegn",
                 ),
-                FieldError("/tilskudd/2/kidNummer", "Ugyldig kid"),
                 FieldError("/tilskudd/2/soknadBelop/belop", "Beløp fra faktura må være positivt"),
                 FieldError("/tilskudd/2/belop", "Beløp til utbetaling må være positivt"),
             )
@@ -179,10 +185,10 @@ class TilskuddBehandlingValidatorTest : FunSpec({
         TilskuddBehandlingValidator.validateTilskuddRequest(
             req = request,
             index = 0,
-            gjennomforing = createGjennomforing(),
-            gyldigTilsagnPeriode = gyldigTilsagnPeriode,
-            arrangorBetalingsinformasjon = arrangorBetalingsinformasjon,
-        ) { journalpostId, _ -> JournalpostId(journalpostId).right() } shouldBeLeft listOf(
+            ctx = createCtx(
+                journalpostValidator = { journalpostId, _ -> JournalpostId(journalpostId).right() },
+            ),
+        ) shouldBeLeft listOf(
             FieldError("/tilskudd/0/soknadDato", "Søknadsdato kan ikke være frem i tid"),
         )
     }
@@ -193,10 +199,8 @@ class TilskuddBehandlingValidatorTest : FunSpec({
         TilskuddBehandlingValidator.validateTilskuddRequest(
             req = request,
             index = 0,
-            gjennomforing = createGjennomforing(),
-            gyldigTilsagnPeriode = gyldigTilsagnPeriode,
-            arrangorBetalingsinformasjon = arrangorBetalingsinformasjon,
-        ) { journalpostId, _ -> JournalpostId(journalpostId).right() } shouldBeLeft listOf(
+            ctx = createCtx(),
+        ) shouldBeLeft listOf(
             FieldError("/tilskudd/0/vedtakResultat", "Du må velge et resultat"),
         )
     }
@@ -207,10 +211,8 @@ class TilskuddBehandlingValidatorTest : FunSpec({
         TilskuddBehandlingValidator.validateTilskuddRequest(
             req = request,
             index = 0,
-            gjennomforing = createGjennomforing(),
-            gyldigTilsagnPeriode = gyldigTilsagnPeriode,
-            arrangorBetalingsinformasjon = null,
-        ) { journalpostId, _ -> JournalpostId(journalpostId).right() } shouldBeLeft listOf(
+            ctx = createCtx(betalingsinformasjonArrangor = null),
+        ) shouldBeLeft listOf(
             FieldError("/tilskudd/0/utbetalingMottaker", "Betalingsinformasjon for arrangøren må være registrert"),
         )
     }
@@ -224,11 +226,9 @@ class TilskuddBehandlingValidatorTest : FunSpec({
 
             val result = TilskuddBehandlingValidator.validateTilskuddRequest(
                 req = request,
-                gyldigTilsagnPeriode = gyldigTilsagnPeriode,
                 index = 0,
-                gjennomforing = createGjennomforing(),
-                arrangorBetalingsinformasjon = null,
-            ) { journalpostId, _ -> JournalpostId(journalpostId).right() }.shouldBeRight()
+                ctx = createCtx(betalingsinformasjonArrangor = null),
+            ).shouldBeRight()
 
             result.brukerUtbetalingType shouldBe brukerUtbetalingType
         }
@@ -243,10 +243,8 @@ class TilskuddBehandlingValidatorTest : FunSpec({
         TilskuddBehandlingValidator.validateTilskuddRequest(
             req = request,
             index = 1,
-            gyldigTilsagnPeriode = gyldigTilsagnPeriode,
-            gjennomforing = createGjennomforing(),
-            arrangorBetalingsinformasjon = null,
-        ) { journalpostId, _ -> JournalpostId(journalpostId).right() } shouldBeLeft listOf(
+            ctx = createCtx(betalingsinformasjonArrangor = null),
+        ) shouldBeLeft listOf(
             FieldError("/tilskudd/1/brukerUtbetalingType", "Du må velge forskudd eller refusjon"),
         )
     }
@@ -257,10 +255,8 @@ class TilskuddBehandlingValidatorTest : FunSpec({
         val result = TilskuddBehandlingValidator.validateTilskuddRequest(
             req = request,
             index = 0,
-            gyldigTilsagnPeriode = gyldigTilsagnPeriode,
-            gjennomforing = createGjennomforing(),
-            arrangorBetalingsinformasjon = arrangorBetalingsinformasjon,
-        ) { journalpostId, _ -> JournalpostId(journalpostId).right() }.shouldBeRight()
+            ctx = createCtx(),
+        ).shouldBeRight()
 
         result.brukerUtbetalingType shouldBe null
     }
@@ -274,10 +270,8 @@ class TilskuddBehandlingValidatorTest : FunSpec({
         TilskuddBehandlingValidator.validateTilskuddRequest(
             req = request,
             index = 1,
-            gjennomforing = createGjennomforing(LocalDate.of(2025, 6, 30)),
-            gyldigTilsagnPeriode = gyldigTilsagnPeriode,
-            arrangorBetalingsinformasjon = arrangorBetalingsinformasjon,
-        ) { journalpostId, _ -> JournalpostId(journalpostId).right() }.shouldBeLeft()
+            ctx = createCtx(gjennomforing = createGjennomforing(LocalDate.of(2025, 6, 30))),
+        ).shouldBeLeft()
             .shouldContainExactlyInAnyOrder(
                 FieldError("/tilskudd/1/periodeStart", "Periodestart må være før sluttdato"),
                 FieldError(
@@ -295,11 +289,9 @@ class TilskuddBehandlingValidatorTest : FunSpec({
 
         TilskuddBehandlingValidator.validate(
             request = request,
-            gjennomforing = createGjennomforing(),
-            gyldigTilsagnPeriode = gyldigTilsagnPeriode,
-            arrangorBetalingsinformasjon = arrangorBetalingsinformasjon,
             behandlendeEnhet = behandlendeEnhet,
-        ) { journalpostId, _ -> JournalpostId(journalpostId).right() } shouldBeLeft listOf(
+            ctx = createCtx(),
+        ) shouldBeLeft listOf(
             FieldError("/tilskudd/1/kostnadssted", "Kostnadssted er påkrevd"),
         )
     }
@@ -314,10 +306,11 @@ class TilskuddBehandlingValidatorTest : FunSpec({
         TilskuddBehandlingValidator.validateTilskuddRequest(
             req = request,
             index = 0,
-            gjennomforing = createGjennomforing(sluttDato = null),
-            gyldigTilsagnPeriode = validPeriode,
-            arrangorBetalingsinformasjon = arrangorBetalingsinformasjon,
-        ) { journalpostId, _ -> JournalpostId(journalpostId).right() }.shouldBeLeft()
+            ctx = createCtx(
+                gjennomforing = createGjennomforing(sluttDato = LocalDate.of(2027, 1, 1)),
+                tilsagnPeriode = validPeriode,
+            ),
+        ).shouldBeLeft()
             .shouldContainExactlyInAnyOrder(
                 FieldError(
                     "/tilskudd/0/periodeSlutt",
@@ -336,10 +329,8 @@ class TilskuddBehandlingValidatorTest : FunSpec({
         TilskuddBehandlingValidator.validateTilskuddRequest(
             req = request,
             index = 0,
-            gjennomforing = createGjennomforing(sluttDato = null),
-            gyldigTilsagnPeriode = validPeriode,
-            arrangorBetalingsinformasjon = arrangorBetalingsinformasjon,
-        ) { journalpostId, _ -> JournalpostId(journalpostId).right() }.shouldBeLeft()
+            createCtx(gjennomforing = createGjennomforing(sluttDato = LocalDate.of(2028, 1, 1)), tilsagnPeriode = validPeriode),
+        ).shouldBeLeft()
             .shouldContainExactlyInAnyOrder(
                 FieldError("/tilskudd/0/periodeSlutt", "Periode kan ikke strekke seg over årsskiftet"),
             )
@@ -353,10 +344,8 @@ class TilskuddBehandlingValidatorTest : FunSpec({
         TilskuddBehandlingValidator.validateTilskuddRequest(
             req = validTilskuddRequest(),
             index = 0,
-            gjennomforing = gjennomforing,
-            gyldigTilsagnPeriode = gyldigTilsagnPeriode,
-            arrangorBetalingsinformasjon = arrangorBetalingsinformasjon,
-        ) { journalpostId, _ -> JournalpostId(journalpostId).right() }.shouldBeLeft()
+            createCtx(gjennomforing = gjennomforing),
+        ).shouldBeLeft()
             .shouldContainExactlyInAnyOrder(
                 FieldError(
                     "/tilskudd/0/utbetalingMottaker",
@@ -375,10 +364,24 @@ class TilskuddBehandlingValidatorTest : FunSpec({
         TilskuddBehandlingValidator.validateTilskuddRequest(
             req = request,
             index = 0,
-            gjennomforing = createGjennomforing(),
-            gyldigTilsagnPeriode = validPeriode,
-            arrangorBetalingsinformasjon = arrangorBetalingsinformasjon,
-        ) { journalpostId, _ -> JournalpostId(journalpostId).right() }.shouldBeRight()
+            createCtx(),
+        ).shouldBeRight()
+    }
+
+    test("samler feltfeil fra flere tilskudd i saksopplysningene") {
+        val request = createRequest(
+            validTilskuddRequest().copy(kostnadssted = null),
+            validTilskuddRequest().copy(soknadDato = null),
+        )
+
+        TilskuddBehandlingValidator.validateSaksopplysninger(
+            request = request,
+            ctx = createCtx(),
+        ).shouldBeLeft()
+            .shouldContainExactlyInAnyOrder(
+                FieldError("/tilskudd/0/kostnadssted", "Kostnadssted er påkrevd"),
+                FieldError("/tilskudd/1/soknadDato", "Søknadsdato er påkrevd"),
+            )
     }
 
     test("journalpostvalidator uten oppslag godtar kun journalpost-id med tall") {

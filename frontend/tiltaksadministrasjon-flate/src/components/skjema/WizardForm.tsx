@@ -5,7 +5,7 @@ import { Box, Button, HStack, Stepper, VStack } from "@navikt/ds-react";
 import { DefaultValues, FieldValues, FormProvider, UseFormReturn } from "react-hook-form";
 
 interface WizardFormProps<TFormValues extends FieldValues> {
-  steps: WizardStep[];
+  steps: WizardStep<TFormValues>[];
   defaultValues: DefaultValues<TFormValues>;
   onCancel: () => void;
   onSubmit: (data: TFormValues, methods: UseFormReturn<TFormValues>) => void | Promise<void>;
@@ -32,6 +32,7 @@ export function WizardForm<TFormValues extends FieldValues>({
     activeStep,
     currentStep,
     isLastStep,
+    isValidating,
     form,
     handleStepChange,
     handleStepBack,
@@ -51,11 +52,15 @@ export function WizardForm<TFormValues extends FieldValues>({
       <Stepper
         aria-label="Stepper"
         activeStep={activeStep}
-        onStepChange={handleStepChange}
+        onStepChange={(step) => {
+          if (!isValidating) void handleStepChange(step);
+        }}
         orientation="horizontal"
       >
         {steps.map((step) => (
-          <Stepper.Step key={step.key}>{step.key}</Stepper.Step>
+          <Stepper.Step key={step.key} className="whitespace-nowrap">
+            {step.key}
+          </Stepper.Step>
         ))}
       </Stepper>
       <Separator />
@@ -66,13 +71,19 @@ export function WizardForm<TFormValues extends FieldValues>({
             <Separator />
             <HStack gap="space-8" justify="end">
               <ValideringsfeilOppsummering />
-              <Button size="small" type="button" variant="tertiary" onClick={handleStepBack}>
+              <Button
+                size="small"
+                type="button"
+                variant="tertiary"
+                onClick={handleStepBack}
+                disabled={isValidating}
+              >
                 {activeStep === 1 ? cancel : back}
               </Button>
               <Button
                 size="small"
                 type={isLastStep ? "submit" : "button"}
-                loading={isSubmitting}
+                loading={isSubmitting || isValidating}
                 onClick={form.handleSubmit(handleStepForward)}
               >
                 {isLastStep ? submit : next}

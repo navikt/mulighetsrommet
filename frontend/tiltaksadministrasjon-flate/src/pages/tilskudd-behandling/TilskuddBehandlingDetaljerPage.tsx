@@ -252,8 +252,8 @@ function godkjennModalInnhold(behandling: TilskuddBehandlingDto) {
           t.vedtakResultat.type === VedtakResultat.INNVILGELSE ? (
             <List.Item key={t.id}>
               {t.utbetalingBelop?.belop ?? 0} {(t.utbetalingBelop?.valuta ?? Valuta.NOK).toString()}{" "}
-              i {opplaeringTilskuddToString(t.tilskuddOpplaeringType).toLowerCase()} som{" "}
-              {tilskuddMottakerToString(t.utbetalingMottaker, t.brukerUtbetalingType).toLowerCase()}
+              i {opplaeringTilskuddToString(t.tilskuddOpplaeringType).toLowerCase()} som utbetales
+              til {tilskuddMottakerToString(t.utbetalingMottaker, null).toLowerCase()}
             </List.Item>
           ) : (
             <List.Item key={t.id}>

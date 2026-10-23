@@ -35,7 +35,6 @@ import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollStatus
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
 import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.DeltakerStatusType
-import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 import no.nav.mulighetsrommet.model.NOK
@@ -47,6 +46,7 @@ import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Tiltaksnummer
 import no.nav.mulighetsrommet.model.Valuta
+import no.nav.mulighetsrommet.validation.FieldError
 import no.nav.mulighetsrommet.validation.Validated
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -184,6 +184,12 @@ class GjennomforingEnkeltplassService(
             }
 
             TotrinnskontrollStatus.GODKJENT -> {
+                val godkjentPrismodell = enkeltplass.gjennomforing.prismodell
+                if (toPrismodell(godkjentPrismodell.id, prisinformasjon).type != godkjentPrismodell.type) {
+                    returnerUgyldigPrisendring(gjennomforingId, behandling)
+                    return@transaction enkeltplass.right()
+                }
+
                 enkeltplass.prisendring?.also {
                     slettEksisterendePrisendring(it.totrinnskontroll)
                 }
@@ -344,7 +350,9 @@ class GjennomforingEnkeltplassService(
     ): Either<EnkeltplassBeslutningError, Enkeltplass> = db.transaction {
         val enkeltplass = getAndAcquireLock(id)
         if (!kanBeslutteEnkeltplass(enkeltplass, navIdent)) {
-            return@transaction EnkeltplassBeslutningError.ManglerTilgang("Du mangler tilgang til å beslutte økonomi for enkeltplassen").left()
+            return@transaction EnkeltplassBeslutningError.ManglerTilgang(
+                "Du mangler tilgang til å beslutte økonomi for enkeltplassen",
+            ).left()
         }
 
         val prisendring = enkeltplass.prisendring
@@ -401,7 +409,9 @@ class GjennomforingEnkeltplassService(
     ): Either<EnkeltplassBeslutningError, Enkeltplass> = db.transaction {
         val enkeltplass = getAndAcquireLock(id)
         if (!kanBeslutteEnkeltplass(enkeltplass, navIdent)) {
-            return@transaction EnkeltplassBeslutningError.ManglerTilgang("Du mangler tilgang til å beslutte økonomi for enkeltplassen").left()
+            return@transaction EnkeltplassBeslutningError.ManglerTilgang(
+                "Du mangler tilgang til å beslutte økonomi for enkeltplassen",
+            ).left()
         }
 
         val prisendring = enkeltplass.prisendring
@@ -539,8 +549,8 @@ class GjennomforingEnkeltplassService(
             -> {
                 enkeltplass.okonomi
                     ?.takeIf { it.kanBesluttes() }
-                    ?.let {
-                        it.returner(Tiltaksadministrasjon).fold(
+                    ?.let { okonomi ->
+                        okonomi.returner(Tiltaksadministrasjon).fold(
                             { throw IllegalStateException("Systemet klarte ikke returnere enkeltplass okonomi") },
                             { queries.totrinnskontroll.upsert(it) },
                         )
@@ -548,14 +558,31 @@ class GjennomforingEnkeltplassService(
 
                 enkeltplass.prisendring
                     ?.takeIf { it.totrinnskontroll.kanBesluttes() }
-                    ?.let {
-                        it.totrinnskontroll.returner(Tiltaksadministrasjon).fold(
+                    ?.let { prisendring ->
+                        prisendring.totrinnskontroll.returner(Tiltaksadministrasjon).fold(
                             { throw IllegalStateException("Systemet klarte ikke returnere enkeltplass prisendring") },
                             { queries.totrinnskontroll.upsert(it) },
                         )
                     }
             }
         }
+    }
+
+    private fun QueryContext.returnerUgyldigPrisendring(gjennomforingId: UUID, behandling: TotrinnskontrollBehandling) {
+        val returnert = Totrinnskontroll.opprett(
+            id = behandling.id,
+            entityId = gjennomforingId,
+            type = TotrinnskontrollType.ENKELTPLASS_PRISENDRING,
+            behandletAv = behandling.behandletAv,
+            behandletBegrunnelse = behandling.begrunnelse,
+        ).returner(
+            besluttetAv = Tiltaksadministrasjon,
+            besluttetBegrunnelse = "Kan ikke endre prismodelltype etter at økonomien er godkjent",
+        ).getOrElse {
+            error("Klarte ikke returnere prisendring med endret prismodelltype")
+        }
+        queries.totrinnskontroll.upsert(returnert)
+        outbox.publish(returnert)
     }
 
     private fun QueryContext.slettEksisterendePrisendring(prisendring: Totrinnskontroll) {

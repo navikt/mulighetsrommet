@@ -44,14 +44,15 @@ import no.nav.mulighetsrommet.api.persistence.AdminTestDomain
 import no.nav.mulighetsrommet.api.persistence.SqlAdminDatabaseTestListener
 import no.nav.mulighetsrommet.api.persistence.outboxConfig
 import no.nav.mulighetsrommet.model.DeltakerStatusType
-import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.NOK
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.NorskIdentHasher
+import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Tiltaksnummer
+import no.nav.mulighetsrommet.validation.FieldError
 import java.time.Instant
 import java.time.LocalDate
 import java.util.UUID
@@ -1131,6 +1132,33 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
                 database.run {
                     enkeltplassPrisendring.getByGjennomforingId(soktInn.id).shouldNotBeNull()
+                }
+            }
+
+            test("returnerer prisendring med endret prismodelltype når økonomi er GODKJENT") {
+                val soktInn = createRequest()
+                val opprettelse = behandling(opprettetAv)
+                service.soktInn(soktInn, opprettelse).shouldBeRight()
+                service.settOkonomiGodkjent(soktInn.id, opprettelse.id, besluttetAv).shouldBeRight()
+
+                val prisendring = behandling(opprettetAv)
+                service.endrePrisinformasjon(
+                    soktInn.id,
+                    UpsertEnkeltplass.Prismodell.IngenKostnader("Ingen kostnader"),
+                    prisendring,
+                ).shouldBeRight().should { enkeltplass ->
+                    enkeltplass.prisendring.shouldBeNull()
+
+                    enkeltplass.gjennomforing.prismodell
+                        .shouldBeTypeOf<Prismodell.AnskaffetEnkeltplass>().totalbelop shouldBe 1000.NOK
+                }
+
+                database.run {
+                    totrinnskontroll.getById(prisendring.id).should {
+                        it.status shouldBe TotrinnskontrollStatus.RETURNERT
+                        it.beslutning?.utfortAv shouldBe Tiltaksadministrasjon
+                        it.beslutning?.begrunnelse shouldBe "Kan ikke endre prismodelltype etter at økonomien er godkjent"
+                    }
                 }
             }
 

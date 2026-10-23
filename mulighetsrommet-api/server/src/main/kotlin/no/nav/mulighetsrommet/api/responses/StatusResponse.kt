@@ -8,8 +8,8 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
-import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.ProblemDetail
+import no.nav.mulighetsrommet.validation.FieldError
 
 /**
  * Et forsøk på å definere noen utility-klasser som gjør det lettere å benytte Arrow's [Either] i kombinasjon

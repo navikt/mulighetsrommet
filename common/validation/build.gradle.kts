@@ -1,11 +1,11 @@
 plugins {
     `java-test-fixtures`
     alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 dependencies {
-    implementation(projects.common.domain)
-
     // Kotlin
     implementation(libs.arrow.core)
+    implementation(libs.kotlinx.serialization.json)
 }

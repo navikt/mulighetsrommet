@@ -6,19 +6,17 @@ import no.nav.mulighetsrommet.api.arrangorflate.api.PeriodeType
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateOpprettUtbetaling
 import no.nav.mulighetsrommet.api.domain.tiltak.PrismodellType
 import no.nav.mulighetsrommet.api.tilsagn.model.GyldigTilsagnPeriode
-import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.model.withValuta
+import no.nav.mulighetsrommet.validation.FieldError
 import no.nav.mulighetsrommet.validation.validation
 import java.time.LocalDate
 import java.time.format.DateTimeParseException
 import java.util.UUID
-import kotlin.contracts.ExperimentalContracts
 
-@OptIn(ExperimentalContracts::class)
 object ArrangorflateUtbetalingValidator {
     const val MIN_ANTALL_VEDLEGG_OPPRETT_KRAV = 1
 

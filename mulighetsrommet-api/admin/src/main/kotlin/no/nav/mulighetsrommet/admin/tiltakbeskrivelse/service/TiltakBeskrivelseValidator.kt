@@ -5,8 +5,8 @@ import no.nav.mulighetsrommet.admin.tiltakbeskrivelse.TiltakBeskrivelseDto
 import no.nav.mulighetsrommet.api.domain.tiltak.Tiltakstype
 import no.nav.mulighetsrommet.api.domain.tiltakbeskrivelse.TiltakBeskrivelse
 import no.nav.mulighetsrommet.api.domain.tiltakbeskrivelse.TiltakBeskrivelse.Kontaktperson
-import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.validation.FieldError
 import no.nav.mulighetsrommet.validation.validation
 
 object TiltakBeskrivelseValidator {

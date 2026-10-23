@@ -8,10 +8,10 @@ import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.collections.shouldHaveSize
 import no.nav.mulighetsrommet.admin.tiltakbeskrivelse.TiltakBeskrivelseDto
 import no.nav.mulighetsrommet.api.domain.testing.fixture.TiltakstypeFixtures
-import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.validation.FieldError
 import java.util.UUID
 
 class TiltakBeskrivelseValidatorTest : FunSpec({

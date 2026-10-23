@@ -1,6 +1,6 @@
 package no.nav.mulighetsrommet.admin.gjennomforing
 
-import no.nav.mulighetsrommet.model.FieldError
+import no.nav.mulighetsrommet.validation.FieldError
 
 sealed interface EnkeltplassBeslutningError {
     data class ManglerTilgang(val message: String) : EnkeltplassBeslutningError

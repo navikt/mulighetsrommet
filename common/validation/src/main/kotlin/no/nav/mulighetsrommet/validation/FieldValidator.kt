@@ -6,7 +6,6 @@ import arrow.core.raise.Raise
 import arrow.core.raise.either
 import arrow.core.right
 import arrow.core.toNonEmptyListOrNull
-import no.nav.mulighetsrommet.model.FieldError
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 import kotlin.reflect.KProperty1
@@ -52,7 +51,7 @@ class FieldValidator(
         return value
     }
 
-    @ExperimentalContracts
+    @OptIn(ExperimentalContracts::class)
     fun requireValid(condition: Boolean, error: (() -> FieldError)? = null) {
         contract { returns() implies (condition) }
         if (!condition) {
@@ -61,7 +60,7 @@ class FieldValidator(
         }
     }
 
-    @ExperimentalContracts
+    @OptIn(ExperimentalContracts::class)
     fun <A> requireNotNull(value: A?, error: (() -> FieldError)? = null): A {
         contract { returns() implies (value != null) }
         if (value == null) {

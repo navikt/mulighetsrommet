@@ -5,10 +5,12 @@ import {
   TilskuddBehandlingRequest,
   TilskuddBehandlingService,
   UtbetalingService,
+  ValidationError,
 } from "@tiltaksadministrasjon/api-client";
-import { useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useApiMutation } from "@/hooks/useApiMutation";
 import { QueryKeys } from "@/api/QueryKeys";
+import { getValidationError } from "@/utils/Utils";
 
 export function useOpprettTilskuddBehandling(gjennomforingId: string) {
   const queryClient = useQueryClient();
@@ -20,6 +22,35 @@ export function useOpprettTilskuddBehandling(gjennomforingId: string) {
         queryKey: QueryKeys.tilskuddBehandlinger(gjennomforingId),
       });
     },
+  });
+}
+
+async function validateWithMutation(
+  mutationFn: () => Promise<unknown>,
+): Promise<ValidationError | undefined> {
+  try {
+    await mutationFn();
+    return undefined;
+  } catch (error) {
+    const validationError = getValidationError(error);
+    if (validationError?.status === 400) return validationError;
+    throw error;
+  }
+}
+
+export function useValidateSaksopplysninger() {
+  return useMutation<ValidationError | undefined, unknown, TilskuddBehandlingRequest>({
+    mutationFn: (body) =>
+      validateWithMutation(() =>
+        TilskuddBehandlingService.validerSaksopplysningerTilskuddsBehandling({ body }),
+      ),
+  });
+}
+
+export function useValidateTilskuddBehandling() {
+  return useMutation<ValidationError | undefined, unknown, TilskuddBehandlingRequest>({
+    mutationFn: (body) =>
+      validateWithMutation(() => TilskuddBehandlingService.validerTilskuddsBehandling({ body })),
   });
 }
 
