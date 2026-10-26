@@ -135,8 +135,8 @@ importers:
         specifier: 14.0.2
         version: 14.0.2
       zod:
-        specifier: 4.6.5
-        version: 4.6.5
+        specifier: 4.6.6
+        version: 4.6.6
     devDependencies:
       '@axe-core/playwright':
         specifier: 4.13.0
@@ -481,7 +481,7 @@ importers:
         version: 2.1.1
       '@hookform/resolvers':
         specifier: 5.9.1
-        version: 5.9.1(react-hook-form@7.89.0(@types/react@19.2.14)(react@19.2.8))(valibot@1.5.0(typescript@6.0.3))(zod@4.6.5)
+        version: 5.9.1(react-hook-form@7.89.0(@types/react@19.2.14)(react@19.2.8))(valibot@1.5.0(typescript@6.0.3))(zod@4.6.6)
       '@portabletext/react':
         specifier: 8.0.1
         version: 8.0.1(react@19.2.8)
@@ -504,8 +504,8 @@ importers:
         specifier: 7.89.0
         version: 7.89.0(@types/react@19.2.14)(react@19.2.8)
       zod:
-        specifier: 4.6.5
-        version: 4.6.5
+        specifier: 4.6.6
+        version: 4.6.6
     devDependencies:
       '@mr/eslint-config-react-app':
         specifier: workspace:*
@@ -618,7 +618,7 @@ importers:
         version: 5.2.2(@types/react@19.2.14)(highcharts@13.1.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       '@hookform/resolvers':
         specifier: 5.9.1
-        version: 5.9.1(react-hook-form@7.89.0(@types/react@19.2.14)(react@19.2.8))(valibot@1.5.0(typescript@6.0.3))(zod@4.6.5)
+        version: 5.9.1(react-hook-form@7.89.0(@types/react@19.2.14)(react@19.2.8))(valibot@1.5.0(typescript@6.0.3))(zod@4.6.6)
       '@mr/frontend-common':
         specifier: workspace:*
         version: link:../frontend-common
@@ -692,8 +692,8 @@ importers:
         specifier: 14.0.2
         version: 14.0.2
       zod:
-        specifier: 4.6.5
-        version: 4.6.5
+        specifier: 4.6.6
+        version: 4.6.6
     devDependencies:
       '@axe-core/playwright':
         specifier: 4.13.0
@@ -2279,9 +2279,6 @@ packages:
       '@types/react': ^17.0.30 || ^18 || ^19
       react: ^17 || ^18 || ^19
       react-dom: ^17 || ^18 || ^19
-    peerDependenciesMeta:
-      '@types/react':
-        optional: true
 
   '@navikt/ds-tailwind@8.17.2':
     resolution: {integrity: sha512-vnk1Rh10u58SArtWY1eoVRc3W5pvQIcb6XLwmTicCO0nSnMhTSPOFnrtTLaMxj0yqwncunQgu7L3ziN5EZ1MsQ==, tarball: https://npm.pkg.github.com/download/@navikt/ds-tailwind/8.17.2/27c852f81b6fe3333ba7f876b2950dfb457e9cf3}
@@ -2295,9 +2292,6 @@ packages:
     peerDependencies:
       html-react-parser: '>=5.x'
       react: '>=17.x'
-    peerDependenciesMeta:
-      react:
-        optional: true
 
   '@navikt/oasis@4.2.2':
     resolution: {integrity: sha512-EVMsF8uKbLPNRWuPfH1IKVJhqtibFzSTSyNkzj5mTCVMZV2QPS5W3uYMD4r0rXsmLx7nv0HnLovDphb3AFEjvw==, tarball: https://npm.pkg.github.com/download/@navikt/oasis/4.2.2/3c43e1e89bb2d46646a9a2aaf27972a024377a6f}
@@ -7977,8 +7971,8 @@ packages:
     peerDependencies:
       zod: ^3.25.0 || ^4.0.0
 
-  zod@4.6.5:
-    resolution: {integrity: sha512-v5l/aFXZQeai4awLbOpSoHecE9UiMrnfx75tEXLjNonXVARxQ5mOeipTjROUchszUNCqnE+hqAMujRsRHsut2Q==}
+  zod@4.6.6:
+    resolution: {integrity: sha512-4UmzQUF5fxvfcYHlbjBmejU+w+hbDnWFx4aS8kBx7nPBHcO2SqPbpAG8snbdg+Xse4pRefR98hgjFgIMCI/UhA==}
 
   zustand@5.0.15:
     resolution: {integrity: sha512-MpSEjRiBkA9crSYeOUH32rJC7SVqAbm0Fqcqge/bUi2PPoLcBWKOsG+C8mevmpr8TwXHBVkChbbJiyvkE+i/3A==}
@@ -9238,13 +9232,13 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.2.14
 
-  '@hookform/resolvers@5.9.1(react-hook-form@7.89.0(@types/react@19.2.14)(react@19.2.8))(valibot@1.5.0(typescript@6.0.3))(zod@4.6.5)':
+  '@hookform/resolvers@5.9.1(react-hook-form@7.89.0(@types/react@19.2.14)(react@19.2.8))(valibot@1.5.0(typescript@6.0.3))(zod@4.6.6)':
     dependencies:
       '@standard-schema/utils': 0.3.0
       react-hook-form: 7.89.0(@types/react@19.2.14)(react@19.2.8)
     optionalDependencies:
       valibot: 1.5.0(typescript@6.0.3)
-      zod: 4.6.5
+      zod: 4.6.6
 
   '@humanfs/core@0.19.2':
     dependencies:
@@ -9745,12 +9739,11 @@ snapshots:
       '@floating-ui/react-dom': 2.1.9(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       '@navikt/aksel-icons': 8.17.2
       '@navikt/ds-tokens': 8.17.2
+      '@types/react': 19.2.14
       date-fns: 4.4.0
       react: 19.2.8
       react-day-picker: 10.0.1(@types/react@19.2.14)(react@19.2.8)
       react-dom: 19.2.8(react@19.2.8)
-    optionalDependencies:
-      '@types/react': 19.2.14
 
   '@navikt/ds-tailwind@8.17.2': {}
 
@@ -9762,7 +9755,6 @@ snapshots:
       csp-header: 6.3.1
       html-react-parser: 6.1.8(@types/react@19.2.14)(react@19.2.8)
       js-cookie: 3.0.8
-    optionalDependencies:
       react: 19.2.8
 
   '@navikt/oasis@4.2.2':
@@ -10354,7 +10346,7 @@ snapshots:
       react-is: 19.3.0
       semver: 7.8.5
       vite: 8.3.3(@types/node@26.6.3)(jiti@2.7.0)(sass-embedded@1.105.0)(sass@1.105.0)(yaml@2.9.1)
-      zod: 4.6.5
+      zod: 4.6.6
     optionalDependencies:
       sanity: 6.16.0(@babel/core@7.29.7)(@babel/runtime@7.29.7)(@noble/hashes@2.4.0)(@rolldown/plugin-babel@0.2.4(@babel/core@7.29.7)(@babel/runtime@7.29.7)(rolldown@1.2.14)(vite@8.3.3(@types/node@26.6.3)(jiti@2.7.0)(sass-embedded@1.105.0)(sass@1.105.0)(yaml@2.9.1)))(@types/node@26.6.3)(@types/react@19.2.14)(jiti@2.7.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(rolldown@1.2.14)(sass-embedded@1.105.0)(sass@1.105.0)(styled-components@6.5.3(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(typescript@6.0.3)(vitest@5.0.2(@opentelemetry/api@1.9.1)(@types/node@26.6.3)(jsdom@29.1.1(@noble/hashes@2.4.0))(msw@2.15.0(@types/node@26.6.3)(typescript@6.0.3))(vite@8.3.3(@types/node@26.6.3)(jiti@2.7.0)(sass-embedded@1.105.0)(sass@1.105.0)(yaml@2.9.1)))
     transitivePeerDependencies:
@@ -10402,7 +10394,7 @@ snapshots:
       rxjs: 7.8.2
       vite: 8.3.3(@types/node@26.6.3)(jiti@2.7.0)(sass-embedded@1.105.0)(sass@1.105.0)(yaml@2.9.1)
       wrap-ansi: 9.0.2
-      zod: 4.6.5
+      zod: 4.6.6
     transitivePeerDependencies:
       - '@noble/hashes'
       - '@types/node'
@@ -10482,7 +10474,7 @@ snapshots:
       which: 6.0.1
       wrap-ansi: 9.0.2
       yaml: 2.9.1
-      zod: 4.6.5
+      zod: 4.6.6
     transitivePeerDependencies:
       - '@babel/core'
       - '@babel/plugin-transform-runtime'
@@ -10998,7 +10990,7 @@ snapshots:
       semver: 7.8.5
       tar: 7.5.22
       vite: 8.3.3(@types/node@26.6.3)(jiti@2.7.0)(sass-embedded@1.105.0)(sass@1.105.0)(yaml@2.9.1)
-      zod: 4.6.5
+      zod: 4.6.6
     transitivePeerDependencies:
       - '@noble/hashes'
       - '@rolldown/plugin-babel'
@@ -12616,8 +12608,8 @@ snapshots:
       '@babel/parser': 7.29.2
       eslint: 10.11.0(jiti@2.7.0)
       hermes-parser: 0.25.1
-      zod: 4.6.5
-      zod-validation-error: 4.0.2(zod@4.6.5)
+      zod: 4.6.6
+      zod-validation-error: 4.0.2(zod@4.6.6)
     transitivePeerDependencies:
       - supports-color
 
@@ -16155,11 +16147,11 @@ snapshots:
 
   yoctocolors@2.2.0: {}
 
-  zod-validation-error@4.0.2(zod@4.6.5):
+  zod-validation-error@4.0.2(zod@4.6.6):
     dependencies:
-      zod: 4.6.5
+      zod: 4.6.6
 
-  zod@4.6.5: {}
+  zod@4.6.6: {}
 
   zustand@5.0.15(@types/react@19.2.14)(react@19.2.8)(use-sync-external-store@1.7.0(react@19.2.8)):
     optionalDependencies:
