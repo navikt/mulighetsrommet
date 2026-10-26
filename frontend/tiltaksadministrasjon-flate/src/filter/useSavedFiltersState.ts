@@ -14,6 +14,7 @@ import {
   oppgaverFilterStateAtom,
   parseOppgaverFilter,
 } from "@/pages/oppgaveoversikt/oppgaver/filter";
+import { tilsagnFilterStateAtom, parseTilsagnFilter } from "@/pages/gjennomforing/tilsagn/filter";
 
 function useSavedFiltersState<T extends object>(
   filterStateAtom: WritableAtom<FilterState<T>, [FilterAction<T>], void>,
@@ -106,4 +107,8 @@ export function useOppgaverSavedFilterState() {
     LagretFilterType.OPPGAVE,
     parseOppgaverFilter,
   );
+}
+
+export function useTilsagnSavedFilterState() {
+  return useSavedFiltersState(tilsagnFilterStateAtom, LagretFilterType.TILSAGN, parseTilsagnFilter);
 }

@@ -17,6 +17,7 @@ import no.nav.mulighetsrommet.api.domain.testing.fixture.NavEnhetFixtures.Gjovik
 import no.nav.mulighetsrommet.api.domain.testing.fixture.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
+import no.nav.mulighetsrommet.api.shared.Pagination
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAnnenAvtaltPris
@@ -391,6 +392,26 @@ class TilsagnQueriesTest : FunSpec({
 
                 queries.tilsagn.getAll(typer = listOf(TilsagnType.TILSAGN)).shouldHaveSize(1)
                 queries.tilsagn.getAll(typer = listOf(TilsagnType.EKSTRATILSAGN)).shouldHaveSize(0)
+            }
+        }
+
+        test("get all paginated") {
+            database.runAndRollback {
+                domain.initialize()
+                queries.tilsagn.upsert(tilsagn)
+                queries.tilsagn.upsert(
+                    tilsagn.copy(
+                        id = UUID.randomUUID(),
+                        lopenummer = 2,
+                        bestillingsnummer = "2",
+                        beregning = beregningAnnenAvtaltPris(),
+                    ),
+                )
+
+                val result = queries.tilsagn.getAllPaginated(pagination = Pagination.of(page = 2, size = 1))
+
+                result.totalCount shouldBe 2
+                result.items.shouldHaveSize(1)
             }
         }
 

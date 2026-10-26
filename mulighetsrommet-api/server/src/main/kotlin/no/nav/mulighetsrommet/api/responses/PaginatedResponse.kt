@@ -24,13 +24,8 @@ data class PaginatedResponse<T>(
         )
 
         fun <T> of(pagination: Pagination, totalCount: Int, data: List<T>): PaginatedResponse<T> {
-            val pageSize = pagination.pageSize ?: totalCount
             return PaginatedResponse(
-                pagination = PaginationSummary(
-                    totalCount = totalCount,
-                    pageSize = pageSize,
-                    totalPages = ceil((totalCount.toDouble() / pageSize)).toInt(),
-                ),
+                pagination = PaginationSummary.of(pagination, totalCount),
                 data = data,
             )
         }
@@ -42,4 +37,17 @@ data class PaginationSummary(
     val totalCount: Int,
     val pageSize: Int,
     val totalPages: Int,
-)
+) {
+    companion object {
+        fun of(pagination: Pagination, totalCount: Int): PaginationSummary {
+            val pageSize = pagination.pageSize ?: totalCount
+            val totalPages = if (pageSize == 0) 0 else ceil(totalCount.toDouble() / pageSize).toInt()
+
+            return PaginationSummary(
+                totalCount = totalCount,
+                pageSize = pageSize,
+                totalPages = totalPages,
+            )
+        }
+    }
+}

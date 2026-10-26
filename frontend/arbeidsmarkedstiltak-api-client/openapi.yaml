@@ -636,6 +636,7 @@ components:
       - GJENNOMFORING_MODIA
       - OPPGAVE
       - INNSENDING
+      - TILSAGN
     JsonElement:
       type: object
       properties: {}

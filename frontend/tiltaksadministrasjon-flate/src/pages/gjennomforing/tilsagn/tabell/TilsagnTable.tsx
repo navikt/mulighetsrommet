@@ -1,7 +1,8 @@
 import { DataDrivenTableDto } from "@tiltaksadministrasjon/api-client";
-import { Alert, Heading } from "@navikt/ds-react";
+import { Heading, InfoCard } from "@navikt/ds-react";
 import { useAktiveTilsagnTableData } from "@/pages/gjennomforing/tilsagn/detaljer/tilsagnDetaljerLoader";
 import { DataDrivenTable } from "@mr/frontend-common";
+import { InformationSquareIcon } from "@navikt/aksel-icons";
 
 interface TilsagnTableProps {
   emptyStateMessage: string;
@@ -12,9 +13,11 @@ export function TilsagnTable({ data, emptyStateMessage }: TilsagnTableProps) {
   return data.rows.length > 0 ? (
     <DataDrivenTable data={data} />
   ) : (
-    <Alert variant="info" className="mt-4">
-      {emptyStateMessage}
-    </Alert>
+    <InfoCard data-color="info" className="mt-4">
+      <InfoCard.Message icon={<InformationSquareIcon aria-hidden />}>
+        {emptyStateMessage}
+      </InfoCard.Message>
+    </InfoCard>
   );
 }
 
@@ -29,7 +32,7 @@ export function AktiveTilsagnTable({ gjennomforingId }: AktiveTilsagnTableProps)
       <Heading size="medium">Aktive tilsagn</Heading>
       <TilsagnTable
         emptyStateMessage="Det finnes ingen aktive tilsagn for dette tiltaket"
-        data={data}
+        data={data.table}
       />
     </>
   );

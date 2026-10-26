@@ -6,11 +6,27 @@ import { useTilsagnTableData } from "@/pages/gjennomforing/tilsagn/detaljer/tils
 import { TilsagnTable } from "@/pages/gjennomforing/tilsagn/tabell/TilsagnTable";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
 import { Handlinger } from "@/components/handlinger/Handlinger";
+import { PagineringContainer } from "@/components/paginering/PagineringContainer";
+import { PagineringsOversikt } from "@/components/paginering/PagineringOversikt";
+import { Pagination } from "@navikt/ds-react";
+import { useTilsagnSavedFilterState } from "@/filter/useSavedFiltersState";
+import { TilToppenKnapp } from "@mr/frontend-common/components/tilToppenKnapp/TilToppenKnapp";
+import { ContentBox } from "@/layouts/ContentBox";
+import { LagreFilterButton, ListSkeleton, useOpenFilterWhenThreshold } from "@mr/frontend-common";
+import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
+import { NullstillFilterKnapp } from "@mr/frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
+import { Suspense } from "react";
+import { TilsagnFilter } from "@/components/filter/TilsagnFilter";
+import { TilsagnFilterTags } from "@/components/filter/TilsagnFilterTags";
 
 export function TilsagnForGjennomforingPage() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
   const handlinger = useGjennomforingHandlinger(gjennomforingId);
-  const { data: tilsagn } = useTilsagnTableData(gjennomforingId);
+  const { filter, updateFilter, hasChanged, resetFilterToDefault, saveFilter } =
+    useTilsagnSavedFilterState();
+  const { data: tilsagn } = useTilsagnTableData(gjennomforingId, filter.values);
+
+  const [filterOpen, setFilterOpen] = useOpenFilterWhenThreshold(1450);
 
   return (
     <>
@@ -40,10 +56,64 @@ export function TilsagnForGjennomforingPage() {
           ]}
         />
       </KnapperadContainer>
-      <TilsagnTable
-        emptyStateMessage="Det finnes ingen tilsagn for dette tiltaket"
-        data={tilsagn}
-      />
+      <ContentBox>
+        <FilterAndTableLayout
+          hasChanged={hasChanged}
+          filter={
+            <TilsagnFilter
+              filter={filter.values}
+              updateFilter={updateFilter}
+              lagredeFilterOversikt={<div />}
+            />
+          }
+          nullstillFilterButton={<NullstillFilterKnapp onClick={resetFilterToDefault} />}
+          lagreFilterButton={<LagreFilterButton filter={filter.values} onLagre={saveFilter} />}
+          tags={
+            <TilsagnFilterTags
+              filter={filter.values}
+              updateFilter={updateFilter}
+              filterOpen={filterOpen}
+            />
+          }
+          buttons={null}
+          table={
+            <Suspense fallback={<ListSkeleton />}>
+              <TilsagnTable
+                emptyStateMessage="Det finnes ingen tilsagn for dette tiltaket"
+                data={tilsagn.table}
+              />
+            </Suspense>
+          }
+          filterOpen={filterOpen}
+          setFilterOpen={setFilterOpen}
+        />
+      </ContentBox>
+      <TilToppenKnapp />
+
+      <PagineringContainer>
+        <PagineringsOversikt
+          page={filter.values.page}
+          pageSize={tilsagn.pagination.pageSize}
+          antall={tilsagn.table.rows.length}
+          maksAntall={tilsagn.pagination.totalCount}
+          type="tilsagn"
+          onChangePageSize={(size) => {
+            updateFilter({
+              page: 1,
+              pageSize: size,
+            });
+          }}
+        />
+        <Pagination
+          size="small"
+          page={filter.values.page}
+          count={tilsagn.pagination.totalPages}
+          onPageChange={(page) => {
+            updateFilter({ page });
+          }}
+          data-version="v1"
+        />
+      </PagineringContainer>
     </>
   );
 }

@@ -2010,6 +2010,22 @@ paths:
       description: Hent alle tilsagn for gitt gjennomføring
       operationId: getTilsagnTableData
       parameters:
+      - name: page
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          type: integer
+          format: int32
+      - name: size
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          type: integer
+          format: int32
       - name: gjennomforingId
         in: query
         required: false
@@ -2034,7 +2050,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/DataDrivenTableDto"
+                $ref: "#/components/schemas/PaginatedDataDrivenTableResponse"
         default:
           description: Problem details
           headers: {}
@@ -7403,6 +7419,20 @@ components:
       - ANNULLERT
       - TIL_OPPGJOR
       - OPPGJORT
+    DataDrivenTableDto:
+      type: object
+      properties:
+        columns:
+          type: array
+          items:
+            $ref: "#/components/schemas/DataDrivenTableDto.Column"
+        rows:
+          type: array
+          items:
+            $ref: "#/components/schemas/DataDrivenTableDto.Row"
+      required:
+      - columns
+      - rows
     DataDrivenTableDto.Column:
       type: object
       properties:
@@ -7615,20 +7645,16 @@ components:
       - warning
       - danger
       - neutral
-    DataDrivenTableDto:
+    PaginatedDataDrivenTableResponse:
       type: object
       properties:
-        columns:
-          type: array
-          items:
-            $ref: "#/components/schemas/DataDrivenTableDto.Column"
-        rows:
-          type: array
-          items:
-            $ref: "#/components/schemas/DataDrivenTableDto.Row"
+        pagination:
+          $ref: "#/components/schemas/PaginationSummary"
+        table:
+          $ref: "#/components/schemas/DataDrivenTableDto"
       required:
-      - columns
-      - rows
+      - pagination
+      - table
     TilsagnDto:
       type: object
       properties:
@@ -8964,6 +8990,7 @@ components:
       - GJENNOMFORING_MODIA
       - OPPGAVE
       - INNSENDING
+      - TILSAGN
     LagretFilter:
       type: object
       properties:
