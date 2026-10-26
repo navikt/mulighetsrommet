@@ -63,7 +63,6 @@ org.jetbrains.kotlin:kotlin-daemon-embeddable:2.4.20=kotlinCompilerClasspath,kot
 org.jetbrains.kotlin:kotlin-daemon-embeddable:2.4.21=kotlinBuildToolsApiClasspath
 org.jetbrains.kotlin:kotlin-klib-commonizer-embeddable:2.4.20=kotlinKlibCommonizerClasspath
 org.jetbrains.kotlin:kotlin-reflect:1.6.10=kotlinAbiValidationCompatClasspath,kotlinBuildToolsApiClasspath,kotlinCompilerClasspath,kotlinKlibCommonizerClasspath,ktlint,ktlintBaselineReporter,ktlintRuleset
-org.jetbrains.kotlin:kotlin-reflect:2.4.21=runtimeClasspath,testFixturesRuntimeClasspath
 org.jetbrains.kotlin:kotlin-script-runtime:2.2.21=ktlint,ktlintBaselineReporter,ktlintRuleset
 org.jetbrains.kotlin:kotlin-script-runtime:2.4.0=kotlinAbiValidationCompatClasspath
 org.jetbrains.kotlin:kotlin-script-runtime:2.4.20=kotlinCompilerClasspath,kotlinKlibCommonizerClasspath
