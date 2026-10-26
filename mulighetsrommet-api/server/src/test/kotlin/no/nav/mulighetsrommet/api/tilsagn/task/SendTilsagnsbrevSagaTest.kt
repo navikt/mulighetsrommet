@@ -19,6 +19,8 @@ import no.nav.mulighetsrommet.admin.arrangor.MeldingId
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokarkClient
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokarkError
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokarkResponse
+import no.nav.mulighetsrommet.api.domain.personalia.Gradering
+import no.nav.mulighetsrommet.api.domain.personalia.Personalia
 import no.nav.mulighetsrommet.api.domain.testing.fixture.DeltakerFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
@@ -27,8 +29,6 @@ import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures
 import no.nav.mulighetsrommet.api.fixtures.setTilsagnStatus
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
-import no.nav.mulighetsrommet.api.utbetaling.service.Gradering
-import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.Kontonummer

@@ -1,4 +1,8 @@
-import { OpplaringKategoriseringDetaljer } from "@tiltaksadministrasjon/api-client";
+import {
+  Kurstype,
+  KurstypeKode,
+  OpplaringKategoriseringDetaljer,
+} from "@tiltaksadministrasjon/api-client";
 import { gjennomforingTekster } from "@/components/ledetekster/gjennomforingLedetekster";
 import { Definisjonsliste } from "@mr/frontend-common/components/definisjonsliste/Definisjonsliste";
 
@@ -14,7 +18,7 @@ export function AmoKategoriseringDetaljer({ opplaring, erEnkeltplass }: Props) {
       definitions={[
         opplaring.kurstype && {
           key: gjennomforingTekster.kurstypeLabel,
-          value: `${opplaring.kurstype.navn}${opplaring.bransje ? `- ${opplaring.bransje.navn}` : ""}`,
+          value: kurstypeToVisningsnavn(opplaring.kurstype, opplaring),
         },
         ...(opplaring.forerkort.length > 0
           ? [
@@ -65,3 +69,17 @@ export function AmoKategoriseringDetaljer({ opplaring, erEnkeltplass }: Props) {
     />
   );
 }
+
+const kurstypeToVisningsnavn = (kurstype: Kurstype, opplaring: OpplaringKategoriseringDetaljer) => {
+  switch (kurstype.kode) {
+    case KurstypeKode.BRANSJE_OG_YRKESRETTET:
+      return `Bransje: ${opplaring.bransje ? opplaring.bransje.navn : "Ukjent"}`;
+    case KurstypeKode.FORBEREDENDE_OPPLAERING_FOR_VOKSNE:
+    case KurstypeKode.NORSKOPPLAERING:
+    case KurstypeKode.GRUNNLEGGENDE_FERDIGHETER:
+    case KurstypeKode.STUDIESPESIALISERING:
+      return kurstype.navn;
+    default:
+      return kurstype.navn;
+  }
+};

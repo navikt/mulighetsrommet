@@ -1,4 +1,4 @@
-import { useAttesterUtbetalingLinje, useReturnerUtbetalingLinje } from "@/api/utbetaling/mutations";
+import { useGodkjennUtbetalingLinje, useReturnerUtbetalingLinje } from "@/api/utbetaling/mutations";
 import {
   AarsakerOgBegrunnelseRequestUtbetalingLinjeReturnertAarsak,
   UtbetalingLinjeReturnertAarsak,
@@ -25,15 +25,15 @@ export interface Props {
 export function BesluttUtbetalingLinjeView({ utbetaling }: Props) {
   const { data: linjer } = useUtbetalingsLinjer(utbetaling.id);
   const [avvisModalOpen, setAvvisModalOpen] = useState(false);
-  const [attesterModalOpenForLinjeId, setAttesterModalOpenForLinjeId] = useState<string | null>(
+  const [godkjennModalOpenForLinjeId, setGodkjennModalOpenForLinjeId] = useState<string | null>(
     null,
   );
   const [errors, setErrors] = useState<FieldError[]>([]);
-  const attesterUtbetalingLinjeMutation = useAttesterUtbetalingLinje();
+  const godkjennUtbetalingLinjeMutation = useGodkjennUtbetalingLinje();
   const returnerUtbetalingLinjeMutation = useReturnerUtbetalingLinje();
 
-  function attesterUtbetalingLinje(id: string) {
-    attesterUtbetalingLinjeMutation.mutate(
+  function godkjennUtbetalingLinje(id: string) {
+    godkjennUtbetalingLinjeMutation.mutate(
       { id },
       {
         onValidationError: (error: ValidationError) => {
@@ -110,14 +110,14 @@ export function BesluttUtbetalingLinjeView({ utbetaling }: Props) {
                       {utbetalingTekster.linje.handlinger.returner}
                     </Button>
                   )}
-                  {linje.handlinger.includes(UtbetalingLinjeHandling.ATTESTER) && (
+                  {linje.handlinger.includes(UtbetalingLinjeHandling.GODKJENN) && (
                     <Button
-                      key={`attester-knapp-${linje.id}`}
+                      key={`godkjenn-knapp-${linje.id}`}
                       size="small"
                       type="button"
-                      onClick={() => setAttesterModalOpenForLinjeId(linje.id)}
+                      onClick={() => setGodkjennModalOpenForLinjeId(linje.id)}
                     >
-                      {utbetalingTekster.linje.handlinger.attester}
+                      {utbetalingTekster.linje.handlinger.godkjenn}
                     </Button>
                   )}
                   <AarsakerOgBegrunnelseModal<UtbetalingLinjeReturnertAarsak>
@@ -137,17 +137,17 @@ export function BesluttUtbetalingLinjeView({ utbetaling }: Props) {
                   />
                   <VarselModal
                     open={
-                      attesterModalOpenForLinjeId !== null &&
-                      attesterModalOpenForLinjeId === linje.id
+                      godkjennModalOpenForLinjeId !== null &&
+                      godkjennModalOpenForLinjeId === linje.id
                     }
                     handleClose={() => {
-                      setAttesterModalOpenForLinjeId(null);
+                      setGodkjennModalOpenForLinjeId(null);
                     }}
-                    headingText="Attester utbetaling"
+                    headingText="Godkjenn utbetaling"
                     headingIconType="info"
                     body={
                       <BodyShort>
-                        Du er i ferd med å attestere utbetalingsbeløp{" "}
+                        Du er i ferd med å godkjenne utbetalingsbeløp{" "}
                         {formaterValutaBelop(linje.pris)} for kostnadssted{" "}
                         {linje.tilsagn.kostnadssted.navn}. Er du sikker?
                       </BodyShort>
@@ -157,11 +157,11 @@ export function BesluttUtbetalingLinjeView({ utbetaling }: Props) {
                       <Button
                         variant="primary"
                         onClick={() => {
-                          setAttesterModalOpenForLinjeId(null);
-                          attesterUtbetalingLinje(linje.id);
+                          setGodkjennModalOpenForLinjeId(null);
+                          godkjennUtbetalingLinje(linje.id);
                         }}
                       >
-                        Ja, attester beløp
+                        Ja, godkjenn beløp
                       </Button>
                     }
                   />

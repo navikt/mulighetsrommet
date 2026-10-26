@@ -9,6 +9,7 @@ import io.mockk.clearMocks
 import io.mockk.coEvery
 import io.mockk.mockk
 import io.mockk.verify
+import no.nav.mulighetsrommet.admin.arrangor.BetalingsinformasjonQuery
 import no.nav.mulighetsrommet.api.brukerutbetaling.BrukerUtbetalingService
 import no.nav.mulighetsrommet.api.brukerutbetaling.db.UpsertBrukerUtbetalingDbo
 import no.nav.mulighetsrommet.api.contracts.helved.HelVedUtbetaling
@@ -16,20 +17,21 @@ import no.nav.mulighetsrommet.api.contracts.helved.HelVedUtbetaling.Periode
 import no.nav.mulighetsrommet.api.contracts.totrinnskontroll.TotrinnskontrollAgent
 import no.nav.mulighetsrommet.api.contracts.totrinnskontroll.TotrinnskontrollHendelse
 import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd
+import no.nav.mulighetsrommet.api.domain.personalia.Gradering
+import no.nav.mulighetsrommet.api.domain.personalia.Personalia
 import no.nav.mulighetsrommet.api.domain.testing.fixture.DeltakerFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavAnsattFixture
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.tilskuddbehandling.TilskuddBehandlingService
+import no.nav.mulighetsrommet.api.tilskuddbehandling.db.BrukerUtbetalingType
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
 import no.nav.mulighetsrommet.api.tilskuddbehandling.gyldigJournalpostValidator
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingRequest
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
 import no.nav.mulighetsrommet.api.tilskuddbehandling.task.JournalforVedtaksbrev
 import no.nav.mulighetsrommet.api.utbetaling.api.ValutaBelopRequest
-import no.nav.mulighetsrommet.api.utbetaling.service.Gradering
-import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskDato
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
@@ -46,6 +48,7 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
     val personaliaService = mockk<PersonaliaService>()
     val brukerUtbetalingService = mockk<BrukerUtbetalingService>(relaxed = true)
     val journalforVedtaksbrev = mockk<JournalforVedtaksbrev>(relaxed = true)
+    val betalingsinformasjon = mockk<BetalingsinformasjonQuery>(relaxed = true)
 
     val behandlingId = UUID.randomUUID()
     val tilskuddVedtakId = UUID.randomUUID()
@@ -97,6 +100,7 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
                 vedtakResultat = VedtakResultat.INNVILGELSE,
                 kommentarVedtaksbrev = null,
                 utbetalingMottaker = TilskuddMottaker.BRUKER,
+                brukerUtbetalingType = BrukerUtbetalingType.REFUSJON,
                 kidNummer = null,
                 belop = 5000,
                 kommentarIntern = null,
@@ -149,6 +153,7 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
             journalpostValidator = gyldigJournalpostValidator(),
             personaliaService = mockk(relaxed = true),
             featureToggleService = mockk(relaxed = true),
+            betalingsinformasjon = betalingsinformasjon,
         )
         service.upsert(request, NavAnsattFixture.DonaldDuck.navIdent).shouldBeRight()
 
@@ -174,6 +179,7 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
             journalpostValidator = gyldigJournalpostValidator(),
             personaliaService = mockk(relaxed = true),
             featureToggleService = mockk(relaxed = true),
+            betalingsinformasjon = betalingsinformasjon,
         )
         service.upsert(request, NavAnsattFixture.DonaldDuck.navIdent).shouldBeRight()
 
@@ -192,6 +198,7 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
             journalpostValidator = gyldigJournalpostValidator(),
             personaliaService = mockk(relaxed = true),
             featureToggleService = mockk(relaxed = true),
+            betalingsinformasjon = betalingsinformasjon,
         )
         service.upsert(request, NavAnsattFixture.DonaldDuck.navIdent).shouldBeRight()
 
@@ -214,6 +221,7 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
             journalpostValidator = gyldigJournalpostValidator(),
             personaliaService = mockk(relaxed = true),
             featureToggleService = mockk(relaxed = true),
+            betalingsinformasjon = betalingsinformasjon,
         )
         service.upsert(request, NavAnsattFixture.DonaldDuck.navIdent).shouldBeRight()
 
@@ -253,6 +261,7 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
             journalpostValidator = gyldigJournalpostValidator(),
             personaliaService = mockk(relaxed = true),
             featureToggleService = mockk(relaxed = true),
+            betalingsinformasjon = betalingsinformasjon,
         )
         service.upsert(request, NavAnsattFixture.DonaldDuck.navIdent).shouldBeRight()
 
@@ -288,6 +297,7 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
             journalpostValidator = gyldigJournalpostValidator(),
             personaliaService = mockk(relaxed = true),
             featureToggleService = mockk(relaxed = true),
+            betalingsinformasjon = betalingsinformasjon,
         )
         val consumer = createConsumer()
         service.upsert(request, NavAnsattFixture.DonaldDuck.navIdent).shouldBeRight()

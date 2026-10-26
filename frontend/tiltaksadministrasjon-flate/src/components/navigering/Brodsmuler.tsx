@@ -17,8 +17,8 @@ export interface Brodsmule {
     | `/gjennomforinger/${Id}/tilskudd-behandling`
     | "/arrangorer"
     | `/arrangorer/${Id}`
-    | "/tiltak-dokumenter"
-    | `/tiltak-dokumenter/${Id}`;
+    | "/tiltak-beskrivelser"
+    | `/tiltak-beskrivelser/${Id}`;
 }
 
 interface Props {

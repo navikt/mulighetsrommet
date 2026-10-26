@@ -12,10 +12,10 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningType
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnInputLinjeRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnRequest
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
-import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.NOK
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Valuta
+import no.nav.mulighetsrommet.validation.FieldError
 import java.time.LocalDate
 import java.util.UUID
 
@@ -268,6 +268,24 @@ class TilsagnValidatorTest : FunSpec({
                     detail = "Du må velge en deltaker",
                 ),
             )
+        }
+
+        test("periode på én dag er lov") {
+            TilsagnValidator.validate(
+                TilsagnFixtures.TilsagnRequest1.copy(periodeStart = "2025-11-01", periodeSlutt = "2025-11-01"),
+                previous = null,
+                gyldigTilsagnPeriode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2026, 1, 1)),
+                gjennomforingSluttDato = null,
+                arrangorSlettet = false,
+                tiltakstypeNavn = "AFT",
+                prismodell = Prismodell.AnnenAvtaltPris(
+                    id = UUID.randomUUID(),
+                    valuta = Valuta.NOK,
+                    prisbetingelser = null,
+                    tilsagnPerDeltaker = false,
+                ),
+                stengt = emptyList(),
+            ).shouldBeRight()
         }
 
         context("TilsagnBeregningAnnenAvtaltPris.Input") {

@@ -5,10 +5,10 @@ import kotliquery.Row
 import kotliquery.Session
 import kotliquery.TransactionalSession
 import kotliquery.queryOf
+import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingType
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhet
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetStatus
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetType
-import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingType
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregning
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAnnenAvtaltPris
@@ -295,14 +295,17 @@ class TilsagnQueries(private val session: Session) {
     }
 
     fun getAndAcquireLock(id: UUID): Tilsagn {
+        return checkNotNull(getAndAcquireLockOrNull(id)) { "Tilsagn med id $id finnes ikke" }
+    }
+
+    fun getAndAcquireLockOrNull(id: UUID): Tilsagn? {
         @Language("PostgreSQL")
         val query = """
             select id from tilsagn where id = ?::uuid for update
         """.trimIndent()
 
-        session.execute(queryOf(query, id))
-
-        return getOrError(id)
+        val lockedId = session.single(queryOf(query, id)) { it.uuid("id") } ?: return null
+        return getOrError(lockedId)
     }
 
     fun getOrError(id: UUID): Tilsagn {

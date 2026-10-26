@@ -76,6 +76,6 @@ versjon av hver nøkkel beholdes.
 - Inneholder engangsutbetalinger (periodetype `EN_GANG`) med månedlig motregning som skal utbetales til bruker, f.eks.
   for skolepenger, studiereise eller eksamensgebyr.
 - Oppdateres ved:
-    - En utbetaling til bruker blir besluttet/attestert i Tiltaksadministrasjon.
+    - En utbetaling til bruker blir godkjent av beslutter i Tiltaksadministrasjon.
 - **Log compaction:** Aktivert (kombinert med 90 dagers retention)
 - **Modell:** [`HelVedUtbetaling`](../../mulighetsrommet-api/contracts/src/main/kotlin/no/nav/mulighetsrommet/api/contracts/helved/HelVedUtbetaling.kt)

@@ -17,10 +17,10 @@ interface VeilederflateTiltakQueryHandler {
         erSykmeldtMedArbeidsgiver: Boolean = false,
     ): List<VeilederflateTiltakDbo>
 
-    fun getAllTiltakDokument(
+    fun getAllTiltakBeskrivelse(
         brukersEnheter: List<NavEnhetNummer>,
         tiltakskoder: List<Tiltakskode>? = null,
-    ): List<VeilederflateTiltakDokument>
+    ): List<VeilederflateTiltakBeskrivelse>
 
-    fun getTiltakDokument(id: UUID): VeilederflateTiltakDokument?
+    fun getTiltakBeskrivelse(id: UUID): VeilederflateTiltakBeskrivelse?
 }

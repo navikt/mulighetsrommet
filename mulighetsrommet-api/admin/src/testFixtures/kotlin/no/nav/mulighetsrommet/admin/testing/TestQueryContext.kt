@@ -5,21 +5,27 @@ import no.nav.mulighetsrommet.admin.QueryContext
 import no.nav.mulighetsrommet.admin.arrangor.ArrangorQueryHandler
 import no.nav.mulighetsrommet.admin.avtale.AvtaleQueryHandler
 import no.nav.mulighetsrommet.admin.endringshistorikk.EndringshistorikkQueryHandler
+import no.nav.mulighetsrommet.admin.gjennomforing.EnkeltplassPrisendringHandler
+import no.nav.mulighetsrommet.admin.gjennomforing.GjennomforingQueryHandler
+import no.nav.mulighetsrommet.admin.gjennomforing.GjennomforingWriter
 import no.nav.mulighetsrommet.admin.kostnadssted.KostnadsstedQueryHandler
 import no.nav.mulighetsrommet.admin.navansatt.NavAnsattDtoQueryHandler
+import no.nav.mulighetsrommet.admin.notifications.NotificationWriter
 import no.nav.mulighetsrommet.admin.opplaring.OpplaringKategoriseringQueryHandler
-import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeQueryHandler
-import no.nav.mulighetsrommet.admin.tiltakdokument.TiltakDokumentQueryHandler
+import no.nav.mulighetsrommet.admin.tiltak.AdminTiltakstypeQueryHandler
+import no.nav.mulighetsrommet.admin.tiltakbeskrivelse.TiltakBeskrivelseQueryHandler
 import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollQueryHandler
+import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingRepository
 import no.nav.mulighetsrommet.api.domain.testing.repository.FakeArrangorRepository
 import no.nav.mulighetsrommet.api.domain.testing.repository.FakeDeltakerForslagRepository
 import no.nav.mulighetsrommet.api.domain.testing.repository.FakeDeltakerRepository
 import no.nav.mulighetsrommet.api.domain.testing.repository.FakeNavAnsattRepository
 import no.nav.mulighetsrommet.api.domain.testing.repository.FakeNavEnhetRepository
 import no.nav.mulighetsrommet.api.domain.testing.repository.FakeRedaksjoneltInnholdLenkeRepository
-import no.nav.mulighetsrommet.api.domain.testing.repository.FakeTiltakDokumentRepository
+import no.nav.mulighetsrommet.api.domain.testing.repository.FakeTiltakBeskrivelseRepository
 import no.nav.mulighetsrommet.api.domain.testing.repository.FakeTiltakstypeRepository
 import no.nav.mulighetsrommet.api.domain.testing.repository.FakeUtdanningRepository
+import no.nav.mulighetsrommet.api.domain.tiltak.PrismodellRepository
 
 class TestQueryContext : QueryContext() {
     private val redaksjoneltInnholdLenkeRepository = FakeRedaksjoneltInnholdLenkeRepository()
@@ -28,19 +34,23 @@ class TestQueryContext : QueryContext() {
     private val navAnsattRepository = FakeNavAnsattRepository()
     private val arrangorRepository = FakeArrangorRepository()
     private val utdanningRepository = FakeUtdanningRepository()
-    private val tiltakDokumentRepository = FakeTiltakDokumentRepository()
+    private val tiltakBeskrivelseRepository = FakeTiltakBeskrivelseRepository()
     private val deltakerRepository = FakeDeltakerRepository()
     private val deltakerForslagRepository = FakeDeltakerForslagRepository()
+    private var gjennomforingRepository: GjennomforingRepository = mockk(relaxed = true)
 
-    private var tiltakstype: TiltakstypeQueryHandler = mockk(relaxed = true)
+    private var tiltakstype: AdminTiltakstypeQueryHandler = mockk(relaxed = true)
     private var endringshistorikk: EndringshistorikkQueryHandler = mockk(relaxed = true)
     private var kostnadssted: KostnadsstedQueryHandler = mockk(relaxed = true)
     private var navAnsattDto: NavAnsattDtoQueryHandler = mockk(relaxed = true)
     private var totrinnskontroll: TotrinnskontrollQueryHandler = mockk(relaxed = true)
     private var arrangor: ArrangorQueryHandler = mockk(relaxed = true)
     private var opplaringKategorisering: OpplaringKategoriseringQueryHandler = mockk(relaxed = true)
-    private var tiltakDokument: TiltakDokumentQueryHandler = mockk(relaxed = true)
+    private var tiltakBeskrivelse: TiltakBeskrivelseQueryHandler = mockk(relaxed = true)
     private var avtale: AvtaleQueryHandler = mockk(relaxed = true)
+    private var gjennomforing: GjennomforingQueryHandler = mockk(relaxed = true)
+
+    private var prismodellRepository: PrismodellRepository = mockk(relaxed = true)
 
     override val repository = object : Repositories() {
         override val tiltakstype get() = tiltakstypeRepository
@@ -49,9 +59,11 @@ class TestQueryContext : QueryContext() {
         override val navAnsatt get() = navAnsattRepository
         override val arrangor get() = arrangorRepository
         override val utdanning get() = utdanningRepository
-        override val tiltakDokument get() = tiltakDokumentRepository
+        override val tiltakBeskrivelse get() = tiltakBeskrivelseRepository
         override val deltaker get() = deltakerRepository
         override val deltakerForslag get() = deltakerForslagRepository
+        override val gjennomforing get() = gjennomforingRepository
+        override val prismodell get() = prismodellRepository
         override val avtale get() = TODO("implementer FakeAvtaleRepository")
     }
 
@@ -63,8 +75,15 @@ class TestQueryContext : QueryContext() {
         override val totrinnskontroll get() = this@TestQueryContext.totrinnskontroll
         override val arrangor get() = this@TestQueryContext.arrangor
         override val opplaering get() = this@TestQueryContext.opplaringKategorisering
-        override val tiltakDokument get() = this@TestQueryContext.tiltakDokument
+        override val tiltakBeskrivelse get() = this@TestQueryContext.tiltakBeskrivelse
         override val avtale get() = this@TestQueryContext.avtale
+        override val gjennomforing get() = this@TestQueryContext.gjennomforing
+    }
+
+    override val commands = object : Commands() {
+        override val gjennomforing: GjennomforingWriter = mockk(relaxed = true)
+        override val enkeltplassPrisendring: EnkeltplassPrisendringHandler = mockk(relaxed = true)
+        override val notifications: NotificationWriter = mockk(relaxed = true)
     }
 
     override val outbox: Outbox = mockk(relaxed = true)

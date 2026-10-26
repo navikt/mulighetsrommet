@@ -9,8 +9,8 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.TransactionalQueryContext
 import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.domain.deltaker.DeltakerForslag
+import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.domain.tiltak.PrismodellType
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.utbetaling.mapper.UtbetalingMapper
@@ -164,7 +164,7 @@ class GenererUtbetalingService(
         return getUtbetalinger(gjennomforingId).filter {
             when (it.status) {
                 UtbetalingStatusType.TIL_BEHANDLING,
-                UtbetalingStatusType.TIL_ATTESTERING,
+                UtbetalingStatusType.TIL_GODKJENNING,
                 UtbetalingStatusType.RETURNERT,
                 UtbetalingStatusType.FERDIG_BEHANDLET,
                 UtbetalingStatusType.DELVIS_UTBETALT,

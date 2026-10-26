@@ -14,22 +14,22 @@ import no.nav.mulighetsrommet.api.domain.avtale.AvtaleRepository
 import no.nav.mulighetsrommet.api.domain.deltaker.DeltakerForslagRepository
 import no.nav.mulighetsrommet.api.domain.deltaker.DeltakerRepository
 import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeRepository
-import no.nav.mulighetsrommet.api.domain.tiltakdokument.TiltakDokumentRepository
-import no.nav.mulighetsrommet.api.gjennomforing.db.EnkeltplassPrisendringQueries
-import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingQueries
+import no.nav.mulighetsrommet.api.domain.tiltakbeskrivelse.TiltakBeskrivelseRepository
 import no.nav.mulighetsrommet.api.persistence.arrangor.ArrangorQueries
 import no.nav.mulighetsrommet.api.persistence.avtale.AvtaleQueries
 import no.nav.mulighetsrommet.api.persistence.deltaker.DeltakerForslagQueries
 import no.nav.mulighetsrommet.api.persistence.deltaker.DeltakerQueries
 import no.nav.mulighetsrommet.api.persistence.endringshistorikk.EndringshistorikkQueries
+import no.nav.mulighetsrommet.api.persistence.gjennomforing.EnkeltplassPrisendringQueries
+import no.nav.mulighetsrommet.api.persistence.gjennomforing.GjennomforingQueries
 import no.nav.mulighetsrommet.api.persistence.kostnadssted.KostnadsstedQueries
 import no.nav.mulighetsrommet.api.persistence.navansatt.NavAnsattQueries
 import no.nav.mulighetsrommet.api.persistence.navenhet.NavEnhetQueries
 import no.nav.mulighetsrommet.api.persistence.opplaring.OpplaringKategoriseringQueries
 import no.nav.mulighetsrommet.api.persistence.redaksjoneltinnhold.RedaksjoneltInnholdLenkeQueries
+import no.nav.mulighetsrommet.api.persistence.tiltak.AdminTiltakstypeQueries
 import no.nav.mulighetsrommet.api.persistence.tiltak.PrismodellQueries
-import no.nav.mulighetsrommet.api.persistence.tiltak.TiltakstypeQueries
-import no.nav.mulighetsrommet.api.persistence.tiltakdokument.TiltakDokumentQueries
+import no.nav.mulighetsrommet.api.persistence.tiltakbeskrivelse.TiltakBeskrivelseQueries
 import no.nav.mulighetsrommet.api.persistence.totrinnskontroll.TotrinnskontrollQueries
 import no.nav.mulighetsrommet.api.persistence.utdanning.UtdanningQueries
 import no.nav.mulighetsrommet.api.persistence.veilederflate.VeilederflateTiltakQueries
@@ -83,14 +83,14 @@ open class QueryContext(open val session: Session, topics: KafkaTopics) {
         val kostnadssted = KostnadsstedQueries(session)
         val ansatt = NavAnsattQueries(session)
         val arrangor = ArrangorQueries(session)
-        val tiltakstype = TiltakstypeQueries(session)
+        val tiltakstype = AdminTiltakstypeQueries(session)
         val regelverklenke = RedaksjoneltInnholdLenkeQueries(session)
         val avtale = AvtaleQueries(session)
         val prismodell = PrismodellQueries(session)
         val rammedetaljer = RammedetaljerQueries(session)
         val opsjoner = OpsjonLoggQueries(session)
         val gjennomforing = GjennomforingQueries(session)
-        val tiltakDokument = TiltakDokumentQueries(session)
+        val tiltakBeskrivelse = TiltakBeskrivelseQueries(session)
         val enkeltplassPrisendring = EnkeltplassPrisendringQueries(session)
         val deltaker = DeltakerQueries(session)
         val deltakerForslag = DeltakerForslagQueries(session)
@@ -122,7 +122,7 @@ open class QueryContext(open val session: Session, topics: KafkaTopics) {
         val tiltakstype: TiltakstypeRepository = queries.tiltakstype
         val avtale: AvtaleRepository = queries.avtale
         val arrangor: ArrangorRepository = queries.arrangor
-        val tiltakDokument: TiltakDokumentRepository = queries.tiltakDokument
+        val tiltakBeskrivelse: TiltakBeskrivelseRepository = queries.tiltakBeskrivelse
         val deltaker: DeltakerRepository = queries.deltaker
         val deltakerForslag: DeltakerForslagRepository = queries.deltakerForslag
     }

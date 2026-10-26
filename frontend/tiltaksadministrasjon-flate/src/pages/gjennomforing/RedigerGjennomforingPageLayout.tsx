@@ -6,6 +6,7 @@ import { useGjennomforingByPathParam } from "@/api/gjennomforing/useGjennomforin
 import { InlineErrorBoundary } from "@/ErrorBoundary";
 import { useHead } from "@unhead/react";
 import { HeaderBanner } from "@/layouts/HeaderBanner";
+import { DataElementStatusTag } from "@mr/frontend-common";
 
 interface Props {
   children: ReactNode;
@@ -30,7 +31,7 @@ export function RedigerGjennomforingPageLayout({ children }: Props) {
       <HeaderBanner
         ikon={<GjennomforingAvtaleIkon />}
         heading={gjennomforing.navn}
-        status={gjennomforing.status}
+        tag={<DataElementStatusTag {...gjennomforing.status} />}
       />
       <WhitePaddedBox>
         <InlineErrorBoundary>{children}</InlineErrorBoundary>

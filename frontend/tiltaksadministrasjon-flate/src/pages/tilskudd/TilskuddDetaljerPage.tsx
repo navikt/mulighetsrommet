@@ -90,7 +90,12 @@ export function TilskuddDetaljerPage() {
                       { key: "Vedtaksresultat", value: vedtak.vedtakResultat },
                       {
                         key: "Utbetaling mottaker",
-                        value: tilskuddMottakerToString(vedtak.utbetalingMottaker),
+                        value: tilskuddMottakerToString(
+                          vedtak.utbetalingMottaker,
+                          (vedtak.utbetaling?.type === "BRUKER" &&
+                            vedtak.utbetaling.brukerUtbetalingType) ||
+                            null,
+                        ),
                       },
                       { key: "Kommentar til brukeren", value: vedtak.kommentarVedtaksbrev ?? "-" },
                       { key: "Intern kommentar", value: vedtak.kommentarIntern ?? "-" },
@@ -172,8 +177,10 @@ function SimulerButton({
   vedtak: TilskuddVedtak;
 }) {
   const simulerOpphorMutation = useSimulerOpphorTilskuddVedtak();
+  const minBehandlingId = vedtak.lopenummer + 1;
   const [modalOpen, setModalOpen] = useState(false);
   const [belop, setBelop] = useState("0");
+  const [behandlingId, setBehandlingId] = useState(String(minBehandlingId));
   const [simuleringResultat, setSimuleringResultat] = useState<HelVedSimuleringResponse | null>(
     null,
   );
@@ -182,6 +189,7 @@ function SimulerButton({
 
   function openModal() {
     setBelop("0");
+    setBehandlingId(String(minBehandlingId));
     setFeilmelding(null);
     setSimuleringResultat(null);
     setModalOpen(true);
@@ -190,6 +198,7 @@ function SimulerButton({
   function closeModal() {
     setModalOpen(false);
     setBelop("0");
+    setBehandlingId(String(minBehandlingId));
     setFeilmelding(null);
     setSimuleringResultat(null);
     simulerOpphorMutation.reset();
@@ -206,17 +215,28 @@ function SimulerButton({
       return;
     }
 
+    const parsedBehandlingId = Number(behandlingId);
+    if (!Number.isInteger(parsedBehandlingId) || parsedBehandlingId < minBehandlingId) {
+      setFeilmelding(`BehandlingId må være et heltall på minst ${minBehandlingId}.`);
+      return;
+    }
+
     simulerOpphorMutation.mutate(
-      { gjennomforingId, vedtakId: vedtak.id, belop: parsedBelop },
+      {
+        gjennomforingId,
+        vedtakId: vedtak.id,
+        belop: parsedBelop,
+        behandlingId: parsedBehandlingId,
+      },
       {
         onSuccess: (data) => {
           setSimuleringResultat(data);
         },
         onError: () => {
-          setFeilmelding("Kunne ikke simulere opphør.");
+          setFeilmelding("Kunne ikke simulere.");
         },
         onValidationError: () => {
-          setFeilmelding("Kunne ikke simulere opphør.");
+          setFeilmelding("Kunne ikke simulere.");
         },
       },
     );
@@ -247,7 +267,16 @@ function SimulerButton({
                 label="Vedtak utbetalt beløp"
                 value={vedtak.utbetaling?.belop.belop}
               />
+              <MetadataVStack label="Tidligere behandlingId" value={vedtak.lopenummer} />
               <BodyShort>Fyll inn beløpet du vil simulere utbetaling med</BodyShort>
+              <TextField
+                label="BehandlingId"
+                type="number"
+                min={minBehandlingId}
+                step={1}
+                value={behandlingId}
+                onChange={(event) => setBehandlingId(event.currentTarget.value)}
+              />
               <TextField
                 label="Beløp"
                 type="number"
@@ -268,7 +297,7 @@ function SimulerButton({
           <VStack gap="space-4">
             <HStack gap="space-4">
               <Button form={formId} type="submit" loading={simulerOpphorMutation.isPending}>
-                Simuler opphør
+                Simuler utbetaling
               </Button>
               <Button type="button" variant="tertiary" onClick={closeModal}>
                 Avbryt

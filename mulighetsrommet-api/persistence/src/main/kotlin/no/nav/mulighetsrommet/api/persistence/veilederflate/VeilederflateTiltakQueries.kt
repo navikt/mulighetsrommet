@@ -11,8 +11,8 @@ import no.nav.mulighetsrommet.api.veilederflate.VeilederflateArrangorKontaktpers
 import no.nav.mulighetsrommet.api.veilederflate.VeilederflateKontaktinfo
 import no.nav.mulighetsrommet.api.veilederflate.VeilederflateKontaktinfoTiltaksansvarlig
 import no.nav.mulighetsrommet.api.veilederflate.VeilederflateNavEnhet
+import no.nav.mulighetsrommet.api.veilederflate.VeilederflateTiltakBeskrivelse
 import no.nav.mulighetsrommet.api.veilederflate.VeilederflateTiltakDbo
-import no.nav.mulighetsrommet.api.veilederflate.VeilederflateTiltakDokument
 import no.nav.mulighetsrommet.api.veilederflate.VeilederflateTiltakGruppeStatus
 import no.nav.mulighetsrommet.api.veilederflate.VeilederflateTiltakQueryHandler
 import no.nav.mulighetsrommet.database.createArrayOfValue
@@ -82,10 +82,10 @@ class VeilederflateTiltakQueries(private val session: Session) : VeilederflateTi
         return list(queryOf(query, parameters)) { it.toTiltaksgjennomforing() }
     }
 
-    override fun getAllTiltakDokument(
+    override fun getAllTiltakBeskrivelse(
         brukersEnheter: List<NavEnhetNummer>,
         tiltakskoder: List<Tiltakskode>?,
-    ): List<VeilederflateTiltakDokument> = with(session) {
+    ): List<VeilederflateTiltakBeskrivelse> = with(session) {
         val parameters = mapOf(
             "brukers_enheter" to createArrayOfValue(brukersEnheter) { it.value },
             "tiltakskoder" to tiltakskoder?.let { createTextArray(it) },
@@ -94,7 +94,7 @@ class VeilederflateTiltakQueries(private val session: Session) : VeilederflateTi
         @Language("PostgreSQL")
         val query = """
         select *
-        from view_tiltak_dokument
+        from view_tiltak_beskrivelse
         where publisert
             and (:tiltakskoder::text[] is null or tiltakstype_tiltakskode = any(:tiltakskoder))
             and exists(select true
@@ -108,17 +108,17 @@ class VeilederflateTiltakQueries(private val session: Session) : VeilederflateTi
                        )))
         """.trimIndent()
 
-        return list(queryOf(query, parameters)) { toVeilederflateTiltakDokument(it) }
+        return list(queryOf(query, parameters)) { toVeilederflateTiltakBeskrivelse(it) }
     }
 
-    override fun getTiltakDokument(id: UUID): VeilederflateTiltakDokument? = with(session) {
+    override fun getTiltakBeskrivelse(id: UUID): VeilederflateTiltakBeskrivelse? = with(session) {
         @Language("PostgreSQL")
         val query = """
-            select * from view_tiltak_dokument
+            select * from view_tiltak_beskrivelse
             where id = ?::uuid or sanity_id = ?::uuid
         """.trimIndent()
 
-        return single(queryOf(query, id, id)) { toVeilederflateTiltakDokument(it) }
+        return single(queryOf(query, id, id)) { toVeilederflateTiltakBeskrivelse(it) }
     }
 }
 
@@ -182,14 +182,14 @@ private fun Row.toTiltaksgjennomforing(): VeilederflateTiltakDbo {
     )
 }
 
-private fun toVeilederflateTiltakDokument(row: Row): VeilederflateTiltakDokument {
+private fun toVeilederflateTiltakBeskrivelse(row: Row): VeilederflateTiltakBeskrivelse {
     val arrangorId = row.uuidOrNull("arrangor_id")
 
     val navEnheter = row.stringOrNull("nav_enheter_json")
-        ?.let { Json.decodeFromString<List<VeilederflateTiltakDokument.NavEnhet>>(it) }
+        ?.let { Json.decodeFromString<List<VeilederflateTiltakBeskrivelse.NavEnhet>>(it) }
         ?: emptyList()
 
-    return VeilederflateTiltakDokument(
+    return VeilederflateTiltakBeskrivelse(
         id = row.uuid("id"),
         sanityId = row.uuidOrNull("sanity_id"),
         navn = row.string("navn"),
@@ -200,17 +200,17 @@ private fun toVeilederflateTiltakDokument(row: Row): VeilederflateTiltakDokument
         stedForGjennomforing = row.stringOrNull("sted_for_gjennomforing"),
         navEnheter = navEnheter,
         kontaktpersoner = row.stringOrNull("kontaktpersoner_json")
-            ?.let { Json.decodeFromString<List<VeilederflateTiltakDokument.Kontaktperson>>(it) }
+            ?.let { Json.decodeFromString<List<VeilederflateTiltakBeskrivelse.Kontaktperson>>(it) }
             ?: emptyList(),
         arrangor = arrangorId?.let {
-            VeilederflateTiltakDokument.Arrangor(
+            VeilederflateTiltakBeskrivelse.Arrangor(
                 id = it,
                 navn = row.string("arrangor_navn"),
                 organisasjonsnummer = row.string("arrangor_organisasjonsnummer"),
             )
         },
         arrangorKontaktpersoner = row.stringOrNull("arrangor_kontaktpersoner_json")
-            ?.let { Json.decodeFromString<List<VeilederflateTiltakDokument.ArrangorKontaktperson>>(it) }
+            ?.let { Json.decodeFromString<List<VeilederflateTiltakBeskrivelse.ArrangorKontaktperson>>(it) }
             ?: emptyList(),
     )
 }

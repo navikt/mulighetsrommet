@@ -2,6 +2,8 @@ package no.nav.mulighetsrommet.admin.navenhet
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import no.nav.mulighetsrommet.api.domain.navenhet.Kontorstruktur
+import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetDto
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetType
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 

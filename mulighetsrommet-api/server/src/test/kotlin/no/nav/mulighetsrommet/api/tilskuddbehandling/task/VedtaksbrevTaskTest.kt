@@ -10,6 +10,7 @@ import io.kotest.matchers.types.shouldBeInstanceOf
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
+import no.nav.mulighetsrommet.admin.arrangor.BetalingsinformasjonQuery
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokarkClient
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokarkResponse
@@ -17,19 +18,20 @@ import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokdistClient
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokdistRequest
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokdistResponse
 import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd
+import no.nav.mulighetsrommet.api.domain.personalia.Gradering
+import no.nav.mulighetsrommet.api.domain.personalia.Personalia
 import no.nav.mulighetsrommet.api.domain.testing.fixture.DeltakerFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.tilskuddbehandling.TilskuddBehandlingService
+import no.nav.mulighetsrommet.api.tilskuddbehandling.db.BrukerUtbetalingType
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
 import no.nav.mulighetsrommet.api.tilskuddbehandling.gyldigJournalpostValidator
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingRequest
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
 import no.nav.mulighetsrommet.api.utbetaling.api.ValutaBelopRequest
-import no.nav.mulighetsrommet.api.utbetaling.service.Gradering
-import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.NavEnhetNummer
@@ -49,6 +51,7 @@ class VedtaksbrevTaskTest : FunSpec({
     val deltakerId = UUID.randomUUID()
 
     val personaliaService = mockk<PersonaliaService>()
+    val betalingsinformasjon = mockk<BetalingsinformasjonQuery>(relaxed = true)
 
     beforeEach {
         MulighetsrommetTestDomain(
@@ -70,7 +73,7 @@ class VedtaksbrevTaskTest : FunSpec({
             avvistGrunn = null,
         )
 
-        opprettOgAttesterTilskudd(database.api, behandlingId, tilskuddVedtakId, tilskuddId)
+        opprettOgGodkjennTilskudd(database.api, behandlingId, tilskuddVedtakId, tilskuddId)
     }
 
     afterEach {
@@ -150,6 +153,7 @@ class VedtaksbrevTaskTest : FunSpec({
             journalpostValidator = gyldigJournalpostValidator(),
             personaliaService = mockk(relaxed = true),
             featureToggleService = mockk(relaxed = true),
+            betalingsinformasjon = betalingsinformasjon,
         )
 
         val revurderingBehandlingId = service
@@ -222,7 +226,7 @@ class VedtaksbrevTaskTest : FunSpec({
     }
 })
 
-private suspend fun opprettOgAttesterTilskudd(
+private suspend fun opprettOgGodkjennTilskudd(
     db: ApiDatabase,
     behandlingId: UUID,
     tilskuddVedtakId: UUID,
@@ -245,6 +249,7 @@ private suspend fun opprettOgAttesterTilskudd(
                 vedtakResultat = VedtakResultat.INNVILGELSE,
                 kommentarVedtaksbrev = null,
                 utbetalingMottaker = TilskuddMottaker.BRUKER,
+                brukerUtbetalingType = BrukerUtbetalingType.REFUSJON,
                 kidNummer = null,
                 belop = 5000,
                 kommentarIntern = null,
@@ -259,8 +264,9 @@ private suspend fun opprettOgAttesterTilskudd(
         journalpostValidator = gyldigJournalpostValidator(),
         personaliaService = mockk(relaxed = true),
         featureToggleService = mockk(relaxed = true),
+        betalingsinformasjon = mockk(relaxed = true),
     )
 
     service.upsert(request, NavAnsattFixture.DonaldDuck.navIdent).shouldBeRight()
-    service.attester(request.id, NavAnsattFixture.MikkeMus.navIdent).shouldBeRight()
+    service.godkjenn(request.id, NavAnsattFixture.MikkeMus.navIdent).shouldBeRight()
 }

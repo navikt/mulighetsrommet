@@ -8,15 +8,15 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.util.getValue
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.admin.gjennomforing.GjennomforingDetaljerService
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.AppConfig
 import no.nav.mulighetsrommet.api.OkonomiConfig
+import no.nav.mulighetsrommet.api.domain.gjennomforing.Gjennomforing
+import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingEnkeltplass
+import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingTiltaksadministrasjon
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
-import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingTiltaksadministrasjon
-import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingDetaljerService
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.plugins.getAccessType
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
@@ -38,12 +38,12 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnDeltakerRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnInputLinjeRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
+import no.nav.mulighetsrommet.api.tilsagn.model.ValutaBelopRequest
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.ProblemDetail
-import no.nav.mulighetsrommet.model.ValutaBelop
 import no.nav.mulighetsrommet.model.withValuta
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.tokenprovider.requireAzureAd
@@ -61,7 +61,7 @@ fun Route.tilsagnRoutesBeregning() {
     val personaliaService: PersonaliaService by inject()
 
     authorize(
-        anyOf = setOf(Rolle.SAKSBEHANDLER_OKONOMI, Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS),
+        anyOf = setOf(Rolle.OKONOMI_SAKSBEHANDLER_GRUPPETILTAK, Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS),
     ) {
         get("/{id}/defaults", {
             description = "Hent standardverdier for tilsagn utledet fra gitt tilsagn"
@@ -294,7 +294,7 @@ fun resolveTilsagnDefaults(
         is Prismodell.AnnenAvtaltPris -> null
 
         is Prismodell.AnskaffetEnkeltplass,
-        -> getAnskaffetEnkeltplassPeriode(config, gjennomforing, tilsagn)
+        -> getAnskaffetEnkeltplassPeriode(config, gjennomforing)
 
         is Prismodell.FastSatsPerBenyttetPlassPerManed,
         is Prismodell.FastSatsPerAvtaltPlassPerManed,
@@ -392,12 +392,10 @@ private fun getAnskaffetTiltakPeriode(
 private fun getAnskaffetEnkeltplassPeriode(
     config: OkonomiConfig,
     gjennomforing: Gjennomforing,
-    tilsagn: Tilsagn?,
 ): Periode {
     val periodeStart = listOfNotNull(
         config.gyldigTilsagnPeriode[gjennomforing.tiltakstype.tiltakskode]?.start,
         gjennomforing.startDato,
-        tilsagn?.periode?.slutt,
     ).max()
 
     val lastDayOfYear = periodeStart.with(lastDayOfYear())
@@ -460,8 +458,8 @@ private fun getAntallTimerOppfolgingPerdeltaker(beregning: TilsagnBeregning): In
     else -> null
 }
 
-private fun getDefaultPris(prismodell: Prismodell): ValutaBelop? = when (prismodell) {
-    is Prismodell.AnskaffetEnkeltplass -> prismodell.totalbelop
+private fun getDefaultPris(prismodell: Prismodell): ValutaBelopRequest? = when (prismodell) {
+    is Prismodell.AnskaffetEnkeltplass -> ValutaBelopRequest(prismodell.totalbelop.belop, prismodell.totalbelop.valuta)
     else -> null
 }
 

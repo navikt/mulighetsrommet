@@ -149,7 +149,7 @@ class UtbetalingLinjeQueries(private val session: Session) {
             update utbetaling_linje
             set status = :status
             where utbetaling_id = :utbetaling_id::uuid
-            and status in ('TIL_ATTESTERING', 'RETURNERT')
+            and status in ('TIL_GODKJENNING', 'RETURNERT')
         """.trimIndent()
 
         val params = mapOf(
@@ -207,6 +207,17 @@ class UtbetalingLinjeQueries(private val session: Session) {
         """.trimIndent()
 
         return session.list(queryOf(query, id)) { it.toUtbetalingLinje() }
+    }
+
+    fun getByTilsagnId(tilsagnId: UUID): List<UtbetalingLinje> {
+        @Language("PostgreSQL")
+        val query = """
+            select *
+            from view_utbetaling_linje
+            where tilsagn_id = ?
+        """.trimIndent()
+
+        return session.list(queryOf(query, tilsagnId)) { it.toUtbetalingLinje() }
     }
 
     fun getOrError(id: UUID): UtbetalingLinje {

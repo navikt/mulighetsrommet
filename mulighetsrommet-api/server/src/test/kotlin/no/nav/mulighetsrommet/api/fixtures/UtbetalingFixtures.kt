@@ -3,12 +3,12 @@ package no.nav.mulighetsrommet.api.fixtures
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetaling
 import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsinformasjon
+import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingType
 import no.nav.mulighetsrommet.api.domain.testing.fixture.ArrangorFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavAnsattFixture
 import no.nav.mulighetsrommet.api.domain.testing.fixture.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
-import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingType
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingLinjeDbo
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
@@ -175,7 +175,7 @@ object UtbetalingFixtures {
         id = UUID.randomUUID(),
         tilsagnId = TilsagnFixtures.Tilsagn1.id,
         utbetalingId = utbetaling1.id,
-        status = UtbetalingLinjeStatus.TIL_ATTESTERING,
+        status = UtbetalingLinjeStatus.TIL_GODKJENNING,
         pris = 200.NOK,
         gjorOppTilsagn = false,
         periode = utbetaling1.periode,
@@ -189,7 +189,7 @@ object UtbetalingFixtures {
         id = UUID.randomUUID(),
         tilsagnId = TilsagnFixtures.Tilsagn2.id,
         utbetalingId = utbetaling1.id,
-        status = UtbetalingLinjeStatus.TIL_ATTESTERING,
+        status = UtbetalingLinjeStatus.TIL_GODKJENNING,
         pris = 150.NOK,
         gjorOppTilsagn = false,
         periode = utbetaling1.periode,
@@ -213,7 +213,7 @@ fun QueryContext.setUtbetalingLinjeStatus(
     queries.utbetalingLinje.setStatus(dto.id, status)
 
     when (status) {
-        UtbetalingLinjeStatus.TIL_ATTESTERING -> {
+        UtbetalingLinjeStatus.TIL_GODKJENNING -> {
             setTilBehandling(dto.id, TotrinnskontrollType.UTBETALING_LINJE_OPPRETTELSE, behandletAv)
         }
 

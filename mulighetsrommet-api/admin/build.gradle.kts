@@ -10,6 +10,7 @@ base {
 
 dependencies {
     implementation(projects.mulighetsrommetApi.domain)
+    implementation(projects.mulighetsrommetApi.contracts)
     testFixturesImplementation(projects.mulighetsrommetApi.domain)
     testImplementation(testFixtures(projects.mulighetsrommetApi.domain))
     testFixturesImplementation(testFixtures(projects.mulighetsrommetApi.domain))
@@ -26,6 +27,12 @@ dependencies {
     implementation(libs.caffeine)
     implementation(libs.slf4j)
 
+    // Integrasjonstester mot ekte database bruker persistence og testoppsettet derfra
+    testImplementation(projects.mulighetsrommetApi.persistence)
+    testImplementation(testFixtures(projects.mulighetsrommetApi.persistence))
+    testImplementation(projects.common.database)
+    testImplementation(testFixtures(projects.common.database))
+    testImplementation(projects.common.kafka)
     testImplementation(libs.kotest.junit)
     testImplementation(libs.kotest.assertions.core)
     testImplementation(libs.kotest.assertions.arrow)

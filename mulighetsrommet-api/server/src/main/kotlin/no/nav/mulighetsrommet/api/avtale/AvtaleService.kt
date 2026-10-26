@@ -9,14 +9,13 @@ import arrow.core.right
 import arrow.core.toNonEmptyListOrNull
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
+import no.nav.mulighetsrommet.admin.aarsakerbegrunnelse.AarsakerOgBegrunnelseRequest
 import no.nav.mulighetsrommet.admin.arrangor.SyncArrangorIfMissing
 import no.nav.mulighetsrommet.admin.arrangor.SyncArrangorUseCase
 import no.nav.mulighetsrommet.admin.endringshistorikk.EndringshistorikkType
-import no.nav.mulighetsrommet.admin.navenhet.toDto
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
-import no.nav.mulighetsrommet.api.aarsakerbegrunnelse.AarsakerOgBegrunnelseRequest
 import no.nav.mulighetsrommet.api.avtale.AvtaleValidator.ValidatePrismodellerContext
 import no.nav.mulighetsrommet.api.avtale.api.AvtaleHandling
 import no.nav.mulighetsrommet.api.avtale.api.DetaljerRequest
@@ -31,14 +30,14 @@ import no.nav.mulighetsrommet.api.domain.avtale.AvbrytAvtaleAarsak
 import no.nav.mulighetsrommet.api.domain.avtale.Avtale
 import no.nav.mulighetsrommet.api.domain.avtale.AvtaleStatus
 import no.nav.mulighetsrommet.api.domain.avtale.OpsjonLoggStatus
+import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingAvtaleStatus
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsatt
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleStatus
+import no.nav.mulighetsrommet.api.domain.navenhet.toDto
 import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadGjennomforinger
 import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.AvtaleStatusType
 import no.nav.mulighetsrommet.model.Avtaletype
-import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
@@ -47,6 +46,7 @@ import no.nav.mulighetsrommet.model.Personopplysning
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.TiltakstypeEgenskap
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
+import no.nav.mulighetsrommet.validation.FieldError
 import no.nav.mulighetsrommet.validation.validation
 import java.time.Instant
 import java.time.LocalDate
@@ -620,6 +620,8 @@ private fun PersonvernRequest.toAvtalePersonvern(): Avtale.Personvern {
         addAll(personopplysninger)
         if (annetChecked == true) {
             add(Personopplysning.Type.ANNET)
+        } else {
+            remove(Personopplysning.Type.ANNET)
         }
     }
     return Avtale.Personvern(

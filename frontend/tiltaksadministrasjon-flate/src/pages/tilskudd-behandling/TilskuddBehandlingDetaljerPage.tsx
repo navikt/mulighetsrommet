@@ -14,7 +14,17 @@ import {
   Valuta,
   VedtakResultat,
 } from "@tiltaksadministrasjon/api-client";
-import { Alert, BodyShort, Box, Button, Heading, HStack, List, VStack } from "@navikt/ds-react";
+import {
+  BodyShort,
+  Box,
+  Button,
+  ExpansionCard,
+  Heading,
+  HStack,
+  InfoCard,
+  List,
+  VStack,
+} from "@navikt/ds-react";
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import { TilskuddBehandlingLayout } from "@/components/tilskudd-behandling/TilskuddBehandlingLayout";
@@ -33,21 +43,23 @@ import {
 } from "@/utils/Utils";
 import { Saksopplysninger } from "@/components/tilskudd-behandling/Saksopplysninger";
 import { VedtakDetaljer } from "@/components/tilskudd-behandling/VedtakDetaljer";
-import { PrismodellDetaljer } from "@/components/prismodell/PrismodellDetaljer";
 import { TilskuddBehandlingHandlinger } from "./TilskuddBehandlingHandlinger";
-import { TilskuddFormGroup } from "@/layouts/TilskuddFormGroup";
 import { formaterPeriode } from "@mr/frontend-common/utils/date";
+import { PrisOgBetalingsbetingelser } from "@/components/prismodell/PrisOgBetalingsbetingelser";
+import { useArrangorBetalingsinformasjon } from "@/api/arrangor/useArrangorBetalingsinformasjon";
+import { XMarkOctagonIcon } from "@navikt/aksel-icons";
 
 export function TilskuddBehandlingDetaljerPage() {
   const { gjennomforingId, behandlingId } = useRequiredParams(["gjennomforingId", "behandlingId"]);
-  const { prismodell } = useEnkeltplassGjennomforingOrError(gjennomforingId);
+  const { prismodell, gjennomforing } = useEnkeltplassGjennomforingOrError(gjennomforingId);
+  const { data: betalingsinformasjon } = useArrangorBetalingsinformasjon(gjennomforing.arrangor.id);
 
   const {
     data: { behandling, handlinger, opprettelse },
   } = useTilskuddBehandling(behandlingId);
 
   const [returModalOpen, setReturModalOpen] = useState(false);
-  const [attesterModalOpen, setAttesterModalOpen] = useState(false);
+  const [godkjennModalOpen, setGodkjennModalOpen] = useState(false);
   const [errors, setErrors] = useState<FieldError[]>([]);
   const navigate = useNavigate();
 
@@ -55,7 +67,7 @@ export function TilskuddBehandlingDetaljerPage() {
   const returnerMutation = useReturnerTilskuddBehandling(gjennomforingId);
   const listUrl = `/gjennomforinger/${gjennomforingId}/tilskudd-behandling`;
 
-  function attester() {
+  function godkjenn() {
     godkjennMutation.mutate(behandling.id, {
       onSuccess: () => navigate(listUrl),
       onValidationError: (error: ValidationError) => setErrors(error.errors),
@@ -79,7 +91,7 @@ export function TilskuddBehandlingDetaljerPage() {
   }
 
   const kanReturneres = handlinger.includes(TilskuddBehandlingHandling.RETURNER);
-  const kanAttesteres = handlinger.includes(TilskuddBehandlingHandling.ATTESTER);
+  const kanGodkjennes = handlinger.includes(TilskuddBehandlingHandling.GODKJENN);
   return (
     <TilskuddBehandlingLayout gjennomforingId={gjennomforingId}>
       <TilskuddBehandlingHandlinger tilskuddBehandlingId={behandlingId} />
@@ -95,36 +107,45 @@ export function TilskuddBehandlingDetaljerPage() {
         <VStack gap="space-20">
           <HStack gap="space-8" align="center">
             <Heading level="3" size="medium">
-              Vedtak
+              Behandling
             </Heading>
             <DataElementStatusTag {...behandling.status.status} />
           </HStack>
-          {behandling.tilskudd.map((t) => (
-            <TilskuddFormGroup key={t.id}>
-              <>
-                <Heading size="small" level="3" spacing>
-                  {`${opplaeringTilskuddToString(t.tilskuddOpplaeringType)} for perioden ${formaterPeriode(t.periode)}`}
-                </Heading>
-                <Separator />
-              </>
-              <Saksopplysninger
-                journalpostId={t.soknadJournalpostId}
-                soknadsdato={t.soknadDato}
-                periode={t.periode}
-                kostnadssted={t.kostnadssted}
-                belop={t.soknadBelop.belop || 0}
-                tilskuddOpplaeringType={t.tilskuddOpplaeringType}
-                utbetalingMottaker={t.utbetalingMottaker}
-              />
-              <Separator />
-              <VedtakDetaljer
-                vedtakResultat={t.vedtakResultat}
-                utbetalingBelop={t.utbetalingBelop}
-                kommentarVedtaksbrev={t.kommentarVedtaksbrev}
-                internKommentar={t.kommentarIntern}
-              />
-            </TilskuddFormGroup>
-          ))}
+          {behandling.tilskudd.map((t, i) => {
+            return (
+              <ExpansionCard
+                aria-label={`${opplaeringTilskuddToString(t.tilskuddOpplaeringType)} ${formaterPeriode(t.periode)}`}
+                size="small"
+                key={i}
+                defaultOpen
+              >
+                <ExpansionCard.Header>
+                  <ExpansionCard.Title size="small">{`${opplaeringTilskuddToString(t.tilskuddOpplaeringType)} ${formaterPeriode(t.periode)}`}</ExpansionCard.Title>
+                </ExpansionCard.Header>
+                <ExpansionCard.Content>
+                  <Saksopplysninger
+                    journalpostId={t.soknadJournalpostId}
+                    soknadsdato={t.soknadDato}
+                    periode={t.periode}
+                    kostnadssted={t.kostnadssted}
+                    belop={t.soknadBelop.belop || 0}
+                    tilskuddOpplaeringType={t.tilskuddOpplaeringType}
+                    utbetalingMottaker={t.utbetalingMottaker}
+                    kid={t.kid}
+                    brukerUtbetalingType={t.brukerUtbetalingType}
+                    betalingsinformasjon={betalingsinformasjon ?? null}
+                  />
+                  <Separator />
+                  <VedtakDetaljer
+                    vedtakResultat={t.vedtakResultat}
+                    utbetalingBelop={t.utbetalingBelop}
+                    kommentarVedtaksbrev={t.kommentarVedtaksbrev}
+                    internKommentar={t.kommentarIntern}
+                  />
+                </ExpansionCard.Content>
+              </ExpansionCard>
+            );
+          })}
           <TotaltBelopBox
             label="Totalt beløp fra søknad"
             belop={{
@@ -144,14 +165,11 @@ export function TilskuddBehandlingDetaljerPage() {
           />
         </VStack>
         <Box>
-          <Heading level="3" size="medium" spacing>
-            Pris og betalingsbetingelser
-          </Heading>
-          <PrismodellDetaljer prismodell={prismodell} />
+          <PrisOgBetalingsbetingelser prismodell={prismodell} size="medium" />
         </Box>
       </TwoColumnGrid>
       <Separator />
-      {(kanReturneres || kanAttesteres) && (
+      {(kanReturneres || kanGodkjennes) && (
         <HStack gap="space-8" marginBlock="space-16" justify="end">
           {kanReturneres && (
             <Button
@@ -163,22 +181,24 @@ export function TilskuddBehandlingDetaljerPage() {
               Send i retur
             </Button>
           )}
-          {kanAttesteres && (
+          {kanGodkjennes && (
             <Button
               variant="primary"
               size="small"
               type="button"
-              onClick={() => setAttesterModalOpen(true)}
+              onClick={() => setGodkjennModalOpen(true)}
             >
-              Attester
+              Godkjenn
             </Button>
           )}
         </HStack>
       )}
       {errors.map((error) => (
-        <Alert className="self-end" variant="error" size="small">
-          {error.detail}
-        </Alert>
+        <InfoCard data-color="danger">
+          <InfoCard.Message icon={<XMarkOctagonIcon aria-hidden />}>
+            {error.detail}
+          </InfoCard.Message>
+        </InfoCard>
       ))}
       <AarsakerOgBegrunnelseModal<TilskuddBehandlingStatusAarsak>
         aarsaker={[
@@ -207,15 +227,15 @@ export function TilskuddBehandlingDetaljerPage() {
         onConfirm={sendIRetur}
       />
       <VarselModal
-        open={attesterModalOpen}
-        handleClose={() => setAttesterModalOpen(false)}
-        headingText="Attester tilskuddsbehandling"
+        open={godkjennModalOpen}
+        handleClose={() => setGodkjennModalOpen(false)}
+        headingText="Godkjenn tilskuddsbehandling"
         headingIconType="info"
-        body={attesterModalInnhold(behandling)}
+        body={godkjennModalInnhold(behandling)}
         secondaryButton
         primaryButton={
-          <Button variant="primary" onClick={attester}>
-            Ja, attester behandling
+          <Button variant="primary" onClick={godkjenn}>
+            Ja, godkjenn behandling
           </Button>
         }
       />
@@ -223,17 +243,17 @@ export function TilskuddBehandlingDetaljerPage() {
   );
 }
 
-function attesterModalInnhold(behandling: TilskuddBehandlingDto) {
+function godkjennModalInnhold(behandling: TilskuddBehandlingDto) {
   return (
     <>
-      <BodyShort spacing>Du er i ferd med å attestere vedtak om:</BodyShort>
+      <BodyShort spacing>Du er i ferd med å godkjenne vedtak om:</BodyShort>
       <List>
         {behandling.tilskudd.map((t) =>
           t.vedtakResultat.type === VedtakResultat.INNVILGELSE ? (
             <List.Item key={t.id}>
               {t.utbetalingBelop?.belop ?? 0} {(t.utbetalingBelop?.valuta ?? Valuta.NOK).toString()}{" "}
-              i {opplaeringTilskuddToString(t.tilskuddOpplaeringType).toLowerCase()} som{" "}
-              {tilskuddMottakerToString(t.utbetalingMottaker).toLowerCase()}
+              i {opplaeringTilskuddToString(t.tilskuddOpplaeringType).toLowerCase()} som utbetales
+              til {tilskuddMottakerToString(t.utbetalingMottaker, null).toLowerCase()}
             </List.Item>
           ) : (
             <List.Item key={t.id}>

@@ -13,7 +13,7 @@ dependencies {
 
     api(libs.nav.common.kafka)
     constraints {
-        implementation("org.xerial.snappy:snappy-java:1.1.10.8") {
+        implementation("org.xerial.snappy:snappy-java:1.1.10.12") {
             because("dependabot warnings")
         }
     }

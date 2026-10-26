@@ -62,10 +62,10 @@ jobs:
         uses: ./.github/actions/setup-frontend
         env:
           NODE_AUTH_TOKEN: ${{ secrets.READER_TOKEN }}
-      - name: Generate React Router types
-        run: npx turbo run typegen --filter=@arrangor-utbetalinger/flate
+      - name: Typecheck & Lint
+        run: npx turbo run typecheck lint --filter=@arrangor-utbetalinger/flate
       - name: Test
-        run: npx turbo run lint typecheck test playwright --filter=@arrangor-utbetalinger/flate
+        run: npx turbo run test playwright --filter=@arrangor-utbetalinger/flate
 
   deploy-til-demo:
     name: Deploy demo
@@ -81,13 +81,13 @@ jobs:
       - name: Bygg applikasjon
         run: npx turbo run pack:demo --filter=@arrangor-utbetalinger/flate
       - name: Push docker image to GAR
-        uses: nais/docker-build-push@423a915c9b72edf2ba848b88171ccb0489e2a40a # v0
+        uses: nais/docker-build-push@dd7421d5068057a020ca46ead966c26190c516b1 # v0
         id: docker-build-push
         with:
           team: team-mulighetsrommet
           docker_context: ./frontend/arrangor-utbetalinger-flate
           image_suffix: arrangor-utbetalinger-flate-demo
-      - uses: nais/deploy/actions/deploy@1de80da70ad26556ecdc5964a8b7ec3bbed98120 # v2
+      - uses: nais/deploy/actions/deploy@6a9dcd6df697ec2d38edc78cadb0b9acd1232f50 # v3
         env:
           CLUSTER: dev-gcp
           RESOURCE: frontend/arrangor-utbetalinger-flate/.nais/nais-demo.yaml
@@ -107,13 +107,13 @@ jobs:
       - name: Bygg applikasjon
         run: npx turbo run pack --filter=@arrangor-utbetalinger/flate
       - name: Push docker image to GAR
-        uses: nais/docker-build-push@423a915c9b72edf2ba848b88171ccb0489e2a40a # v0
+        uses: nais/docker-build-push@dd7421d5068057a020ca46ead966c26190c516b1 # v0
         id: docker-build-push
         with:
           team: team-mulighetsrommet
           docker_context: ./frontend/arrangor-utbetalinger-flate
           image_suffix: arrangor-utbetalinger-flate
-      - uses: nais/deploy/actions/deploy@1de80da70ad26556ecdc5964a8b7ec3bbed98120 # v2
+      - uses: nais/deploy/actions/deploy@6a9dcd6df697ec2d38edc78cadb0b9acd1232f50 # v3
         env:
           CLUSTER: dev-gcp
           RESOURCE: frontend/arrangor-utbetalinger-flate/.nais/nais-dev.yaml
@@ -133,13 +133,13 @@ jobs:
       - name: Bygg applikasjon
         run: npx turbo run pack --filter=@arrangor-utbetalinger/flate
       - name: Push docker image to GAR
-        uses: nais/docker-build-push@423a915c9b72edf2ba848b88171ccb0489e2a40a # v0
+        uses: nais/docker-build-push@dd7421d5068057a020ca46ead966c26190c516b1 # v0
         id: docker-build-push
         with:
           team: team-mulighetsrommet
           docker_context: ./frontend/arrangor-utbetalinger-flate
           image_suffix: arrangor-utbetalinger-flate
-      - uses: nais/deploy/actions/deploy@1de80da70ad26556ecdc5964a8b7ec3bbed98120 # v2
+      - uses: nais/deploy/actions/deploy@6a9dcd6df697ec2d38edc78cadb0b9acd1232f50 # v3
         env:
           CLUSTER: prod-gcp
           RESOURCE: frontend/arrangor-utbetalinger-flate/.nais/nais-prod.yaml

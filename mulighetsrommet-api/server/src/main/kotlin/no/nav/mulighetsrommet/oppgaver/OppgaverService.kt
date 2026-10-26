@@ -1,32 +1,26 @@
 package no.nav.mulighetsrommet.oppgaver
 
+import arrow.core.nonEmptySetOf
 import arrow.core.toNonEmptySetOrThrow
+import no.nav.mulighetsrommet.admin.gjennomforing.GjennomforingDetaljerService
+import no.nav.mulighetsrommet.admin.gjennomforing.GjennomforingHandling
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.avtale.AvtaleService
 import no.nav.mulighetsrommet.api.avtale.api.AvtaleHandling
+import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingType
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsatt
+import no.nav.mulighetsrommet.api.domain.navansatt.OkonomiAuthorization
+import no.nav.mulighetsrommet.api.domain.navansatt.OkonomiBeslutningContext
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
-import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingHandling
-import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingType
-import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingDetaljerService
-import no.nav.mulighetsrommet.api.navansatt.OkonomiAuthorization
-import no.nav.mulighetsrommet.api.navansatt.OkonomiBeslutningContext
-import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
-import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnHandling
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatus
-import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingHandling
-import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingLinjeHandling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
-import no.nav.mulighetsrommet.api.utbetaling.service.AdminUtbetalingService
 import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskLocalDateTime
 import no.nav.mulighetsrommet.featuretoggle.model.FeatureToggle
 import no.nav.mulighetsrommet.featuretoggle.service.FeatureToggleService
-import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.NavEnhetNummer
-import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Tiltakskode
 import java.util.UUID
 
@@ -295,6 +289,13 @@ private fun QueryContext.toOppgave(data: TilsagnOppgaveData, ansatt: NavAnsatt):
     val annullering = queries.totrinnskontroll.get(data.id, TotrinnskontrollType.TILSAGN_ANNULLERING)
     val tilOppgjor = queries.totrinnskontroll.get(data.id, TotrinnskontrollType.TILSAGN_OPPGJOR)
 
+    val erBeslutter = OkonomiAuthorization.erBeslutterTilsagn(
+        ansatt,
+        OkonomiBeslutningContext(
+            data.gjennomforing.type,
+            nonEmptySetOf(data.kostnadssted.nummer),
+        ),
+    )
     val title = getOkonomiOppgaveTitle(data.tiltakstype, data.gjennomforing)
     return when (data.status) {
         TilsagnStatus.TIL_GODKJENNING -> {
@@ -310,14 +311,7 @@ private fun QueryContext.toOppgave(data: TilsagnOppgaveData, ansatt: NavAnsatt):
                 createdAt = opprettelse.behandling.tidspunkt.tilNorskLocalDateTime(),
                 arrangor = data.arrangor,
             ).takeIf {
-                TilsagnService.tilgangTilHandling(
-                    TilsagnHandling.GODKJENN,
-                    ansatt = ansatt,
-                    kostnadssted = data.kostnadssted.nummer,
-                    opprettelse = opprettelse,
-                    annullering = annullering,
-                    tilOppgjor = tilOppgjor,
-                )
+                erBeslutter && opprettelse.behandling.utfortAv != ansatt.navIdent
             }
         }
 
@@ -329,20 +323,13 @@ private fun QueryContext.toOppgave(data: TilsagnOppgaveData, ansatt: NavAnsatt):
                 navn = OppgaveType.TILSAGN_RETURNERT.navn,
                 enhet = data.kostnadssted,
                 title = title,
-                description = "Tilsagnet ${data.bestillingsnummer} er returnert av beslutter",
+                description = "Tilsagnet ${data.bestillingsnummer} er returnert",
                 tiltakstype = tiltakstype,
                 link = link,
                 createdAt = besluttetTidspunkt.tilNorskLocalDateTime(),
                 arrangor = data.arrangor,
             ).takeIf {
-                TilsagnService.tilgangTilHandling(
-                    TilsagnHandling.REDIGER,
-                    ansatt = ansatt,
-                    kostnadssted = data.kostnadssted.nummer,
-                    opprettelse = opprettelse,
-                    annullering = annullering,
-                    tilOppgjor = tilOppgjor,
-                )
+                OkonomiAuthorization.erSaksbehandler(ansatt, data.gjennomforing.type)
             }
         }
 
@@ -360,14 +347,7 @@ private fun QueryContext.toOppgave(data: TilsagnOppgaveData, ansatt: NavAnsatt):
                 createdAt = annullering.behandling.tidspunkt.tilNorskLocalDateTime(),
                 arrangor = data.arrangor,
             ).takeIf {
-                TilsagnService.tilgangTilHandling(
-                    TilsagnHandling.GODKJENN_ANNULLERING,
-                    ansatt = ansatt,
-                    kostnadssted = data.kostnadssted.nummer,
-                    opprettelse = opprettelse,
-                    annullering = annullering,
-                    tilOppgjor = tilOppgjor,
-                )
+                erBeslutter && annullering.behandling.utfortAv != ansatt.navIdent
             }
         }
 
@@ -385,14 +365,7 @@ private fun QueryContext.toOppgave(data: TilsagnOppgaveData, ansatt: NavAnsatt):
                 createdAt = tilOppgjor.behandling.tidspunkt.tilNorskLocalDateTime(),
                 arrangor = data.arrangor,
             ).takeIf {
-                TilsagnService.tilgangTilHandling(
-                    TilsagnHandling.GODKJENN_OPPGJOR,
-                    ansatt = ansatt,
-                    kostnadssted = data.kostnadssted.nummer,
-                    opprettelse = opprettelse,
-                    annullering = annullering,
-                    tilOppgjor = tilOppgjor,
-                )
+                erBeslutter && tilOppgjor.behandling.utfortAv != ansatt.navIdent
             }
         }
 
@@ -407,25 +380,26 @@ private fun toOppgave(data: UtbetalingLinjeOppgaveData, ansatt: NavAnsatt): Oppg
     )
 
     return when (data.status) {
-        UtbetalingLinjeStatus.TIL_ATTESTERING -> {
+        UtbetalingLinjeStatus.TIL_GODKJENNING -> {
             Oppgave(
                 id = data.id,
-                type = OppgaveType.UTBETALING_TIL_ATTESTERING,
-                navn = OppgaveType.UTBETALING_TIL_ATTESTERING.navn,
+                type = OppgaveType.UTBETALING_TIL_GODKJENNING,
+                navn = OppgaveType.UTBETALING_TIL_GODKJENNING.navn,
                 enhet = data.kostnadssted,
                 title = getOkonomiOppgaveTitle(data.tiltakstype, data.gjennomforing),
-                description = "Utbetaling for perioden ${data.periode.formatPeriode()} er klar til attestering",
+                description = "Utbetaling for perioden ${data.periode.formatPeriode()} er klar til godkjenning",
                 tiltakstype = data.tiltakstype,
                 link = link,
                 createdAt = data.opprettelse.behandletTidspunkt,
                 arrangor = data.arrangor,
             ).takeIf {
-                AdminUtbetalingService.tilgangTilHandling(
-                    handling = UtbetalingLinjeHandling.ATTESTER,
-                    ansatt = ansatt,
-                    kostnadssted = data.kostnadssted.nummer,
-                    behandletAv = data.opprettelse.behandletAv,
-                )
+                OkonomiAuthorization.erAttestantUtbetaling(
+                    ansatt,
+                    OkonomiBeslutningContext(
+                        data.gjennomforing.type,
+                        nonEmptySetOf(data.kostnadssted.nummer),
+                    ),
+                ) && data.opprettelse.behandletAv != ansatt.navIdent
             }
         }
 
@@ -436,18 +410,13 @@ private fun toOppgave(data: UtbetalingLinjeOppgaveData, ansatt: NavAnsatt): Oppg
                 navn = OppgaveType.UTBETALING_RETURNERT.navn,
                 enhet = data.kostnadssted,
                 title = getOkonomiOppgaveTitle(data.tiltakstype, data.gjennomforing),
-                description = "Utbetaling for perioden ${data.periode.formatPeriode()} er returnert av attestant",
+                description = "Utbetaling for perioden ${data.periode.formatPeriode()} er returnert",
                 tiltakstype = data.tiltakstype,
                 link = link,
                 createdAt = requireNotNull(data.opprettelse.besluttetTidspunkt),
                 arrangor = data.arrangor,
             ).takeIf {
-                AdminUtbetalingService.tilgangTilHandling(
-                    handling = UtbetalingLinjeHandling.SEND_TIL_ATTESTERING,
-                    ansatt = ansatt,
-                    kostnadssted = data.kostnadssted.nummer,
-                    behandletAv = data.opprettelse.behandletAv,
-                )
+                OkonomiAuthorization.erSaksbehandler(ansatt, data.gjennomforing.type)
             }
         }
 
@@ -459,7 +428,7 @@ private fun toOppgave(data: UtbetalingBehandlingOppgaveData, ansatt: NavAnsatt):
     return when (data.status) {
         UtbetalingStatusType.GENERERT,
         UtbetalingStatusType.RETURNERT,
-        UtbetalingStatusType.TIL_ATTESTERING,
+        UtbetalingStatusType.TIL_GODKJENNING,
         UtbetalingStatusType.FERDIG_BEHANDLET,
         UtbetalingStatusType.DELVIS_UTBETALT,
         UtbetalingStatusType.UTBETALT,
@@ -485,11 +454,7 @@ private fun toOppgave(data: UtbetalingBehandlingOppgaveData, ansatt: NavAnsatt):
                 createdAt = data.godkjentAvArrangorTidspunkt ?: data.createdAt,
                 arrangor = data.arrangor,
             ).takeIf {
-                AdminUtbetalingService.tilgangTilHandling(
-                    handling = UtbetalingHandling.SEND_TIL_ATTESTERING,
-                    ansatt = ansatt,
-                    gjennomforingType = data.gjennomforing.type,
-                )
+                OkonomiAuthorization.erSaksbehandler(ansatt, data.gjennomforing.type)
             }
     }
 }
@@ -527,13 +492,9 @@ private fun tilAvbrytelseOppgave(data: UtbetalingBehandlingOppgaveData, ansatt: 
     createdAt = data.avbrytelseBehandletTidspunkt ?: data.createdAt,
     arrangor = data.arrangor,
 ).takeIf {
-    AdminUtbetalingService.tilgangTilHandling(
-        handling = UtbetalingHandling.GODKJENN_AVBRYTELSE,
-        ansatt = ansatt,
-        gjennomforingType = data.gjennomforing.type,
-    )
+    OkonomiAuthorization.erSaksbehandler(ansatt, data.gjennomforing.type) &&
+        data.avbrytelseBehandletAv != ansatt.navIdent
 }
-    .takeIf { !isSame(ansatt.navIdent, data.avbrytelseBehandletAv) }
 
 private fun AvtaleManglerAdministratorOppgaveData.toOppgave(ansatt: NavAnsatt) = Oppgave(
     id = id,
@@ -640,14 +601,14 @@ private fun toTilskuddBehandlingOppgave(data: TilskuddBehandlingOppgaveData, ans
     val title = getOkonomiOppgaveTitle(data.tiltakstype, data.gjennomforing)
 
     return when (data.status) {
-        TilskuddBehandlingStatus.TIL_ATTESTERING -> {
+        TilskuddBehandlingStatus.TIL_GODKJENNING -> {
             Oppgave(
                 id = data.id,
-                type = OppgaveType.TILSKUDDBEHANDLING_TIL_ATTESTERING,
-                navn = OppgaveType.TILSKUDDBEHANDLING_TIL_ATTESTERING.navn,
+                type = OppgaveType.TILSKUDDBEHANDLING_TIL_GODKJENNING,
+                navn = OppgaveType.TILSKUDDBEHANDLING_TIL_GODKJENNING.navn,
                 enhet = data.kostnadssteder.first(),
                 title = title,
-                description = "Tilskuddsbehandling for perioden ${data.periode.formatPeriode()} er sendt til attestering",
+                description = "Tilskuddsbehandling for perioden ${data.periode.formatPeriode()} er sendt til godkjenning",
                 tiltakstype = data.tiltakstype,
                 link = link,
                 createdAt = data.opprettelse.behandletTidspunkt,
@@ -671,7 +632,7 @@ private fun toTilskuddBehandlingOppgave(data: TilskuddBehandlingOppgaveData, ans
                 navn = OppgaveType.TILSKUDDBEHANDLING_RETURNERT.navn,
                 enhet = data.kostnadssteder.first(),
                 title = title,
-                description = "Tilskuddsbehandling for perioden ${data.periode.formatPeriode()} er returnert av attestant",
+                description = "Tilskuddsbehandling for perioden ${data.periode.formatPeriode()} er returnert",
                 tiltakstype = data.tiltakstype,
                 link = link,
                 createdAt = data.opprettelse.besluttetTidspunkt,
@@ -697,7 +658,3 @@ private val OppgaveGjennomforing.type: GjennomforingType
         is OppgaveGjennomforing.Gruppetiltak -> GjennomforingType.AVTALE
         is OppgaveGjennomforing.Enkeltplass -> GjennomforingType.ENKELTPLASS
     }
-
-private fun isSame(ansatt: NavIdent, behandletAv: Agent?): Boolean {
-    return behandletAv is NavIdent && ansatt == behandletAv
-}

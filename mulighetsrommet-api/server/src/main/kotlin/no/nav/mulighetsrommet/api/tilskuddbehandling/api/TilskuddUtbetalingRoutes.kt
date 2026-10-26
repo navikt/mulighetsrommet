@@ -75,10 +75,7 @@ fun Route.tilskuddUtbetalingRoutes() {
                                     id = utbetaling.id,
                                     tilskuddBehandlingId = behandling.id,
                                     status = TilskuddUtbetalingStatusDto.from(utbetaling.helVedStatus),
-                                    periode = Periode.fromInclusiveDates(
-                                        utbetaling.transaksjonsDato,
-                                        utbetaling.transaksjonsDato,
-                                    ),
+                                    periode = tilskudd.periode,
                                     type = tilskudd.tilskuddOpplaeringType,
                                     kostnadssted = utbetaling.kostnadssted.let {
                                         KostnadsstedDto(it.navn, it.enhetsnummer)
@@ -122,7 +119,7 @@ data class TilskuddUtbetalingStatusDto(
             val type: Type = when (utbetalingStatus) {
                 UtbetalingStatusType.TIL_BEHANDLING,
                 UtbetalingStatusType.AVBRUTT,
-                UtbetalingStatusType.TIL_ATTESTERING,
+                UtbetalingStatusType.TIL_GODKJENNING,
                 UtbetalingStatusType.RETURNERT,
                 UtbetalingStatusType.GENERERT,
                 UtbetalingStatusType.TIL_AVBRYTELSE,

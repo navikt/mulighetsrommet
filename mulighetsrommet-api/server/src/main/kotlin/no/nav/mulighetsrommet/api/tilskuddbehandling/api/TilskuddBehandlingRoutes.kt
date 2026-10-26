@@ -15,7 +15,7 @@ import io.ktor.server.routing.route
 import io.ktor.server.util.getOrFail
 import io.ktor.server.util.getValue
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.aarsakerbegrunnelse.AarsakerOgBegrunnelseRequest
+import no.nav.mulighetsrommet.admin.aarsakerbegrunnelse.AarsakerOgBegrunnelseRequest
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
@@ -42,7 +42,13 @@ fun Route.tilskuddBehandlingRoutes() {
     val service: TilskuddBehandlingService by inject()
 
     route("tilskudd-behandling") {
-        authorize(Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS) {
+        authorize(
+            anyOf = setOf(
+                Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS,
+                Rolle.OKONOMI_LES,
+                Rolle.OKONOMI_BESLUTTER_ENKELTPLASS,
+            ),
+        ) {
             get("/{tilskuddBehandlingId}", {
                 description = "Hent tilskuddsbehandling gitt id"
                 tags = setOf("TilskuddBehandling")
@@ -90,7 +96,9 @@ fun Route.tilskuddBehandlingRoutes() {
                 val result = service.getByGjennomforingId(gjennomforingId)
                 call.respond(result)
             }
+        }
 
+        authorize(Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS) {
             post({
                 description = "Opprett tilskudd behandling"
                 tags = setOf("TilskuddBehandling")
@@ -121,18 +129,84 @@ fun Route.tilskuddBehandlingRoutes() {
 
                 call.respondWithStatusResponse(result)
             }
+
+            post(
+                "/validering",
+                {
+                    description = "Valider tilskuddsbehandling"
+                    tags = setOf("TilskuddBehandling")
+                    operationId = "validerTilskuddsBehandling"
+                    request {
+                        body<TilskuddBehandlingRequest>()
+                    }
+                    response {
+                        code(HttpStatusCode.OK) {
+                            description = "Tilskudd behandling validert"
+                            body<Unit>()
+                        }
+                        code(HttpStatusCode.BadRequest) {
+                            description = "Valideringsfeil"
+                            body<ValidationError>()
+                        }
+                        default {
+                            description = "Problem details"
+                            body<ProblemDetail>()
+                        }
+                    }
+                },
+            ) {
+                val request = call.receive<TilskuddBehandlingRequest>()
+                val navIdent = getNavIdent()
+                val result =
+                    service.validerRequest(request, navIdent)
+                        .mapLeft { ValidationError(errors = it) }
+                        .map {} // Bryr oss bare om valideringsfeil, hvis de eksisterer
+
+                call.respondWithStatusResponse(result)
+            }
+
+            post(
+                "/validering/saksopplysninger",
+                {
+                    description = "Valider saksopplysninger"
+                    tags = setOf("TilskuddBehandling")
+                    operationId = "validerSaksopplysningerTilskuddsBehandling"
+                    request {
+                        body<TilskuddBehandlingRequest>()
+                    }
+                    response {
+                        code(HttpStatusCode.OK) {
+                            description = "Tilskudd behandling saksopplysninger validert"
+                            body<Unit>()
+                        }
+                        code(HttpStatusCode.BadRequest) {
+                            description = "Valideringsfeil"
+                            body<ValidationError>()
+                        }
+                        default {
+                            description = "Problem details"
+                            body<ProblemDetail>()
+                        }
+                    }
+                },
+            ) {
+                val request = call.receive<TilskuddBehandlingRequest>()
+                val result = service.validerSaksopplysninger(request).mapLeft { ValidationError(errors = it) }
+
+                call.respondWithStatusResponse(result)
+            }
         }
 
         authorize(Rolle.OKONOMI_BESLUTTER_ENKELTPLASS) {
-            post("/{id}/attester", {
+            post("/{id}/godkjenn", {
                 tags = setOf("TilskuddBehandling")
-                operationId = "attesterTilskuddBehandling"
+                operationId = "godkjennTilskuddBehandling"
                 request {
                     pathParameterUuid("id")
                 }
                 response {
                     code(HttpStatusCode.OK) {
-                        description = "Tilskuddsbehandling ble attestert"
+                        description = "Tilskuddsbehandling ble godkjent"
                     }
                     default {
                         description = "Problem details"
@@ -143,7 +217,7 @@ fun Route.tilskuddBehandlingRoutes() {
                 val id = call.parameters.getOrFail<UUID>("id")
                 val navIdent = getNavIdent()
 
-                val result = service.attester(id, navIdent)
+                val result = service.godkjenn(id, navIdent)
                     .mapLeft { ValidationError(errors = it) }
                     .map { HttpStatusCode.OK }
 

@@ -9,7 +9,6 @@ import io.kotest.matchers.types.shouldBeInstanceOf
 import io.ktor.http.HttpStatusCode
 import io.mockk.every
 import io.mockk.mockk
-import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
 import no.nav.mulighetsrommet.api.domain.testing.fixture.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeFeature
 import no.nav.mulighetsrommet.api.sanity.VeilederflateSanityService
@@ -36,7 +35,7 @@ class VeilederflateServiceTest : FunSpec({
         db.repository.tiltakstype.save(TiltakstypeFixtures.Arbeidstrening)
         val service = VeilederflateService(
             db = db,
-            tiltakstypeService = TiltakstypeService(TiltakstypeService.Config(features), mockk(relaxed = true)),
+            tiltakstypeFeatures = features,
             sanityService = mockk<VeilederflateSanityService>(relaxed = true),
         )
         return db to service
@@ -70,7 +69,7 @@ class VeilederflateServiceTest : FunSpec({
         stengt = emptyList(),
     )
 
-    fun tiltakDokument(id: UUID, tiltakskode: Tiltakskode) = VeilederflateTiltakDokument(
+    fun tiltakBeskrivelse(id: UUID, tiltakskode: Tiltakskode) = VeilederflateTiltakBeskrivelse(
         id = id,
         sanityId = null,
         navn = "Tiltak dokument",
@@ -114,11 +113,11 @@ class VeilederflateServiceTest : FunSpec({
         tiltak.shouldBeInstanceOf<VeilederflateTiltakGruppe>().id shouldBe id
     }
 
-    test("hentTiltaksgjennomforing faller tilbake til tiltak-dokument når gruppetiltak mangler") {
+    test("hentTiltaksgjennomforing faller tilbake til tiltak-beskrivelse når gruppetiltak mangler") {
         val (db, service) = createService()
         val id = UUID.randomUUID()
         every { db.queries.veilederTiltak.get(id) } returns null
-        every { db.queries.veilederTiltak.getTiltakDokument(id) } returns tiltakDokument(id, Tiltakskode.OPPFOLGING)
+        every { db.queries.veilederTiltak.getTiltakBeskrivelse(id) } returns tiltakBeskrivelse(id, Tiltakskode.OPPFOLGING)
 
         val tiltak = service.hentTiltaksgjennomforing(id)
 
@@ -129,7 +128,7 @@ class VeilederflateServiceTest : FunSpec({
         val (db, service) = createService()
         val id = UUID.randomUUID()
         every { db.queries.veilederTiltak.get(id) } returns null
-        every { db.queries.veilederTiltak.getTiltakDokument(id) } returns null
+        every { db.queries.veilederTiltak.getTiltakBeskrivelse(id) } returns null
 
         shouldThrow<StatusException> {
             service.hentTiltaksgjennomforing(id)

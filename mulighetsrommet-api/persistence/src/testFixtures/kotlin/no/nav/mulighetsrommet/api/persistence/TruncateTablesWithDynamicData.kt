@@ -37,6 +37,7 @@ fun truncateTablesWithDynamicData(session: Session) {
         "tilskudd_behandling_type",
         "totrinnskontroll_type",
         "totrinnskontroll_status_type",
+        "bruker_utbetaling_type",
     )
 
     val tableNames = session.list(

@@ -1,4 +1,5 @@
 import { useTiltakstyper } from "@/api/queries/useTiltakstyper";
+import { erSkjultIFilter } from "@/utils/tiltakstyper";
 import { Tiltakskode, VeilederflateTiltakstype } from "@arbeidsmarkedstiltak/api-client";
 import { CheckboxDropdownGroup } from "@mr/frontend-common";
 import { useMemo } from "react";
@@ -36,8 +37,12 @@ export function TiltakstypeFilter(props: Props) {
 
 function useTiltakstyperFilter(tiltakstyper: VeilederflateTiltakstype[]) {
   return useMemo(() => {
+    const synligeTiltakstyper = tiltakstyper.filter(
+      (tiltakstype) => !erSkjultIFilter(tiltakstype.tiltakskode),
+    );
+
     const tiltakstyperByGroup = Object.entries(
-      Object.groupBy(tiltakstyper, (tiltakstype) => tiltakstype.tiltaksgruppe || ""),
+      Object.groupBy(synligeTiltakstyper, (tiltakstype) => tiltakstype.tiltaksgruppe || ""),
     );
 
     return tiltakstyperByGroup

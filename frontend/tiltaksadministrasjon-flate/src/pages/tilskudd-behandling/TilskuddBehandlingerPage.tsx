@@ -4,7 +4,7 @@ import { useRequiredParams } from "@/hooks/useRequiredParams";
 import { KnapperadContainer } from "@/layouts/KnapperadContainer";
 import { DataElementStatusTag, useSortableData } from "@mr/frontend-common";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
-import { Alert, Table } from "@navikt/ds-react";
+import { InfoCard, Table } from "@navikt/ds-react";
 import {
   formaterDato,
   formaterPeriodeSlutt,
@@ -12,7 +12,11 @@ import {
 } from "@mr/frontend-common/utils/date";
 import { opplaeringTilskuddToString } from "@/utils/Utils";
 import { TableColumnHeader } from "@navikt/ds-react/Table";
-import { TilskuddBehandlingKompakt } from "@tiltaksadministrasjon/api-client";
+import {
+  GjennomforingHandling,
+  TilskuddBehandlingKompakt,
+} from "@tiltaksadministrasjon/api-client";
+import { useGjennomforingHandlinger } from "@/api/gjennomforing/useGjennomforing";
 
 export function TilskuddBehandlingerPage() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
@@ -20,17 +24,20 @@ export function TilskuddBehandlingerPage() {
   const { sortedData, sort, toggleSort } = useSortableData(behandlinger, undefined, (item, key) => {
     return key.split(".").reduce((obj: any, k) => obj?.[k], item);
   });
+  const handlinger = useGjennomforingHandlinger(gjennomforingId);
 
   return (
     <>
       <KnapperadContainer>
         <Handlinger
+          handlinger={handlinger}
           grupper={[
             {
               items: [
                 {
                   label: "Opprett tilskuddsbehandling",
                   href: "opprett",
+                  handling: GjennomforingHandling.OPPRETT_TILSKUDDSBEHANDLING,
                 },
               ],
             },
@@ -38,9 +45,9 @@ export function TilskuddBehandlingerPage() {
         />
       </KnapperadContainer>
       {behandlinger.length === 0 && (
-        <Alert variant="info" className="mt-4">
+        <InfoCard data-color="info" className="mt-4">
           Det finnes ingen tilskuddsbehandlinger for dette tiltaket
-        </Alert>
+        </InfoCard>
       )}
       {sortedData.length > 0 && (
         <Table sort={sort} onSortChange={(sortKey) => toggleSort(sortKey as string)}>

@@ -6,12 +6,12 @@ import {
   ValidationError,
 } from "@tiltaksadministrasjon/api-client";
 import {
-  Alert,
   BodyLong,
   BodyShort,
   Button,
   Heading,
   HStack,
+  InfoCard,
   Spacer,
   Textarea,
   TextField,
@@ -21,7 +21,7 @@ import { useState } from "react";
 import { UtbetalingLinjeTable } from "./UtbetalingLinjeTable";
 import { UtbetalingLinjeRow } from "./UtbetalingLinjeRow";
 import { FormProvider, UseFormReturn, useWatch } from "react-hook-form";
-import { GjorOppTilsagnFormCheckbox } from "./GjorOppTilsagnCheckbox";
+import { GjorOppTilsagnCheckbox, GjorOppTilsagnFormCheckbox } from "./GjorOppTilsagnCheckbox";
 import { utbetalingTekster } from "./UtbetalingTekster";
 import { useOpprettUtbetalingLinjer } from "@/api/utbetaling/mutations";
 import { ValideringsfeilOppsummering } from "../skjema/ValideringsfeilOppsummering";
@@ -29,6 +29,7 @@ import { extractValidationErrors } from "@/utils/Utils";
 import { applyValidationErrors } from "@/components/skjema/helpers";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 import { formaterValutaBelop } from "@mr/frontend-common/utils/utils";
+import { InformationSquareIcon } from "@navikt/aksel-icons";
 
 export interface Props {
   utbetaling: UtbetalingDto;
@@ -74,7 +75,7 @@ export function RedigerUtbetalingLinjeView({
     belop: utbetalingLinjeBelop.reduce((acc: number, belop) => acc + (belop ?? 0), 0),
   };
 
-  function sendTilAttestering(payload: OpprettUtbetalingLinjerRequest) {
+  function sendTilGodkjenning(payload: OpprettUtbetalingLinjerRequest) {
     clearErrors();
 
     opprettMutation.mutate(payload, {
@@ -86,13 +87,15 @@ export function RedigerUtbetalingLinjeView({
     if (utbetalesTotalt.belop < beregning.belop) {
       setMindreBelopModalOpen(true);
     } else {
-      sendTilAttestering(data);
+      sendTilGodkjenning(data);
     }
   }
 
   const aktiveLinjer = utbetalingLinjer.filter((linje) =>
     utbetalingLinjerWatch.some((d) => linje.id === d.id),
   );
+
+  const kanSaksbehandle = handlinger.includes(UtbetalingHandling.SEND_TIL_GODKJENNING);
 
   return (
     <FormProvider {...form}>
@@ -104,7 +107,11 @@ export function RedigerUtbetalingLinjeView({
       >
         <VStack gap="space-8">
           {!utbetalingLinjer.length && (
-            <Alert variant="info">{utbetalingTekster.linje.alert.ingenTilsagn}</Alert>
+            <InfoCard data-color="info">
+              <InfoCard.Message icon={<InformationSquareIcon aria-hidden />}>
+                {utbetalingTekster.linje.alert.ingenTilsagn}
+              </InfoCard.Message>
+            </InfoCard>
           )}
           <HStack align="end">
             <Heading spacing size="medium" level="2">
@@ -128,6 +135,7 @@ export function RedigerUtbetalingLinjeView({
                     style={{ maxWidth: "6rem" }}
                     hideLabel
                     type="text"
+                    readOnly={!kanSaksbehandle}
                     error={errors.utbetalingLinjer?.[index]?.pris?.belop?.message}
                     label={utbetalingTekster.linje.belop.label}
                     {...register(`utbetalingLinjer.${index}.pris.belop`, {
@@ -140,17 +148,25 @@ export function RedigerUtbetalingLinjeView({
                   />
                 }
                 errors={extractValidationErrors(errors)}
-                checkboxInput={<GjorOppTilsagnFormCheckbox index={index} />}
+                checkboxInput={
+                  kanSaksbehandle ? (
+                    <GjorOppTilsagnFormCheckbox index={index} />
+                  ) : (
+                    <GjorOppTilsagnCheckbox linje={linje} />
+                  )
+                }
                 knappeColumn={
-                  <FjernUtbetalingLinje
-                    onRemove={() => {
-                      const current = getValues("utbetalingLinjer");
-                      setValue(
-                        "utbetalingLinjer",
-                        current.filter((_, i) => i !== index),
-                      );
-                    }}
-                  />
+                  kanSaksbehandle && (
+                    <FjernUtbetalingLinje
+                      onRemove={() => {
+                        const current = getValues("utbetalingLinjer");
+                        setValue(
+                          "utbetalingLinjer",
+                          current.filter((_, i) => i !== index),
+                        );
+                      }}
+                    />
+                  )
                 }
               />
             )}
@@ -158,9 +174,9 @@ export function RedigerUtbetalingLinjeView({
           {utbetalingLinjerWatch.length > 0 && (
             <HStack gap="space-8" justify="end">
               <ValideringsfeilOppsummering />
-              {handlinger.includes(UtbetalingHandling.SEND_TIL_ATTESTERING) && (
+              {kanSaksbehandle && (
                 <Button size="small" type="submit">
-                  {utbetalingTekster.linje.handlinger.sendTilAttestering}
+                  {utbetalingTekster.linje.handlinger.sendTilGodkjenning}
                 </Button>
               )}
             </HStack>
@@ -176,10 +192,10 @@ export function RedigerUtbetalingLinjeView({
               onClick={() => {
                 setMindreBelopModalOpen(false);
                 const formData = getValues();
-                sendTilAttestering(formData);
+                sendTilGodkjenning(formData);
               }}
             >
-              Ja, send til attestering
+              Ja, send til godkjenning
             </Button>
           }
           headingText="Beløp til utbetaling er mindre enn innsendt beløp"
@@ -187,12 +203,12 @@ export function RedigerUtbetalingLinjeView({
           body={
             <VStack gap="space-16">
               <BodyShort>
-                Beløpet du er i ferd med å sende til attestering er mindre enn beløpet på
+                Beløpet du er i ferd med å sende til godkjenning er mindre enn beløpet på
                 utbetalingen. Er du sikker på at du vil fortsette?
               </BodyShort>
               <VStack>
                 <BodyShort weight="semibold">
-                  Beløp til attestering: {formaterValutaBelop(utbetalesTotalt)}
+                  Beløp til godkjenning: {formaterValutaBelop(utbetalesTotalt)}
                 </BodyShort>
                 <BodyShort weight="semibold">
                   Innsendt beløp: {formaterValutaBelop(beregning)}

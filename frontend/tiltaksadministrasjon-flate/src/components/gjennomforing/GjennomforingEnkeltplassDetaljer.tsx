@@ -35,10 +35,10 @@ import {
 import { formaterDato } from "@mr/frontend-common/utils/date";
 import { useState } from "react";
 import { GjennomforingPageLayout } from "@/pages/gjennomforing/GjennomforingPageLayout";
-import { UtdanningslopDetaljer } from "../utdanning/UtdanningslopDetaljer";
+import { UtdanningslopDetaljer } from "@/components/utdanning/UtdanningslopDetaljer";
 import { kursOgTiltakErStudiespesialisering } from "@/utils/Utils";
-import { AmoKategoriseringDetaljer } from "../amoKategorisering/AmoKategoriseringDetaljer";
-import { Betalingsbetingelser } from "./Betalingsbetingelser";
+import { AmoKategoriseringDetaljer } from "@/components/amoKategorisering/AmoKategoriseringDetaljer";
+import { PrisOgBetalingsbetingelser } from "@/components/prismodell/PrisOgBetalingsbetingelser";
 import { GjennomforingEnkeltplassVarighet } from "@/pages/gjennomforing/GjennomforingEnkeltplassVarighet";
 import { formaterNavEnhet } from "@/utils/nav-enhet";
 import { EnkeltplassSettPrisendringPaVentModal } from "@/components/gjennomforing/EnkeltplassSettPrisendringPaVentModal";
@@ -137,7 +137,7 @@ export function GjennomforingEnkeltplassDetaljer(props: Props) {
           </DetaljerLayout>
           <DetaljerLayout>
             <Definisjonsliste title="Arrangør" definitions={arrangorMeta} columns={1} />
-            {deltaker && <Betalingsbetingelser prismodell={prismodell} />}
+            {deltaker && <PrisOgBetalingsbetingelser prismodell={prismodell} />}
             {erSattPaVent(okonomi) && <OkonomiStatusSattPaVent okonomi={okonomi} />}
             {prisendring && erTilBeslutning(prisendring.totrinnskontroll) && (
               <PrisendringTilGodkjenning {...prisendring} />
@@ -265,13 +265,13 @@ function PrisendringTilGodkjenning({
             {utledBehandletAvNavn(totrinnskontroll)} sendte en prisendring til godkjenning den{" "}
             {formaterDato(totrinnskontroll.behandling.tidspunkt)}.
           </BodyShort>
+          <PrisOgBetalingsbetingelser prismodell={prismodell} />
           {totrinnskontroll.behandling.begrunnelse && (
             <MetadataFritekstfelt
               label="Begrunnelse fra veileder"
               value={totrinnskontroll.behandling.begrunnelse}
             />
           )}
-          <Betalingsbetingelser prismodell={prismodell} />
         </VStack>
       </InfoCard.Content>
     </InfoCard>
@@ -307,7 +307,7 @@ function PrisendringPaVent({ totrinnskontroll, prismodell }: PrisendringPaVentPr
               value={totrinnskontroll.beslutning.begrunnelse}
             />
           )}
-          <Betalingsbetingelser prismodell={prismodell} />
+          <PrisOgBetalingsbetingelser prismodell={prismodell} />
         </VStack>
       </InfoCard.Content>
     </InfoCard>

@@ -33,7 +33,7 @@ import { FormTextarea } from "@/components/skjema/FormTextarea";
 import { applyValidationErrors } from "@/components/skjema/helpers";
 import { InformationSquareIcon } from "@navikt/aksel-icons";
 import { GjennomforingDto, stotterBeskrivelseTilArrangor } from "@/api/gjennomforing/utils";
-import { Betalingsbetingelser } from "@/components/gjennomforing/Betalingsbetingelser";
+import { PrisOgBetalingsbetingelser } from "@/components/prismodell/PrisOgBetalingsbetingelser";
 import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
 
 interface Props {
@@ -131,7 +131,7 @@ export function TilsagnForm(props: Props) {
                 )}
               </VStack>
               <VStack>
-                <Betalingsbetingelser prismodell={props.prismodell} />
+                <PrisOgBetalingsbetingelser prismodell={props.prismodell} />
                 <Separator />
                 <TilsagnBeregningPreview />
               </VStack>

@@ -7,9 +7,9 @@ import io.ktor.server.routing.Route
 import io.ktor.server.routing.route
 import io.ktor.server.util.getValue
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.admin.gjennomforing.EnkeltplassBeslutningError
+import no.nav.mulighetsrommet.admin.gjennomforing.GjennomforingEnkeltplassService
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
-import no.nav.mulighetsrommet.api.gjennomforing.service.EnkeltplassBeslutningError
-import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingEnkeltplassService
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
@@ -18,6 +18,7 @@ import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.ktor.exception.Forbidden
 import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
+import no.nav.mulighetsrommet.validation.FieldError
 import org.koin.ktor.ext.inject
 import java.util.UUID
 
@@ -88,7 +89,13 @@ fun Route.enkeltplassRoutes() {
 
 private fun toProblemDetail(error: EnkeltplassBeslutningError): ProblemDetail = when (error) {
     is EnkeltplassBeslutningError.ManglerTilgang -> Forbidden(error.message)
+
     is EnkeltplassBeslutningError.Valideringsfeil -> ValidationError(errors = error.errors)
+
+    is EnkeltplassBeslutningError.ForslagTrukketTilbake -> ValidationError(
+        detail = error.detail,
+        errors = listOf(FieldError.of(error.detail)),
+    )
 }
 
 @Serializable

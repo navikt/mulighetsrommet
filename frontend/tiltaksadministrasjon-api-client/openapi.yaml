@@ -1624,17 +1624,17 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
-  /api/tiltaksadministrasjon/tiltak-dokumenter:
+  /api/tiltaksadministrasjon/tiltak-beskrivelser:
     put:
       tags:
-      - TiltakDokument
-      operationId: upsertTiltakDokument
+      - TiltakBeskrivelse
+      operationId: upsertTiltakBeskrivelse
       parameters: []
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/TiltakDokumentRequest"
+              $ref: "#/components/schemas/TiltakBeskrivelseRequest"
         required: false
       responses:
         "200":
@@ -1643,7 +1643,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/TiltakDokumentDto"
+                $ref: "#/components/schemas/TiltakBeskrivelseDto"
         "400":
           description: Valideringsfeil
           headers: {}
@@ -1661,8 +1661,8 @@ paths:
       deprecated: false
     post:
       tags:
-      - TiltakDokument
-      operationId: getTiltakDokumenter
+      - TiltakBeskrivelse
+      operationId: getTiltakBeskrivelser
       parameters:
       - name: page
         in: query
@@ -1684,22 +1684,22 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/GetTiltakDokumenterRequest"
+              $ref: "#/components/schemas/GetTiltakBeskrivelserRequest"
         required: false
       responses:
         "200":
-          description: Liste over tiltak-dokumentøringer
+          description: Liste over tiltak-beskrivelser
           headers: {}
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/PaginatedResponse_TiltakDokumentKompaktDto"
+                $ref: "#/components/schemas/PaginatedResponse_TiltakBeskrivelseKompaktDto"
       deprecated: false
-  /api/tiltaksadministrasjon/tiltak-dokumenter/{id}/tilgjengelig-for-veileder:
+  /api/tiltaksadministrasjon/tiltak-beskrivelser/{id}/tilgjengelig-for-veileder:
     put:
       tags:
-      - TiltakDokument
-      operationId: setPublisertTiltakDokument
+      - TiltakBeskrivelse
+      operationId: setPublisertTiltakBeskrivelse
       parameters:
       - name: id
         in: path
@@ -1713,7 +1713,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/TiltakDokumentPublisertRequest"
+              $ref: "#/components/schemas/TiltakBeskrivelsePublisertRequest"
         required: false
       responses:
         "200":
@@ -1727,11 +1727,11 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
-  /api/tiltaksadministrasjon/tiltak-dokumenter/{id}:
+  /api/tiltaksadministrasjon/tiltak-beskrivelser/{id}:
     get:
       tags:
-      - TiltakDokument
-      operationId: getTiltakDokument
+      - TiltakBeskrivelse
+      operationId: getTiltakBeskrivelse
       parameters:
       - name: id
         in: path
@@ -1748,7 +1748,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/TiltakDokumentDto"
+                $ref: "#/components/schemas/TiltakBeskrivelseDto"
         "404":
           description: Ikke funnet
           headers: {}
@@ -1757,11 +1757,11 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
-  /api/tiltaksadministrasjon/tiltak-dokumenter/{id}/handlinger:
+  /api/tiltaksadministrasjon/tiltak-beskrivelser/{id}/handlinger:
     get:
       tags:
-      - TiltakDokument
-      operationId: getTiltakDokumentHandlinger
+      - TiltakBeskrivelse
+      operationId: getTiltakBeskrivelseHandlinger
       parameters:
       - name: id
         in: path
@@ -1780,7 +1780,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/TiltakDokumentHandling"
+                  $ref: "#/components/schemas/TiltakBeskrivelseHandling"
                 uniqueItems: true
         default:
           description: Problem details
@@ -2609,33 +2609,6 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
-  /api/tiltaksadministrasjon/utbetaling/{id}/avbryt/godkjenn:
-    put:
-      tags:
-      - Utbetaling
-      description: Godkjenn avbrytelse av utbetaling
-      operationId: godkjennAvbrytelseUtbetaling
-      parameters:
-      - name: id
-        in: path
-        required: true
-        deprecated: false
-        explode: false
-        schema:
-          type: string
-          format: uuid
-      responses:
-        "200":
-          description: Utbetaling ble avbrutt
-          headers: {}
-        default:
-          description: Problem details
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ProblemDetail"
-      deprecated: false
   /api/tiltaksadministrasjon/utbetaling/{id}/avbryt/avsla:
     put:
       tags:
@@ -2660,6 +2633,33 @@ paths:
       responses:
         "200":
           description: "Avbrytelse av utbetaling ble avslått, returnert til saksbehandling"
+          headers: {}
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/tiltaksadministrasjon/utbetaling/{id}/avbryt/godkjenn:
+    put:
+      tags:
+      - Utbetaling
+      description: Godkjenn avbrytelse av utbetaling
+      operationId: godkjennAvbrytelseUtbetaling
+      parameters:
+      - name: id
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: Utbetaling ble avbrutt
           headers: {}
         default:
           description: Problem details
@@ -2751,11 +2751,11 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
-  /api/tiltaksadministrasjon/utbetalingslinjer/{id}/attester:
+  /api/tiltaksadministrasjon/utbetalingslinjer/{id}/godkjenn:
     post:
       tags:
       - Utbetaling
-      operationId: attesterUtbetalingLinje
+      operationId: godkjennUtbetalingLinje
       parameters:
       - name: id
         in: path
@@ -2767,7 +2767,7 @@ paths:
           format: uuid
       responses:
         "200":
-          description: UtbetalingLinje ble attestert
+          description: UtbetalingLinje ble godkjent
           headers: {}
         default:
           description: Problem details
@@ -3759,11 +3759,83 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
-  /api/tiltaksadministrasjon/tilskudd-behandling/{id}/attester:
+  /api/tiltaksadministrasjon/tilskudd-behandling/validering:
     post:
       tags:
       - TilskuddBehandling
-      operationId: attesterTilskuddBehandling
+      description: Valider tilskuddsbehandling
+      operationId: validerTilskuddsBehandling
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TilskuddBehandlingRequest"
+        required: false
+      responses:
+        "200":
+          description: Tilskudd behandling validert
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: "null"
+        "400":
+          description: Valideringsfeil
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationError"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/tiltaksadministrasjon/tilskudd-behandling/validering/saksopplysninger:
+    post:
+      tags:
+      - TilskuddBehandling
+      description: Valider saksopplysninger
+      operationId: validerSaksopplysningerTilskuddsBehandling
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TilskuddBehandlingRequest"
+        required: false
+      responses:
+        "200":
+          description: Tilskudd behandling saksopplysninger validert
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: "null"
+        "400":
+          description: Valideringsfeil
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationError"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/tiltaksadministrasjon/tilskudd-behandling/{id}/godkjenn:
+    post:
+      tags:
+      - TilskuddBehandling
+      operationId: godkjennTilskuddBehandling
       parameters:
       - name: id
         in: path
@@ -3775,7 +3847,7 @@ paths:
           format: uuid
       responses:
         "200":
-          description: Tilskuddsbehandling ble attestert
+          description: Tilskuddsbehandling ble godkjent
           headers: {}
         default:
           description: Problem details
@@ -4059,7 +4131,7 @@ components:
     OpenApiVersion:
       type: number
       enum:
-        - 29
+        - 30
     RedaksjoneltInnholdLenke:
       type: object
       properties:
@@ -4136,7 +4208,7 @@ components:
       - KREVER_DIREKTE_VEDTAK
       - KREVER_DIREKTE_VEDTAK_FOR_LOPENDE_OPPSTART
       - STOTTER_TILSKUDD_FOR_INVESTERINGER
-      - STOTTER_TILTAK_DOKUMENT
+      - STOTTER_TILTAK_BESKRIVELSE
     TiltakstypeKompaktDto:
       type: object
       properties:
@@ -5287,10 +5359,6 @@ components:
           oneOf:
           - type: "null"
           - $ref: "#/components/schemas/ValutaBelop"
-        aarsak:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/Prismodell.IngenKostnader.Aarsak"
         navn:
           type: string
         beskrivelse:
@@ -5298,7 +5366,6 @@ components:
           items:
             type: string
       required:
-      - aarsak
       - beskrivelse
       - id
       - navn
@@ -5355,11 +5422,6 @@ components:
       - EKSAMENSGEBYR
       - SEMESTERAVGIFT
       - INTEGRERT_BOTILBUD
-    Prismodell.IngenKostnader.Aarsak:
-      type: string
-      enum:
-      - OPPLAERINGEN_ER_KOSTNADSFRI
-      - OPPLAERINGEN_ER_EGENFINANSIERT
     AvtaleDto:
       type: object
       properties:
@@ -6582,6 +6644,8 @@ components:
           oneOf:
           - type: "null"
           - $ref: "#/components/schemas/AvvistGrunn"
+        gradering:
+          $ref: "#/components/schemas/Gradering"
         startDato:
           type:
           - "null"
@@ -6604,6 +6668,7 @@ components:
       required:
       - avvistGrunn
       - dagerPerUke
+      - gradering
       - id
       - innholdAnnet
       - navVeilederNavn
@@ -6678,6 +6743,15 @@ components:
       - AVVIST_VERGEMAAL
       - AVVIST_PERSON_UTLAND
       - AVVIST_UKJENT_BOSTED
+    Gradering:
+      type: string
+      enum:
+      - STRENGT_FORTROLIG_ADRESSE
+      - STRENGT_FORTROLIG_UTLAND
+      - FORTROLIG_ADRESSE
+      - SKJERMING
+      - UGRADERT
+      - GEOGRAFISK
     GjennomforingDetaljerDto:
       anyOf:
       - $ref: "#/components/schemas/GjennomforingAvtaleDetaljerDto"
@@ -6735,6 +6809,7 @@ components:
       - OPPRETT_EKSTRATILSAGN
       - OPPRETT_TILSAGN_FOR_INVESTERINGER
       - OPPRETT_UTBETALING
+      - OPPRETT_TILSKUDDSBEHANDLING
       - GODKJENN_ENKELTPLASS_OKONOMI
       - SETT_PA_VENT_ENKELTPLASS_OKONOMI
       - GODKJENN_ENKELTPLASS_PRISENDRING
@@ -6760,7 +6835,7 @@ components:
       required:
       - begrunnelse
       - totrinnskontrollId
-    TiltakDokumentRequest.VeilederinfoRequest:
+    TiltakBeskrivelseRequest.VeilederinfoRequest:
       type: object
       properties:
         faneinnhold:
@@ -6789,7 +6864,7 @@ components:
         kontaktpersoner:
           type: array
           items:
-            $ref: "#/components/schemas/TiltakDokumentRequest.Kontaktperson"
+            $ref: "#/components/schemas/TiltakBeskrivelseRequest.Kontaktperson"
           uniqueItems: true
       required:
       - beskrivelse
@@ -6798,7 +6873,7 @@ components:
       - navAndreEnheter
       - navKontorer
       - navRegioner
-    TiltakDokumentRequest.Kontaktperson:
+    TiltakBeskrivelseRequest.Kontaktperson:
       type: object
       properties:
         navIdent:
@@ -6810,7 +6885,7 @@ components:
       required:
       - beskrivelse
       - navIdent
-    TiltakDokumentRequest:
+    TiltakBeskrivelseRequest:
       type: object
       properties:
         id:
@@ -6846,7 +6921,7 @@ components:
             type: string
           uniqueItems: true
         veilederinformasjon:
-          $ref: "#/components/schemas/TiltakDokumentRequest.VeilederinfoRequest"
+          $ref: "#/components/schemas/TiltakBeskrivelseRequest.VeilederinfoRequest"
       required:
       - administratorer
       - arrangorId
@@ -6857,7 +6932,7 @@ components:
       - tiltaksnummer
       - tiltakstypeId
       - veilederinformasjon
-    TiltakDokumentDto.Tiltakstype:
+    TiltakBeskrivelseDto.Tiltakstype:
       type: object
       properties:
         id:
@@ -6871,7 +6946,7 @@ components:
       - id
       - navn
       - tiltakskode
-    TiltakDokumentDto.Arrangor:
+    TiltakBeskrivelseDto.Arrangor:
       type: object
       properties:
         id:
@@ -6885,7 +6960,7 @@ components:
       - id
       - navn
       - organisasjonsnummer
-    TiltakDokumentDto.Administrator:
+    TiltakBeskrivelseDto.Administrator:
       type: object
       properties:
         navIdent:
@@ -6895,7 +6970,7 @@ components:
       required:
       - navIdent
       - navn
-    TiltakDokumentDto.ArrangorKontaktperson:
+    TiltakBeskrivelseDto.ArrangorKontaktperson:
       type: object
       properties:
         id:
@@ -6921,7 +6996,7 @@ components:
       - id
       - navn
       - telefon
-    TiltakDokumentDto.Veilederinfo:
+    TiltakBeskrivelseDto.Veilederinfo:
       type: object
       properties:
         publisert:
@@ -6941,14 +7016,14 @@ components:
         kontaktpersoner:
           type: array
           items:
-            $ref: "#/components/schemas/TiltakDokumentDto.Kontaktperson"
+            $ref: "#/components/schemas/TiltakBeskrivelseDto.Kontaktperson"
       required:
       - beskrivelse
       - faneinnhold
       - kontaktpersoner
       - kontorstruktur
       - publisert
-    TiltakDokumentDto.Kontaktperson:
+    TiltakBeskrivelseDto.Kontaktperson:
       type: object
       properties:
         navIdent:
@@ -6976,7 +7051,7 @@ components:
       - mobilnummer
       - navIdent
       - navn
-    TiltakDokumentDto:
+    TiltakBeskrivelseDto:
       type: object
       properties:
         id:
@@ -6994,7 +7069,7 @@ components:
           - "null"
           - string
         tiltakstype:
-          $ref: "#/components/schemas/TiltakDokumentDto.Tiltakstype"
+          $ref: "#/components/schemas/TiltakBeskrivelseDto.Tiltakstype"
         stedForGjennomforing:
           type:
           - "null"
@@ -7002,17 +7077,17 @@ components:
         arrangor:
           oneOf:
           - type: "null"
-          - $ref: "#/components/schemas/TiltakDokumentDto.Arrangor"
+          - $ref: "#/components/schemas/TiltakBeskrivelseDto.Arrangor"
         administratorer:
           type: array
           items:
-            $ref: "#/components/schemas/TiltakDokumentDto.Administrator"
+            $ref: "#/components/schemas/TiltakBeskrivelseDto.Administrator"
         arrangorKontaktpersoner:
           type: array
           items:
-            $ref: "#/components/schemas/TiltakDokumentDto.ArrangorKontaktperson"
+            $ref: "#/components/schemas/TiltakBeskrivelseDto.ArrangorKontaktperson"
         veilederinfo:
-          $ref: "#/components/schemas/TiltakDokumentDto.Veilederinfo"
+          $ref: "#/components/schemas/TiltakBeskrivelseDto.Veilederinfo"
         publisert:
           type: boolean
       required:
@@ -7027,14 +7102,14 @@ components:
       - tiltaksnummer
       - tiltakstype
       - veilederinfo
-    TiltakDokumentPublisertRequest:
+    TiltakBeskrivelsePublisertRequest:
       type: object
       properties:
         publisert:
           type: boolean
       required:
       - publisert
-    GetTiltakDokumenterRequest:
+    GetTiltakBeskrivelserRequest:
       type: object
       properties:
         navEnheter:
@@ -7053,15 +7128,15 @@ components:
           type:
           - "null"
           - string
-        visMineTiltakDokumenter:
+        visMineTiltakBeskrivelser:
           type: boolean
       required:
       - navEnheter
       - publisert
       - sort
       - tiltakstyper
-      - visMineTiltakDokumenter
-    TiltakDokumentKompaktDto:
+      - visMineTiltakBeskrivelser
+    TiltakBeskrivelseKompaktDto:
       type: object
       properties:
         id:
@@ -7074,11 +7149,11 @@ components:
           - "null"
           - string
         tiltakstype:
-          $ref: "#/components/schemas/TiltakDokumentKompaktDto.Tiltakstype"
+          $ref: "#/components/schemas/TiltakBeskrivelseKompaktDto.Tiltakstype"
         arrangor:
           oneOf:
           - type: "null"
-          - $ref: "#/components/schemas/TiltakDokumentKompaktDto.Arrangor"
+          - $ref: "#/components/schemas/TiltakBeskrivelseKompaktDto.Arrangor"
         publisert:
           type: boolean
         kontorstruktur:
@@ -7093,7 +7168,7 @@ components:
       - publisert
       - tiltaksnummer
       - tiltakstype
-    TiltakDokumentKompaktDto.Tiltakstype:
+    TiltakBeskrivelseKompaktDto.Tiltakstype:
       type: object
       properties:
         id:
@@ -7107,7 +7182,7 @@ components:
       - id
       - navn
       - tiltakskode
-    TiltakDokumentKompaktDto.Arrangor:
+    TiltakBeskrivelseKompaktDto.Arrangor:
       type: object
       properties:
         id:
@@ -7121,7 +7196,7 @@ components:
       - id
       - navn
       - organisasjonsnummer
-    PaginatedResponse_TiltakDokumentKompaktDto:
+    PaginatedResponse_TiltakBeskrivelseKompaktDto:
       type: object
       properties:
         pagination:
@@ -7129,11 +7204,11 @@ components:
         data:
           type: array
           items:
-            $ref: "#/components/schemas/TiltakDokumentKompaktDto"
+            $ref: "#/components/schemas/TiltakBeskrivelseKompaktDto"
       required:
       - data
       - pagination
-    TiltakDokumentHandling:
+    TiltakBeskrivelseHandling:
       type: string
       enum:
       - PUBLISER
@@ -7861,15 +7936,6 @@ components:
       - sluttDato
       - startDato
       - status
-    Gradering:
-      type: string
-      enum:
-      - STRENGT_FORTROLIG_ADRESSE
-      - STRENGT_FORTROLIG_UTLAND
-      - FORTROLIG_ADRESSE
-      - SKJERMING
-      - UGRADERT
-      - GEOGRAFISK
     TilsagnDetaljerDto:
       type: object
       properties:
@@ -7936,7 +8002,7 @@ components:
         pris:
           oneOf:
           - type: "null"
-          - $ref: "#/components/schemas/ValutaBelop"
+          - $ref: "#/components/schemas/ValutaBelopRequest"
       required:
       - antallPlasser
       - antallTimerOppfolgingPerDeltaker
@@ -7979,6 +8045,21 @@ components:
       - beskrivelse
       - id
       - pris
+    ValutaBelopRequest:
+      type: object
+      properties:
+        belop:
+          type:
+          - "null"
+          - integer
+          format: int32
+        valuta:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/Valuta"
+      required:
+      - belop
+      - valuta
     TilsagnDeltakerRequest:
       type: object
       properties:
@@ -8164,7 +8245,7 @@ components:
       - VENTER_PA_ARRANGOR
       - BLOKKERT_FOR_INNSENDING
       - KLAR_TIL_BEHANDLING
-      - TIL_ATTESTERING
+      - TIL_GODKJENNING
       - RETURNERT
       - OVERFORT_TIL_UTBETALING
       - DELVIS_UTBETALT
@@ -8189,21 +8270,6 @@ components:
       - displayName
       - displayNameLong
       - tagName
-    ValutaBelopRequest:
-      type: object
-      properties:
-        belop:
-          type:
-          - "null"
-          - integer
-          format: int32
-        valuta:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/Valuta"
-      required:
-      - belop
-      - valuta
     UtbetalingRequest:
       type: object
       properties:
@@ -8232,6 +8298,11 @@ components:
           type:
           - "null"
           - string
+        utbetalingsDato:
+          type:
+          - "null"
+          - string
+          format: date
         korreksjonBegrunnelse:
           type:
           - "null"
@@ -8259,6 +8330,7 @@ components:
       - periodeSlutt
       - periodeStart
       - pris
+      - utbetalingsDato
     UtbetalingDto:
       type: object
       properties:
@@ -8408,7 +8480,7 @@ components:
       enum:
       - OPPRETT_KORREKSJON
       - REDIGER
-      - SEND_TIL_ATTESTERING
+      - SEND_TIL_GODKJENNING
       - SLETT
       - SEND_TIL_AVBRYTELSE
       - GODKJENN_AVBRYTELSE
@@ -8597,7 +8669,7 @@ components:
     UtbetalingLinjeStatus:
       type: string
       enum:
-      - TIL_ATTESTERING
+      - TIL_GODKJENNING
       - GODKJENT
       - RETURNERT
       - UTBETALT
@@ -8606,9 +8678,9 @@ components:
     UtbetalingLinjeHandling:
       type: string
       enum:
-      - ATTESTER
+      - GODKJENN
       - RETURNER
-      - SEND_TIL_ATTESTERING
+      - SEND_TIL_GODKJENNING
     UtbetalingStatusAarsak:
       type: string
       enum:
@@ -8815,7 +8887,7 @@ components:
       - TILSAGN_TIL_OPPGJOR
       - TILSAGN_RETURNERT
       - UTBETALING_TIL_BEHANDLING
-      - UTBETALING_TIL_ATTESTERING
+      - UTBETALING_TIL_GODKJENNING
       - UTBETALING_RETURNERT
       - UTBETALING_TIL_AVBRYTELSE
       - UTBETALING_MANGLER_TILSAGN
@@ -8823,7 +8895,7 @@ components:
       - GJENNOMFORING_MANGLER_ADMINISTRATOR
       - ENKELTPLASS_TIL_GODKJENNING
       - ENKELTPLASS_SATT_PA_VENT
-      - TILSKUDDBEHANDLING_TIL_ATTESTERING
+      - TILSKUDDBEHANDLING_TIL_GODKJENNING
       - TILSKUDDBEHANDLING_RETURNERT
     OppgaverFilter:
       type: object
@@ -9011,10 +9083,10 @@ components:
       - TILTAKSGJENNOMFORINGER_SKRIV
       - OPPFOLGER_GJENNOMFORING
       - AVTALER_SKRIV
-      - SAKSBEHANDLER_OKONOMI
       - OKONOMI_LES
-      - BESLUTTER_TILSAGN
-      - ATTESTANT_UTBETALING
+      - OKONOMI_SAKSBEHANDLER_GRUPPETILTAK
+      - OKONOMI_BESLUTTER_GRUPPETILTAK
+      - OKONOMI_ATTESTANT_GRUPPETILTAK
       - OKONOMI_SAKSBEHANDLER_ENKELTPLASS
       - OKONOMI_BESLUTTER_ENKELTPLASS
       - KONTAKTPERSON
@@ -9448,6 +9520,10 @@ components:
           type:
           - "null"
           - string
+        brukerUtbetalingType:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/BrukerUtbetalingType"
         utbetalingBelop:
           oneOf:
           - type: "null"
@@ -9461,6 +9537,7 @@ components:
           - "null"
           - string
       required:
+      - brukerUtbetalingType
       - id
       - kid
       - kommentarIntern
@@ -9477,6 +9554,11 @@ components:
       - utbetalingMottaker
       - vedtakJournalpostId
       - vedtakResultat
+    BrukerUtbetalingType:
+      type: string
+      enum:
+      - FORSKUDD
+      - REFUSJON
     TilskuddBehandlingStatusDto:
       type: object
       properties:
@@ -9490,7 +9572,7 @@ components:
     TilskuddBehandlingStatus:
       type: string
       enum:
-      - TIL_ATTESTERING
+      - TIL_GODKJENNING
       - FERDIG_BEHANDLET
       - RETURNERT
     TilskuddBehandlingType:
@@ -9508,7 +9590,7 @@ components:
       type: string
       enum:
       - REDIGER
-      - ATTESTER
+      - GODKJENN
       - RETURNER
     TilskuddBehandlingDetaljerDto:
       type: object
@@ -9605,6 +9687,10 @@ components:
           type:
           - "null"
           - string
+        brukerUtbetalingType:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/BrukerUtbetalingType"
         belop:
           type:
           - "null"
@@ -9628,6 +9714,7 @@ components:
           - string
       required:
       - belop
+      - brukerUtbetalingType
       - id
       - kidNummer
       - kommentarIntern
@@ -9840,9 +9927,12 @@ components:
           format: uuid
         belop:
           $ref: "#/components/schemas/ValutaBelop"
+        brukerUtbetalingType:
+          $ref: "#/components/schemas/BrukerUtbetalingType"
       required:
       - belop
       - brukerUtbetalingId
+      - brukerUtbetalingType
     TilskuddHandling:
       type: string
       enum:
@@ -9872,7 +9962,11 @@ components:
         belop:
           type: integer
           format: int32
+        behandlingId:
+          type: integer
+          format: int32
       required:
+      - behandlingId
       - belop
       - gjennomforingId
       - vedtakId
@@ -10122,7 +10216,7 @@ components:
       - TILSAGN
       - UTBETALING
       - TILSKUDD_BEHANDLING
-      - TILTAK_DOKUMENT
+      - TILTAK_BESKRIVELSE
     EndringshistorikkDto.Entry:
       type: object
       properties:

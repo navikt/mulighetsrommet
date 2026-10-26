@@ -23,6 +23,9 @@ import no.nav.mulighetsrommet.admin.deltaker.ReplikerDeltakerForslagUseCase
 import no.nav.mulighetsrommet.admin.deltaker.ReplikerDeltakerUseCase
 import no.nav.mulighetsrommet.admin.enhetsregister.EnhetsregisterGateway
 import no.nav.mulighetsrommet.admin.enhetsregister.EnhetsregisterQuery
+import no.nav.mulighetsrommet.admin.gjennomforing.GjennomforingAvtaleService
+import no.nav.mulighetsrommet.admin.gjennomforing.GjennomforingDetaljerService
+import no.nav.mulighetsrommet.admin.gjennomforing.GjennomforingEnkeltplassService
 import no.nav.mulighetsrommet.admin.journalpost.JournalpostValidator
 import no.nav.mulighetsrommet.admin.kostnadssted.KostnadsstedQuery
 import no.nav.mulighetsrommet.admin.navansatt.NavAnsattDtoQuery
@@ -36,7 +39,7 @@ import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeDtoQuery
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeKompaktQuery
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
 import no.nav.mulighetsrommet.admin.tiltak.UpdateTiltakstypeUseCase
-import no.nav.mulighetsrommet.admin.tiltakdokument.service.TiltakDokumentAdminService
+import no.nav.mulighetsrommet.admin.tiltakbeskrivelse.service.TiltakBeskrivelseAdminService
 import no.nav.mulighetsrommet.admin.utdanning.SynkroniserUtdanningerUseCase
 import no.nav.mulighetsrommet.altinn.AltinnClient
 import no.nav.mulighetsrommet.altinn.AltinnCorrespondenceClient
@@ -82,10 +85,9 @@ import no.nav.mulighetsrommet.api.enhetsregister.BrregEnhetsregisterGateway
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.AmtKoordinatorGjennomforingV1KafkaConsumer
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.ArenaMigreringGjennomforingKafkaProducer
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.GjennomforingRequestKafkaConsumer
+import no.nav.mulighetsrommet.api.gjennomforing.service.CefGjennomforingAuditLog
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingArenaService
-import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingAvtaleService
-import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingDetaljerService
-import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingEnkeltplassService
+import no.nav.mulighetsrommet.api.gjennomforing.service.PersonaliaServicePort
 import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadGjennomforinger
 import no.nav.mulighetsrommet.api.gjennomforing.task.NotifySluttdatoForGjennomforingerNarmerSeg
 import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateApentForPamelding
@@ -105,7 +107,6 @@ import no.nav.mulighetsrommet.api.persistence.navenhet.SqlNavEnhetRepository
 import no.nav.mulighetsrommet.api.persistence.veilederflate.SqlVeilederflateDatabase
 import no.nav.mulighetsrommet.api.sanity.SanityService
 import no.nav.mulighetsrommet.api.sanity.VeilederflateSanityService
-import no.nav.mulighetsrommet.api.sanity.task.MigrerSanityTiltaksgjennomforinger
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnDtoQuery
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
@@ -206,6 +207,7 @@ private fun db(config: AppConfig) = module {
         val topics = OutboxTopics(
             sisteTiltakstyperV3 = config.kafka.topics.sisteTiltakstyperTopic,
             totrinnskontrollHendelseV2 = config.kafka.topics.totrinnskontrollV2Topic,
+            sisteTiltaksgjennomforingerV2 = config.kafka.topics.sisteTiltaksgjennomforingerV2Topic,
         )
         SqlAdminDatabase(database, topics)
     }
@@ -517,7 +519,7 @@ private fun services(appConfig: AppConfig) = module {
     single {
         VeilederflateService(
             get(),
-            get(),
+            appConfig.tiltakstyper.features,
             get(),
         )
     }
@@ -527,13 +529,22 @@ private fun services(appConfig: AppConfig) = module {
     single { NavAnsattPrincipalService(get(), get()) }
     single { PoaoTilgangService(get()) }
     single { DelMedBrukerService(get(), get()) }
-    single { GjennomforingDetaljerService(get(), get(), get(), get(), get()) }
-    single { TiltakDokumentAdminService(get(), get()) }
+    single {
+        GjennomforingDetaljerService(
+            db = get(),
+            tiltakstypeService = get(),
+            navAnsattService = get(),
+            personaliaPort = PersonaliaServicePort(get()),
+            enkeltplassService = get(),
+            auditLog = CefGjennomforingAuditLog(),
+        )
+    }
+    single { TiltakBeskrivelseAdminService(get(), get()) }
     single {
         GjennomforingEnkeltplassService(
-            get(),
-            get(),
-            get(),
+            db = get(),
+            personaliaPort = PersonaliaServicePort(get()),
+            tiltakstyper = get(),
         )
     }
     single {
@@ -614,8 +625,8 @@ private fun services(appConfig: AppConfig) = module {
             navAnsattService = get(),
         )
     }
-    single { TilsagnDtoQuery(get(), get(), get()) }
-    single { TilskuddBehandlingService(get(), get(), get(), get(), get(), get()) }
+    single { TilsagnDtoQuery(get(), get()) }
+    single { TilskuddBehandlingService(get(), get(), get(), get(), get(), get(), get()) }
     single { TilskuddService(get(), get(), get()) }
     single { AltinnRettigheterService(db = get(), altinnClient = get()) }
     single { OppgaverService(get(), get()) }
@@ -651,7 +662,6 @@ private fun tasks(config: AppConfig) = module {
     }
     single { SynchronizeNavAnsatte(tasks.synchronizeNavAnsatte, get(), get()) }
     single { SynchronizeUtdanninger(tasks.synchronizeUtdanninger, get(), get()) }
-    single { MigrerSanityTiltaksgjennomforinger(get(), get()) }
     single { GenerateUtbetaling(tasks.generateUtbetaling, get()) }
     single { JournalforUtbetaling(get(), get(), get(), get()) }
     single { NotificationTask(get()) }
@@ -694,7 +704,6 @@ private fun tasks(config: AppConfig) = module {
         val journalforVedtaksbrev: JournalforVedtaksbrev by inject()
         val distribuerVedtaksbrev: DistribuerVedtaksbrev by inject()
         val updateGjennomforingAvtaleFreeTextSearch: UpdateGjennomforingAvtaleFreeTextSearch by inject()
-        val migrerSanityTiltaksgjennomforinger: MigrerSanityTiltaksgjennomforinger by inject()
 
         val db: Database by inject()
 
@@ -713,7 +722,6 @@ private fun tasks(config: AppConfig) = module {
                 journalforVedtaksbrev.task,
                 distribuerVedtaksbrev.task,
                 updateGjennomforingAvtaleFreeTextSearch.task,
-                migrerSanityTiltaksgjennomforinger.task,
             )
             .addSchedulerListener(SlackNotifierSchedulerListener(get()))
             .addSchedulerListener(OpenTelemetrySchedulerListener())

@@ -43,7 +43,7 @@ export function BetalingsinformasjonFields<T extends FieldValues>({
             Dersom kontonummer er feil må arrangør oppdatere kontonummer i Altinn. Her kan du lese
             om <EndreKontonummerLink />.
           </BodyShort>
-          <FormTextField<T> label="Valgfritt KID-nummer" name={kidNummerName} />
+          <FormTextField<T> label="KID-nummer (valgfritt)" name={kidNummerName} />
         </VStack>
       );
     case "IBan":

@@ -103,20 +103,20 @@ class NavAnsattQueriesTest : FunSpec({
                 repository.navAnsatt.save(ansatt1)
 
                 val enRolle = setOf(
-                    NavAnsattRolle.kontorspesifikk(Rolle.ATTESTANT_UTBETALING, setOf(NavEnhetNummer("1000"))),
+                    NavAnsattRolle.kontorspesifikk(Rolle.OKONOMI_ATTESTANT_GRUPPETILTAK, setOf(NavEnhetNummer("1000"))),
                 )
                 repository.navAnsatt.save(ansatt1.medRoller(enRolle))
                 repository.navAnsatt.get(ansatt1.navIdent).shouldNotBeNull().roller shouldBe enRolle
 
                 val flereRoller = setOf(
-                    NavAnsattRolle.kontorspesifikk(Rolle.BESLUTTER_TILSAGN, setOf(NavEnhetNummer("1000"))),
-                    NavAnsattRolle.kontorspesifikk(Rolle.ATTESTANT_UTBETALING, setOf(NavEnhetNummer("2000"))),
+                    NavAnsattRolle.kontorspesifikk(Rolle.OKONOMI_BESLUTTER_GRUPPETILTAK, setOf(NavEnhetNummer("1000"))),
+                    NavAnsattRolle.kontorspesifikk(Rolle.OKONOMI_ATTESTANT_GRUPPETILTAK, setOf(NavEnhetNummer("2000"))),
                 )
                 repository.navAnsatt.save(ansatt1.medRoller(flereRoller))
                 repository.navAnsatt.get(ansatt1.navIdent).shouldNotBeNull().roller shouldBe flereRoller
 
                 val ingenRoller = setOf(
-                    NavAnsattRolle.kontorspesifikk(Rolle.ATTESTANT_UTBETALING, setOf()),
+                    NavAnsattRolle.kontorspesifikk(Rolle.OKONOMI_ATTESTANT_GRUPPETILTAK, setOf()),
                 )
                 repository.navAnsatt.save(ansatt1.medRoller(ingenRoller))
                 repository.navAnsatt.get(ansatt1.navIdent).shouldNotBeNull().roller shouldBe ingenRoller
@@ -194,44 +194,51 @@ class NavAnsattQueriesTest : FunSpec({
                 repository.navEnhet.save(enhet1)
                 repository.navEnhet.save(enhet2)
 
-                val beslutterTilsagnAndeby =
-                    NavAnsattRolle.kontorspesifikk(Rolle.BESLUTTER_TILSAGN, setOf(NavEnhetNummer("1000")))
-                val beslutterTilsagnGaseby =
-                    NavAnsattRolle.kontorspesifikk(Rolle.BESLUTTER_TILSAGN, setOf(NavEnhetNummer("2000")))
-                val beslutterTilsagnUtenKontor =
-                    NavAnsattRolle.kontorspesifikk(Rolle.BESLUTTER_TILSAGN, setOf())
-                val beslutterTilsagnForBeggeKontor =
-                    NavAnsattRolle.kontorspesifikk(
-                        Rolle.BESLUTTER_TILSAGN,
-                        setOf(NavEnhetNummer("1000"), NavEnhetNummer("2000")),
-                    )
-                val beslutterTilsagnForUkjentKontor =
-                    NavAnsattRolle.kontorspesifikk(Rolle.BESLUTTER_TILSAGN, setOf(NavEnhetNummer("3000")))
+                val beslutterGruppetiltakAndeby = NavAnsattRolle.kontorspesifikk(
+                    Rolle.OKONOMI_BESLUTTER_GRUPPETILTAK,
+                    setOf(NavEnhetNummer("1000")),
+                )
+                val beslutterGruppetiltakGaseby = NavAnsattRolle.kontorspesifikk(
+                    Rolle.OKONOMI_BESLUTTER_GRUPPETILTAK,
+                    setOf(NavEnhetNummer("2000")),
+                )
+                val beslutterGruppetiltakUtenKontor = NavAnsattRolle.kontorspesifikk(
+                    Rolle.OKONOMI_BESLUTTER_GRUPPETILTAK,
+                    setOf(),
+                )
+                val beslutterGruppetiltakForBeggeKontor = NavAnsattRolle.kontorspesifikk(
+                    Rolle.OKONOMI_BESLUTTER_GRUPPETILTAK,
+                    setOf(NavEnhetNummer("1000"), NavEnhetNummer("2000")),
+                )
+                val beslutterGruppetiltakForUkjentKontor = NavAnsattRolle.kontorspesifikk(
+                    Rolle.OKONOMI_BESLUTTER_GRUPPETILTAK,
+                    setOf(NavEnhetNummer("3000")),
+                )
 
-                val expectedAnsatt1 = ansatt1.medRoller(setOf(beslutterTilsagnAndeby))
-                val expectedAnsatt2 = ansatt2.medRoller(setOf(beslutterTilsagnForBeggeKontor))
+                val expectedAnsatt1 = ansatt1.medRoller(setOf(beslutterGruppetiltakAndeby))
+                val expectedAnsatt2 = ansatt2.medRoller(setOf(beslutterGruppetiltakForBeggeKontor))
 
                 repository.navAnsatt.save(expectedAnsatt1)
                 repository.navAnsatt.save(expectedAnsatt2)
 
                 queries.navAnsattDto.getAll(
-                    rollerContainsAll = listOf(beslutterTilsagnAndeby),
+                    rollerContainsAll = listOf(beslutterGruppetiltakAndeby),
                 ) shouldContainExactlyNavIdent listOf(expectedAnsatt1, expectedAnsatt2)
 
                 queries.navAnsattDto.getAll(
-                    rollerContainsAll = listOf(beslutterTilsagnGaseby),
+                    rollerContainsAll = listOf(beslutterGruppetiltakGaseby),
                 ) shouldContainExactlyNavIdent listOf(expectedAnsatt2)
 
                 queries.navAnsattDto.getAll(
-                    rollerContainsAll = listOf(beslutterTilsagnUtenKontor),
+                    rollerContainsAll = listOf(beslutterGruppetiltakUtenKontor),
                 ) shouldContainExactlyNavIdent listOf(expectedAnsatt1, expectedAnsatt2)
 
                 queries.navAnsattDto.getAll(
-                    rollerContainsAll = listOf(beslutterTilsagnForBeggeKontor),
+                    rollerContainsAll = listOf(beslutterGruppetiltakForBeggeKontor),
                 ) shouldContainExactlyNavIdent listOf(expectedAnsatt2)
 
                 queries.navAnsattDto.getAll(
-                    rollerContainsAll = listOf(beslutterTilsagnForUkjentKontor),
+                    rollerContainsAll = listOf(beslutterGruppetiltakForUkjentKontor),
                 ) shouldContainExactlyNavIdent listOf()
             }
         }

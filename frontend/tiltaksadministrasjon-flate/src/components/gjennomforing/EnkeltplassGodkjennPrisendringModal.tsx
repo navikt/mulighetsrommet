@@ -2,7 +2,7 @@ import { useGodkjennOkonomi } from "@/api/gjennomforing/useGodkjennOkonomi";
 import { Button, InfoCard, Modal, VStack } from "@navikt/ds-react";
 import { PrismodellDto } from "@tiltaksadministrasjon/api-client";
 import { InformationSquareIcon } from "@navikt/aksel-icons";
-import { Betalingsbetingelser } from "./Betalingsbetingelser";
+import { PrisOgBetalingsbetingelser } from "@/components/prismodell/PrisOgBetalingsbetingelser";
 
 interface Props {
   open: boolean;
@@ -36,14 +36,14 @@ export function EnkeltplassGodkjennPrisendringModal({
           <InfoCard data-color="info">
             <InfoCard.Header icon={<InformationSquareIcon aria-hidden />}>
               <InfoCard.Title>
-                Du er i ferd med å godkjenne de nye pris- og betalingsbetingelsene beskrevet under
+                Du er i ferd med å godkjenne de nye pris og betalingsbetingelsene beskrevet under
               </InfoCard.Title>
             </InfoCard.Header>
             <InfoCard.Content>
               Når du godkjenner prisendringen, oppdateres prisen på enkeltplassen.
             </InfoCard.Content>
           </InfoCard>
-          <Betalingsbetingelser prismodell={prismodell} />
+          <PrisOgBetalingsbetingelser prismodell={prismodell} />
         </VStack>
       </Modal.Body>
       <Modal.Footer>

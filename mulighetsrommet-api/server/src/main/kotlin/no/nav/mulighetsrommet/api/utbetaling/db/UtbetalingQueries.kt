@@ -6,7 +6,7 @@ import kotliquery.Session
 import kotliquery.TransactionalSession
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsinformasjon
-import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingType
+import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingType
 import no.nav.mulighetsrommet.api.persistence.totrinnskontroll.TotrinnskontrollQueries
 import no.nav.mulighetsrommet.api.tilsagn.api.KostnadsstedDto
 import no.nav.mulighetsrommet.api.utbetaling.api.InnsendingKompaktDto

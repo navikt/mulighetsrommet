@@ -4,13 +4,14 @@ import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
 import no.nav.mulighetsrommet.api.QueryContext
+import no.nav.mulighetsrommet.api.domain.gjennomforing.Gjennomforing
 import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd
+import no.nav.mulighetsrommet.api.domain.personalia.Personalia
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
-import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
+import no.nav.mulighetsrommet.api.tilskuddbehandling.db.BrukerUtbetalingType
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandling
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
-import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskLocalDateTime
 import no.nav.mulighetsrommet.model.NavIdent
@@ -50,6 +51,7 @@ data class TilskuddBrevVedtak(
     val belop: Belop?,
     val periode: Periode,
     val utbetalingMottaker: TilskuddMottaker,
+    val brukerUtbetalingType: BrukerUtbetalingType?,
 )
 
 data class Belop(
@@ -101,6 +103,7 @@ suspend fun QueryContext.hentVedtaksbrevInnhold(
                 )
             },
             utbetalingMottaker = tilskudd.utbetalingMottaker,
+            brukerUtbetalingType = tilskudd.brukerUtbetalingType,
         )
     }
 
@@ -154,6 +157,7 @@ fun hentForhandsvisningVedtaksbrevInnhold(
                 )
             },
             utbetalingMottaker = tilskudd.utbetalingMottaker,
+            brukerUtbetalingType = tilskudd.brukerUtbetalingType,
         )
     }
 
@@ -174,7 +178,7 @@ private fun validateGjennomforingPeriode(gjennomforing: Gjennomforing): Either<S
         ?: return "Gjennomføring ${gjennomforing.id} mangler startdato".left()
     val sluttDato = gjennomforing.sluttDato
         ?: return "Gjennomføring ${gjennomforing.id} mangler sluttdato".left()
-    return Periode(startDato, sluttDato).right()
+    return Periode.fromInclusiveDates(startDato, sluttDato).right()
 }
 
 private fun validateDeltakerPersonalia(personalia: Personalia): Either<String, DeltakerPersonalia> {

@@ -1,13 +1,13 @@
 package no.nav.mulighetsrommet.api.tilsagn.mapper
 
+import no.nav.mulighetsrommet.api.domain.personalia.Gradering
+import no.nav.mulighetsrommet.api.domain.personalia.Personalia
 import no.nav.mulighetsrommet.api.pdfgen.Deltaker
 import no.nav.mulighetsrommet.api.pdfgen.PdfDocumentContent
 import no.nav.mulighetsrommet.api.pdfgen.SectionBuilder
 import no.nav.mulighetsrommet.api.pdfgen.Signature
 import no.nav.mulighetsrommet.api.pdfgen.TopSection
 import no.nav.mulighetsrommet.api.tilsagn.task.TilsagnsbrevInnhold
-import no.nav.mulighetsrommet.api.utbetaling.service.Gradering
-import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
 import no.nav.mulighetsrommet.model.ValutaBelop
 import java.text.NumberFormat
 import java.util.Locale

@@ -26,8 +26,8 @@ fun Route.tilsagnRoutesGet() {
     authorize(
         anyOf = setOf(
             Rolle.OKONOMI_LES,
-            Rolle.SAKSBEHANDLER_OKONOMI,
-            Rolle.BESLUTTER_TILSAGN,
+            Rolle.OKONOMI_SAKSBEHANDLER_GRUPPETILTAK,
+            Rolle.OKONOMI_BESLUTTER_GRUPPETILTAK,
             Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS,
             Rolle.OKONOMI_BESLUTTER_ENKELTPLASS,
         ),

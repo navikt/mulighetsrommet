@@ -8,9 +8,9 @@ import no.nav.mulighetsrommet.admin.arrangor.KontoregisterError
 import no.nav.mulighetsrommet.admin.arrangor.KontoregisterGateway
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.domain.arrangor.Arrangor
+import no.nav.mulighetsrommet.api.domain.personalia.Personalia
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
-import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskLocalDateTime
 import no.nav.mulighetsrommet.model.Kontonummer

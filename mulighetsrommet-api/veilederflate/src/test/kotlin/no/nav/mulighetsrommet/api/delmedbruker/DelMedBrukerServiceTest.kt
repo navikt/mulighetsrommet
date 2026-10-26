@@ -24,7 +24,7 @@ class DelMedBrukerServiceTest : FunSpec({
         navIdent = NavIdent("B123456"),
         dialogId = "1",
         tiltakstypeId = UUID.randomUUID(),
-        tiltakDokumentId = UUID.randomUUID(),
+        tiltakBeskrivelseId = UUID.randomUUID(),
         gjennomforingId = null,
         deltFraEnhet = NavEnhetNummer("0502"),
     )

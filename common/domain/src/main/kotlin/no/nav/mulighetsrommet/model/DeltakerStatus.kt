@@ -25,7 +25,7 @@ enum class DeltakerStatusType(val description: String, val variant: DataElement.
     SOKT_INN("Søkt inn", DataElement.Status.Variant.ALT_2),
     UTKAST_TIL_PAMELDING("Utkast til påmelding", DataElement.Status.Variant.INFO),
     VENTELISTE("Venteliste", DataElement.Status.Variant.ALT_1),
-    VENTER_PA_OPPSTART("Venter på oppstart", DataElement.Status.Variant.ALT_3),
+    VENTER_PA_OPPSTART("Venter på oppstart", DataElement.Status.Variant.INFO),
     VURDERES("Vurderes", DataElement.Status.Variant.ALT_2),
     ;
 

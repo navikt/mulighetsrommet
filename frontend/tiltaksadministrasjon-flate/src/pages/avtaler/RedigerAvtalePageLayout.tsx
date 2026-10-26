@@ -7,6 +7,7 @@ import { ReactNode } from "react";
 import { useHead } from "@unhead/react";
 import { InlineErrorBoundary } from "@/ErrorBoundary";
 import { HeaderBanner } from "@/layouts/HeaderBanner";
+import { DataElementStatusTag } from "@mr/frontend-common";
 
 interface Props {
   children: ReactNode;
@@ -29,7 +30,11 @@ export function RedigerAvtalePageLayout({ children }: Props) {
           { tittel: "Rediger avtale" },
         ]}
       />
-      <HeaderBanner ikon={<AvtaleIkon />} heading={avtale.navn} status={avtale.status.status} />
+      <HeaderBanner
+        ikon={<AvtaleIkon />}
+        heading={avtale.navn}
+        tag={<DataElementStatusTag {...avtale.status.status} />}
+      />
       <WhitePaddedBox>
         <InlineErrorBoundary>{children}</InlineErrorBoundary>
       </WhitePaddedBox>

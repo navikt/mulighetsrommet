@@ -46,6 +46,7 @@ sealed interface GjennomforingRequest {
     data class EnkeltplassEndreInnhold(
         @Serializable(with = UUIDSerializer::class)
         override val gjennomforingId: UUID,
+        val behandletAv: NavIdent,
         val payload: OpplaringKategorisering?,
     ) : GjennomforingRequest
 
@@ -93,14 +94,8 @@ sealed interface GjennomforingRequest {
         @Serializable
         @SerialName("IngenKostnader")
         data class IngenKostnader(
-            val aarsak: Aarsak,
-            val tilleggsopplysninger: String?,
-        ) : EnkeltplassPrisinformasjon {
-            enum class Aarsak {
-                OPPLAERINGEN_ER_KOSTNADSFRI,
-                OPPLAERINGEN_ER_EGENFINANSIERT,
-            }
-        }
+            val tilleggsopplysninger: String,
+        ) : EnkeltplassPrisinformasjon
     }
 
     @Serializable

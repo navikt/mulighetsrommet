@@ -7,15 +7,16 @@ import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd
 import no.nav.mulighetsrommet.api.domain.tiltak.AvtaltSats
 import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
+import no.nav.mulighetsrommet.api.domain.tiltak.PrismodellRepository
 import no.nav.mulighetsrommet.api.domain.tiltak.PrismodellType
 import no.nav.mulighetsrommet.database.requireSingle
 import no.nav.mulighetsrommet.model.Valuta
 import org.intellij.lang.annotations.Language
 import java.util.UUID
 
-class PrismodellQueries(private val session: Session) {
+class PrismodellQueries(private val session: Session) : PrismodellRepository {
 
-    fun upsert(prismodell: Prismodell) {
+    override fun upsert(prismodell: Prismodell) {
         @Language("PostgreSQL")
         val query = """
             insert into prismodell(id,
@@ -26,8 +27,7 @@ class PrismodellQueries(private val session: Session) {
                                    valuta,
                                    tilsagn_per_deltaker,
                                    totalbelop,
-                                   tilskudd,
-                                   aarsak)
+                                   tilskudd)
             values (:id::uuid,
                     :system_id,
                     :prisbetingelser,
@@ -36,8 +36,7 @@ class PrismodellQueries(private val session: Session) {
                     :valuta::currency,
                     :tilsagn_per_deltaker,
                     :totalbelop,
-                    :tilskudd::jsonb,
-                    :aarsak)
+                    :tilskudd::jsonb)
             on conflict (id) do update set system_id            = excluded.system_id,
                                            prisbetingelser      = excluded.prisbetingelser,
                                            prismodell_type      = excluded.prismodell_type,
@@ -45,8 +44,7 @@ class PrismodellQueries(private val session: Session) {
                                            valuta               = excluded.valuta,
                                            tilsagn_per_deltaker = excluded.tilsagn_per_deltaker,
                                            totalbelop           = excluded.totalbelop,
-                                           tilskudd             = excluded.tilskudd,
-                                           aarsak               = excluded.aarsak
+                                           tilskudd             = excluded.tilskudd
         """.trimIndent()
 
         val params = mapOf(
@@ -63,12 +61,11 @@ class PrismodellQueries(private val session: Session) {
             "tilsagn_per_deltaker" to (prismodell as? Prismodell.AnnenAvtaltPris)?.tilsagnPerDeltaker,
             "totalbelop" to (prismodell as? Prismodell.AnskaffetEnkeltplass)?.totalbelop?.belop,
             "tilskudd" to (prismodell as? Prismodell.TilskuddTilOpplaering)?.tilskudd?.mapValues { it.value.belop }?.let { Json.encodeToString(it) },
-            "aarsak" to (prismodell as? Prismodell.IngenKostnader)?.aarsak?.name,
         )
         session.execute(queryOf(query, params))
     }
 
-    fun getOrError(id: UUID): Prismodell {
+    override fun getOrError(id: UUID): Prismodell {
         @Language("PostgreSQL")
         val query = """
             select id as prismodell_id,
@@ -78,8 +75,7 @@ class PrismodellQueries(private val session: Session) {
                    satser as prismodell_satser,
                    tilsagn_per_deltaker as prismodell_tilsagn_per_deltaker,
                    totalbelop as prismodell_totalbelop,
-                   tilskudd as prismodell_tilskudd,
-                   aarsak as prismodell_aarsak
+                   tilskudd as prismodell_tilskudd
             from prismodell
             where id = ?::uuid
         """.trimIndent()
@@ -96,15 +92,14 @@ class PrismodellQueries(private val session: Session) {
                    satser as prismodell_satser,
                    tilsagn_per_deltaker as prismodell_tilsagn_per_deltaker,
                    totalbelop as prismodell_totalbelop,
-                   tilskudd as prismodell_tilskudd,
-                   aarsak as prismodell_aarsak
+                   tilskudd as prismodell_tilskudd
             from prismodell
             where system_id = ?
         """.trimIndent()
         return session.single(queryOf(query, systemId)) { it.toPrismodell() }
     }
 
-    fun deletePrismodell(id: UUID) {
+    override fun deletePrismodell(id: UUID) {
         @Language("PostgreSQL")
         val query = """
             delete from prismodell
@@ -125,6 +120,5 @@ fun Row.toPrismodell(): Prismodell {
     val tilskudd = stringOrNull("prismodell_tilskudd")?.let {
         Json.decodeFromString<Map<Opplaeringtilskudd.Kode, Int>>(it)
     }
-    val aarsak = stringOrNull("prismodell_aarsak")
-    return Prismodell.from(id, type, valuta, prisbetingelser, satser, tilsagnPerDeltaker, totalbelop, tilskudd, aarsak)
+    return Prismodell.from(id, type, valuta, prisbetingelser, satser, tilsagnPerDeltaker, totalbelop, tilskudd)
 }

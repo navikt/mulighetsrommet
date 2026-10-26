@@ -18,13 +18,13 @@ import io.kotest.matchers.types.shouldBeTypeOf
 import io.mockk.coEvery
 import io.mockk.mockk
 import io.mockk.verify
+import no.nav.mulighetsrommet.admin.aarsakerbegrunnelse.AarsakerOgBegrunnelseRequest
 import no.nav.mulighetsrommet.admin.arrangor.SyncArrangorUseCase
 import no.nav.mulighetsrommet.admin.enhetsregister.EnhetsregisterError
 import no.nav.mulighetsrommet.admin.enhetsregister.EnhetsregisterGateway
 import no.nav.mulighetsrommet.admin.enhetsregister.Virksomhet
 import no.nav.mulighetsrommet.admin.enhetsregister.VirksomhetOppslag
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
-import no.nav.mulighetsrommet.api.aarsakerbegrunnelse.AarsakerOgBegrunnelseRequest
 import no.nav.mulighetsrommet.api.avtale.api.DetaljerRequest
 import no.nav.mulighetsrommet.api.avtale.api.OpprettOpsjonLoggRequest
 import no.nav.mulighetsrommet.api.avtale.api.PersonvernRequest
@@ -38,6 +38,7 @@ import no.nav.mulighetsrommet.api.domain.avtale.Avtale
 import no.nav.mulighetsrommet.api.domain.avtale.AvtaleStatus
 import no.nav.mulighetsrommet.api.domain.avtale.Opsjonsmodell
 import no.nav.mulighetsrommet.api.domain.avtale.OpsjonsmodellType
+import no.nav.mulighetsrommet.api.domain.gjennomforing.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.domain.testing.fixture.ArrangorFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.AvtaleFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavAnsattFixture
@@ -49,12 +50,10 @@ import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeFeature
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.createAvtaleRequest
-import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadGjennomforinger
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.AvtaleStatusType
 import no.nav.mulighetsrommet.model.Avtaletype
-import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
@@ -62,6 +61,7 @@ import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Personopplysning
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Valuta
+import no.nav.mulighetsrommet.validation.FieldError
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
@@ -393,6 +393,31 @@ class AvtaleServiceTest : FunSpec({
                     any(),
                     any(),
                 )
+            }
+        }
+
+        test("fjerner ANNET når den finnes i personopplysninger men annetChecked er false") {
+            MulighetsrommetTestDomain(avtaler = listOf(avtale)).initialize(database.api)
+
+            avtaleService.upsertPersonvern(
+                avtale.id,
+                PersonvernRequest(
+                    personopplysninger = listOf(
+                        Personopplysning.Type.NAVN,
+                        Personopplysning.Type.FODSELSDATO,
+                        Personopplysning.Type.ANNET,
+                    ),
+                    annetChecked = false,
+                    annetBeskrivelse = "Skal fjernes",
+                    personvernBekreftet = true,
+                ),
+                bertilNavIdent,
+            ).shouldBeRight().personvern.should {
+                it.personopplysninger.shouldContainExactlyInAnyOrder(
+                    Personopplysning.Type.NAVN,
+                    Personopplysning.Type.FODSELSDATO,
+                )
+                it.annetBeskrivelse.shouldBeNull()
             }
         }
     }

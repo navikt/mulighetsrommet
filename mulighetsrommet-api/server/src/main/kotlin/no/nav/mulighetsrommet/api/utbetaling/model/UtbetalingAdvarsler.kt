@@ -148,7 +148,7 @@ fun QueryContext.hentDeltakerAdvarslerForUtbetaling(
         }
 
         UtbetalingStatusType.TIL_BEHANDLING,
-        UtbetalingStatusType.TIL_ATTESTERING,
+        UtbetalingStatusType.TIL_GODKJENNING,
         UtbetalingStatusType.RETURNERT,
         UtbetalingStatusType.FERDIG_BEHANDLET,
         UtbetalingStatusType.DELVIS_UTBETALT,

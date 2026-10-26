@@ -1,13 +1,7 @@
 package no.nav.mulighetsrommet.api.gjennomforing.api
 
 import arrow.core.Either
-import arrow.core.NonEmptyList
 import arrow.core.flatMap
-import arrow.core.nel
-import arrow.core.raise.either
-import arrow.core.raise.ensure
-import arrow.core.raise.ensureNotNull
-import arrow.core.raise.zipOrAccumulate
 import io.github.smiley4.ktoropenapi.delete
 import io.github.smiley4.ktoropenapi.get
 import io.github.smiley4.ktoropenapi.post
@@ -27,17 +21,23 @@ import io.ktor.server.routing.route
 import io.ktor.server.util.getOrFail
 import io.ktor.server.util.getValue
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.admin.aarsakerbegrunnelse.AarsakerOgBegrunnelseRequest
+import no.nav.mulighetsrommet.admin.gjennomforing.AdminTiltaksgjennomforingFilter
+import no.nav.mulighetsrommet.admin.gjennomforing.GjennomforingAvtaleService
+import no.nav.mulighetsrommet.admin.gjennomforing.GjennomforingDetaljerDto
+import no.nav.mulighetsrommet.admin.gjennomforing.GjennomforingDetaljerError
+import no.nav.mulighetsrommet.admin.gjennomforing.GjennomforingDetaljerRequest
+import no.nav.mulighetsrommet.admin.gjennomforing.GjennomforingDetaljerService
+import no.nav.mulighetsrommet.admin.gjennomforing.GjennomforingHandling
+import no.nav.mulighetsrommet.admin.gjennomforing.GjennomforingKompaktDto
+import no.nav.mulighetsrommet.admin.gjennomforing.GjennomforingRequest
+import no.nav.mulighetsrommet.admin.gjennomforing.GjennomforingVeilederinfoRequest
+import no.nav.mulighetsrommet.admin.gjennomforing.SetStengtHosArrangorRequest
+import no.nav.mulighetsrommet.admin.gjennomforing.SetTilgjengligForArrangorRequest
 import no.nav.mulighetsrommet.api.ApiDatabase
-import no.nav.mulighetsrommet.api.aarsakerbegrunnelse.AarsakerOgBegrunnelseRequest
-import no.nav.mulighetsrommet.api.avtale.api.AmoKategoriseringRequest
+import no.nav.mulighetsrommet.api.domain.gjennomforing.AvbrytGjennomforingAarsak
+import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingAvtaleDetaljer
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
-import no.nav.mulighetsrommet.api.domain.opplaring.Utdanningslop
-import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleDetaljer
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDetaljerDto
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKompaktDto
-import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingAvtaleService
-import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingDetaljerService
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.parameters.getPaginationParams
 import no.nav.mulighetsrommet.api.plugins.getAccessType
@@ -49,25 +49,21 @@ import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.utbetaling.service.ManglerTilgangTilPerson
 import no.nav.mulighetsrommet.api.utils.DatoUtils.parseOrNull
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
+import no.nav.mulighetsrommet.ktor.exception.Forbidden
+import no.nav.mulighetsrommet.ktor.exception.NotFound
 import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
-import no.nav.mulighetsrommet.model.Faneinnhold
-import no.nav.mulighetsrommet.model.FieldError
-import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
-import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NavEnhetNummer
-import no.nav.mulighetsrommet.model.NavIdent
-import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.tokenprovider.requireAzureAd
+import no.nav.mulighetsrommet.validation.FieldError
 import no.nav.mulighetsrommet.validation.validation
 import org.koin.ktor.ext.inject
 import java.time.LocalDate
 import java.util.UUID
-import kotlin.contracts.ExperimentalContracts
 
 fun Route.gjennomforingRoutes() {
     val db: ApiDatabase by inject()
@@ -488,7 +484,7 @@ fun Route.gjennomforingRoutes() {
                     call.respondWithProblemDetail(ManglerTilgangTilPerson.fromAvvistGrunn(it))
                 }
                 .onRight {
-                    call.respond(it)
+                    call.respond(PaginatedResponse.of(pagination, it.totalCount, it.items))
                 }
         }
 
@@ -553,14 +549,11 @@ fun Route.gjennomforingRoutes() {
             val accessType = call.getAccessType().requireAzureAd()
             val navIdent = getNavIdent()
 
-            gjennomforinger.getGjennomforingDetaljerDto(id, accessType, navIdent)
-                .onLeft {
-                    call.respondWithProblemDetail(ManglerTilgangTilPerson.fromAvvistGrunn(it))
+            val result = gjennomforinger.getGjennomforingDetaljerDto(id, accessType, navIdent)
+                .mapLeft {
+                    toProblemDetail(it)
                 }
-                .onRight {
-                    it?.let { call.respond(it) }
-                        ?: call.respondUkjentGjennomforing(id)
-                }
+            call.respondWithStatusResponse(result)
         }
 
         get("{id}/tiltaksnummer", {
@@ -658,6 +651,12 @@ private suspend fun RoutingCall.respondUkjentGjennomforing(id: UUID) {
     respondWithProblemDetail(BadRequest("Ingen tiltaksgjennomføring med id=$id"))
 }
 
+fun toProblemDetail(error: GjennomforingDetaljerError): ProblemDetail = when (error) {
+    is GjennomforingDetaljerError.IkkeFunnet -> NotFound(error.message)
+    is GjennomforingDetaljerError.ManglerTilgang -> Forbidden(error.message)
+    is GjennomforingDetaljerError.PersonaliaSjekkAvvist -> ManglerTilgangTilPerson.fromAvvistGrunn(error.avvistGrunn)
+}
+
 @Serializable
 data class GetGjennomforingerRequest(
     val search: String? = null,
@@ -673,19 +672,6 @@ data class GetGjennomforingerRequest(
         > = emptyList(),
     val publisert: Boolean? = null,
     val visMineGjennomforinger: Boolean = false,
-)
-
-data class AdminTiltaksgjennomforingFilter(
-    val search: String? = null,
-    val navEnheter: List<NavEnhetNummer> = emptyList(),
-    val tiltakskoder: List<Tiltakskode> = emptyList(),
-    val statuser: List<GjennomforingStatusType> = emptyList(),
-    val sortering: String? = null,
-    val avtaleId: UUID? = null,
-    val arrangorIds: List<UUID> = emptyList(),
-    val administratorNavIdent: NavIdent? = null,
-    val publisert: Boolean? = null,
-    val koordinatorNavIdent: NavIdent? = null,
 )
 
 suspend fun RoutingContext.getAdminTiltaksgjennomforingFilter(): AdminTiltaksgjennomforingFilter {
@@ -730,26 +716,6 @@ data class TiltaksnummerResponse(
 )
 
 @Serializable
-data class GjennomforingRequest(
-    @Serializable(with = UUIDSerializer::class)
-    val id: UUID,
-    @Serializable(with = UUIDSerializer::class)
-    val avtaleId: UUID,
-    val detaljer: GjennomforingDetaljerRequest,
-    val veilederinformasjon: GjennomforingVeilederinfoRequest,
-)
-
-@Serializable
-data class GjennomforingVeilederinfoRequest(
-    val navRegioner: Set<NavEnhetNummer>,
-    val navKontorer: Set<NavEnhetNummer>,
-    val navAndreEnheter: Set<NavEnhetNummer>,
-    val beskrivelse: String?,
-    val faneinnhold: Faneinnhold?,
-    val kontaktpersoner: Set<GjennomforingDetaljerRequest.Kontaktperson>,
-)
-
-@Serializable
 data class PublisertRequest(
     val publisert: Boolean,
 )
@@ -759,7 +725,6 @@ data class SetEstimertVentetidRequest(
     val verdi: Int?,
     val enhet: String?,
 ) {
-    @OptIn(ExperimentalContracts::class)
     fun validate(): Either<List<FieldError>, GjennomforingAvtaleDetaljer.EstimertVentetid?> = validation {
         if (verdi == null && enhet == null) {
             return@validation null
@@ -781,113 +746,3 @@ data class SetEstimertVentetidRequest(
 data class SetApentForPameldingRequest(
     val apentForPamelding: Boolean,
 )
-
-@Serializable
-data class SetStengtHosArrangorRequest(
-    @Serializable(with = LocalDateSerializer::class)
-    val periodeStart: LocalDate? = null,
-    @Serializable(with = LocalDateSerializer::class)
-    val periodeSlutt: LocalDate? = null,
-    val beskrivelse: String? = null,
-) {
-    fun validate(): Either<NonEmptyList<FieldError>, Pair<Periode, String>> = either {
-        zipOrAccumulate(
-            {
-                ensure(!beskrivelse.isNullOrBlank()) {
-                    FieldError.of(
-                        detail = "Du må legge inn en beskrivelse",
-                        SetStengtHosArrangorRequest::beskrivelse,
-                    )
-                }
-                beskrivelse
-            },
-            {
-                ensureNotNull(periodeStart) {
-                    FieldError.of(
-                        detail = "Du må legge inn start på perioden",
-                        SetStengtHosArrangorRequest::periodeStart,
-                    )
-                }
-            },
-            {
-                ensureNotNull(periodeSlutt) {
-                    FieldError.of(
-                        detail = "Du må legge inn slutt på perioden",
-                        SetStengtHosArrangorRequest::periodeSlutt,
-                    )
-                }
-            },
-        ) { beskrivelse, start, slutt ->
-            ensure(!slutt.isBefore(start)) {
-                FieldError.of(
-                    detail = "Start må være før slutt",
-                    SetStengtHosArrangorRequest::periodeStart,
-                ).nel()
-            }
-
-            val periode = Periode.fromInclusiveDates(start, slutt)
-
-            Pair(periode, beskrivelse)
-        }
-    }
-}
-
-@Serializable
-data class SetTilgjengligForArrangorRequest(
-    val tilgjengeligForArrangorDato: String?,
-)
-
-@Serializable
-data class GjennomforingDetaljerRequest(
-    val navn: String,
-    @Serializable(with = LocalDateSerializer::class)
-    val startDato: LocalDate?,
-    @Serializable(with = LocalDateSerializer::class)
-    val sluttDato: LocalDate?,
-    val antallPlasser: Int?,
-    @Serializable(with = UUIDSerializer::class)
-    val arrangorId: UUID?,
-    val arrangorKontaktpersoner: Set<
-        @Serializable(with = UUIDSerializer::class)
-        UUID,
-        >,
-    val administratorer: Set<NavIdent>,
-    val oppstart: GjennomforingOppstartstype?,
-    val oppmoteSted: String?,
-    val deltidsprosent: Double,
-    @Serializable(with = LocalDateSerializer::class)
-    val tilgjengeligForArrangorDato: LocalDate?,
-    val amoKategorisering: AmoKategoriseringRequest?,
-    val utdanningslop: Utdanningslop? = null,
-    @Serializable(with = UUIDSerializer::class)
-    val prismodellId: UUID?,
-    val pameldingType: GjennomforingPameldingType?,
-) {
-    @Serializable
-    data class Kontaktperson(
-        val navIdent: NavIdent,
-        val beskrivelse: String?,
-    )
-}
-
-@Serializable
-enum class GjennomforingHandling {
-    PUBLISER,
-    REDIGER,
-    AVBRYT,
-    GJENAPNE,
-    DUPLISER,
-    FORHANDSVIS_I_MODIA,
-    ENDRE_APEN_FOR_PAMELDING,
-    ENDRE_TILGJENGELIG_FOR_ARRANGOR,
-    REGISTRER_STENGT_HOS_ARRANGOR,
-    REGISTRER_ESTIMERT_VENTETID,
-    OPPRETT_TILSAGN,
-    OPPRETT_EKSTRATILSAGN,
-    OPPRETT_TILSAGN_FOR_INVESTERINGER,
-    OPPRETT_UTBETALING,
-    GODKJENN_ENKELTPLASS_OKONOMI,
-    SETT_PA_VENT_ENKELTPLASS_OKONOMI,
-    GODKJENN_ENKELTPLASS_PRISENDRING,
-    SETT_PA_VENT_ENKELTPLASS_PRISENDRING,
-}

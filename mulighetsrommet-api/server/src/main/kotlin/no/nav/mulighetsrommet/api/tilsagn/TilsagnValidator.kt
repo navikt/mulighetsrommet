@@ -1,8 +1,8 @@
 package no.nav.mulighetsrommet.api.tilsagn
 
 import arrow.core.Either
+import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregning
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAnnenAvtaltPris
@@ -21,17 +21,15 @@ import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingInputHelper
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.api.utils.DatoUtils.parseOrNull
-import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.model.ValutaBelop
+import no.nav.mulighetsrommet.validation.FieldError
 import no.nav.mulighetsrommet.validation.FieldValidator
 import no.nav.mulighetsrommet.validation.validation
 import java.time.LocalDate
-import kotlin.contracts.ExperimentalContracts
 
-@OptIn(ExperimentalContracts::class)
 object TilsagnValidator {
     private const val TILSAGN_BESKRIVELSE_MAX_LENDE = 100
 
@@ -68,6 +66,12 @@ object TilsagnValidator {
         validate(previous == null || previous.status == TilsagnStatus.RETURNERT) {
             FieldError.of("Tilsagnet kan ikke endres")
         }
+        validate(previous == null || previous.gjennomforing.id == next.gjennomforingId) {
+            FieldError.of(
+                "Tilsagnet kan ikke flyttes til en annen gjennomføring",
+                TilsagnRequest::gjennomforingId,
+            )
+        }
         validate((next.kommentar?.length ?: 0) <= 500) {
             FieldError.of("Kommentar kan ikke inneholde mer enn 500 tegn", TilsagnRequest::kommentar)
         }
@@ -83,7 +87,7 @@ object TilsagnValidator {
         validateAntallTimerOppfolgingPerDeltaker(next.beregning.type, next.beregning.antallTimerOppfolgingPerDeltaker)
         requireValid(periodeStart != null && periodeSlutt != null && next.kostnadssted != null && gyldigTilsagnPeriode != null)
 
-        validate(periodeStart.isBefore(periodeSlutt)) {
+        validate(!periodeStart.isAfter(periodeSlutt)) {
             FieldError.of("Periodestart må være før slutt", TilsagnRequest::periodeStart)
         }
         validate(!periodeStart.isBefore(gyldigTilsagnPeriode.start)) {
@@ -116,7 +120,7 @@ object TilsagnValidator {
         )
 
         validate(beregning.output.pris.belop > 0) {
-            FieldError.of("Beløp må være større enn 0")
+            FieldError(pointer = "/beregning/pris/belop", "Beløp må være større enn 0")
         }
 
         Validated(
@@ -371,26 +375,15 @@ object TilsagnValidator {
         prismodellValuta: Valuta,
         request: TilsagnBeregningRequest,
     ): Either<List<FieldError>, TilsagnBeregning> = validation {
-        validate(request.pris != null && request.pris.belop > 0) {
-            FieldError.of(
-                "Beløp må være positivt",
-                TilsagnRequest::beregning,
-                TilsagnBeregningRequest::pris,
+        validate(request.pris?.belop != null && request.pris.belop > 0) {
+            FieldError(
+                pointer = "/beregning/pris/belop",
+                "Beløp må være over 0",
             )
         }
-        validate(request.pris?.valuta == prismodellValuta) {
-            FieldError.of(
-                "Må ha samme valuta som prismodellen: $prismodellValuta",
-                TilsagnRequest::beregning,
-                TilsagnBeregningRequest::pris,
-            )
-        }
-
-        requireValid(request.pris != null)
-
         TilsagnBeregningFri.beregn(
             TilsagnBeregningFri.Input(
-                pris = request.pris,
+                pris = ValutaBelop(requireNotNull(request.pris?.belop), prismodellValuta),
             ),
         )
     }

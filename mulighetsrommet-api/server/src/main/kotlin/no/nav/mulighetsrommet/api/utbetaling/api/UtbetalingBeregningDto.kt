@@ -1,9 +1,11 @@
 package no.nav.mulighetsrommet.api.utbetaling.api
 
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.admin.navenhet.Kontorstruktur
 import no.nav.mulighetsrommet.api.arrangorflate.service.beregningSatsPeriodeDetaljerMedFaktor
 import no.nav.mulighetsrommet.api.arrangorflate.service.beregningSatsPeriodeDetaljerUtenFaktor
+import no.nav.mulighetsrommet.api.domain.navenhet.Kontorstruktur
+import no.nav.mulighetsrommet.api.domain.personalia.Gradering
+import no.nav.mulighetsrommet.api.domain.personalia.Personalia
 import no.nav.mulighetsrommet.api.domain.tiltak.PrismodellType
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelseDeltakelsesprosentPerioder
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakerAdvarselDto
@@ -19,8 +21,6 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningHelpers
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningOutputDeltakelse
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningType
-import no.nav.mulighetsrommet.api.utbetaling.service.Gradering
-import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
 import no.nav.mulighetsrommet.model.DataDetails
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Periode

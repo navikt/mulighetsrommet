@@ -73,8 +73,8 @@ export function AdministratorHeader() {
                 Notifikasjoner
               </ActionMenu.Item>
               <ActionMenu.Divider />
-              <ActionMenu.Item onClick={() => navigate("/tiltak-dokumenter")}>
-                Tiltaksdokumenter
+              <ActionMenu.Item onClick={() => navigate("/tiltak-beskrivelser")}>
+                Tiltaksbeskrivelser
               </ActionMenu.Item>
               <ActionMenu.Item as="a" href={previewArbeidsmarkedstiltakUrl()} target="_blank">
                 Veilederflate forhåndsvisning

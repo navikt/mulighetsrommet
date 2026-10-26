@@ -3,11 +3,11 @@ import { TEAMS_DYPLENKE } from "@mr/frontend-common/constants";
 import { BodyShort, VStack } from "@navikt/ds-react";
 import {
   GjennomforingKontaktpersonDto,
-  TiltakDokumentDtoKontaktperson,
+  TiltakBeskrivelseDtoKontaktperson,
 } from "@tiltaksadministrasjon/api-client";
 
 interface Props {
-  kontaktperson: GjennomforingKontaktpersonDto | TiltakDokumentDtoKontaktperson;
+  kontaktperson: GjennomforingKontaktpersonDto | TiltakBeskrivelseDtoKontaktperson;
 }
 
 export function Kontaktperson({ kontaktperson }: Props) {

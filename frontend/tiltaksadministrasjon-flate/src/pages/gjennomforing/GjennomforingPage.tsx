@@ -20,6 +20,7 @@ import { HeaderBanner } from "@/layouts/HeaderBanner";
 import { erGodkjent } from "@/utils/totrinnskontroll";
 import { isGjennomforingAvtaleDetaljer } from "@/api/gjennomforing/utils";
 import { GjennomforingEnkeltplassHeader } from "@/components/gjennomforing/GjennomforingEnkeltplassHeader";
+import { DataElementStatusTag } from "@mr/frontend-common";
 
 export function GjennomforingPage() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
@@ -62,7 +63,7 @@ export function GjennomforingPage() {
           )
         }
         heading={detaljer.gjennomforing.navn}
-        status={detaljer.gjennomforing.status}
+        tag={<DataElementStatusTag {...detaljer.gjennomforing.status} />}
       />
       {"deltaker" in detaljer && detaljer.deltaker && (
         <GjennomforingEnkeltplassHeader
@@ -123,7 +124,6 @@ const ENKELTPLASS_TILSKUDD_TABS: TabConfig[] = [
     label: "Tilskuddsbehandlinger",
   },
   { key: "tilskudd-utbetalinger", label: "Utbetalinger" },
-  { key: "tilskudd", label: "Tilskudd" },
 ];
 
 const ENKELTPLASS_INGEN_KOSTNADER_TABS: TabConfig[] = [{ key: "detaljer", label: "Detaljer" }];

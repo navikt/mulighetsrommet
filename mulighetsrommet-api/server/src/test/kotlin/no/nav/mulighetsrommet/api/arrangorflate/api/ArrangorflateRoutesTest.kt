@@ -26,7 +26,7 @@ import no.nav.mulighetsrommet.api.withTestApplication
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.model.DataElement
-import no.nav.mulighetsrommet.model.FieldError
+import no.nav.mulighetsrommet.validation.FieldError
 import no.nav.security.mock.oauth2.MockOAuth2Server
 
 class ArrangorflateRoutesTest : FunSpec({
@@ -174,7 +174,7 @@ class ArrangorflateRoutesTest : FunSpec({
         }
     }
 
-    test("kan ikke godkjenne allerede godkjent") {
+    test("kan ikke godkjenne allerede godkjent utbetaling") {
         withTestApplication(ArrangorflateTestUtils.appConfig(oauth)) {
             val updatedAt = database.run {
                 UtbetalingQueries(session).getOrError(utbetaling.id).updatedAt

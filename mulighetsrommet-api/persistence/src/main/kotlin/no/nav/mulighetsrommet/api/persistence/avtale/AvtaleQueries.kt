@@ -7,10 +7,6 @@ import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.admin.avtale.AvtaleDto
 import no.nav.mulighetsrommet.admin.avtale.AvtaleQueryHandler
-import no.nav.mulighetsrommet.admin.navenhet.Kontorstruktur
-import no.nav.mulighetsrommet.admin.navenhet.NavEnhetDto
-import no.nav.mulighetsrommet.admin.opplaring.OpplaringKategoriseringDetaljer
-import no.nav.mulighetsrommet.admin.opplaring.toOpplaringKategorisering
 import no.nav.mulighetsrommet.admin.tiltak.toPrismodellDto
 import no.nav.mulighetsrommet.api.domain.avtale.AvbrytAvtaleAarsak
 import no.nav.mulighetsrommet.api.domain.avtale.Avtale
@@ -18,7 +14,11 @@ import no.nav.mulighetsrommet.api.domain.avtale.AvtaleRepository
 import no.nav.mulighetsrommet.api.domain.avtale.AvtaleStatus
 import no.nav.mulighetsrommet.api.domain.avtale.Opsjonsmodell
 import no.nav.mulighetsrommet.api.domain.avtale.OpsjonsmodellType
+import no.nav.mulighetsrommet.api.domain.navenhet.Kontorstruktur
+import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetDto
 import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd
+import no.nav.mulighetsrommet.api.domain.opplaring.OpplaringKategoriseringDetaljer
+import no.nav.mulighetsrommet.api.domain.opplaring.toOpplaringKategorisering
 import no.nav.mulighetsrommet.api.domain.tiltak.AvtaltSats
 import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
 import no.nav.mulighetsrommet.api.domain.tiltak.PrismodellType
@@ -705,7 +705,6 @@ private fun Row.toPrismodeller(): List<Prismodell> = JsonIgnoreUnknownKeys.decod
         row.tilsagnPerDeltaker,
         row.totalbelop,
         row.tilskudd,
-        row.aarsak,
     )
 }
 
@@ -720,7 +719,6 @@ private data class PrismodellRow(
     val tilsagnPerDeltaker: Boolean?,
     val totalbelop: Int?,
     val tilskudd: Map<Opplaeringtilskudd.Kode, Int>?,
-    val aarsak: String?,
 )
 
 fun Session.createArrayOfAvtaleStatus(

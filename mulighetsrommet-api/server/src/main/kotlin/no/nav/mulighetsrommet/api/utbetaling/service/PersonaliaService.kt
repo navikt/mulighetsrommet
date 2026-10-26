@@ -4,7 +4,6 @@ import arrow.core.getOrElse
 import arrow.core.toNonEmptySetOrNull
 import io.ktor.http.HttpStatusCode
 import no.nav.mulighetsrommet.admin.navenhet.GetNavEnhet
-import no.nav.mulighetsrommet.admin.navenhet.NavEnhetDto
 import no.nav.mulighetsrommet.admin.navenhet.NavEnhetDtoQuery
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerPersonalia
@@ -15,6 +14,9 @@ import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
 import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
 import no.nav.mulighetsrommet.api.clients.tilgangsmaskin.TilgangsmaskinClient
 import no.nav.mulighetsrommet.api.clients.tilgangsmaskin.TilgangsmaskinResult
+import no.nav.mulighetsrommet.api.domain.personalia.AvvistGrunn
+import no.nav.mulighetsrommet.api.domain.personalia.Gradering
+import no.nav.mulighetsrommet.api.domain.personalia.Personalia
 import no.nav.mulighetsrommet.api.utbetaling.pdl.HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQuery
 import no.nav.mulighetsrommet.api.utbetaling.pdl.PdlPerson
 import no.nav.mulighetsrommet.ktor.exception.StatusException
@@ -170,130 +172,51 @@ class PersonaliaService(
     }
 }
 
-data class Personalia(
-    val deltakerId: UUID,
-    private val norskIdent: NorskIdent,
-    private val navn: String,
-    private val oppfolgingEnhet: NavEnhetDto?,
-    private val geografiskEnhet: NavEnhetDto?,
-    private val region: NavEnhetDto?,
-    val gradering: Gradering,
-    val avvistGrunn: AvvistGrunn?,
-) {
-    fun harTilgang(): Boolean = avvistGrunn == null
+fun Gradering.Companion.from(pdlGradering: PdlGradering, avvistGrunn: AvvistGrunn?, erSkjermet: Boolean?): Gradering {
+    return when (pdlGradering) {
+        PdlGradering.FORTROLIG -> Gradering.FORTROLIG_ADRESSE
 
-    fun navn(): String = if (harTilgang()) {
-        navn
-    } else {
-        when (gradering) {
-            Gradering.STRENGT_FORTROLIG_ADRESSE,
-            Gradering.STRENGT_FORTROLIG_UTLAND,
-            Gradering.FORTROLIG_ADRESSE,
-            -> "Adressebeskyttet"
+        PdlGradering.STRENGT_FORTROLIG -> Gradering.STRENGT_FORTROLIG_ADRESSE
 
-            Gradering.GEOGRAFISK,
-            Gradering.SKJERMING,
-            -> "Skjermet"
+        PdlGradering.STRENGT_FORTROLIG_UTLAND -> Gradering.STRENGT_FORTROLIG_UTLAND
 
-            Gradering.UGRADERT -> navn
-        }
-    }
+        PdlGradering.UGRADERT -> {
+            if (erSkjermet == true) {
+                Gradering.SKJERMING
+            } else {
+                when (avvistGrunn) {
+                    AvvistGrunn.AVVIST_SKJERMING,
+                    AvvistGrunn.AVVIST_HABILITET,
+                    AvvistGrunn.AVVIST_VERGE,
+                    AvvistGrunn.AVVIST_VERGEMAAL,
+                    AvvistGrunn.AVVIST_AVDOED,
+                    -> Gradering.SKJERMING
 
-    fun norskIdent(): NorskIdent? = if (harTilgang()) {
-        norskIdent
-    } else {
-        null
-    }
+                    AvvistGrunn.AVVIST_STRENGT_FORTROLIG_ADRESSE,
+                    -> Gradering.STRENGT_FORTROLIG_ADRESSE
 
-    fun oppfolgingEnhet(): NavEnhetDto? = oppfolgingEnhet
+                    AvvistGrunn.AVVIST_STRENGT_FORTROLIG_UTLAND,
+                    -> Gradering.STRENGT_FORTROLIG_UTLAND
 
-    fun geografiskEnhet(): NavEnhetDto? = if (harTilgang()) {
-        geografiskEnhet
-    } else {
-        null
-    }
+                    AvvistGrunn.AVVIST_FORTROLIG_ADRESSE,
+                    -> Gradering.FORTROLIG_ADRESSE
 
-    fun region(): NavEnhetDto? = if (harTilgang()) {
-        region
-    } else {
-        null
-    }
-}
+                    AvvistGrunn.AVVIST_GEOGRAFISK,
+                    AvvistGrunn.AVVIST_PERSON_UTLAND,
+                    AvvistGrunn.AVVIST_UKJENT_BOSTED,
+                    -> Gradering.GEOGRAFISK
 
-enum class Gradering {
-    STRENGT_FORTROLIG_ADRESSE,
-    STRENGT_FORTROLIG_UTLAND,
-    FORTROLIG_ADRESSE,
-    SKJERMING,
-    UGRADERT,
-    GEOGRAFISK,
-    ;
-
-    companion object {
-        fun from(pdlGradering: PdlGradering, avvistGrunn: AvvistGrunn?, erSkjermet: Boolean?): Gradering {
-            return when (pdlGradering) {
-                PdlGradering.FORTROLIG -> FORTROLIG_ADRESSE
-
-                PdlGradering.STRENGT_FORTROLIG -> STRENGT_FORTROLIG_ADRESSE
-
-                PdlGradering.STRENGT_FORTROLIG_UTLAND -> STRENGT_FORTROLIG_UTLAND
-
-                PdlGradering.UGRADERT -> {
-                    if (erSkjermet == true) {
-                        SKJERMING
-                    } else {
-                        when (avvistGrunn) {
-                            AvvistGrunn.AVVIST_SKJERMING,
-                            AvvistGrunn.AVVIST_HABILITET,
-                            AvvistGrunn.AVVIST_VERGE,
-                            AvvistGrunn.AVVIST_VERGEMAAL,
-                            AvvistGrunn.AVVIST_AVDOED,
-                            -> SKJERMING
-
-                            AvvistGrunn.AVVIST_STRENGT_FORTROLIG_ADRESSE,
-                            -> STRENGT_FORTROLIG_ADRESSE
-
-                            AvvistGrunn.AVVIST_STRENGT_FORTROLIG_UTLAND,
-                            -> STRENGT_FORTROLIG_UTLAND
-
-                            AvvistGrunn.AVVIST_FORTROLIG_ADRESSE,
-                            -> FORTROLIG_ADRESSE
-
-                            AvvistGrunn.AVVIST_GEOGRAFISK,
-                            AvvistGrunn.AVVIST_PERSON_UTLAND,
-                            AvvistGrunn.AVVIST_UKJENT_BOSTED,
-                            -> GEOGRAFISK
-
-                            null -> UGRADERT
-                        }
-                    }
+                    null -> Gradering.UGRADERT
                 }
             }
         }
     }
 }
 
-enum class AvvistGrunn {
-    AVVIST_STRENGT_FORTROLIG_ADRESSE,
-    AVVIST_STRENGT_FORTROLIG_UTLAND,
-    AVVIST_FORTROLIG_ADRESSE,
-    AVVIST_SKJERMING,
-    AVVIST_HABILITET,
-    AVVIST_VERGE,
-    AVVIST_GEOGRAFISK,
-    AVVIST_AVDOED,
-    AVVIST_VERGEMAAL,
-    AVVIST_PERSON_UTLAND,
-    AVVIST_UKJENT_BOSTED,
-    ;
-
-    companion object {
-        fun fromTilgangsmaskinResultat(resultat: TilgangsmaskinResult.Resultat): AvvistGrunn? {
-            return when (resultat) {
-                is TilgangsmaskinResult.Resultat.Innvilget -> null
-                is TilgangsmaskinResult.Resultat.Avvist -> AvvistGrunn.valueOf(resultat.grunn.name)
-            }
-        }
+fun AvvistGrunn.Companion.fromTilgangsmaskinResultat(resultat: TilgangsmaskinResult.Resultat): AvvistGrunn? {
+    return when (resultat) {
+        is TilgangsmaskinResult.Resultat.Innvilget -> null
+        is TilgangsmaskinResult.Resultat.Avvist -> AvvistGrunn.valueOf(resultat.grunn.name)
     }
 }
 

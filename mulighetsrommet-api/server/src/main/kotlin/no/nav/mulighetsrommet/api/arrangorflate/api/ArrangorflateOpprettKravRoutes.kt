@@ -42,6 +42,7 @@ import no.nav.mulighetsrommet.api.arrangorflate.service.beregningSatsPeriodeDeta
 import no.nav.mulighetsrommet.api.arrangorflate.service.deltakelseCommonCells
 import no.nav.mulighetsrommet.api.arrangorflate.service.deltakelseCommonColumns
 import no.nav.mulighetsrommet.api.domain.deltaker.Deltaker
+import no.nav.mulighetsrommet.api.domain.personalia.Personalia
 import no.nav.mulighetsrommet.api.domain.tiltak.PrismodellType
 import no.nav.mulighetsrommet.api.responses.PaginatedResponse
 import no.nav.mulighetsrommet.api.responses.ValidationError
@@ -52,7 +53,6 @@ import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsePeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.SatsPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
-import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.api.utbetaling.service.UtbetalingValidator
 import no.nav.mulighetsrommet.clamav.ClamAvClient
@@ -64,7 +64,6 @@ import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
 import no.nav.mulighetsrommet.model.DataDetails
 import no.nav.mulighetsrommet.model.DataDrivenTableDto
-import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.LabeledDataElement
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
@@ -73,6 +72,7 @@ import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
+import no.nav.mulighetsrommet.validation.FieldError
 import org.koin.ktor.ext.inject
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter

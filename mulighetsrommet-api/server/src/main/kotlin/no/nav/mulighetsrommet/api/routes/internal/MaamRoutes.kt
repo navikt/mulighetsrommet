@@ -18,7 +18,6 @@ import no.nav.mulighetsrommet.api.brukerutbetaling.BrukerUtbetalingService
 import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadGjennomforinger
 import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateGjennomforingAvtaleFreeTextSearch
 import no.nav.mulighetsrommet.api.navansatt.task.SynchronizeNavAnsatte
-import no.nav.mulighetsrommet.api.sanity.task.MigrerSanityTiltaksgjennomforinger
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.task.SendTilsagnsbrevSaga
 import no.nav.mulighetsrommet.api.tilskuddbehandling.task.DistribuerVedtaksbrev
@@ -59,7 +58,6 @@ fun Route.maamRoutes() {
     val sendTilsagnsbrevSaga: SendTilsagnsbrevSaga by inject()
     val distribuerVedtaksbrev: DistribuerVedtaksbrev by inject()
     val updateGjennomforingAvtaleFreeTextSearch: UpdateGjennomforingAvtaleFreeTextSearch by inject()
-    val migrerSanityTiltaksgjennomforinger: MigrerSanityTiltaksgjennomforinger by inject()
     val brukerUtbetalingService: BrukerUtbetalingService by inject()
 
     route("/api/intern/maam") {
@@ -205,11 +203,6 @@ fun Route.maamRoutes() {
             post("sync-gjennomforing-avtale-fts") {
                 val taskId = updateGjennomforingAvtaleFreeTextSearch.schedule()
                 call.respond(ScheduleTaskResponse(taskId))
-            }
-
-            post("migrer-sanity-tiltaksgjennomforinger") {
-                val taskId = migrerSanityTiltaksgjennomforinger.schedule()
-                call.respond(HttpStatusCode.Accepted, ScheduleTaskResponse(id = taskId))
             }
 
             post("hel-ved-utbetaling") {

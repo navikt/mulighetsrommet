@@ -62,12 +62,12 @@ import { TilskuddBehandlingFormPage } from "./pages/tilskudd-behandling/Tilskudd
 import { TilskuddBehandlingerPage } from "./pages/tilskudd-behandling/TilskuddBehandlingerPage";
 import { isProduction } from "./environment";
 import { TilskuddUtbetalingerForGjennomforingContainer } from "./pages/gjennomforing/utbetaling/TilskuddUtbetalingerForGjennomforingContainer";
-import { TiltakDokumenterPage } from "./pages/tiltak-dokument/TiltakDokumenterPage";
-import { OpprettTiltakDokumentPage } from "./pages/tiltak-dokument/OpprettTiltakDokumentPage";
-import { TiltakDokumentPage } from "./pages/tiltak-dokument/TiltakDokumentPage";
-import { TiltakDokumentDetaljer } from "./pages/tiltak-dokument/TiltakDokumentDetaljer";
-import { TiltakDokumentRedaksjoneltInnhold } from "./pages/tiltak-dokument/TiltakDokumentRedaksjoneltInnhold";
-import { RedigerTiltakDokumentPage } from "./pages/tiltak-dokument/RedigerTiltakDokumentPage";
+import { TiltakBeskrivelserPage } from "./pages/tiltak-beskrivelse/TiltakBeskrivelserPage";
+import { OpprettTiltakBeskrivelsePage } from "./pages/tiltak-beskrivelse/OpprettTiltakBeskrivelsePage";
+import { TiltakBeskrivelsePage } from "./pages/tiltak-beskrivelse/TiltakBeskrivelsePage";
+import { TiltakBeskrivelseDetaljer } from "./pages/tiltak-beskrivelse/TiltakBeskrivelseDetaljer";
+import { TiltakBeskrivelseRedaksjoneltInnhold } from "./pages/tiltak-beskrivelse/TiltakBeskrivelseRedaksjoneltInnhold";
+import { RedigerTiltakBeskrivelsePage } from "./pages/tiltak-beskrivelse/RedigerTiltakBeskrivelsePage";
 import { TilskuddPage } from "./pages/tilskudd/TilskuddPage";
 
 import { APPLICATION_NAME } from "./constants";
@@ -298,22 +298,22 @@ const routes: RouteObject[] = [
       }),
       route({ path: "arrangorer", element: <ArrangorerPage /> }),
       route({ path: "arrangorer/:arrangorId", element: <ArrangorPage /> }),
-      route({ path: "tiltak-dokumenter", element: <TiltakDokumenterPage /> }),
+      route({ path: "tiltak-beskrivelser", element: <TiltakBeskrivelserPage /> }),
       route({
-        path: "tiltak-dokumenter/opprett",
-        element: <OpprettTiltakDokumentPage />,
+        path: "tiltak-beskrivelser/opprett",
+        element: <OpprettTiltakBeskrivelsePage />,
       }),
       route({
-        path: "tiltak-dokumenter/:tiltakDokumentId",
-        element: <TiltakDokumentPage />,
+        path: "tiltak-beskrivelser/:tiltakBeskrivelseId",
+        element: <TiltakBeskrivelsePage />,
         children: [
-          { index: true, element: <TiltakDokumentDetaljer /> },
-          { path: "redaksjonelt-innhold", element: <TiltakDokumentRedaksjoneltInnhold /> },
+          { index: true, element: <TiltakBeskrivelseDetaljer /> },
+          { path: "redaksjonelt-innhold", element: <TiltakBeskrivelseRedaksjoneltInnhold /> },
         ],
       }),
       route({
-        path: "tiltak-dokumenter/:tiltakDokumentId/rediger",
-        element: <RedigerTiltakDokumentPage />,
+        path: "tiltak-beskrivelser/:tiltakBeskrivelseId/rediger",
+        element: <RedigerTiltakBeskrivelsePage />,
       }),
       route({
         path: "oppgaveoversikt",

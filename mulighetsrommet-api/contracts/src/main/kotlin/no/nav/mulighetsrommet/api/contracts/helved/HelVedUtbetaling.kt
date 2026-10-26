@@ -44,7 +44,7 @@ data class HelVedUtbetaling(
     val tiltakskode: Tiltakskode,
     /** Saksbehandleren som har opprettet utbetalingen */
     val saksbehandler: NavIdent,
-    /** Beslutteren som har attestert utbetalingen */
+    /** Beslutteren som har godkjent utbetalingen */
     val beslutter: NavIdent,
     /** Tidspunkt for besluttelse. Bruker ISO 8601-format. */
     @Serializable(with = InstantSerializer::class)

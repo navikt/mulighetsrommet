@@ -45,7 +45,7 @@
           "type": "paragraph",
           "words": [
             {
-              "text": "Du får dekket skolepenger for å gjennomføre tiltaket Høyere utdanning ved Underenhet 1 AS i perioden 01.01.2025 - 30.12.2025."
+              "text": "Du får dekket skolepenger for å gjennomføre tiltaket Høyere utdanning ved Underenhet 1 AS i perioden 01.01.2025 - 31.12.2025."
             }
           ]
         },
@@ -105,6 +105,110 @@
         "level": 3
       },
       "blocks": [
+        {
+          "type": "paragraph",
+          "words": [
+            {
+              "text": "Hvis du har fått utbetalt for mye, må du vanligvis betale tilbake pengene. Det er derfor viktig at du selv følger med på utbetalinger fra Nav og melder fra om eventuelle feil."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": {
+        "text": "Nav har innvilget semesteravgift for perioden 01.01.2024 - 30.06.2024.",
+        "level": 2
+      },
+      "blocks": [
+        {
+          "type": "paragraph",
+          "words": [
+            {
+              "text": "Beløp til utbetaling: 1000 NOK. Beløpet er beregnet ut fra mottatt faktura."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": {
+        "text": "Slik har vi vurdert saken din",
+        "level": 3
+      },
+      "blocks": [
+        {
+          "type": "paragraph",
+          "words": [
+            {
+              "text": "Du får dekket semesteravgift for å gjennomføre tiltaket Høyere utdanning ved Underenhet 1 AS i perioden 01.01.2025 - 31.12.2025."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "words": [
+            {
+              "text": "Vedtaket gjelder for perioden vi har mottatt faktura for. Hvis Nav skal gi tilskudd senere i utdanningsløpet, må du sende inn ny faktura når du mottar denne."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "words": [
+            {
+              "text": "Vedtaket er fattet med hjemmel i forskrift om arbeidsmarkedstiltak (tiltaksforskriften) § 7-5, jf. lov om arbeidsmarkedstjenester (arbeidsmarkedsloven) § 13."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": {
+        "text": "Når får du pengene?",
+        "level": 3
+      },
+      "blocks": [
+        {
+          "type": "paragraph",
+          "words": [
+            {
+              "text": "Pengene vil vanligvis utbetales til kontoen din etter to til tre virkedager.  "
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "words": [
+            {
+              "text": "Du kan se alle utbetalingene dine på nav.no/minside. Der kan du også endre kontonummer. Hvis du har reservert deg mot digital kommunikasjon fra det offentlige, får du utbetalingsmelding i posten. Du kan også melde fra om endring i kontonummer via post."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "words": [
+            {
+              "text": "Kontakt oss på telefon 55 55 33 33 hvis du trenger hjelp. "
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": {
+        "text": "Dine plikter",
+        "level": 3
+      },
+      "blocks": [
+        {
+          "type": "paragraph",
+          "words": [
+            {
+              "text": "Pengene skal kun brukes til å betale semesteravgift til Underenhet 1 AS. Hvis du bruker pengene til noe annet, vil Nav kunne avbryte tiltaket."
+            }
+          ]
+        },
         {
           "type": "paragraph",
           "words": [

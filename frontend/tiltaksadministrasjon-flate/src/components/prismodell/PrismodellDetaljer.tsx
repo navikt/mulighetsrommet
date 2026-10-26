@@ -7,7 +7,7 @@ import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { AvtaltSatsDto, PrismodellDto, PrismodellType } from "@tiltaksadministrasjon/api-client";
 import { formaterDato } from "@mr/frontend-common/utils/date";
 import { formaterValuta, formaterValutaBelop } from "@mr/frontend-common/utils/utils";
-import { ingenKostnaderAarsakToString, opplaeringTilskuddToString } from "@/utils/Utils";
+import { opplaeringTilskuddToString } from "@/utils/Utils";
 import { Definisjonsliste } from "@mr/frontend-common/components/definisjonsliste/Definisjonsliste";
 
 interface PrismodellDetaljerProps {
@@ -27,11 +27,11 @@ export function PrismodellDetaljer({ prismodell }: PrismodellDetaljerProps) {
     case PrismodellType.ANNEN_AVTALT_PRIS:
       return <AnnenAvtaltPris prismodell={prismodell} />;
     case PrismodellType.ANSKAFFET_ENKELTPLASS:
-      return <BetalingsbetingelserAnskaffelse prismodell={prismodell} />;
+      return <PrisOgBetalingsbetingelserAnskaffelse prismodell={prismodell} />;
     case PrismodellType.TILSKUDD_TIL_OPPLAERING:
-      return <BetalingsbetingelserTilskudd prismodell={prismodell} />;
+      return <PrisOgBetalingsbetingelserTilskudd prismodell={prismodell} />;
     case PrismodellType.INGEN_KOSTNADER:
-      return <BetalingsbetingelserIngenKostnader prismodell={prismodell} />;
+      return <PrisOgBetalingsbetingelserIngenKostnader prismodell={prismodell} />;
   }
 }
 
@@ -69,7 +69,7 @@ function AnnenAvtaltPris({ prismodell }: PrismodellDetaljerProps) {
   );
 }
 
-function BetalingsbetingelserAnskaffelse({ prismodell }: PrismodellDetaljerProps) {
+function PrisOgBetalingsbetingelserAnskaffelse({ prismodell }: PrismodellDetaljerProps) {
   return (
     <VStack gap="space-8">
       <Heading level="4" size="xsmall">
@@ -86,7 +86,7 @@ function BetalingsbetingelserAnskaffelse({ prismodell }: PrismodellDetaljerProps
   );
 }
 
-function BetalingsbetingelserTilskudd({ prismodell }: PrismodellDetaljerProps) {
+function PrisOgBetalingsbetingelserTilskudd({ prismodell }: PrismodellDetaljerProps) {
   const totalt = {
     belop: prismodell.tilskudd.reduce((acc, t) => t.belop.belop + acc, 0),
     valuta: prismodell.valuta,
@@ -131,25 +131,17 @@ function BetalingsbetingelserTilskudd({ prismodell }: PrismodellDetaljerProps) {
   );
 }
 
-function BetalingsbetingelserIngenKostnader({ prismodell }: PrismodellDetaljerProps) {
+function PrisOgBetalingsbetingelserIngenKostnader({ prismodell }: PrismodellDetaljerProps) {
   return (
     <VStack gap="space-8">
       <Heading level="4" size="xsmall">
         Ingen kostnader
       </Heading>
-      <BodyShort>Ikke aktuelt med betaling eller refusjon fra Nav</BodyShort>
-      {prismodell.aarsak && (
-        <>
-          <Heading level="4" size="xsmall">
-            Årsaken til at det ikke er aktuelt med betaling eller refusjon fra Nav
-          </Heading>
-          <BodyShort>{ingenKostnaderAarsakToString(prismodell.aarsak)}</BodyShort>
-        </>
-      )}
+      <BodyShort>Nav skal ikke betale for opplæringen</BodyShort>
       {prismodell.prisbetingelser && (
         <>
           <Heading level="4" size="xsmall">
-            Tilleggsopplysninger om egenfinansieringen
+            Tilleggsopplysninger
           </Heading>
           <BodyShort>{prismodell.prisbetingelser}</BodyShort>
         </>
@@ -194,5 +186,10 @@ function PrismodellSatser({ satser }: { satser: AvtaltSatsDto[] | null }) {
 }
 
 function PrismodellPrisbetingelser({ prisbetingelser }: { prisbetingelser: string | null }) {
-  return <MetadataFritekstfelt label={avtaletekster.prisOgBetalingLabel} value={prisbetingelser} />;
+  return (
+    <MetadataFritekstfelt
+      label={avtaletekster.prisOgBetalingsbetingelserLabel}
+      value={prisbetingelser}
+    />
+  );
 }

@@ -92,6 +92,7 @@ private fun ExcelWorkbookBuilder.createAvtalerSheet(
         "Tiltaksarrangør orgnr",
         "Startdato",
         "Sluttdato",
+        "AvtaleId",
     )
 
     result.forEach { avtale ->
@@ -104,6 +105,7 @@ private fun ExcelWorkbookBuilder.createAvtalerSheet(
                 avtale.arrangor?.organisasjonsnummer?.value,
                 avtale.startDato.formaterDatoTilEuropeiskDatoformat(),
                 avtale.sluttDato?.formaterDatoTilEuropeiskDatoformat(),
+                avtale.id,
             )
         }
     }

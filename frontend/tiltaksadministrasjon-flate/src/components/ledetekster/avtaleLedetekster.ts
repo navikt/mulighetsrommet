@@ -16,7 +16,7 @@ export const avtaletekster = {
     return "Sluttdato";
   },
   maksVarighetLabel: "Maks varighet inkl. opsjon",
-  prisOgBetalingLabel: "Pris- og betalingsbetingelser",
+  prisOgBetalingsbetingelserLabel: "Pris og betalingsbetingelser",
   administratorerForAvtalenLabel: "Administratorer for avtalen",
   ingenAdministratorerSattLabel: "Ingen administratorer satt for avtalen",
   sakarkivNummerLabel: "Saksnummer til Avtalesaken i Public 360",
@@ -44,7 +44,7 @@ export const avtaletekster = {
   },
   prismodell: {
     label: "Prismodell",
-    heading: "Betalingsbetingelser",
+    heading: "Pris og betalingsbetingelser",
     valuta: {
       label: "Valuta",
     },

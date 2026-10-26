@@ -11,9 +11,12 @@ import io.kotest.matchers.shouldBe
 import io.mockk.mockk
 import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.admin.arrangor.SyncArrangorUseCase
+import no.nav.mulighetsrommet.admin.gjennomforing.GjennomforingAvtaleService
+import no.nav.mulighetsrommet.admin.gjennomforing.GjennomforingEnkeltplassService
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
 import no.nav.mulighetsrommet.api.ApplicationConfigTest
 import no.nav.mulighetsrommet.api.contracts.gjennomforing.TiltaksgjennomforingV2Dto
+import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingAvtaleStatus
 import no.nav.mulighetsrommet.api.domain.testing.fixture.ArrangorFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.AvtaleFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavEnhetFixtures
@@ -21,10 +24,8 @@ import no.nav.mulighetsrommet.api.domain.testing.fixture.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeFeature
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleStatus
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingArenaService
-import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingAvtaleService
-import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingEnkeltplassService
+import no.nav.mulighetsrommet.api.gjennomforing.service.PersonaliaServicePort
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.arena.ArenaGjennomforingDbo
 import no.nav.mulighetsrommet.arena.Avslutningsstatus
@@ -51,12 +52,12 @@ class ArenaAdapterServiceTest : FunSpec({
             arrangor = SyncArrangorUseCase(database.admin, mockk()),
             tiltakstypeService = tiltakstypeService,
             gjennomforingEnkeltplassService = GjennomforingEnkeltplassService(
-                database.api,
-                personaliaService,
+                database.admin,
+                PersonaliaServicePort(personaliaService),
                 tiltakstypeService,
             ),
             gjennomforingAvtaleService = GjennomforingAvtaleService(
-                db = database.api,
+                db = database.admin,
                 navAnsattService = mockk(),
             ),
             gjennomforingArenaService = GjennomforingArenaService(
@@ -104,13 +105,13 @@ class ArenaAdapterServiceTest : FunSpec({
             }
         }
 
-        test("should save egen regi-tiltak as tiltak_dokument") {
+        test("should save egen regi-tiltak as tiltak_beskrivelse") {
             val service = createArenaAdapterService()
 
             service.upsertTiltaksgjennomforing(gjennomforing)
 
             database.run {
-                queries.tiltakDokument.get(gjennomforing.id).shouldNotBeNull().should {
+                queries.tiltakBeskrivelse.get(gjennomforing.id).shouldNotBeNull().should {
                     it.id shouldBe gjennomforing.id
                     it.navn shouldBe gjennomforing.navn
                     it.tiltaksnummer shouldBe gjennomforing.tiltaksnummer
@@ -125,13 +126,13 @@ class ArenaAdapterServiceTest : FunSpec({
             service.upsertTiltaksgjennomforing(gjennomforing)
 
             database.run {
-                queries.tiltakDokument.get(gjennomforing.id).shouldNotBeNull()
+                queries.tiltakBeskrivelse.get(gjennomforing.id).shouldNotBeNull()
             }
 
-            service.deleteTiltakDokument(gjennomforing.id)
+            service.deleteTiltakBeskrivelse(gjennomforing.id)
 
             database.run {
-                queries.tiltakDokument.get(gjennomforing.id).shouldBeNull()
+                queries.tiltakBeskrivelse.get(gjennomforing.id).shouldBeNull()
             }
         }
 

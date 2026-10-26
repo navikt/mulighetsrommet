@@ -1,5 +1,44 @@
 import { describe, expect, test } from "vitest";
-import { capitalizeEveryWord, kalkulerStatusBasertPaaFraOgTilDato } from "./Utils";
+import {
+  capitalizeEveryWord,
+  getValidationError,
+  kalkulerStatusBasertPaaFraOgTilDato,
+} from "./Utils";
+
+describe("Utils - getValidationError", () => {
+  const errors = [{ pointer: "/tilskudd/0/soknadDato", detail: "Søknadsdato er påkrevd" }];
+
+  test("normalizes validation errors returned at the top level", () => {
+    expect(
+      getValidationError({
+        type: "validation-error",
+        title: "Validation error",
+        status: 400,
+        detail: "Unknown Validation Error",
+        errors,
+      })?.errors,
+    ).toEqual(errors);
+  });
+
+  test("normalizes validation errors nested under extensions", () => {
+    expect(
+      getValidationError({
+        type: "validation-error",
+        title: "Validation error",
+        status: 400,
+        detail: "Unknown Validation Error",
+        extensions: { errors },
+      })?.errors,
+    ).toEqual(errors);
+  });
+
+  test("does not treat malformed or unrelated errors as validation errors", () => {
+    expect(
+      getValidationError({ status: 400, errors: [{ message: "Bad request" }] }),
+    ).toBeUndefined();
+    expect(getValidationError({ status: 500, extensions: { errors } })).toBeUndefined();
+  });
+});
 
 describe("Utils - kalkulerStatusBasertPaaFraOgTilDato", () => {
   test("Skal returnere status 'Aktiv' når nå er større eller lik fra-dato og nå er mindre eller lik til-dato", () => {

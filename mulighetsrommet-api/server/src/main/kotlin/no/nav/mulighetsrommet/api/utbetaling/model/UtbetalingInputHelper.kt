@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.api.utbetaling.model
 
 import no.nav.mulighetsrommet.api.domain.deltaker.Deltaker
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
+import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingAvtale
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.Periode
 import java.time.LocalDate

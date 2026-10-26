@@ -16,5 +16,7 @@ interface TotrinnskontrollQueryHandler {
     // TODO: saneres etter at Aggregate-modeller som er avhengig av totrinnskontroll har blitt flyttet til domain
     fun upsert(totrinnskontroll: Totrinnskontroll)
     fun get(entityId: UUID, type: TotrinnskontrollType): Totrinnskontroll?
+    fun getById(id: UUID): Totrinnskontroll
+    fun findById(id: UUID): Totrinnskontroll?
     fun getOrError(entityId: UUID, type: TotrinnskontrollType): Totrinnskontroll
 }

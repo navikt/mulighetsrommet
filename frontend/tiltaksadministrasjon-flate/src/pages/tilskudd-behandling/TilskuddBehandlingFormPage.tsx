@@ -1,58 +1,56 @@
-import { useOpprettTilskuddBehandling } from "@/api/tilskudd-behandling/mutations";
-import { TabWithErrorBorder } from "@/components/skjema/TabWithErrorBorder";
-import { ValideringsfeilOppsummering } from "@/components/skjema/ValideringsfeilOppsummering";
+import {
+  useOpprettTilskuddBehandling,
+  useValidateSaksopplysninger,
+  useValidateTilskuddBehandling,
+} from "@/api/tilskudd-behandling/mutations";
 import { defaultTilskuddRequest } from "@/components/tilskudd-behandling/defaultTilskuddRequest";
 import { SaksopplysningerForm } from "@/components/tilskudd-behandling/SaksopplysningerForm";
 import { VedtakForm } from "@/components/tilskudd-behandling/VedtakForm";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
 import { TilskuddBehandlingRequest, ValidationError } from "@tiltaksadministrasjon/api-client";
-import { Box, Button, Heading, HStack, Tabs } from "@navikt/ds-react";
-import { ReactElement, useState } from "react";
-import { FormProvider, useForm } from "react-hook-form";
+import { Box } from "@navikt/ds-react";
 import { useNavigate, useParams } from "react-router";
 import { v4 } from "uuid";
-import {
-  TilskuddBehandlingLayout,
-  TilskuddBehandlingTab,
-} from "@/components/tilskudd-behandling/TilskuddBehandlingLayout";
-import { usePotentialTilskuddBehandling } from "@/api/tilskudd-behandling/useTilskuddBehandling";
+import { TilskuddBehandlingLayout } from "@/components/tilskudd-behandling/TilskuddBehandlingLayout";
+import { useTilskuddBehandling } from "@/api/tilskudd-behandling/useTilskuddBehandling";
 import { subDuration, yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
 import { useEnkeltplassGjennomforingOrError } from "@/api/gjennomforing/useGjennomforing";
 import { TotrinnskontrollReturnert } from "@/components/totrinnskontroll/TotrinnskontrollReturnert";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
-import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
 import { applyValidationErrors } from "@/components/skjema/helpers";
-import { CalculatorIcon, FilePdfIcon, PersonRectangleIcon } from "@navikt/aksel-icons";
-import { VedtaksbrevPdfModal } from "@/components/tilskudd-behandling/VedtaksbrevPdfModal";
-import { useVedtaksbrevPdfBlobPost } from "@/api/tilskudd-behandling/useVedtaksbrevPdfBlob";
-import { PrismodellDetaljer } from "@/components/prismodell/PrismodellDetaljer";
-
-interface Tab {
-  key: TilskuddBehandlingTab;
-  label: string;
-  icon: ReactElement;
-}
-
-const tabs: Tab[] = [
-  {
-    key: "saksopplysninger",
-    label: "Saksopplysninger",
-    icon: <PersonRectangleIcon fontSize="1.5rem" />,
-  },
-  { key: "vedtak", label: "Vedtak og beregning", icon: <CalculatorIcon fontSize="1.5rem" /> },
-];
+import { PrisOgBetalingsbetingelser } from "@/components/prismodell/PrisOgBetalingsbetingelser";
+import { WizardStep } from "@/hooks/useWizardForm";
+import { WizardForm } from "@/components/skjema/WizardForm";
+import { saksopplysningerSchema, vedtakSchema } from "@/components/tilskudd-behandling/validation";
+import { Vedtaksbrev } from "@/components/tilskudd-behandling/Vedtaksbrev";
+import z from "zod";
 
 export function TilskuddBehandlingFormPage() {
+  const { behandlingId } = useParams();
+  return behandlingId ? (
+    <RedigerTilskuddBehandling behandlingId={behandlingId} />
+  ) : (
+    <TilskuddBehandlingForm data={undefined} />
+  );
+}
+
+function RedigerTilskuddBehandling({ behandlingId }: { behandlingId: string }) {
+  const { data } = useTilskuddBehandling(behandlingId);
+  return <TilskuddBehandlingForm data={data} />;
+}
+
+function TilskuddBehandlingForm({
+  data,
+}: {
+  data: ReturnType<typeof useTilskuddBehandling>["data"] | undefined;
+}) {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
   const { gjennomforing, prismodell } = useEnkeltplassGjennomforingOrError(gjennomforingId);
-  const { behandlingId } = useParams();
-  const { data } = usePotentialTilskuddBehandling(behandlingId ?? null);
   const behandling = data?.behandling;
-  const [currentTab, setCurrentTab] = useState<TilskuddBehandlingTab>(tabs[0].key);
   const navigate = useNavigate();
   const mutation = useOpprettTilskuddBehandling(gjennomforingId);
-  const vedtaksbrevMutation = useVedtaksbrevPdfBlobPost();
-  const [pdfPreviewOpen, setPdfPreviewOpen] = useState(false);
+  const mutationValidationSaksopplysninger = useValidateSaksopplysninger();
+  const mutationValidationBehandling = useValidateTilskuddBehandling();
 
   const defaultValues: TilskuddBehandlingRequest = behandling
     ? {
@@ -70,6 +68,7 @@ export function TilskuddBehandlingFormPage() {
           utbetalingMottaker: t.utbetalingMottaker,
           belop: t.utbetalingBelop?.belop ?? null,
           kidNummer: t.kid,
+          brukerUtbetalingType: t.brukerUtbetalingType,
           soknadJournalpostId: t.soknadJournalpostId,
           kostnadssted: t.kostnadssted.enhetsnummer,
           soknadDato: t.soknadDato,
@@ -79,168 +78,87 @@ export function TilskuddBehandlingFormPage() {
     : {
         id: v4(),
         gjennomforingId,
-        tilskudd: [defaultTilskuddRequest()],
+        tilskudd: [defaultTilskuddRequest(gjennomforing.ansvarligEnhet.enhetsnummer)],
       };
-
-  const form = useForm<TilskuddBehandlingRequest>({
-    defaultValues,
-    mode: "onBlur",
-  });
-
-  const {
-    handleSubmit,
-    formState: { errors },
-  } = form;
-
-  const currentTabIndex = tabs.findIndex((tab) => tab.key === currentTab);
-  const isFirstTab = currentTabIndex === 0;
-  const isLastTab = currentTabIndex === tabs.length - 1;
-
-  const goToPreviousTab = () => {
-    if (!isFirstTab) {
-      setCurrentTab(tabs[currentTabIndex - 1].key);
-    }
-  };
-
-  const goToNextTab = () => {
-    if (!isLastTab) {
-      setCurrentTab(tabs[currentTabIndex + 1].key);
-    }
-  };
 
   const listUrl = `/gjennomforinger/${gjennomforingId}/tilskudd-behandling`;
 
-  const onSubmit = handleSubmit((data) => {
-    mutation.mutate(data, {
-      onSuccess: () => navigate(listUrl),
-      onValidationError: (error: ValidationError) => applyValidationErrors(form, error),
-    });
-  });
+  const retunert = data?.opprettelse && (
+    <Box marginBlock="space-0 space-16">
+      <TotrinnskontrollReturnert
+        heading="Behandlingen ble returnert"
+        opprettelse={data.opprettelse}
+      />
+    </Box>
+  );
+  const saksopplysningerSteg: WizardStep<TilskuddBehandlingRequest> = {
+    key: "Saksopplysninger",
+    schema: saksopplysningerSchema,
+    validateAsync: (data) => mutationValidationSaksopplysninger.mutateAsync(data),
+    Component: (
+      <>
+        {retunert}
+        <TwoColumnGrid separator>
+          <Box>
+            <SaksopplysningerForm
+              arrangorId={gjennomforing.arrangor.id}
+              ansvarligEnhet={gjennomforing.ansvarligEnhet}
+            />
+          </Box>
+          <Box>
+            <PrisOgBetalingsbetingelser prismodell={prismodell} size="medium" />
+          </Box>
+        </TwoColumnGrid>
+      </>
+    ),
+  };
+  const vedtakOgBeregningSteg: WizardStep<TilskuddBehandlingRequest> = {
+    key: "Vedtak og beregning",
+    schema: vedtakSchema,
+    validateAsync: (data) => mutationValidationBehandling.mutateAsync(data),
+    Component: (
+      <>
+        {retunert}
+        <TwoColumnGrid separator>
+          <Box>
+            <VedtakForm arrangorId={gjennomforing.arrangor.id} />
+          </Box>
+          <Box>
+            <PrisOgBetalingsbetingelser prismodell={prismodell} size="medium" />
+          </Box>
+        </TwoColumnGrid>
+      </>
+    ),
+  };
 
-  const onVisVedtaksbrev = handleSubmit((data) => {
-    vedtaksbrevMutation.mutate(data, {
-      onSuccess: () => setPdfPreviewOpen(true),
-      onValidationError: (error: ValidationError) => applyValidationErrors(form, error),
-    });
-  });
+  const vedtaksbrevSteg: WizardStep<TilskuddBehandlingRequest> = {
+    key: "Vedtaksbrev",
+    schema: z.object({
+      ...saksopplysningerSchema.shape,
+      ...vedtakSchema.shape,
+    }),
+    Component: <Vedtaksbrev />,
+  };
 
-  function tabHasErrors(tab: Tab): boolean {
-    const vedtakFields = ["vedtakResultat", "kommentarVedtaksbrev"];
-    const allVedtakErrors = Array.isArray(errors.tilskudd)
-      ? errors.tilskudd.flatMap((v) => Object.keys(v ?? {}))
-      : [];
-
-    switch (tab.key) {
-      case "vedtak":
-        return Array.isArray(errors.tilskudd)
-          ? errors.tilskudd.some((v) => vedtakFields.some((field) => field in (v ?? {})))
-          : false;
-      case "saksopplysninger":
-        return (
-          Object.keys(errors).some((field) => field !== "tilskudd") ||
-          allVedtakErrors.some((field) => !vedtakFields.includes(field))
-        );
-    }
-  }
+  const wizardLabels = {
+    submit: "Send til godkjenning",
+  };
 
   return (
-    <FormProvider {...form}>
-      <VedtaksbrevPdfModal
-        blob={vedtaksbrevMutation.data}
-        isLoading={vedtaksbrevMutation.isPending}
-        isError={vedtaksbrevMutation.isError}
-        open={pdfPreviewOpen}
-        onClose={() => setPdfPreviewOpen(false)}
+    <TilskuddBehandlingLayout gjennomforingId={gjennomforingId}>
+      <WizardForm<TilskuddBehandlingRequest>
+        steps={[saksopplysningerSteg, vedtakOgBeregningSteg, vedtaksbrevSteg]}
+        defaultValues={defaultValues}
+        onCancel={() => navigate(listUrl)}
+        onSubmit={(data, form) => {
+          mutation.mutate(data, {
+            onSuccess: () => navigate(listUrl),
+            onValidationError: (error: ValidationError) => applyValidationErrors(form, error),
+          });
+        }}
+        isSubmitting={mutation.isPending}
+        labels={wizardLabels}
       />
-      <form onSubmit={onSubmit}>
-        <TilskuddBehandlingLayout gjennomforingId={gjennomforingId}>
-          {data?.opprettelse && (
-            <Box marginBlock="space-0 space-16">
-              <TotrinnskontrollReturnert
-                heading="Behandlingen ble returnert"
-                opprettelse={data.opprettelse}
-              />
-            </Box>
-          )}
-          <Tabs
-            value={currentTab}
-            onChange={(value) => setCurrentTab(value as TilskuddBehandlingTab)}
-          >
-            <Tabs.List>
-              {tabs.map((tab) => (
-                <TabWithErrorBorder
-                  key={tab.key}
-                  onClick={() => {}}
-                  value={tab.key}
-                  label={tab.label}
-                  hasError={tabHasErrors(tab)}
-                  icon={tab.icon}
-                />
-              ))}
-              {currentTab === "vedtak" && (
-                <Button
-                  className="ml-auto"
-                  variant="tertiary"
-                  size="small"
-                  type="button"
-                  onClick={onVisVedtaksbrev}
-                  disabled={vedtaksbrevMutation.isPending}
-                  icon={<FilePdfIcon aria-hidden />}
-                >
-                  Vis vedtaksbrev
-                </Button>
-              )}
-            </Tabs.List>
-            <Box marginBlock="space-16">
-              <TwoColumnGrid separator>
-                <Box>
-                  <Tabs.Panel value="saksopplysninger">
-                    <SaksopplysningerForm arrangorId={gjennomforing.arrangor.id} />
-                  </Tabs.Panel>
-                  <Tabs.Panel value="vedtak">
-                    <VedtakForm />
-                  </Tabs.Panel>
-                </Box>
-                <Box>
-                  <Heading level="3" size="medium" spacing>
-                    Pris og betalingsbetingelser
-                  </Heading>
-                  <PrismodellDetaljer prismodell={prismodell} />
-                </Box>
-              </TwoColumnGrid>
-            </Box>
-          </Tabs>
-          <Separator />
-          <HStack gap="space-8" marginBlock="space-16" justify="end">
-            {isFirstTab ? (
-              <Button
-                variant="tertiary"
-                size="small"
-                type="button"
-                onClick={() => navigate(listUrl)}
-              >
-                Avbryt
-              </Button>
-            ) : (
-              <Button variant="tertiary" size="small" type="button" onClick={goToPreviousTab}>
-                Tilbake
-              </Button>
-            )}
-            {isLastTab ? (
-              <HStack gap="space-4" align="center">
-                <ValideringsfeilOppsummering />
-                <Button variant="primary" size="small" type="submit" disabled={mutation.isPending}>
-                  {mutation.isPending ? "Sender til attestering..." : "Send til attestering"}
-                </Button>
-              </HStack>
-            ) : (
-              <Button variant="primary" size="small" type="button" onClick={goToNextTab}>
-                Neste
-              </Button>
-            )}
-          </HStack>
-        </TilskuddBehandlingLayout>
-      </form>
-    </FormProvider>
+    </TilskuddBehandlingLayout>
   );
 }

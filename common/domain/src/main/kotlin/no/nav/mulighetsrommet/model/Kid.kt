@@ -2,7 +2,7 @@ package no.nav.mulighetsrommet.model
 
 import kotlinx.serialization.Serializable
 
-private val KID_REGEX = "^\\d{2,24}\\d|-?$".toRegex()
+private val KID_REGEX = "^\\d{2,24}[\\d-]$".toRegex()
 
 @Serializable
 @JvmInline
@@ -10,14 +10,19 @@ value class Kid private constructor(val value: String) {
 
     companion object {
         fun parse(kid: String): Kid? {
+            val normalizedKid = kid.trim()
+            if (normalizedKid.isEmpty()) {
+                return null
+            }
+
             return if (
-                KID_REGEX.matches(kid) &&
+                KID_REGEX.matches(normalizedKid) &&
                 (
-                    Modulus.hasValidControlDigit(kid, Modulus.Algorithm.MOD10) ||
-                        Modulus.hasValidControlDigit(kid, Modulus.Algorithm.MOD11)
+                    Modulus.hasValidControlDigit(normalizedKid, Modulus.Algorithm.MOD10) ||
+                        Modulus.hasValidControlDigit(normalizedKid, Modulus.Algorithm.MOD11)
                     )
             ) {
-                Kid(kid)
+                Kid(normalizedKid)
             } else {
                 null
             }

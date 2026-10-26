@@ -20,7 +20,6 @@ object PrismodellFixtures {
         tilsagnPerDeltaker: Boolean? = false,
         totalbelop: Int? = null,
         tilskudd: Map<Opplaeringtilskudd.Kode, Int>? = null,
-        aarsak: String? = null,
     ): Prismodell = Prismodell.from(
         type = type,
         id = id,
@@ -30,7 +29,6 @@ object PrismodellFixtures {
         tilsagnPerDeltaker = tilsagnPerDeltaker,
         totalbelop = totalbelop,
         tilskudd = tilskudd,
-        aarsak = aarsak,
     )
 
     val ForhandsgodkjentAft = Prismodell.FastSatsPerBenyttetPlassPerManed(

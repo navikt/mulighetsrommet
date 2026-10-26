@@ -4,9 +4,9 @@ import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.admin.navenhet.Kontorstruktur
-import no.nav.mulighetsrommet.admin.navenhet.NavEnhetDto
-import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingType
+import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingType
+import no.nav.mulighetsrommet.api.domain.navenhet.Kontorstruktur
+import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetDto
 import no.nav.mulighetsrommet.api.persistence.avtale.createArrayOfAvtaleStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatus
@@ -67,6 +67,11 @@ class OppgaveQueries(private val session: Session) {
             ) okonomi ON okonomi.entity_id = gjennomforing.id
             WHERE gjennomforing.gjennomforing_type = 'ENKELTPLASS'
                 AND coalesce(prisendring.status, okonomi.status) = 'TIL_BEHANDLING'
+                AND EXISTS (
+                    SELECT 1
+                    FROM deltaker
+                    WHERE deltaker.gjennomforing_id = gjennomforing.id
+                )
                 AND (:tiltakskoder::text[] IS NULL OR tiltakstype.tiltakskode = ANY(:tiltakskoder))
                 AND (:nav_enheter::text[] IS NULL OR gjennomforing.ansvarlig_enhet = ANY(:nav_enheter))
                 AND (:arrangorer::uuid[] IS NULL OR arrangor.id = ANY(:arrangorer))
@@ -385,7 +390,7 @@ class OppgaveQueries(private val session: Session) {
                 gjennomforing.gjennomforing_type,
                 tiltakstype.navn as tiltakstype_navn,
                 tiltakstype.tiltakskode as tiltakstype_tiltakskode,
-                ks.kostnadssteder,
+                coalesce(ks.kostnadssteder, enheter.enheter) as kostnadssteder,
                 arrangor.navn as arrangor_navn,
                 arrangor.id as arrangor_id,
                 arrangor.organisasjonsnummer as arrangor_organisasjonsnummer,
@@ -401,6 +406,11 @@ class OppgaveQueries(private val session: Session) {
                     where tilsagn.gjennomforing_id = utbetaling.gjennomforing_id
                       and tilsagn.periode && utbetaling.periode
                 ) ks on true
+                left join lateral (
+                    select array_agg(gjennomforing_nav_enhet.enhetsnummer) as enheter
+                    from gjennomforing_nav_enhet
+                    where gjennomforing_nav_enhet.gjennomforing_id = utbetaling.gjennomforing_id
+                ) enheter on true
                 left join lateral (
                     select
                         t.behandlet_tidspunkt as avbrytelse_behandlet_tidspunkt,
@@ -614,7 +624,7 @@ class OppgaveQueries(private val session: Session) {
                     order by entity_id, behandlet_tidspunkt desc
                 ) tk on tk.entity_id = tb.id
             where
-                tb.status in ('TIL_ATTESTERING', 'RETURNERT')
+                tb.status in ('TIL_GODKJENNING', 'RETURNERT')
                 and (:tiltakskoder::text[] is null or tiltakstype.tiltakskode = any(:tiltakskoder))
                 and (:kostnadssteder::text[] is null or tv.kostnadssted = any(:kostnadssteder))
                 and (:arrangorer::uuid[] is null or arrangor.id = any(:arrangorer))

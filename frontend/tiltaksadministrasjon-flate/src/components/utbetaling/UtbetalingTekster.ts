@@ -51,7 +51,7 @@ export const utbetalingTekster = {
         label: "Avbryt utbetalingskrav",
       },
       godkjenn: {
-        label: "Bekreft avbrytelse",
+        label: "Godkjenn avbrytelse",
       },
       avsla: {
         label: "Avslå avbrytelse",
@@ -92,10 +92,10 @@ export const utbetalingTekster = {
         return `Opprett ${typeTekst}`;
       },
       hentGodkjenteTilsagn: "Hent godkjente tilsagn",
-      sendTilAttestering: "Send til attestering",
+      sendTilGodkjenning: "Send til godkjenning",
       fjern: "Fjern",
       returner: "Send i retur",
-      attester: "Attester",
+      godkjenn: "Godkjenn",
     },
     aarsak: {
       modal: {
@@ -122,7 +122,7 @@ export const utbetalingTekster = {
       checkbox: {
         label: "Gjør opp tilsagn",
         helpText:
-          "Hvis du huker av for å gjøre opp tilsagnet, betyr det at det ikke kan gjøres flere utbetalinger på tilsagnet etter at denne utbetalingen er attestert",
+          "Hvis du huker av for å gjøre opp tilsagnet, betyr det at det ikke kan gjøres flere utbetalinger på tilsagnet etter at denne utbetalingen er godkjent",
       },
     },
     belop: {

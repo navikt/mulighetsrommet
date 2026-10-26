@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.api.utbetaling.mapper
 
-import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingType
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
+import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingAvtale
+import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingType
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregning
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType

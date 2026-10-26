@@ -5,13 +5,12 @@ import arrow.core.left
 import arrow.core.nel
 import arrow.core.right
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.admin.totrinnskontroll.toFieldErrors
 import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsinformasjon
+import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingType
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.Totrinnskontroll
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
-import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingType
-import no.nav.mulighetsrommet.api.totrinnskontroll.api.toFieldErrors
 import no.nav.mulighetsrommet.model.Agent
-import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.JournalpostId
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
@@ -22,6 +21,7 @@ import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.serializers.InstantSerializer
 import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
+import no.nav.mulighetsrommet.validation.FieldError
 import no.nav.tiltak.okonomi.Tilskuddstype
 import java.time.Instant
 import java.time.LocalDateTime
@@ -73,6 +73,9 @@ data class Utbetaling(
         aarsaker: List<String>,
         begrunnelse: String?,
     ): Either<List<FieldError>, Utbetaling> {
+        if (gjelderEnkeltplass()) {
+            return FieldError.of("Utbetaling for enkeltplass kan ikke avbrytes").nel().left()
+        }
         if (!kanSettesTilAvbrytelse()) {
             return FieldError.of("Utbetaling kan ikke settes til avbrytelse").nel().left()
         }
@@ -141,7 +144,7 @@ data class Utbetaling(
         -> true
 
         UtbetalingStatusType.GENERERT,
-        UtbetalingStatusType.TIL_ATTESTERING,
+        UtbetalingStatusType.TIL_GODKJENNING,
         UtbetalingStatusType.FERDIG_BEHANDLET,
         UtbetalingStatusType.DELVIS_UTBETALT,
         UtbetalingStatusType.UTBETALT,
@@ -159,7 +162,7 @@ data class Utbetaling(
         UtbetalingStatusType.RETURNERT,
         UtbetalingStatusType.TIL_BEHANDLING,
         UtbetalingStatusType.GENERERT,
-        UtbetalingStatusType.TIL_ATTESTERING,
+        UtbetalingStatusType.TIL_GODKJENNING,
         UtbetalingStatusType.TIL_AVBRYTELSE,
         UtbetalingStatusType.AVBRUTT,
         -> false
@@ -170,23 +173,33 @@ data class Utbetaling(
 
     fun erKorreksjon(): Boolean = korreksjon != null
 
-    fun kanSettesTilAvbrytelse(): Boolean = !erKorreksjon() && when (status) {
-        UtbetalingStatusType.GENERERT,
-        UtbetalingStatusType.TIL_BEHANDLING,
-        UtbetalingStatusType.RETURNERT,
-        -> true
+    fun kanRedigeres(): Boolean = erTilBehandling() && !erInnsending()
 
-        UtbetalingStatusType.TIL_AVBRYTELSE,
-        UtbetalingStatusType.AVBRUTT,
-        UtbetalingStatusType.FERDIG_BEHANDLET,
-        UtbetalingStatusType.UTBETALT,
-        UtbetalingStatusType.DELVIS_UTBETALT,
-        UtbetalingStatusType.TIL_ATTESTERING,
-        -> false
+    fun kanSlettes(): Boolean = erTilBehandling() && (erKorreksjon() || gjelderEnkeltplass())
+
+    fun kanSettesTilAvbrytelse(): Boolean {
+        return !(erKorreksjon() || gjelderEnkeltplass()) && when (status) {
+            UtbetalingStatusType.GENERERT,
+            UtbetalingStatusType.TIL_BEHANDLING,
+            UtbetalingStatusType.RETURNERT,
+            -> true
+
+            UtbetalingStatusType.TIL_AVBRYTELSE,
+            UtbetalingStatusType.AVBRUTT,
+            UtbetalingStatusType.FERDIG_BEHANDLET,
+            UtbetalingStatusType.UTBETALT,
+            UtbetalingStatusType.DELVIS_UTBETALT,
+            UtbetalingStatusType.TIL_GODKJENNING,
+            -> false
+        }
     }
 
     fun getTiltaksnavn(): String {
         return "${tiltakstype.navn} (${gjennomforing.lopenummer.value})"
+    }
+
+    private fun gjelderEnkeltplass(): Boolean {
+        return gjennomforing.type == GjennomforingType.ENKELTPLASS
     }
 
     @Serializable

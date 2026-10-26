@@ -33,6 +33,7 @@ from tilskudd_behandling tb
                                     'kommentarVedtaksbrev', v.kommentar_vedtaksbrev,
                                     'utbetalingMottaker', v.utbetaling_mottaker,
                                     'kid', v.kid,
+                                    'bruker_utbetaling_type', v.bruker_utbetaling_type,
                                     'kommentarIntern', v.kommentar_intern,
                                     'behandlendeEnhet', tb.behandlende_enhet,
                                     'vedtakJournalpostId', v.vedtak_journalpost_id,

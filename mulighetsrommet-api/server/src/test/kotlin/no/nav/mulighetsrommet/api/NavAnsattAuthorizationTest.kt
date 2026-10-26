@@ -42,10 +42,22 @@ class NavAnsattAuthorizationTest : FunSpec({
         oauth.shutdown()
     }
 
-    val teamMulighetsrommet = EntraGroupNavAnsattRolleMapping(UUID.randomUUID(), Rolle.TEAM_MULIGHETSROMMET)
-    val generell = EntraGroupNavAnsattRolleMapping(UUID.randomUUID(), Rolle.TILTAKADMINISTRASJON_GENERELL)
-    val saksbehandlerOkonomi = EntraGroupNavAnsattRolleMapping(UUID.randomUUID(), Rolle.SAKSBEHANDLER_OKONOMI)
-    val attestantUtbetaling = EntraGroupNavAnsattRolleMapping(UUID.randomUUID(), Rolle.ATTESTANT_UTBETALING)
+    val teamMulighetsrommet = EntraGroupNavAnsattRolleMapping(
+        UUID.randomUUID(),
+        Rolle.TEAM_MULIGHETSROMMET,
+    )
+    val generell = EntraGroupNavAnsattRolleMapping(
+        UUID.randomUUID(),
+        Rolle.TILTAKADMINISTRASJON_GENERELL,
+    )
+    val saksbehandlerGruppetiltak = EntraGroupNavAnsattRolleMapping(
+        UUID.randomUUID(),
+        Rolle.OKONOMI_SAKSBEHANDLER_GRUPPETILTAK,
+    )
+    val attestantGruppetiltak = EntraGroupNavAnsattRolleMapping(
+        UUID.randomUUID(),
+        Rolle.OKONOMI_ATTESTANT_GRUPPETILTAK,
+    )
 
     test("user needs the correct role to access route for authorized role") {
         val config = ApplicationConfigTest.copy(
@@ -98,7 +110,7 @@ class NavAnsattAuthorizationTest : FunSpec({
 
     test("user needs at least one of roles to access route with multiple authorized roles") {
         val config = ApplicationConfigTest.copy(
-            auth = createAuthConfig(oauth, roles = setOf(teamMulighetsrommet, generell, saksbehandlerOkonomi)),
+            auth = createAuthConfig(oauth, roles = setOf(teamMulighetsrommet, generell, saksbehandlerGruppetiltak)),
         )
 
         withTestApplication(config, additionalConfiguration = {
@@ -114,7 +126,7 @@ class NavAnsattAuthorizationTest : FunSpec({
                 row(setOf(teamMulighetsrommet), HttpStatusCode.OK),
                 row(setOf(teamMulighetsrommet, generell), HttpStatusCode.OK),
                 row(setOf(generell), HttpStatusCode.OK),
-                row(setOf(saksbehandlerOkonomi), HttpStatusCode.Forbidden),
+                row(setOf(saksbehandlerGruppetiltak), HttpStatusCode.Forbidden),
             ) { roles, responseStatusCode ->
                 val request = oauth.createRequestWithAnsattClaims(NavAnsattFixture.DonaldDuck, roles)
                 client.get("/multiple", request).status shouldBe responseStatusCode
@@ -124,7 +136,7 @@ class NavAnsattAuthorizationTest : FunSpec({
 
     test("user needs all roles to access route with nested authorization blocks") {
         val config = ApplicationConfigTest.copy(
-            auth = createAuthConfig(oauth, roles = setOf(teamMulighetsrommet, generell, saksbehandlerOkonomi)),
+            auth = createAuthConfig(oauth, roles = setOf(teamMulighetsrommet, generell, saksbehandlerGruppetiltak)),
         )
 
         withTestApplication(config, additionalConfiguration = {
@@ -134,7 +146,7 @@ class NavAnsattAuthorizationTest : FunSpec({
                         authorize(Rolle.TILTAKADMINISTRASJON_GENERELL) {
                             route("very") {
                                 route("nested") {
-                                    authorize(Rolle.SAKSBEHANDLER_OKONOMI) {
+                                    authorize(Rolle.OKONOMI_SAKSBEHANDLER_GRUPPETILTAK) {
                                         get("route") { call.respond(HttpStatusCode.OK) }
                                     }
                                 }
@@ -147,7 +159,7 @@ class NavAnsattAuthorizationTest : FunSpec({
             forAll(
                 row(setOf(teamMulighetsrommet), HttpStatusCode.Forbidden),
                 row(setOf(teamMulighetsrommet, generell), HttpStatusCode.Forbidden),
-                row(setOf(teamMulighetsrommet, generell, saksbehandlerOkonomi), HttpStatusCode.OK),
+                row(setOf(teamMulighetsrommet, generell, saksbehandlerGruppetiltak), HttpStatusCode.OK),
             ) { roles, responseStatusCode ->
                 val request = oauth.createRequestWithAnsattClaims(NavAnsattFixture.DonaldDuck, roles)
                 client.get("/very/nested/route", request).status shouldBe responseStatusCode
@@ -159,7 +171,7 @@ class NavAnsattAuthorizationTest : FunSpec({
         val config = ApplicationConfigTest.copy(
             auth = createAuthConfig(
                 oauth,
-                roles = setOf(teamMulighetsrommet, generell, saksbehandlerOkonomi, attestantUtbetaling),
+                roles = setOf(teamMulighetsrommet, generell, saksbehandlerGruppetiltak, attestantGruppetiltak),
             ),
         )
 
@@ -167,7 +179,12 @@ class NavAnsattAuthorizationTest : FunSpec({
             routing {
                 authenticate(AuthProvider.NAV_ANSATT_WITH_ROLES) {
                     authorize(allOf = setOf(Rolle.TEAM_MULIGHETSROMMET, Rolle.TILTAKADMINISTRASJON_GENERELL)) {
-                        authorize(anyOf = setOf(Rolle.SAKSBEHANDLER_OKONOMI, Rolle.ATTESTANT_UTBETALING)) {
+                        authorize(
+                            anyOf = setOf(
+                                Rolle.OKONOMI_SAKSBEHANDLER_GRUPPETILTAK,
+                                Rolle.OKONOMI_ATTESTANT_GRUPPETILTAK,
+                            ),
+                        ) {
                             get("route") { call.respond(HttpStatusCode.OK) }
                         }
                     }
@@ -177,9 +194,9 @@ class NavAnsattAuthorizationTest : FunSpec({
             forAll(
                 row(setOf(teamMulighetsrommet), HttpStatusCode.Forbidden),
                 row(setOf(teamMulighetsrommet, generell), HttpStatusCode.Forbidden),
-                row(setOf(teamMulighetsrommet, generell, saksbehandlerOkonomi), HttpStatusCode.OK),
-                row(setOf(teamMulighetsrommet, generell, attestantUtbetaling), HttpStatusCode.OK),
-                row(setOf(attestantUtbetaling, generell), HttpStatusCode.Forbidden),
+                row(setOf(teamMulighetsrommet, generell, saksbehandlerGruppetiltak), HttpStatusCode.OK),
+                row(setOf(teamMulighetsrommet, generell, attestantGruppetiltak), HttpStatusCode.OK),
+                row(setOf(attestantGruppetiltak, generell), HttpStatusCode.Forbidden),
             ) { roles, responseStatusCode ->
                 val request = oauth.createRequestWithAnsattClaims(NavAnsattFixture.DonaldDuck, roles)
                 client.get("/route", request).status shouldBe responseStatusCode

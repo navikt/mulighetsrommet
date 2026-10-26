@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.gjennomforing.model
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingAvtaleDetaljer
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.time.LocalDate

@@ -4,7 +4,9 @@ import {
 } from "@tiltaksadministrasjon/api-client";
 import { v4 } from "uuid";
 
-export function defaultTilskuddRequest(): TilskuddBehandlingRequestTilskuddRequest {
+export function defaultTilskuddRequest(
+  kostnadssted: string | null = null,
+): TilskuddBehandlingRequestTilskuddRequest {
   return {
     id: v4(),
     tilskuddId: v4(),
@@ -18,11 +20,12 @@ export function defaultTilskuddRequest(): TilskuddBehandlingRequestTilskuddReque
     vedtakResultat: null,
     utbetalingMottaker: null,
     kidNummer: null,
+    brukerUtbetalingType: null,
     soknadJournalpostId: null,
     soknadDato: null,
     periodeStart: null,
     periodeSlutt: null,
-    kostnadssted: null,
+    kostnadssted,
     kommentarIntern: null,
   };
 }

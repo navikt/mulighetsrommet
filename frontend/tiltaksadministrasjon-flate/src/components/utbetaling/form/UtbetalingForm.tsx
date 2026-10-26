@@ -46,6 +46,7 @@ function KorreksjonFields() {
 }
 
 function UtbetalingFields({ startDato }: { startDato?: string | null }) {
+  const today = new Date();
   return (
     <FormGroup>
       <HGrid columns={2}>
@@ -53,18 +54,28 @@ function UtbetalingFields({ startDato }: { startDato?: string | null }) {
           name="periodeStart"
           label="Periodestart"
           fromDate={startDato ? new Date(startDato) : undefined}
-          toDate={addDuration(new Date(), { years: 5 })}
+          toDate={addDuration(today, { years: 5 })}
         />
         <FormDateInput
           name="periodeSlutt"
           label="Periodeslutt"
           fromDate={startDato ? new Date(startDato) : undefined}
-          toDate={addDuration(new Date(), { years: 5 })}
+          toDate={addDuration(today, { years: 5 })}
         />
       </HGrid>
       <UtbetalingPrisInput />
       <FormTextField<UtbetalingRequest> label="Journalpost-ID i Gosys" name="journalpostId" />
-      <FormTextarea<UtbetalingRequest> label="Kommentar" name="kommentar" maxLength={250} />
+      <FormDateInput<UtbetalingRequest>
+        label="Utbetalingsdato"
+        name="utbetalingsDato"
+        fromDate={new Date()}
+        toDate={addDuration(today, { months: 3 })}
+      />
+      <FormTextarea<UtbetalingRequest>
+        label="Kommentar (frivillig og vises kun internt i Nav)"
+        name="kommentar"
+        maxLength={250}
+      />
     </FormGroup>
   );
 }

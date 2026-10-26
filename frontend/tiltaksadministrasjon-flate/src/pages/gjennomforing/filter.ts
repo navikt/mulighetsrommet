@@ -8,7 +8,7 @@ import { GjennomforingStatusType, Tiltakskode } from "@tiltaksadministrasjon/api
 import { z } from "zod";
 import { createFilterStateAtom, FilterAction, FilterState } from "@/filter/filter-state";
 import { atom, WritableAtom } from "jotai";
-import { atomFamily } from "jotai/utils";
+import { atomFamily } from "jotai-family";
 
 export const GjennomforingFilterSchema = z.object({
   search: z.string(),
@@ -30,7 +30,7 @@ export const defaultGjennomforingFilter: GjennomforingFilterType = {
   search: "",
   navEnheter: [],
   tiltakstyper: [],
-  statuser: [GjennomforingStatusType.GJENNOMFORES],
+  statuser: [],
   sortering: {
     sortString: "navn-ascending",
     tableSort: {

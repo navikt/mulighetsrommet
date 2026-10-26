@@ -17,8 +17,12 @@ import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.mulighetsrommet.admin.arrangor.SyncArrangorError
 import no.nav.mulighetsrommet.admin.arrangor.SyncArrangorIfMissing
 import no.nav.mulighetsrommet.admin.arrangor.SyncArrangorUseCase
+import no.nav.mulighetsrommet.admin.endringshistorikk.EndringshistorikkDto
+import no.nav.mulighetsrommet.admin.endringshistorikk.EndringshistorikkType
 import no.nav.mulighetsrommet.admin.enhetsregister.EnhetsregisterError
+import no.nav.mulighetsrommet.admin.gjennomforing.GjennomforingEnkeltplassService
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
+import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingEnkeltplassStatus
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsattRolle
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.domain.testing.fixture.ArrangorFixtures
@@ -28,8 +32,6 @@ import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
 import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeFeature
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollStatus
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplassStatus
-import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingEnkeltplassService
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.NOK
 import no.nav.mulighetsrommet.model.NavEnhetNummer
@@ -85,7 +87,7 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
 
     fun createService(): GjennomforingEnkeltplassService {
         return GjennomforingEnkeltplassService(
-            database.api,
+            database.admin,
             mockk(),
             TiltakstypeService(TiltakstypeService.Config(), database.admin),
         )
@@ -175,6 +177,25 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
             }
         }
 
+        test("oppretter enkeltplass uten kostnader") {
+            val consumer = createConsumer(service)
+            val ingenKostnader = request.copy(
+                payload = payload.copy(
+                    prisinformasjon = GjennomforingRequest.EnkeltplassPrisinformasjon.IngenKostnader(
+                        tilleggsopplysninger = "Opplæringen er kostnadsfri",
+                    ),
+                ),
+            )
+
+            consumer.consume(gjennomforingId, Json.encodeToJsonElement<GjennomforingRequest>(ingenKostnader))
+
+            database.run {
+                queries.gjennomforing.getPrismodellOrError(gjennomforingId)
+                    .shouldBeTypeOf<Prismodell.IngenKostnader>()
+                    .tilleggsopplysninger shouldBe "Opplæringen er kostnadsfri"
+            }
+        }
+
         test("kaster feil dersom arrangør ikke kan hentes fra brreg") {
             val mockArrangorIkkeFunnet = mockk<SyncArrangorUseCase> {
                 coEvery {
@@ -209,6 +230,7 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
         val consumer = createConsumer(service)
 
         val gjennomforingId = UUID.randomUUID()
+        val behandletAv = NavIdent("B654321")
         val utkastPayload = GjennomforingRequest.UpsertEnkeltplass(
             tiltakskode = Tiltakskode.ARBEIDSMARKEDSOPPLAERING,
             organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
@@ -223,7 +245,11 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
             consumer.consume(gjennomforingId, Json.encodeToJsonElement<GjennomforingRequest>(utkast))
             service.get(gjennomforingId).shouldNotBeNull()
 
-            val endreInnholdRequest = GjennomforingRequest.EnkeltplassEndreInnhold(gjennomforingId, payload = null)
+            val endreInnholdRequest = GjennomforingRequest.EnkeltplassEndreInnhold(
+                gjennomforingId = gjennomforingId,
+                behandletAv = behandletAv,
+                payload = null,
+            )
             consumer.consume(gjennomforingId, Json.encodeToJsonElement<GjennomforingRequest>(endreInnholdRequest))
 
             service.get(gjennomforingId).shouldNotBeNull().should { (gjennomforing, _) ->
@@ -231,9 +257,33 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
             }
         }
 
+        test("bruker behandletAv fra request i endringshistorikk") {
+            val utkast = GjennomforingRequest.EnkeltplassUtkast(gjennomforingId, utkastPayload)
+            consumer.consume(gjennomforingId, Json.encodeToJsonElement<GjennomforingRequest>(utkast))
+
+            val endreInnholdRequest = GjennomforingRequest.EnkeltplassEndreInnhold(
+                gjennomforingId = gjennomforingId,
+                behandletAv = behandletAv,
+                payload = null,
+            )
+            consumer.consume(gjennomforingId, Json.encodeToJsonElement<GjennomforingRequest>(endreInnholdRequest))
+
+            database.run {
+                queries.endringshistorikk.getEndringshistorikk(EndringshistorikkType.GJENNOMFORING, gjennomforingId)
+                    .entries.first().should {
+                        it.operation shouldBe "Innhold endret"
+                        it.editedBy shouldBe EndringshistorikkDto.NavAnsatt(navIdent = "B654321", navn = null)
+                    }
+            }
+        }
+
         test("kaster feil dersom gjennomforing ikke eksisterer") {
             val ikkeEksisterendeId = UUID.randomUUID()
-            val request = GjennomforingRequest.EnkeltplassEndreInnhold(ikkeEksisterendeId, payload = null)
+            val request = GjennomforingRequest.EnkeltplassEndreInnhold(
+                gjennomforingId = ikkeEksisterendeId,
+                behandletAv = behandletAv,
+                payload = null,
+            )
 
             shouldThrowExactly<IllegalStateException> {
                 consumer.consume(ikkeEksisterendeId, Json.encodeToJsonElement<GjennomforingRequest>(request))

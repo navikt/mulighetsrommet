@@ -30,8 +30,3 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: gh workflow run ci-version-hash-check.yml --ref VALP-BAU/update-digests
-      - name: Enable auto-merge for digestabot PR
-        if: ${{ steps.digestabot.outputs.pull_request_number != '' }}
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh pr merge "${{ steps.digestabot.outputs.pull_request_number }}" --auto --merge

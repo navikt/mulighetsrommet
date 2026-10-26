@@ -11,22 +11,18 @@ import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.mulighetsrommet.admin.arrangor.BetalingsinformasjonQuery
 import no.nav.mulighetsrommet.admin.arrangor.HentBetalingsinformasjon
 import no.nav.mulighetsrommet.admin.endringshistorikk.EndringshistorikkType
+import no.nav.mulighetsrommet.admin.totrinnskontroll.toFieldErrors
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.TransactionalQueryContext
 import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsinformasjon
-import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsatt
-import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
-import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhet
+import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingTiltaksadministrasjon
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.Totrinnskontroll
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollStatus
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingTiltaksadministrasjon
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
-import no.nav.mulighetsrommet.api.totrinnskontroll.api.toFieldErrors
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingLinjeDbo
 import no.nav.mulighetsrommet.api.utbetaling.model.AutomatisertUtbetalingResult
@@ -42,14 +38,13 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskLocalDateTime
 import no.nav.mulighetsrommet.model.Agent
-import no.nav.mulighetsrommet.model.Arena
 import no.nav.mulighetsrommet.model.Arrangor
-import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
 import no.nav.mulighetsrommet.model.ValutaBelop
+import no.nav.mulighetsrommet.validation.FieldError
 import no.nav.mulighetsrommet.validation.Validated
 import no.nav.tiltak.okonomi.Bestillingsnummer
 import no.nav.tiltak.okonomi.FakturaStatusType
@@ -59,6 +54,7 @@ import no.nav.tiltak.okonomi.OpprettFaktura
 import no.nav.tiltak.okonomi.toOkonomiPart
 import java.time.Instant
 import java.time.LocalDateTime
+import java.time.ZoneId
 import java.util.UUID
 
 class UtbetalingService(
@@ -140,7 +136,7 @@ class UtbetalingService(
     }
 
     context(tx: TransactionalQueryContext)
-    fun sendTilAttestering(
+    fun sendTilGodkjenning(
         utbetalingId: UUID,
         linjer: List<OpprettUtbetalingLinje>,
         agent: Agent,
@@ -148,22 +144,7 @@ class UtbetalingService(
         val utbetaling = queries.utbetaling.getAndAcquireLock(utbetalingId)
 
         if (!utbetaling.erTilBehandling() && utbetaling.status != UtbetalingStatusType.GENERERT) {
-            return FieldError.of("Utbetalingen kan ikke sendes til attestering").nel().left()
-        }
-
-        when (agent) {
-            Tiltaksadministrasjon -> Unit
-
-            Arena,
-            Arrangor,
-            -> return FieldError.of("$agent kan ikke sende utbetaling til attestering").nel().left()
-
-            is NavIdent -> {
-                val ansatt = queries.ansatt.getOrError(agent)
-                if (!erSaksbehandler(ansatt)) {
-                    return FieldError.of("Du kan ikke sende utbetaling til attestering").nel().left()
-                }
-            }
+            return FieldError.of("Utbetalingen kan ikke sendes til godkjenning").nel().left()
         }
 
         val linjerSomSkalSlettes = queries.utbetalingLinje.getByUtbetalingId(utbetaling.id).filter { linje ->
@@ -171,7 +152,7 @@ class UtbetalingService(
         }
 
         if (linjerSomSkalSlettes.any { it.status != UtbetalingLinjeStatus.RETURNERT }) {
-            return FieldError.of("Utbetaling kan ikke sendes til attestering fordi den allerede har andre utbetalingslinjer")
+            return FieldError.of("Utbetaling kan ikke sendes til godkjenning fordi den allerede har andre utbetalingslinjer")
                 .nel()
                 .left()
         }
@@ -190,42 +171,24 @@ class UtbetalingService(
                 behandletAv = agent,
             )
         }
-        queries.utbetaling.setStatus(utbetaling.id, UtbetalingStatusType.TIL_ATTESTERING)
+        queries.utbetaling.setStatus(utbetaling.id, UtbetalingStatusType.TIL_GODKJENNING)
 
-        logEndring("Utbetaling sendt til attestering", utbetaling.id, agent).right()
+        logEndring("Utbetaling sendt til godkjenning", utbetaling.id, agent).right()
     }
 
     context(tx: TransactionalQueryContext)
-    fun attesterUtbetalingLinje(
+    fun godkjennUtbetalingLinje(
         id: UUID,
         agent: Agent,
     ): Either<List<FieldError>, Utbetaling> = with(tx) {
         val linje = queries.utbetalingLinje.getOrError(id)
         val utbetaling = queries.utbetaling.getAndAcquireLock(linje.utbetalingId)
 
-        if (utbetaling.status != UtbetalingStatusType.TIL_ATTESTERING || linje.status != UtbetalingLinjeStatus.TIL_ATTESTERING) {
-            return FieldError.of("Utbetalingen kan ikke attesteres").nel().left()
+        if (utbetaling.status != UtbetalingStatusType.TIL_GODKJENNING || linje.status != UtbetalingLinjeStatus.TIL_GODKJENNING) {
+            return FieldError.of("Utbetalingen kan ikke godkjennes").nel().left()
         }
 
-        when (agent) {
-            Tiltaksadministrasjon -> Unit
-
-            Arena,
-            Arrangor,
-            -> return FieldError.of("$agent kan ikke attestere utbetalinger").nel().left()
-
-            is NavIdent -> {
-                val kostnadssted = queries.tilsagn.getOrError(linje.tilsagnId).kostnadssted
-                val ansatt = queries.ansatt.getOrError(agent)
-                if (!erAttestant(ansatt, kostnadssted)) {
-                    return FieldError.of("Du kan ikke attestere utbetalingen fordi du ikke er attestant ved tilsagnets kostnadssted (${kostnadssted.navn})")
-                        .nel()
-                        .left()
-                }
-            }
-        }
-
-        attesterUtbetalingLinje(linje, agent)
+        godkjennUtbetalingLinje(linje, agent)
     }
 
     context(tx: TransactionalQueryContext)
@@ -238,32 +201,11 @@ class UtbetalingService(
         val linje = queries.utbetalingLinje.getOrError(id)
         val utbetaling = queries.utbetaling.getAndAcquireLock(linje.utbetalingId)
 
-        if (utbetaling.status != UtbetalingStatusType.TIL_ATTESTERING || linje.status != UtbetalingLinjeStatus.TIL_ATTESTERING) {
+        if (utbetaling.status != UtbetalingStatusType.TIL_GODKJENNING || linje.status != UtbetalingLinjeStatus.TIL_GODKJENNING) {
             return FieldError.of("Utbetalingen kan ikke returneres").nel().left()
         }
 
-        when (agent) {
-            Tiltaksadministrasjon -> Unit
-
-            Arena,
-            Arrangor,
-            -> return FieldError.of("$agent kan ikke returnere utbetalinger").nel().left()
-
-            is NavIdent -> {
-                val kostnadssted = queries.tilsagn.getOrError(linje.tilsagnId).kostnadssted
-                val ansatt = queries.ansatt.getOrError(agent)
-                if (!(erSaksbehandler(ansatt) || erAttestant(ansatt, kostnadssted))) {
-                    return FieldError.of("Du kan ikke returnere utbetalingen fordi du mangler tilgang").nel().left()
-                }
-            }
-        }
-
         returnerUtbetalingLinje(linje, aarsaker, begrunnelse, agent).right()
-    }
-
-    context(tx: TransactionalQueryContext)
-    private fun erEnkeltplass(utbetaling: Utbetaling): Boolean = with(tx) {
-        queries.gjennomforing.getGjennomforing(utbetaling.gjennomforing.id) is GjennomforingEnkeltplass
     }
 
     context(tx: TransactionalQueryContext)
@@ -274,7 +216,7 @@ class UtbetalingService(
                 .nel()
                 .left()
         }
-        if (!utbetaling.erKorreksjon() && !erEnkeltplass(utbetaling)) {
+        if (!utbetaling.kanSlettes()) {
             return FieldError.of("Kan kun slette korreksjoner og utbetalinger for enkeltplass").nel().left()
         }
         queries.utbetalingLinje.getByUtbetalingId(id).forEach { linje ->
@@ -295,9 +237,6 @@ class UtbetalingService(
         begrunnelse: String?,
     ): Either<List<FieldError>, Utbetaling> = with(tx) {
         val utbetaling = queries.utbetaling.getAndAcquireLock(id)
-        if (erEnkeltplass(utbetaling)) {
-            return FieldError.of("Utbetaling for enkeltplass kan ikke avbrytes").nel().left()
-        }
         return utbetaling.settTilAbrytelse(agent, aarsaker, begrunnelse).map { utbetalingTilAvbrytelse ->
             queries.utbetaling.save(utbetalingTilAvbrytelse)
 
@@ -432,7 +371,7 @@ class UtbetalingService(
             gjorOppTilsagn = tilsagn.periode.getLastInclusiveDate() in utbetaling.periode,
             behandletAv = Tiltaksadministrasjon,
         )
-        return attesterUtbetalingLinje(linje, Tiltaksadministrasjon)
+        return godkjennUtbetalingLinje(linje, Tiltaksadministrasjon)
             .map { AutomatisertUtbetalingResult.GODKJENT }
             .getOrElse { throw UtbetalingException(it) }
     }
@@ -452,10 +391,10 @@ class UtbetalingService(
                 gjorOppTilsagn = false,
             )
         }
-        sendTilAttestering(utbetaling.id, linjer, Tiltaksadministrasjon).onLeft { throw UtbetalingException(it) }
+        sendTilGodkjenning(utbetaling.id, linjer, Tiltaksadministrasjon).onLeft { throw UtbetalingException(it) }
 
         linjer.forEach { linje ->
-            attesterUtbetalingLinje(linje.id, Tiltaksadministrasjon).onLeft { throw UtbetalingException(it) }
+            godkjennUtbetalingLinje(linje.id, Tiltaksadministrasjon).onLeft { throw UtbetalingException(it) }
         }
 
         AutomatisertUtbetalingResult.GODKJENT
@@ -530,6 +469,8 @@ class UtbetalingService(
     ): Either<NonEmptyList<FieldError>, UtbetalingDbo> {
         val gjennomforing = queries.gjennomforing.getGjennomforingTiltaksadministrasjon(upsert.gjennomforingId)
 
+        val valgtUtbetalingsTidspunkt = upsert.utbetalingsDato?.atStartOfDay(ZoneId.of("Europe/Oslo"))?.toInstant()
+
         val dbo = UtbetalingDbo(
             id = upsert.id,
             gjennomforingId = upsert.gjennomforingId,
@@ -544,7 +485,10 @@ class UtbetalingService(
             journalpostId = upsert.journalpostId,
             innsendtAvArrangorTidspunkt = null,
             betalingsinformasjon = getUtbetalingsinformasjon(gjennomforing.arrangor.id, upsert.kid),
-            utbetalesTidligstTidspunkt = getUtbetalesTidligstTidspunkt(gjennomforing, upsert.periode),
+            utbetalesTidligstTidspunkt = valgtUtbetalingsTidspunkt ?: getUtbetalesTidligstTidspunkt(
+                gjennomforing,
+                upsert.periode,
+            ),
             avbrytelse = null,
         )
 
@@ -661,7 +605,7 @@ class UtbetalingService(
             id = id,
             utbetalingId = utbetaling.id,
             tilsagnId = tilsagn.id,
-            status = UtbetalingLinjeStatus.TIL_ATTESTERING,
+            status = UtbetalingLinjeStatus.TIL_GODKJENNING,
             periode = periode,
             pris = pris,
             gjorOppTilsagn = gjorOppTilsagn,
@@ -685,7 +629,7 @@ class UtbetalingService(
         return queries.utbetalingLinje.getOrError(id)
     }
 
-    private fun TransactionalQueryContext.attesterUtbetalingLinje(
+    private fun TransactionalQueryContext.godkjennUtbetalingLinje(
         utbetalingLinje: UtbetalingLinje,
         besluttetAv: Agent,
     ): Either<List<FieldError>, Utbetaling> {
@@ -762,7 +706,7 @@ class UtbetalingService(
         tilsagnService.gjorOppTilsagn(
             tilsagnTilOppgjor,
             requireNotNull(opprettelse.beslutning).utfortAv,
-            operation = "Tilsagn oppgjort ved attestering av utbetaling",
+            operation = "Tilsagn oppgjort ved godkjenning av utbetaling",
         ).onLeft { errors ->
             throw UtbetalingException(errors)
         }
@@ -892,14 +836,4 @@ class UtbetalingService(
     private fun QueryContext.getOrError(id: UUID): Utbetaling {
         return queries.utbetaling.getOrError(id)
     }
-}
-
-fun erSaksbehandler(ansatt: NavAnsatt): Boolean = ansatt.hasGenerellRolle(Rolle.SAKSBEHANDLER_OKONOMI)
-
-fun erAttestant(ansatt: NavAnsatt, kostnadssted: NavEnhet): Boolean {
-    return ansatt.hasKontorspesifikkRolle(Rolle.ATTESTANT_UTBETALING, setOf(kostnadssted.enhetsnummer))
-}
-
-fun erBeslutter(ansatt: NavAnsatt, kostnadssted: NavEnhet): Boolean {
-    return ansatt.hasKontorspesifikkRolle(Rolle.BESLUTTER_TILSAGN, setOf(kostnadssted.enhetsnummer))
 }

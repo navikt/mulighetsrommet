@@ -12,10 +12,11 @@ import {
   TilskuddMottaker,
   Tiltakskode,
   UtbetalingLinjeReturnertAarsak,
+  FieldError,
   ValidationError,
   OpplaeringtilskuddKode,
-  PrismodellIngenKostnaderAarsak,
   UtbetalingStatusAarsak,
+  BrukerUtbetalingType,
 } from "@tiltaksadministrasjon/api-client";
 import { FieldErrors } from "react-hook-form";
 
@@ -178,7 +179,32 @@ export function opplaeringTilskuddToString(tilskuddType: OpplaeringtilskuddKode)
   }
 }
 
-export function tilskuddMottakerToString(mottaker: TilskuddMottaker): string {
+export function tilskuddMottakerToString(
+  mottaker: TilskuddMottaker,
+  brukerUtbetalingType: BrukerUtbetalingType | null,
+): string {
+  switch (mottaker) {
+    case TilskuddMottaker.BRUKER:
+      if (!brukerUtbetalingType) {
+        return "Brukeren";
+      }
+      return brukerUtbetalingTypeToString(brukerUtbetalingType);
+
+    case TilskuddMottaker.ARRANGOR:
+      return "Arrangøren";
+  }
+}
+
+function brukerUtbetalingTypeToString(brukerUtbetalingType: BrukerUtbetalingType): string {
+  switch (brukerUtbetalingType) {
+    case BrukerUtbetalingType.FORSKUDD:
+      return "Brukeren, som forskudd";
+    case BrukerUtbetalingType.REFUSJON:
+      return "Brukeren, som refusjon av utlegg";
+  }
+}
+
+export function tilskuddMottakerTabellToString(mottaker: TilskuddMottaker): string {
   switch (mottaker) {
     case TilskuddMottaker.BRUKER:
       return "Utbetales til brukeren";
@@ -297,8 +323,47 @@ export function tilsagnTypeToString(type: TilsagnType): string {
   }
 }
 
-export function isValidationError(error: unknown): error is ValidationError {
-  return typeof error === "object" && error !== null && "errors" in error;
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}
+
+function isFieldError(value: unknown): value is FieldError {
+  return isRecord(value) && typeof value.pointer === "string" && typeof value.detail === "string";
+}
+
+function isFieldErrorArray(value: unknown): value is FieldError[] {
+  return Array.isArray(value) && value.every(isFieldError);
+}
+
+export function getValidationError(error: unknown): ValidationError | undefined {
+  if (!isRecord(error)) return undefined;
+
+  const extensions = isRecord(error.extensions) ? error.extensions : undefined;
+  const errors = isFieldErrorArray(error.errors)
+    ? error.errors
+    : isFieldErrorArray(extensions?.errors)
+      ? extensions.errors
+      : undefined;
+
+  if (!errors?.length) return undefined;
+
+  if (
+    !isFieldErrorArray(error.errors) &&
+    error.type !== "validation-error" &&
+    error.status !== 400
+  ) {
+    return undefined;
+  }
+
+  return {
+    type: typeof error.type === "string" ? error.type : "validation-error",
+    title: typeof error.title === "string" ? error.title : "Validation error",
+    status: typeof error.status === "number" ? error.status : 400,
+    detail: typeof error.detail === "string" ? error.detail : "Unknown Validation Error",
+    instance: typeof error.instance === "string" ? error.instance : null,
+    extensions: {},
+    errors,
+  };
 }
 
 export function avbrytGjennomforingAarsakTilTekst(aarsak: AvbrytGjennomforingAarsak): string {
@@ -361,15 +426,6 @@ export function gjennomforingTypeToString(type: GjennomforingType): string {
     case GjennomforingType.AVTALE:
       return "Gruppe";
     case GjennomforingType.ENKELTPLASS:
-      return "Enkeltplass";
-  }
-}
-
-export function ingenKostnaderAarsakToString(aarsak: PrismodellIngenKostnaderAarsak): string {
-  switch (aarsak) {
-    case PrismodellIngenKostnaderAarsak.OPPLAERINGEN_ER_KOSTNADSFRI:
-      return "Opplæringen er kostnadsfri";
-    case PrismodellIngenKostnaderAarsak.OPPLAERINGEN_ER_EGENFINANSIERT:
-      return "Bruker dekker opplæringen fullt ut selv";
+      return "Enkeltplass uten rammeavtale";
   }
 }
