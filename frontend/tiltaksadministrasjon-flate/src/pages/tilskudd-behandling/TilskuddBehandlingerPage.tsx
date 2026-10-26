@@ -17,6 +17,7 @@ import {
   TilskuddBehandlingKompakt,
 } from "@tiltaksadministrasjon/api-client";
 import { useGjennomforingHandlinger } from "@/api/gjennomforing/useGjennomforing";
+import { InformationSquareIcon } from "@navikt/aksel-icons";
 
 export function TilskuddBehandlingerPage() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
@@ -44,9 +45,11 @@ export function TilskuddBehandlingerPage() {
           ]}
         />
       </KnapperadContainer>
-      {behandlinger.length === 0 && (
+      {behandlinger.length && (
         <InfoCard data-color="info" className="mt-4">
-          Det finnes ingen tilskuddsbehandlinger for dette tiltaket
+          <InfoCard.Message icon={<InformationSquareIcon aria-hidden />}>
+            Det finnes ingen tilskuddsbehandlinger for dette tiltaket
+          </InfoCard.Message>
         </InfoCard>
       )}
       {sortedData.length > 0 && (
