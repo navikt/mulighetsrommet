@@ -20,17 +20,28 @@ export function useTilsagnRequest(id: string) {
   });
 }
 
-export function useTilsagnTableData(gjennomforingId: string) {
+export function useTilsagnTableData(
+  gjennomforingId: string,
+  filter: { page?: number; pageSize?: number; statuser?: TilsagnStatus[] },
+) {
+  const request = {
+    query: {
+      gjennomforingId,
+      statuser: filter.statuser ?? [],
+      page: filter.page ?? 1,
+      size: filter.pageSize,
+    },
+  };
   return useApiSuspenseQuery({
-    queryKey: QueryKeys.getAllTilsagn(gjennomforingId),
-    queryFn: async () => TilsagnService.getTilsagnTableData({ query: { gjennomforingId } }),
+    queryKey: QueryKeys.getAllTilsagn(request),
+    queryFn: async () => TilsagnService.getTilsagnTableData(request),
   });
 }
 
 export function useAktiveTilsagnTableData(gjennomforingId: string) {
   const statuser = [TilsagnStatus.GODKJENT, TilsagnStatus.TIL_GODKJENNING, TilsagnStatus.RETURNERT];
   return useApiSuspenseQuery({
-    queryKey: QueryKeys.getAllTilsagn(gjennomforingId, statuser),
+    queryKey: QueryKeys.getAllTilsagn({ query: { gjennomforingId, statuser } }),
     queryFn: async () =>
       TilsagnService.getTilsagnTableData({ query: { gjennomforingId, statuser } }),
   });

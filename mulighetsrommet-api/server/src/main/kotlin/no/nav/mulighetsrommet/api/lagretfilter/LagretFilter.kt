@@ -11,6 +11,7 @@ enum class LagretFilterType {
     GJENNOMFORING_MODIA,
     OPPGAVE,
     INNSENDING,
+    TILSAGN
 }
 
 @Serializable
