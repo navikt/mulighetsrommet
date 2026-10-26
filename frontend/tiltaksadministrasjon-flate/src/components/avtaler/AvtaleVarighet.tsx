@@ -16,10 +16,10 @@ import { FormTextField } from "@/components/skjema/FormTextField";
 import { FormDateInput } from "@/components/skjema/FormDateInput";
 
 interface Props {
-  opsjonUtlost: boolean;
+  harRegistrerteOpsjoner: boolean;
 }
 
-export function AvtaleVarighet({ opsjonUtlost }: Props) {
+export function AvtaleVarighet({ harRegistrerteOpsjoner }: Props) {
   const { setValue, watch, getValues } = useFormContext<AvtaleFormValues>();
   const initialStartDato = useRef(getValues("detaljer.startDato"));
   const startDato = watch("detaljer.startDato");
@@ -45,7 +45,7 @@ export function AvtaleVarighet({ opsjonUtlost }: Props) {
   const opsjonsmodell = hentOpsjonsmodell(opsjonsmodellType);
 
   useEffect(() => {
-    if (startDato && opsjonsmodell && !opsjonUtlost) {
+    if (startDato && opsjonsmodell && !harRegistrerteOpsjoner) {
       if (opsjonsmodell.initialSluttdatoEkstraAar) {
         setValue(
           "detaljer.sluttDato",
@@ -61,13 +61,13 @@ export function AvtaleVarighet({ opsjonUtlost }: Props) {
         );
       }
     }
-  }, [opsjonUtlost, opsjonsmodell, startDato, sluttDatoFraDato, setValue]);
+  }, [harRegistrerteOpsjoner, opsjonsmodell, startDato, sluttDatoFraDato, setValue]);
 
   return (
     <VStack gap="space-16">
       {!forhandsgodkjent && (
         <FormSelect
-          readOnly={opsjonUtlost}
+          readOnly={harRegistrerteOpsjoner}
           label="Avtalt mulighet for forlengelse"
           size="small"
           name={"detaljer.opsjonsmodell.type"}
@@ -94,7 +94,7 @@ export function AvtaleVarighet({ opsjonUtlost }: Props) {
       {opsjonsmodell?.type === "ANNET" && (
         <FormTextField
           label="Opsjonsnavn"
-          readOnly={opsjonUtlost}
+          readOnly={harRegistrerteOpsjoner}
           hideLabel
           placeholder="Beskriv opsjonsmodellen"
           size="small"
@@ -105,7 +105,7 @@ export function AvtaleVarighet({ opsjonUtlost }: Props) {
         <HGrid columns={3} gap="space-16" align="start">
           <FormDateInput
             label={avtaletekster.startdatoLabel}
-            readOnly={opsjonUtlost}
+            readOnly={harRegistrerteOpsjoner}
             fromDate={minStartDato}
             toDate={sluttDatoTilDato}
             name={"detaljer.startDato"}
@@ -113,8 +113,8 @@ export function AvtaleVarighet({ opsjonUtlost }: Props) {
           <FormDateInput
             key={sluttDato}
             name={"detaljer.sluttDato"}
-            label={avtaletekster.sluttdatoLabel(watchedAvtaletype, opsjonUtlost)}
-            readOnly={opsjonUtlost || opsjonsmodell.type !== OpsjonsmodellType.ANNET}
+            label={avtaletekster.sluttdatoLabel(watchedAvtaletype, harRegistrerteOpsjoner)}
+            readOnly={harRegistrerteOpsjoner || opsjonsmodell.type !== OpsjonsmodellType.ANNET}
             fromDate={minStartDato}
             toDate={sluttDatoTilDato}
           />
@@ -124,7 +124,7 @@ export function AvtaleVarighet({ opsjonUtlost }: Props) {
             label={avtaletekster.maksVarighetLabel}
             fromDate={minStartDato}
             toDate={sluttDatoTilDato}
-            readOnly={opsjonUtlost || opsjonsmodell.type !== OpsjonsmodellType.ANNET}
+            readOnly={harRegistrerteOpsjoner || opsjonsmodell.type !== OpsjonsmodellType.ANNET}
           />
         </HGrid>
       ) : (
@@ -132,18 +132,20 @@ export function AvtaleVarighet({ opsjonUtlost }: Props) {
           <FormDateInput
             name={"detaljer.startDato"}
             label={avtaletekster.startdatoLabel}
+            readOnly={harRegistrerteOpsjoner}
             fromDate={minStartDato}
             toDate={sluttDatoTilDato}
           />
           <FormDateInput
             name={"detaljer.sluttDato"}
-            label={avtaletekster.sluttdatoLabel(watchedAvtaletype, opsjonUtlost)}
+            label={avtaletekster.sluttdatoLabel(watchedAvtaletype, harRegistrerteOpsjoner)}
+            readOnly={harRegistrerteOpsjoner}
             fromDate={sluttDatoFraDato}
             toDate={sluttDatoTilDato}
           />
         </HGrid>
       )}
-      {opsjonUtlost && <RegistrerteOpsjoner readOnly />}
+      {harRegistrerteOpsjoner && <RegistrerteOpsjoner readOnly />}
     </VStack>
   );
 }

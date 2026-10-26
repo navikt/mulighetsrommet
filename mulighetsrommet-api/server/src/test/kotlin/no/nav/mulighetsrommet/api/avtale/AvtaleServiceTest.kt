@@ -19,6 +19,7 @@ import io.mockk.mockk
 import io.mockk.verify
 import no.nav.mulighetsrommet.admin.aarsakerbegrunnelse.AarsakerOgBegrunnelseRequest
 import no.nav.mulighetsrommet.admin.arrangor.SyncArrangorUseCase
+import no.nav.mulighetsrommet.admin.avtale.OpsjonsmodellType
 import no.nav.mulighetsrommet.admin.enhetsregister.EnhetsregisterError
 import no.nav.mulighetsrommet.admin.enhetsregister.EnhetsregisterGateway
 import no.nav.mulighetsrommet.admin.enhetsregister.Virksomhet
@@ -26,6 +27,7 @@ import no.nav.mulighetsrommet.admin.enhetsregister.VirksomhetOppslag
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
 import no.nav.mulighetsrommet.api.avtale.api.DetaljerRequest
 import no.nav.mulighetsrommet.api.avtale.api.OpprettOpsjonLoggRequest
+import no.nav.mulighetsrommet.api.avtale.api.OpsjonsmodellRequest
 import no.nav.mulighetsrommet.api.avtale.api.PersonvernRequest
 import no.nav.mulighetsrommet.api.avtale.api.VeilederinfoRequest
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSatsRequest
@@ -35,7 +37,6 @@ import no.nav.mulighetsrommet.api.domain.avtale.AvbrytAvtaleAarsak
 import no.nav.mulighetsrommet.api.domain.avtale.Avtale
 import no.nav.mulighetsrommet.api.domain.avtale.AvtaleStatus
 import no.nav.mulighetsrommet.api.domain.avtale.Opsjonsmodell
-import no.nav.mulighetsrommet.api.domain.avtale.OpsjonsmodellType
 import no.nav.mulighetsrommet.api.domain.gjennomforing.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.domain.testing.fixture.ArrangorFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.AvtaleFixtures
@@ -117,7 +118,7 @@ class AvtaleServiceTest : FunSpec({
             val request = createAvtaleRequest(
                 Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
                 avtaletype = Avtaletype.FORHANDSGODKJENT,
-                opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.VALGFRI_SLUTTDATO, null),
+                opsjonsmodell = OpsjonsmodellRequest(OpsjonsmodellType.VALGFRI_SLUTTDATO, null),
                 prismodell = listOf(),
             )
 
@@ -302,6 +303,61 @@ class AvtaleServiceTest : FunSpec({
             }
         }
 
+        test("annen opsjonsmodell bevares ved forlengelse, redigering og sletting av opsjon") {
+            val original = createAvtaleRequest(
+                Tiltakskode.OPPFOLGING,
+                opsjonsmodell = OpsjonsmodellRequest(
+                    type = OpsjonsmodellType.ANNET,
+                    opsjonMaksVarighet = LocalDate.of(2027, 12, 31),
+                    customOpsjonsmodellNavn = "Spesialordning",
+                ),
+            )
+            val request = original.copy(
+                detaljer = original.detaljer.copy(
+                    startDato = LocalDate.of(2024, 1, 1),
+                    sluttDato = LocalDate.of(2025, 12, 31),
+                ),
+            )
+            val forventetModell = Opsjonsmodell.Annet(LocalDate.of(2027, 12, 31), "Spesialordning")
+
+            val opprettet = avtaleService.create(request, bertilNavIdent).shouldBeRight()
+            opprettet.opsjoner.modell shouldBe forventetModell
+
+            val forlenget = avtaleService.registrerOpsjon(
+                request.id,
+                OpprettOpsjonLoggRequest(
+                    type = OpprettOpsjonLoggRequest.Type.CUSTOM_LENGDE,
+                    nySluttDato = LocalDate.of(2026, 12, 31),
+                ),
+                bertilNavIdent,
+                LocalDate.of(2026, 1, 1),
+            ).shouldBeRight()
+            forlenget.sluttDato shouldBe LocalDate.of(2026, 12, 31)
+            forlenget.opsjoner.modell shouldBe forventetModell
+
+            val redigert = avtaleService.upsertDetaljer(
+                request.id,
+                request.detaljer.copy(
+                    navn = "Oppdatert avtalenavn",
+                    sluttDato = LocalDate.of(2026, 12, 31),
+                ),
+                bertilNavIdent,
+            ).shouldBeRight()
+            redigert.navn shouldBe "Oppdatert avtalenavn"
+            redigert.sluttDato shouldBe LocalDate.of(2026, 12, 31)
+            redigert.opsjoner.modell shouldBe forventetModell
+
+            val tilbakestilt = avtaleService.slettOpsjon(
+                request.id,
+                forlenget.opsjoner.registreringer.single().id,
+                bertilNavIdent,
+                LocalDate.of(2026, 1, 1),
+            ).shouldBeRight()
+            tilbakestilt.sluttDato shouldBe LocalDate.of(2025, 12, 31)
+            tilbakestilt.opsjoner.modell shouldBe forventetModell
+            tilbakestilt.opsjoner.registreringer.shouldBeEmpty()
+        }
+
         test("kan ikke endre tiltakskode etter at avtalen er opprettet") {
             val request = createAvtaleRequest(Tiltakskode.OPPFOLGING)
             avtaleService.create(request, bertilNavIdent).shouldBeRight()
@@ -309,7 +365,7 @@ class AvtaleServiceTest : FunSpec({
             val aftDetaljer = createAvtaleRequest(
                 Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
                 avtaletype = Avtaletype.FORHANDSGODKJENT,
-                opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.VALGFRI_SLUTTDATO, null),
+                opsjonsmodell = OpsjonsmodellRequest(OpsjonsmodellType.VALGFRI_SLUTTDATO, null),
             ).detaljer
 
             avtaleService.upsertDetaljer(request.id, aftDetaljer, bertilNavIdent).shouldBeLeft(
@@ -818,7 +874,10 @@ class AvtaleServiceTest : FunSpec({
             sluttDato = yesterday,
             status = AvtaleStatus.Avsluttet,
             opsjoner = Avtale.Opsjoner(
-                modell = Opsjonsmodell(OpsjonsmodellType.TO_PLUSS_EN, theDayAfterTomorrow),
+                modell = Opsjonsmodell.Annet(
+                    opsjonMaksVarighet = theDayAfterTomorrow,
+                    customOpsjonsmodellNavn = "Kort opsjonsmodell",
+                ),
                 registreringer = listOf(),
             ),
         )
@@ -834,10 +893,7 @@ class AvtaleServiceTest : FunSpec({
             )
             avtaleService.registrerOpsjon(avtale.id, request, bertilNavIdent, today).shouldBeLeft(
                 listOf(
-                    FieldError.of(
-                        "Ny sluttdato er forbi maks varighet av avtalen",
-                        OpprettOpsjonLoggRequest::nySluttDato,
-                    ),
+                    FieldError.of("Ny sluttdato er forbi maks varighet av avtalen"),
                 ),
             )
         }
@@ -847,20 +903,19 @@ class AvtaleServiceTest : FunSpec({
                 avtaler = listOf(
                     avtale.copy(
                         opsjoner = Avtale.Opsjoner(
-                            modell = Opsjonsmodell(OpsjonsmodellType.TO_PLUSS_EN, avtale.startDato.plusYears(10)),
-                            registreringer = listOf(),
+                            modell = Opsjonsmodell.ToPlussEn,
+                            registreringer = emptyList(),
                         ),
                     ),
                 ),
             ).initialize(database.api)
-            val sluttDato = avtale.sluttDato!!
 
             val request = OpprettOpsjonLoggRequest(
                 nySluttDato = null,
                 type = OpprettOpsjonLoggRequest.Type.ETT_AAR,
             )
             avtaleService.registrerOpsjon(avtale.id, request, bertilNavIdent, today).shouldBeRight().should {
-                it.sluttDato shouldBe sluttDato.plusYears(1)
+                it.sluttDato shouldBe LocalDate.of(2026, 5, 31)
             }
         }
 
@@ -904,13 +959,13 @@ class AvtaleServiceTest : FunSpec({
             avtaleService.registrerOpsjon(avtale.id, request, bertilNavIdent, today).shouldBeRight()
 
             val request2 = OpprettOpsjonLoggRequest(
-                nySluttDato = tomorrow,
+                nySluttDato = theDayAfterTomorrow,
                 type = OpprettOpsjonLoggRequest.Type.CUSTOM_LENGDE,
             )
             val avtale = avtaleService.registrerOpsjon(avtale.id, request2, bertilNavIdent, today).shouldBeRight()
 
             avtaleService.slettOpsjon(avtale.id, avtale.opsjoner.registreringer[0].id, bertilNavIdent).shouldBeLeft(
-                FieldError.of("Opsjonen kan ikke slettes fordi det ikke er den siste utløste opsjonen"),
+                listOf(FieldError.of("Opsjonen kan ikke slettes fordi det ikke er den siste utløste opsjonen")),
             )
         }
 
@@ -931,7 +986,7 @@ class AvtaleServiceTest : FunSpec({
             )
             avtaleService.registrerOpsjon(avtale.id, request2, bertilNavIdent, today).shouldBeLeft(
                 listOf(
-                    FieldError.of("Kan ikke utløse flere opsjoner", OpprettOpsjonLoggRequest::type),
+                    FieldError.of("Kan ikke utløse flere opsjoner"),
                 ),
             )
         }
