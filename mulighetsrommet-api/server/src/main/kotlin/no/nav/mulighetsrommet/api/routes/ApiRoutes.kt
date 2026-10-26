@@ -33,7 +33,6 @@ import no.nav.mulighetsrommet.api.routes.internal.maamRoutes
 import no.nav.mulighetsrommet.api.tilsagn.api.tilsagnRoutes
 import no.nav.mulighetsrommet.api.tilskuddbehandling.api.opplaeringtilskuddRoutes
 import no.nav.mulighetsrommet.api.tilskuddbehandling.api.tilskuddBehandlingRoutes
-import no.nav.mulighetsrommet.api.tilskuddbehandling.api.tilskuddRoutes
 import no.nav.mulighetsrommet.api.tilskuddbehandling.api.tilskuddUtbetalingRoutes
 import no.nav.mulighetsrommet.api.tiltakbeskrivelse.api.tiltakBeskrivelseRoutes
 import no.nav.mulighetsrommet.api.tiltakstype.api.tiltakstypeRoutes
@@ -149,7 +148,6 @@ fun Route.tiltaksadministrasjonRoutes() {
     notificationRoutes()
     opplaeringtilskuddRoutes()
     tilskuddBehandlingRoutes()
-    tilskuddRoutes()
     endringshistorikkRoutes()
 }
 
