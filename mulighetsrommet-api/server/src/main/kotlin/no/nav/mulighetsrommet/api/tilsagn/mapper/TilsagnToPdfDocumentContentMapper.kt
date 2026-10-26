@@ -28,30 +28,29 @@ object TilsagnToPdfDocumentContentMapper {
                 date = innhold.besluttetTidspunkt.toLocalDate().toString(),
                 reference = innhold.tilsagn.bestilling.bestillingsnummer,
                 deltaker =
-                    when {
-                        visPersonopplysningerOmAdressebeskyttetEllerSkjermetPerson -> Deltaker(
-                            navn = innhold.personalia.navn(),
-                            norskIdent = innhold.personalia.norskIdent()?.value,
-                        )
+                when {
+                    visPersonopplysningerOmAdressebeskyttetEllerSkjermetPerson -> Deltaker(
+                        navn = innhold.personalia.navn(),
+                        norskIdent = innhold.personalia.norskIdent()?.value,
+                    )
 
-                        innhold.personalia.gradering == Gradering.SKJERMING -> Deltaker("Skjermet")
+                    innhold.personalia.gradering == Gradering.SKJERMING -> Deltaker("Skjermet")
 
-                        innhold.personalia.gradering in setOf(
-                            Gradering.STRENGT_FORTROLIG_UTLAND,
-                            Gradering.STRENGT_FORTROLIG_ADRESSE,
-                            Gradering.FORTROLIG_ADRESSE,
-                        ) -> Deltaker("Adressebeskyttet")
+                    innhold.personalia.gradering in setOf(
+                        Gradering.STRENGT_FORTROLIG_UTLAND,
+                        Gradering.STRENGT_FORTROLIG_ADRESSE,
+                        Gradering.FORTROLIG_ADRESSE,
+                    ) -> Deltaker("Adressebeskyttet")
 
-                        else -> Deltaker(
-                            navn = innhold.personalia.navn(),
-                            norskIdent = innhold.personalia.norskIdent()?.value,
-                        )
-                    },
+                    else -> Deltaker(
+                        navn = innhold.personalia.navn(),
+                        norskIdent = innhold.personalia.norskIdent()?.value,
+                    )
+                },
             ),
         )
 
         mainSection("Bekreftelse på bestilling")
-
 
         section("Nav bekrefter bestilling av følgende:") {
             descriptionList {
@@ -87,7 +86,7 @@ object TilsagnToPdfDocumentContentMapper {
         }
         section("Fakturaen skal inneholde følgende informasjon:", level = 3)
         {
-            itemList() {
+            itemList {
                 item("Saksnummer, som dere finner øverst i dette brevet")
                 item("Navnet på kurset eller utdanningen")
                 item("Gjennomføringsperioden")
@@ -105,7 +104,6 @@ object TilsagnToPdfDocumentContentMapper {
                 regular("Hvis kontonummeret er feil eller mangler, må dere oppdatere det på nav.no/arbeidsgiver/endre-kontonummer.")
             }
         }
-
 
         signature(
             Signature(
