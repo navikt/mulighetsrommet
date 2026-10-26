@@ -58,7 +58,7 @@
   "devDependencies": {
     "@axe-core/playwright": "4.13.0",
     "@mr/eslint-config-react-app": "workspace:*",
-    "@playwright/test": "1.63.0",
+    "@playwright/test": "1.64.1",
     "@tailwindcss/typography": "0.5.20",
     "@types/node": "26.6.3",
     "@types/react": "19.2.14",
@@ -68,7 +68,7 @@
     "dotenv": "18.0.4",
     "eslint": "10.11.0",
     "msw": "2.15.0",
-    "playwright": "1.63.0",
+    "playwright": "1.64.1",
     "postcss-import": "17.0.0",
     "rollup-plugin-visualizer": "7.1.1",
     "sass-embedded": "1.105.0",
