@@ -4,7 +4,6 @@ import arrow.core.left
 import arrow.core.right
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
-import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContain
@@ -29,7 +28,6 @@ import no.nav.mulighetsrommet.api.avtale.api.DetaljerRequest
 import no.nav.mulighetsrommet.api.avtale.api.OpprettOpsjonLoggRequest
 import no.nav.mulighetsrommet.api.avtale.api.PersonvernRequest
 import no.nav.mulighetsrommet.api.avtale.api.VeilederinfoRequest
-import no.nav.mulighetsrommet.api.avtale.db.RammedetaljerDbo
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSatsRequest
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellRequest
 import no.nav.mulighetsrommet.api.avtale.model.RammedetaljerRequest
@@ -526,7 +524,7 @@ class AvtaleServiceTest : FunSpec({
                 type = PrismodellType.FAST_SATS_PER_BENYTTET_PLASS_PER_MANED,
                 valuta = Valuta.NOK,
                 prisbetingelser = null,
-                satser = listOf(AvtaltSatsRequest(LocalDate.of(2025, 1, 1), 100)),
+                satser = listOf(AvtaltSatsRequest(LocalDate.of(2023, 1, 1), 100)),
                 tilsagnPerDeltaker = false,
             )
 
@@ -543,6 +541,38 @@ class AvtaleServiceTest : FunSpec({
                 .shouldBeLeft()
                 .shouldContain(
                     FieldError.of("Prismodell kan ikke endres for forhåndsgodkjente avtaler"),
+                )
+        }
+
+        test("kan ikke fjerne prismodell som er i bruk av en gjennomføring") {
+            val avtale = AvtaleFixtures.oppfolging
+            val gjennomforing = GjennomforingFixtures.Oppfolging1.copy(
+                avtaleId = avtale.id,
+                status = GjennomforingStatusType.GJENNOMFORES,
+            )
+            MulighetsrommetTestDomain(
+                avtaler = listOf(avtale),
+                gjennomforinger = listOf(gjennomforing),
+            ).initialize(database.api)
+
+            val request = listOf(
+                PrismodellRequest(
+                    id = UUID.randomUUID(),
+                    type = PrismodellType.ANNEN_AVTALT_PRIS,
+                    valuta = Valuta.NOK,
+                    satser = emptyList(),
+                    prisbetingelser = null,
+                    tilsagnPerDeltaker = false,
+                ),
+            )
+
+            avtaleService.upsertPrismodell(avtale.id, request, bertilNavIdent)
+                .shouldBeLeft()
+                .shouldContain(
+                    FieldError(
+                        "/prismodeller",
+                        "Prismodell kan ikke fjernes fordi en eller flere gjennomføringer er koblet til prismodellen",
+                    ),
                 )
         }
 
@@ -587,6 +617,11 @@ class AvtaleServiceTest : FunSpec({
         test("Man skal ikke få avbryte, men få en melding dersom avtalen allerede er avsluttet") {
             val avbruttAvtale = AvtaleFixtures.oppfolging.copy(
                 id = UUID.randomUUID(),
+                status = AvtaleStatus.Avbrutt(
+                    tidspunkt = LocalDateTime.now(),
+                    aarsaker = listOf(AvbrytAvtaleAarsak.BUDSJETT_HENSYN),
+                    forklaring = null,
+                ),
             )
             val avsluttetAvtale = AvtaleFixtures.oppfolging.copy(
                 id = UUID.randomUUID(),
@@ -595,15 +630,7 @@ class AvtaleServiceTest : FunSpec({
 
             MulighetsrommetTestDomain(
                 avtaler = listOf(avbruttAvtale, avsluttetAvtale),
-            ) {
-                queries.avtale.setStatus(
-                    avbruttAvtale.id,
-                    AvtaleStatusType.AVBRUTT,
-                    tidspunkt = LocalDateTime.now(),
-                    aarsaker = listOf(AvbrytAvtaleAarsak.BUDSJETT_HENSYN),
-                    forklaring = null,
-                )
-            }.initialize(database.api)
+            ).initialize(database.api)
 
             avtaleService.avbrytAvtale(
                 avbruttAvtale.id,
@@ -699,18 +726,21 @@ class AvtaleServiceTest : FunSpec({
             )
             MulighetsrommetTestDomain(avtaler = listOf(avtale)).initialize(database.api)
 
-            shouldThrow<IllegalStateException> {
-                avtaleService.avsluttAvtale(avtale.id, LocalDateTime.now(), bertilNavIdent)
-            }.message shouldBe "Avtalen må være aktiv for å kunne avsluttes"
+            avtaleService.avsluttAvtale(avtale.id, LocalDateTime.now(), bertilNavIdent).shouldBeLeft(
+                listOf(
+                    FieldError.of("Avtalen må være aktiv for å kunne avsluttes"),
+                    FieldError.of("Avtalen kan ikke avsluttes før sluttdato"),
+                ),
+            )
         }
 
         test("kan ikke avslutte avtale før sluttdato") {
             val avtale = AvtaleFixtures.oppfolging
             MulighetsrommetTestDomain(avtaler = listOf(avtale)).initialize(database.api)
 
-            shouldThrow<IllegalStateException> {
-                avtaleService.avsluttAvtale(avtale.id, LocalDateTime.now(), bertilNavIdent)
-            }.message shouldBe "Avtalen kan ikke avsluttes før sluttdato"
+            avtaleService.avsluttAvtale(avtale.id, LocalDateTime.now(), bertilNavIdent).shouldBeLeft(
+                listOf(FieldError.of("Avtalen kan ikke avsluttes før sluttdato")),
+            )
         }
 
         test("avslutter avtale når tidspunktet er etter sluttdato") {
@@ -719,7 +749,7 @@ class AvtaleServiceTest : FunSpec({
 
             val avsluttetTidspunkt = avtale.sluttDato!!.plusDays(1).atStartOfDay()
 
-            avtaleService.avsluttAvtale(avtale.id, avsluttetTidspunkt, bertilNavIdent).should {
+            avtaleService.avsluttAvtale(avtale.id, avsluttetTidspunkt, bertilNavIdent).shouldBeRight().should {
                 it.id shouldBe avtale.id
                 it.status.type shouldBe AvtaleStatusType.AVSLUTTET
             }
@@ -933,7 +963,7 @@ class AvtaleServiceTest : FunSpec({
     context("rammedetaljer") {
         val avtaleService = createAvtaleService()
 
-        test("legger til og fjerner rammedetaljer for avtale med prismodell som støtter det") {
+        test("legger til og fjerner rammedetaljer via upsertRammedetaljer") {
             val avtale = AvtaleFixtures.oppfolging
             MulighetsrommetTestDomain(avtaler = listOf(avtale)).initialize(database.api)
 
@@ -943,7 +973,7 @@ class AvtaleServiceTest : FunSpec({
                 bertilNavIdent,
             ).shouldBeRight().id shouldBe avtale.id
 
-            database.api.session { queries.rammedetaljer.get(avtale.id) }.shouldNotBeNull().should {
+            database.api.session { queries.avtale.getOrError(avtale.id).rammedetaljer }.shouldNotBeNull().should {
                 it.totalRamme shouldBe 500_000L
                 it.utbetaltArena shouldBe 100_000L
                 it.valuta shouldBe Valuta.NOK
@@ -955,7 +985,7 @@ class AvtaleServiceTest : FunSpec({
                 bertilNavIdent,
             ).shouldBeRight().id shouldBe avtale.id
 
-            database.api.session { queries.rammedetaljer.get(avtale.id) }.shouldBeNull()
+            database.api.session { queries.avtale.getOrError(avtale.id).rammedetaljer }.shouldBeNull()
         }
 
         test("kan ikke legge til rammedetaljer for avtale med forhåndsgodkjent prismodell") {
@@ -969,26 +999,6 @@ class AvtaleServiceTest : FunSpec({
             ).shouldBeLeft(
                 listOf(FieldError("/totalRamme", "Rammedetaljer kan kun legges til anskaffet avtaler")),
             )
-        }
-
-        test("sletter eksisterende rammedetaljer") {
-            val avtale = AvtaleFixtures.oppfolging
-            MulighetsrommetTestDomain(
-                avtaler = listOf(avtale),
-            ) {
-                queries.rammedetaljer.upsert(
-                    RammedetaljerDbo(
-                        avtaleId = avtale.id,
-                        valuta = Valuta.NOK,
-                        totalRamme = 200_000L,
-                        utbetaltArena = 50_000L,
-                    ),
-                )
-            }.initialize(database.api)
-
-            avtaleService.deleteRammedetaljer(avtale.id, bertilNavIdent).id shouldBe avtale.id
-
-            database.api.session { queries.rammedetaljer.get(avtale.id) }.shouldBeNull()
         }
     }
 
