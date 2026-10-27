@@ -17,12 +17,12 @@ import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.domain.gjennomforing.Gjennomforing
 import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.BrukerUtbetalingType
-import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandling
+import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandlingStatus
+import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandlingType
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddVedtak
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandling
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingRequest
-import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatus
-import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingType
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
 import no.nav.mulighetsrommet.api.utbetaling.api.ValutaBelopRequest
 import no.nav.mulighetsrommet.model.JournalpostId
@@ -96,6 +96,7 @@ class TilskuddBehandlingValidatorTest : FunSpec({
             tilskudd = listOf(
                 TilskuddVedtak(
                     id = request.tilskudd.single().id,
+                    behandlingId = request.id,
                     tilskuddId = request.tilskudd.single().tilskuddId,
                     tilskuddOpplaeringType = Opplaeringtilskudd.Kode.SKOLEPENGER,
                     soknadJournalpostId = JournalpostId("12345"),
@@ -127,6 +128,7 @@ class TilskuddBehandlingValidatorTest : FunSpec({
         val result = TilskuddBehandlingValidator.validateTilskuddRequest(
             req = request,
             index = 0,
+            tilskuddBehandlingId = request.id,
             ctx = createCtx(),
         ).shouldBeRight()
 
@@ -152,6 +154,7 @@ class TilskuddBehandlingValidatorTest : FunSpec({
         TilskuddBehandlingValidator.validateTilskuddRequest(
             req = request,
             index = 2,
+            tilskuddBehandlingId = request.id,
             ctx = createCtx(betalingsinformasjonArrangor = null),
         ).shouldBeLeft()
             .shouldContainExactlyInAnyOrder(
@@ -177,6 +180,7 @@ class TilskuddBehandlingValidatorTest : FunSpec({
         TilskuddBehandlingValidator.validateTilskuddRequest(
             req = request,
             index = 0,
+            tilskuddBehandlingId = request.id,
             ctx = createCtx(),
         ) shouldBeLeft listOf(
             FieldError("/tilskudd/0/vedtakResultat", "Du må velge et resultat"),
@@ -189,6 +193,7 @@ class TilskuddBehandlingValidatorTest : FunSpec({
         TilskuddBehandlingValidator.validateTilskuddRequest(
             req = request,
             index = 0,
+            tilskuddBehandlingId = request.id,
             ctx = createCtx(betalingsinformasjonArrangor = null),
         ) shouldBeLeft listOf(
             FieldError("/tilskudd/0/utbetalingMottaker", "Betalingsinformasjon for arrangøren må være registrert"),
@@ -205,6 +210,7 @@ class TilskuddBehandlingValidatorTest : FunSpec({
             val result = TilskuddBehandlingValidator.validateTilskuddRequest(
                 req = request,
                 index = 0,
+                tilskuddBehandlingId = request.id,
                 ctx = createCtx(betalingsinformasjonArrangor = null),
             ).shouldBeRight()
 
@@ -221,6 +227,7 @@ class TilskuddBehandlingValidatorTest : FunSpec({
         TilskuddBehandlingValidator.validateTilskuddRequest(
             req = request,
             index = 1,
+            tilskuddBehandlingId = request.id,
             ctx = createCtx(betalingsinformasjonArrangor = null),
         ) shouldBeLeft listOf(
             FieldError("/tilskudd/1/brukerUtbetalingType", "Du må velge forskudd eller refusjon"),
@@ -233,6 +240,7 @@ class TilskuddBehandlingValidatorTest : FunSpec({
         val result = TilskuddBehandlingValidator.validateTilskuddRequest(
             req = request,
             index = 0,
+            tilskuddBehandlingId = request.id,
             ctx = createCtx(),
         ).shouldBeRight()
 
@@ -248,6 +256,7 @@ class TilskuddBehandlingValidatorTest : FunSpec({
         TilskuddBehandlingValidator.validateTilskuddRequest(
             req = request,
             index = 1,
+            tilskuddBehandlingId = request.id,
             ctx = createCtx(gjennomforing = createGjennomforing(LocalDate.of(2025, 6, 30))),
         ).shouldBeLeft()
             .shouldContainExactlyInAnyOrder(

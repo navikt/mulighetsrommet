@@ -1,32 +1,30 @@
 package no.nav.mulighetsrommet.api.tilskuddbehandling.db
 
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd
 import no.nav.mulighetsrommet.api.tilsagn.api.KostnadsstedDto
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandling
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingDto
-import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatus
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatusDto
-import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingType
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddOpplaeringDto
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultatDto
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.samletVedtakResultatStatusTag
+import no.nav.mulighetsrommet.database.createUuidArray
 import no.nav.mulighetsrommet.database.datatypes.toDaterange
+import no.nav.mulighetsrommet.database.datatypes.toPeriode
 import no.nav.mulighetsrommet.database.withTransaction
 import no.nav.mulighetsrommet.model.JournalpostId
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.NavEnhetNummer
-import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.model.Tiltaksnummer
+import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.model.ValutaBelop
-import no.nav.mulighetsrommet.serializers.LocalDateSerializer
-import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import org.intellij.lang.annotations.Language
-import java.time.LocalDate
 import java.util.UUID
+import kotlin.collections.map
 
 class TilskuddBehandlingQueries(private val session: Session) {
     fun upsert(dbo: TilskuddBehandling): Unit = withTransaction(session) {
@@ -61,14 +59,15 @@ class TilskuddBehandlingQueries(private val session: Session) {
 
         execute(queryOf(query, params))
 
-        val (gjennomforingsnummer, sisteTilskuddLopenummer) = getTiltaksnummerBase(dbo.gjennomforingId)
+        val (tiltaksnummer, sisteTilskuddLopenummer) = getTiltaksnummerBase(dbo.gjennomforingId)
         dbo.tilskudd.forEachIndexed { index, tilskuddVedtak ->
-            val nyttTilskuddsnummer = "$gjennomforingsnummer-${sisteTilskuddLopenummer + index + 1}"
+            val nesteLopenummer = sisteTilskuddLopenummer + index + 1
+            val nyttTilskuddsnummer = Tilskuddsnummer.from(tiltaksnummer, nesteLopenummer)
             upsertTilskudd(behandling = dbo, tilskuddVedtak = tilskuddVedtak, nyttTilskuddsnummer = nyttTilskuddsnummer)
         }
     }
 
-    private fun getTiltaksnummerBase(gjennomforingId: UUID): Pair<String, Int> = withTransaction(session) {
+    private fun getTiltaksnummerBase(gjennomforingId: UUID): Pair<Tiltaksnummer, Int> = withTransaction(session) {
         @Language("PostgreSQL")
         val tilskuddsnummerQuery = """
             select
@@ -83,9 +82,9 @@ class TilskuddBehandlingQueries(private val session: Session) {
         """.trimIndent()
 
         val nyTilskuddsnummer = single(queryOf(tilskuddsnummerQuery, gjennomforingId)) { row ->
-            val lopenummer = row.string("lopenummer")
+            val tiltaksnummer = Tiltaksnummer(row.string("lopenummer"))
             val sisteTilskuddLopenummer = row.int("siste_tilskudd_lopenummer")
-            Pair(lopenummer, sisteTilskuddLopenummer)
+            Pair(tiltaksnummer, sisteTilskuddLopenummer)
         }
         requireNotNull(nyTilskuddsnummer) { "Mangler gjennomforing med id $gjennomforingId" }
         nyTilskuddsnummer
@@ -94,7 +93,7 @@ class TilskuddBehandlingQueries(private val session: Session) {
     private fun upsertTilskudd(
         behandling: TilskuddBehandling,
         tilskuddVedtak: TilskuddVedtak,
-        nyttTilskuddsnummer: String,
+        nyttTilskuddsnummer: Tilskuddsnummer,
     ): Unit = withTransaction(session) {
         @Language("PostgreSQL")
         val tilskuddQuery = """
@@ -115,7 +114,7 @@ class TilskuddBehandlingQueries(private val session: Session) {
         val tilskuddParams = mapOf(
             "id" to tilskuddVedtak.tilskuddId,
             "tilskudd_opplaering_kode" to tilskuddVedtak.tilskuddOpplaeringType.name,
-            "tilskuddsnummer" to nyttTilskuddsnummer,
+            "tilskuddsnummer" to nyttTilskuddsnummer.value,
             "gjennomforing_id" to behandling.gjennomforingId,
         )
 
@@ -263,7 +262,7 @@ class TilskuddBehandlingQueries(private val session: Session) {
         session.execute(queryOf(query, mapOf("id" to id, "status" to status.name)))
     }
 
-    fun setUtbetalingTilskuddVedtak(tilskuddId: UUID, utbetalingId: UUID) {
+    fun setUtbetalingTilskuddVedtak(id: UUID, utbetalingId: UUID) {
         @Language("PostgreSQL")
         val query = """
             update tilskudd_vedtak
@@ -271,17 +270,43 @@ class TilskuddBehandlingQueries(private val session: Session) {
             where id = :id::uuid
         """.trimIndent()
 
-        session.execute(queryOf(query, mapOf("id" to tilskuddId, "utbetaling_id" to utbetalingId)))
+        session.execute(queryOf(query, mapOf("id" to id, "utbetaling_id" to utbetalingId)))
     }
 
     fun get(id: UUID): TilskuddBehandlingDto? {
         @Language("PostgreSQL")
         val query = """
-            select * from view_tilskudd_behandling
+            select id, status, type, gjennomforing_id, behandlende_enhet
+            from tilskudd_behandling
             where id = :id::uuid
         """.trimIndent()
 
-        return session.single(queryOf(query, mapOf("id" to id))) { it.toTilskuddBehandlingDto() }
+        return withTransaction(session) {
+            val behandling = single(queryOf(query, mapOf("id" to id))) { it.toTilskuddBehandlingDbo() }
+                ?: return@withTransaction null
+            val vedtak = getVedtakForBehandlingIds(listOf(id))
+            behandling.toDto(vedtak.map { it.dto })
+        }
+    }
+
+    private fun Session.getVedtakForBehandlingIds(behandlingIds: Collection<UUID>): List<TilskuddVedtakRow> {
+        if (behandlingIds.isEmpty()) return emptyList()
+
+        @Language("PostgreSQL")
+        val query = """
+        select *
+        from view_tilskudd_vedtak v
+        where v.tilskudd_behandling_id = any(:behandling_ids::uuid[])
+        order by v.lopenummer desc
+        """.trimIndent()
+
+        val behandlingIdsArray = createUuidArray(behandlingIds.toList())
+        return list(queryOf(query, mapOf("behandling_ids" to behandlingIdsArray))) { row ->
+            TilskuddVedtakRow(
+                behandlingId = row.uuid("tilskudd_behandling_id"),
+                dto = row.toTilskuddOpplaeringDto(),
+            )
+        }
     }
 
     fun getVedtakJournalpostDistribueringId(behandlingId: UUID): String? {
@@ -323,134 +348,93 @@ class TilskuddBehandlingQueries(private val session: Session) {
     fun getByGjennomforingId(gjennomforingId: UUID): List<TilskuddBehandlingDto> {
         @Language("PostgreSQL")
         val query = """
-            select * from view_tilskudd_behandling
+            select id, status, type, gjennomforing_id, behandlende_enhet
+            from tilskudd_behandling
             where gjennomforing_id = :gjennomforing_id::uuid
         """.trimIndent()
 
-        return session.list(
-            queryOf(
-                query,
-                mapOf("gjennomforing_id" to gjennomforingId),
-            ),
-        ) { it.toTilskuddBehandlingDto() }
+        return withTransaction(session) {
+            val behandlinger = list(
+                queryOf(
+                    query,
+                    mapOf("gjennomforing_id" to gjennomforingId),
+                ),
+            ) { it.toTilskuddBehandlingDbo() }
+            if (behandlinger.isEmpty()) {
+                return@withTransaction emptyList()
+            }
+
+            val vedtakByBehandlingId = getVedtakForBehandlingIds(behandlinger.map { it.id })
+                .groupBy { it.behandlingId }
+
+            behandlinger.map { behandling ->
+                behandling.toDto(vedtakByBehandlingId[behandling.id].orEmpty().map { it.dto })
+            }
+        }
     }
 }
 
-private val viewJson = Json {
-    ignoreUnknownKeys = true
-}
-
-private data class TilskuddBehandlingViewRow(
-    @Serializable(with = UUIDSerializer::class)
-    val id: UUID,
-    val status: String,
-    val type: String,
-    @SerialName("gjennomforing_id")
-    @Serializable(with = UUIDSerializer::class)
-    val gjennomforingId: UUID,
-    @SerialName("vedtak_json")
-    val vedtakJson: String,
-    val behandlendeEnhet: String?,
+private data class TilskuddVedtakRow(
+    val behandlingId: UUID,
+    val dto: TilskuddOpplaeringDto,
 )
 
-@Serializable
-private data class TilskuddVedtakViewRow(
-    @Serializable(with = UUIDSerializer::class)
-    val id: UUID,
-    @SerialName("tilskuddsnummer")
-    val tilskuddsnummer: String,
-    @Serializable(with = UUIDSerializer::class)
-    @SerialName("tilskudd_id")
-    val tilskuddId: UUID,
-    @SerialName("soknad_journalpost_id")
-    val soknadJournalpostId: JournalpostId,
-    @SerialName("soknad_dato")
-    @Serializable(with = LocalDateSerializer::class)
-    val soknadDato: LocalDate,
-    val periode: String,
-    @SerialName("kostnadssted_enhetsnummer")
-    val kostnadsstedEnhetsnummer: String,
-    @SerialName("kostnadssted_navn")
-    val kostnadsstedNavn: String,
-    val tilskuddOpplaeringType: Opplaeringtilskudd.Kode,
-    val soknadBelop: ValutaBelop,
-    val utbetalingBelop: ValutaBelop?,
-    val vedtakResultat: VedtakResultatViewRow,
-    val kommentarVedtaksbrev: String?,
-    val utbetalingMottaker: TilskuddMottaker,
-    @SerialName("bruker_utbetaling_type")
-    val brukerUtbetalingType: BrukerUtbetalingType?,
-    val kid: Kid?,
-    val kommentarIntern: String?,
-    val vedtakJournalpostId: String?,
-)
-
-@Serializable
-private data class VedtakResultatViewRow(
-    val type: no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat,
-)
-
-private fun Row.toTilskuddBehandlingViewRow(): TilskuddBehandlingViewRow {
-    return TilskuddBehandlingViewRow(
+private fun Row.toTilskuddBehandlingDbo(): TilskuddBehandlingDbo {
+    return TilskuddBehandlingDbo(
         id = uuid("id"),
-        status = string("status"),
-        type = string("type"),
+        status = TilskuddBehandlingStatus.valueOf(string("status")),
+        type = TilskuddBehandlingType.valueOf(string("type")),
         gjennomforingId = uuid("gjennomforing_id"),
-        vedtakJson = string("vedtak_json"),
-        behandlendeEnhet = stringOrNull("behandlende_enhet"),
+        behandlendeEnhet = stringOrNull("behandlende_enhet")?.let { NavEnhetNummer(it) },
     )
 }
 
-private fun Row.toTilskuddBehandlingDto(): TilskuddBehandlingDto {
-    return toTilskuddBehandlingViewRow().toDto()
+private fun Row.toTilskuddOpplaeringDto(): TilskuddOpplaeringDto {
+    val soknadBelop = ValutaBelop(
+        belop = int("soknad_belop"),
+        valuta = Valuta.valueOf(string("soknad_valuta")),
+    )
+    val utbetalingBelop = intOrNull("belop")?.let { belop ->
+        ValutaBelop(
+            belop = belop,
+            valuta = Valuta.valueOf(string("valuta")),
+        )
+    }
+
+    return TilskuddOpplaeringDto(
+        id = uuid("id"),
+        tilskuddId = uuid("tilskudd_id"),
+        tilskuddsnummer = Tilskuddsnummer(string("tilskuddsnummer")),
+        tilskuddOpplaeringType = Opplaeringtilskudd.Kode.valueOf(string("tilskudd_opplaering_type")),
+        soknadDato = localDate("soknad_dato"),
+        soknadJournalpostId = JournalpostId(string("soknad_journalpost_id")),
+        soknadBelop = soknadBelop,
+        periode = string("periode").toPeriode(),
+        kostnadssted = KostnadsstedDto(
+            navn = string("kostnadssted_navn"),
+            enhetsnummer = NavEnhetNummer(string("kostnadssted")),
+        ),
+        vedtakResultat = VedtakResultatDto(VedtakResultat.valueOf(string("vedtak_resultat"))),
+        kommentarVedtaksbrev = stringOrNull("kommentar_vedtaksbrev"),
+        utbetalingMottaker = TilskuddMottaker.valueOf(string("utbetaling_mottaker")),
+        kid = stringOrNull("kid")?.let(Kid::parse),
+        brukerUtbetalingType = stringOrNull("bruker_utbetaling_type")?.let(BrukerUtbetalingType::valueOf),
+        utbetalingBelop = utbetalingBelop,
+        kommentarIntern = stringOrNull("kommentar_intern"),
+        vedtakJournalpostId = stringOrNull("vedtak_journalpost_id"),
+    )
 }
 
-private fun TilskuddBehandlingViewRow.toDto(): TilskuddBehandlingDto {
-    val vedtak = viewJson.decodeFromString<List<TilskuddVedtakViewRow>>(vedtakJson)
-    require(vedtak.isNotEmpty()) { "Tilskuddsbehandling med id $id mangler vedtak" }
-
-    val tilskudd = vedtak.map { it.toDto() }
+private fun TilskuddBehandlingDbo.toDto(tilskudd: List<TilskuddOpplaeringDto>): TilskuddBehandlingDto {
+    require(tilskudd.isNotEmpty()) { "Tilskuddsbehandling med id $id mangler vedtak" }
 
     return TilskuddBehandlingDto(
         id = id,
         gjennomforingId = gjennomforingId,
         tilskudd = tilskudd,
-        status = TilskuddBehandlingStatusDto(TilskuddBehandlingStatus.valueOf(status)),
-        type = TilskuddBehandlingType.valueOf(type),
+        status = TilskuddBehandlingStatusDto(status),
+        type = type,
         samletVedtakResultat = samletVedtakResultatStatusTag(tilskudd.map { it.vedtakResultat.type }),
-        behandlendeEnhet = behandlendeEnhet?.let { NavEnhetNummer(behandlendeEnhet) },
-    )
-}
-
-private fun TilskuddVedtakViewRow.toDto(): TilskuddOpplaeringDto {
-    return TilskuddOpplaeringDto(
-        id = id,
-        tilskuddId = tilskuddId,
-        tilskuddsnummer = tilskuddsnummer,
-        tilskuddOpplaeringType = tilskuddOpplaeringType,
-        soknadDato = soknadDato,
-        soknadJournalpostId = soknadJournalpostId,
-        soknadBelop = soknadBelop,
-        periode = periode.toPeriode(),
-        kostnadssted = KostnadsstedDto(
-            navn = kostnadsstedNavn,
-            enhetsnummer = NavEnhetNummer(kostnadsstedEnhetsnummer),
-        ),
-        vedtakResultat = VedtakResultatDto(vedtakResultat.type),
-        kommentarVedtaksbrev = kommentarVedtaksbrev,
-        utbetalingMottaker = utbetalingMottaker,
-        kid = kid,
-        brukerUtbetalingType = brukerUtbetalingType,
-        utbetalingBelop = utbetalingBelop,
-        kommentarIntern = kommentarIntern,
-        vedtakJournalpostId = vedtakJournalpostId,
-    )
-}
-
-private fun String.toPeriode(): Periode {
-    val (start, end) = removeSurrounding("[", ")").split(",")
-    return Periode(
-        start = LocalDate.parse(start.trim()),
-        slutt = LocalDate.parse(end.trim()),
+        behandlendeEnhet = behandlendeEnhet,
     )
 }

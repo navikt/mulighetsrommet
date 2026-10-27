@@ -6,6 +6,7 @@ import no.nav.mulighetsrommet.api.tilsagn.api.KostnadsstedDto
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.BrukerUtbetalingType
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddVedtak
+import no.nav.mulighetsrommet.api.tilskuddbehandling.db.Tilskuddsnummer
 import no.nav.mulighetsrommet.model.DataElement
 import no.nav.mulighetsrommet.model.JournalpostId
 import no.nav.mulighetsrommet.model.Kid
@@ -20,7 +21,7 @@ import java.util.UUID
 data class TilskuddOpplaeringDto(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
-    val tilskuddsnummer: String,
+    val tilskuddsnummer: Tilskuddsnummer,
     @Serializable(with = UUIDSerializer::class)
     val tilskuddId: UUID,
     val tilskuddOpplaeringType: Opplaeringtilskudd.Kode,
@@ -39,8 +40,9 @@ data class TilskuddOpplaeringDto(
     val kommentarIntern: String?,
     val vedtakJournalpostId: String?,
 ) {
-    fun toTilskuddVedtak() = TilskuddVedtak(
+    fun toTilskuddVedtak(tilskuddBehandlingId: UUID) = TilskuddVedtak(
         id = this.id,
+        behandlingId = tilskuddBehandlingId,
         tilskuddId = this.tilskuddId,
         tilskuddOpplaeringType = this.tilskuddOpplaeringType,
         soknadDato = this.soknadDato,

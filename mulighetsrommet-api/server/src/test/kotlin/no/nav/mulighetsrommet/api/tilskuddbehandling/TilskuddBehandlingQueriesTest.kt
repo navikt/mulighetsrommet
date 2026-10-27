@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.tilskuddbehandling
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
@@ -11,11 +12,11 @@ import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.BrukerUtbetalingType
-import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandling
+import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandlingStatus
+import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandlingType
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddVedtak
-import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatus
-import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingType
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandling
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.JournalpostId
@@ -35,12 +36,14 @@ class TilskuddBehandlingQueriesTest : FunSpec({
         gjennomforinger = listOf(GjennomforingFixtures.AFT1),
     )
 
+    val behandligId = UUID.randomUUID()
     val behandling = TilskuddBehandling(
-        id = UUID.randomUUID(),
+        id = behandligId,
         gjennomforingId = GjennomforingFixtures.AFT1.id,
         tilskudd = listOf(
             TilskuddVedtak(
                 id = UUID.randomUUID(),
+                behandlingId = behandligId,
                 tilskuddId = UUID.randomUUID(),
                 tilskuddOpplaeringType = Opplaeringtilskudd.Kode.SKOLEPENGER,
                 soknadBelop = ValutaBelop(
@@ -64,6 +67,7 @@ class TilskuddBehandlingQueriesTest : FunSpec({
             ),
             TilskuddVedtak(
                 id = UUID.randomUUID(),
+                behandlingId = behandligId,
                 tilskuddId = UUID.randomUUID(),
                 tilskuddOpplaeringType = Opplaeringtilskudd.Kode.EKSAMENSGEBYR,
                 soknadBelop = ValutaBelop(
@@ -87,6 +91,7 @@ class TilskuddBehandlingQueriesTest : FunSpec({
             ),
             TilskuddVedtak(
                 id = UUID.randomUUID(),
+                behandlingId = behandligId,
                 tilskuddId = UUID.randomUUID(),
                 tilskuddOpplaeringType = Opplaeringtilskudd.Kode.INTEGRERT_BOTILBUD,
                 soknadBelop = ValutaBelop(
@@ -124,7 +129,9 @@ class TilskuddBehandlingQueriesTest : FunSpec({
                     it.gjennomforingId shouldBe GjennomforingFixtures.AFT1.id
 
                     it.tilskudd.size shouldBe 3
-                    it.tilskudd[0] should { v ->
+                    val vedtakById = it.tilskudd.associateBy { vedtak -> vedtak.id }
+                    vedtakById[behandling.tilskudd[0].id] should { v ->
+                        requireNotNull(v)
                         v.id shouldBe behandling.tilskudd[0].id
                         v.tilskuddId shouldBe behandling.tilskudd[0].tilskuddId
                         v.tilskuddOpplaeringType shouldBe Opplaeringtilskudd.Kode.SKOLEPENGER
@@ -142,7 +149,8 @@ class TilskuddBehandlingQueriesTest : FunSpec({
                         v.kostnadssted.enhetsnummer shouldBe behandling.tilskudd[0].kostnadssted
                         v.kommentarIntern shouldBe behandling.tilskudd[0].kommentarIntern
                     }
-                    it.tilskudd[1] should { v ->
+                    vedtakById[behandling.tilskudd[1].id] should { v ->
+                        requireNotNull(v)
                         v.id shouldBe behandling.tilskudd[1].id
                         v.tilskuddId shouldBe behandling.tilskudd[1].tilskuddId
                         v.tilskuddOpplaeringType shouldBe Opplaeringtilskudd.Kode.EKSAMENSGEBYR
@@ -160,7 +168,8 @@ class TilskuddBehandlingQueriesTest : FunSpec({
                         v.kostnadssted.enhetsnummer shouldBe behandling.tilskudd[1].kostnadssted
                         v.kommentarIntern shouldBe behandling.tilskudd[1].kommentarIntern
                     }
-                    it.tilskudd[2] should { v ->
+                    vedtakById[behandling.tilskudd[2].id] should { v ->
+                        requireNotNull(v)
                         v.id shouldBe behandling.tilskudd[2].id
                         v.tilskuddId shouldBe behandling.tilskudd[2].tilskuddId
                         v.tilskuddOpplaeringType shouldBe Opplaeringtilskudd.Kode.INTEGRERT_BOTILBUD
@@ -173,6 +182,57 @@ class TilskuddBehandlingQueriesTest : FunSpec({
                         v.kommentarIntern shouldBe behandling.tilskudd[2].kommentarIntern
                     }
                 }
+            }
+        }
+
+        test("getByGjennomforingId grupperer behandlinger og vedtak") {
+            database.runAndRollback {
+                domain.initialize()
+                val otherVedtak = behandling.tilskudd.first().copy(
+                    id = UUID.randomUUID(),
+                    tilskuddId = UUID.randomUUID(),
+                )
+                val otherBehandling = behandling.copy(
+                    id = UUID.randomUUID(),
+                    tilskudd = listOf(otherVedtak),
+                )
+                queries.tilskuddBehandling.upsert(behandling)
+                queries.tilskuddBehandling.upsert(otherBehandling)
+
+                val result = queries.tilskuddBehandling.getByGjennomforingId(GjennomforingFixtures.AFT1.id)
+                    .associateBy { it.id }
+
+                result.keys shouldBe setOf(behandling.id, otherBehandling.id)
+                result.getValue(behandling.id).tilskudd.map { it.id }.toSet() shouldBe behandling.tilskudd.map { it.id }.toSet()
+                result.getValue(otherBehandling.id).tilskudd.map { it.id }.toSet() shouldBe setOf(otherVedtak.id)
+                queries.tilskuddBehandling.get(UUID.randomUUID()) shouldBe null
+            }
+        }
+
+        test("behandling uten vedtak gir feil ved henting") {
+            database.runAndRollback {
+                domain.initialize()
+                val noVedtakBehandling = behandling.copy(id = UUID.randomUUID(), tilskudd = emptyList())
+                queries.tilskuddBehandling.upsert(noVedtakBehandling)
+
+                shouldThrow<IllegalArgumentException> {
+                    queries.tilskuddBehandling.get(noVedtakBehandling.id)
+                }.message shouldBe "Tilskuddsbehandling med id ${noVedtakBehandling.id} mangler vedtak"
+            }
+        }
+
+        test("getByGjennomforingId feiler hvis en av behandlingene mangler vedtak") {
+            database.runAndRollback {
+                domain.initialize()
+                queries.tilskuddBehandling.upsert(behandling)
+                val noVedtakBehandling = behandling.copy(id = UUID.randomUUID(), tilskudd = emptyList())
+                queries.tilskuddBehandling.upsert(noVedtakBehandling)
+
+                shouldThrow<IllegalArgumentException> {
+                    queries.tilskuddBehandling.getByGjennomforingId(GjennomforingFixtures.AFT1.id)
+                }.message shouldBe "Tilskuddsbehandling med id ${noVedtakBehandling.id} mangler vedtak"
+
+                queries.tilskuddBehandling.getByGjennomforingId(UUID.randomUUID()) shouldBe emptyList()
             }
         }
     }

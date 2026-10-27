@@ -10,13 +10,13 @@ import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.domain.gjennomforing.Gjennomforing
 import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.BrukerUtbetalingType
-import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandling
+import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandlingStatus
+import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandlingType
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddVedtak
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandling
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingRequest
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingRequest.TilskuddRequest
-import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatus
-import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingType
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
 import no.nav.mulighetsrommet.api.utils.DatoUtils.parseOrNull
 import no.nav.mulighetsrommet.model.JournalpostId
@@ -30,6 +30,7 @@ import no.nav.mulighetsrommet.validation.FieldError
 import no.nav.mulighetsrommet.validation.Validated
 import no.nav.mulighetsrommet.validation.validation
 import java.time.LocalDate
+import java.util.UUID
 
 data class TilskuddSaksopplysninger(
     val periode: Periode,
@@ -59,6 +60,7 @@ object TilskuddBehandlingValidator {
             validateTilskuddRequest(
                 req = v,
                 index = index,
+                tilskuddBehandlingId = request.id,
                 ctx = ctx,
             ).bind()
         }
@@ -76,6 +78,7 @@ object TilskuddBehandlingValidator {
     fun validateTilskuddRequest(
         req: TilskuddRequest,
         index: Int,
+        tilskuddBehandlingId: UUID,
         ctx: Ctx,
     ): Validated<TilskuddVedtak> = validation {
         validateNotNull(req.vedtakResultat) {
@@ -104,6 +107,7 @@ object TilskuddBehandlingValidator {
         val saksopplysninger = validateSaksopplysningTilskuddVedtak(req, index, ctx).bind()
         TilskuddVedtak(
             id = req.id,
+            behandlingId = tilskuddBehandlingId,
             tilskuddId = req.tilskuddId,
             tilskuddOpplaeringType = saksopplysninger.tilskuddOpplaeringType,
             soknadJournalpostId = saksopplysninger.soknadJournalpostId,

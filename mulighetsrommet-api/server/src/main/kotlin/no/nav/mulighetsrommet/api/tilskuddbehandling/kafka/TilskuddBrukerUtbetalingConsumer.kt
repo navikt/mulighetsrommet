@@ -15,9 +15,9 @@ import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd
 import no.nav.mulighetsrommet.api.domain.personalia.Personalia
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
+import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandlingType
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingDto
-import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingType
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddOpplaeringDto
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
 import no.nav.mulighetsrommet.api.totrinnskontroll.kafka.TotrinnskontrollHendelseDeserializer
@@ -148,7 +148,7 @@ class TilskuddBrukerUtbetalingConsumer(
                     queries.brukerUtbetaling.insert(
                         UpsertBrukerUtbetalingDbo(
                             id = UUID.randomUUID(),
-                            sakId = tilskuddVedtak.tilskuddsnummer,
+                            sakId = tilskuddVedtak.tilskuddsnummer.value,
                             transaksjonsDato = besluttetDato.tilNorskDato(),
                             belop = requireNotNull(tilskuddVedtak.utbetalingBelop?.belop) {
                                 "utbetalingBelop var null"

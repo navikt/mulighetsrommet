@@ -4,11 +4,11 @@ import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.EnkelAmo
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.BrukerUtbetalingType
-import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandling
+import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandlingStatus
+import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandlingType
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddVedtak
-import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatus
-import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingType
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandling
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
 import no.nav.mulighetsrommet.model.JournalpostId
 import no.nav.mulighetsrommet.model.Kid
@@ -19,8 +19,10 @@ import java.time.LocalDate
 import java.util.UUID
 
 object TilskuddFixtures {
+    private val tilskuddBehandlingId = UUID.randomUUID()
     val TilskuddVedtakInnvilgelse = TilskuddVedtak(
         id = UUID.randomUUID(),
+        behandlingId = tilskuddBehandlingId,
         tilskuddId = UUID.randomUUID(),
         tilskuddOpplaeringType = Opplaeringtilskudd.Kode.SKOLEPENGER,
         soknadBelop = ValutaBelop(
@@ -45,6 +47,7 @@ object TilskuddFixtures {
 
     val TilskuddVedtakAvslag = TilskuddVedtak(
         id = UUID.randomUUID(),
+        behandlingId = tilskuddBehandlingId,
         tilskuddId = UUID.randomUUID(),
         tilskuddOpplaeringType = Opplaeringtilskudd.Kode.EKSAMENSGEBYR,
         soknadBelop = ValutaBelop(
@@ -68,7 +71,7 @@ object TilskuddFixtures {
     )
 
     val Behandling = TilskuddBehandling(
-        id = UUID.randomUUID(),
+        id = tilskuddBehandlingId,
         gjennomforingId = EnkelAmo.id,
         tilskudd = listOf(TilskuddVedtakInnvilgelse, TilskuddVedtakAvslag),
         status = TilskuddBehandlingStatus.TIL_GODKJENNING,
