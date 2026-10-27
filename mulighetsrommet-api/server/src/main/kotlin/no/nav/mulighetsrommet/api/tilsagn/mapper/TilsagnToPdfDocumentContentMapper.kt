@@ -4,7 +4,6 @@ import no.nav.mulighetsrommet.api.domain.personalia.Gradering
 import no.nav.mulighetsrommet.api.domain.personalia.Personalia
 import no.nav.mulighetsrommet.api.pdfgen.Deltaker
 import no.nav.mulighetsrommet.api.pdfgen.PdfDocumentContent
-import no.nav.mulighetsrommet.api.pdfgen.SectionBuilder
 import no.nav.mulighetsrommet.api.pdfgen.Signature
 import no.nav.mulighetsrommet.api.pdfgen.TopSection
 import no.nav.mulighetsrommet.api.tilsagn.task.TilsagnsbrevInnhold
@@ -17,17 +16,17 @@ object TilsagnToPdfDocumentContentMapper {
         innhold: TilsagnsbrevInnhold,
         visPersonopplysningerOmAdressebeskyttetEllerSkjermetPerson: Boolean = false,
     ): PdfDocumentContent = PdfDocumentContent.create(
-        title = "Tilsagnsbrev",
-        subject = "Tilsagnsbrev til ${innhold.arrangor.navn}",
+        title = "Bekreftelse på bestilling",
+        subject = "Bekreftelsebrev til ${innhold.arrangor.navn}",
         description = "Detaljer om tilsagn for gjennomføring av ${innhold.tilsagn.tiltakstype.navn}",
         author = "Nav",
     ) {
         topSection(
             TopSection(
                 publicExemption = true,
-                addressedTo = "Brev til ${innhold.arrangor.navn}",
+                addressedTo = innhold.arrangor.navn,
                 date = innhold.besluttetTidspunkt.toLocalDate().toString(),
-                reference = "Ref. ${innhold.tilsagn.bestilling.bestillingsnummer}",
+                reference = innhold.tilsagn.bestilling.bestillingsnummer,
                 deltaker =
                 when {
                     visPersonopplysningerOmAdressebeskyttetEllerSkjermetPerson -> Deltaker(
@@ -51,8 +50,9 @@ object TilsagnToPdfDocumentContentMapper {
             ),
         )
 
-        mainSection("Bekreftelse på bestilling") {
-            paragraph { regular("Nav og dere har blitt enige om dette:") }
+        mainSection("Bekreftelse på bestilling")
+
+        section("Nav bekrefter bestilling av følgende:") {
             descriptionList {
                 text(
                     "Tiltaket",
@@ -75,25 +75,33 @@ object TilsagnToPdfDocumentContentMapper {
                     },
                 )
                 text("Utbetalingsperioden", innhold.tilsagn.periode.formatPeriode())
-                text("Støtten fra Nav", "Opptil ${formatCurrency(innhold.tilsagn.beregning.output.pris)}")
+                text("Avtalt pris", formatCurrency(innhold.tilsagn.beregning.output.pris))
             }
         }
 
         section("Hvordan kan dere få utbetalt pengene?")
         {
-            addInvoiceInfo()
-            paragraph { regular("Vi kan kontrollere om pengene som blir utbetalt blir brukt riktig.") }
-            paragraph { regular("Følgende informasjon er registrert hos Nav:") }
+            paragraph { regular("Dere må sende inn faktura og eventuelle vedlegg med førsteside til Nav.") }
+            paragraph { regular("Førstesiden finner dere på nav.no/samarbeidspartner/soknader/tiltaksarrangor.") }
+        }
+        section("Fakturaen skal inneholde følgende informasjon:", level = 3)
+        {
+            itemList {
+                item("Saksnummer, som dere finner øverst i dette brevet")
+                item("Navnet på kurset eller utdanningen")
+                item("Gjennomføringsperioden")
+                item("30 dagers kredittid, hvis ikke annet er avtalt")
+                item("Pris som faktureres")
+            }
+        }
+
+        section("Følgende informasjon er registrert hos Nav:", level = 3) {
             descriptionList {
                 text("Bedriftsnummer", innhold.arrangor.organisasjonsnummer)
                 text("Kontonummer", innhold.kontonummer)
             }
             paragraph {
-                regular("Hvis kontonummeret er feil, må dere oppdatere det via Navs hjemmeside under ")
-                bold("Arbeidsgiver")
-                regular(" og ")
-                bold("Endre kontonummer")
-                regular(".")
+                regular("Hvis kontonummeret er feil eller mangler, må dere oppdatere det på nav.no/arbeidsgiver/endre-kontonummer.")
             }
         }
 
@@ -108,22 +116,6 @@ object TilsagnToPdfDocumentContentMapper {
 
     private fun formaterDeltakerPersonalia(personalia: Personalia): String {
         return personalia.norskIdent()?.let { "${personalia.navn()} (${it.value})" } ?: personalia.navn()
-    }
-
-    private fun SectionBuilder.addInvoiceInfo() {
-        paragraph {
-            regular("Gå inn på Navs hjemmesider, velg ")
-            bold("Samarbeidspartner")
-            regular(", ")
-            bold("Tiltaksarrangør")
-            regular(" og ")
-            bold("Skjema og søknad")
-            regular(". Velg så ")
-            bold("Opplæring")
-            regular(" og ")
-            bold("Faktura")
-            regular(". Send inn faktura til Nav med førsteside.")
-        }
     }
 }
 
