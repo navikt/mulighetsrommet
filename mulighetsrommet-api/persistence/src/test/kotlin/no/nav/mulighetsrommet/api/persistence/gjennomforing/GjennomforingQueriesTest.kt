@@ -13,13 +13,13 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
 import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.api.domain.arrangor.ArrangorKontaktperson
+import no.nav.mulighetsrommet.api.domain.gjennomforing.AnsvarligEnhet
 import no.nav.mulighetsrommet.api.domain.gjennomforing.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.domain.gjennomforing.Gjennomforing
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingAvtaleDetaljer
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingAvtaleKompakt
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingAvtaleStatus
-import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingEnkeltplassKompakt
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingEnkeltplassStatus
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingKompakt
@@ -107,6 +107,7 @@ class GjennomforingQueriesTest : FunSpec({
                     it.arena?.ansvarligNavEnhet shouldBe null
                     it.apentForPamelding shouldBe true
                     it.kontorstruktur.shouldNotBeNull()
+                    it.ansvarligEnhet shouldBe AnsvarligEnhet(Innlandet.enhetsnummer, Innlandet.navn)
                 }
 
                 gjennomforing.getGjennomforingAvtaleDetaljerOrError(Oppfolging1.id).should {
@@ -136,6 +137,34 @@ class GjennomforingQueriesTest : FunSpec({
                         navn = "Donald Duck",
                     ),
                 )
+            }
+        }
+
+        test("oppdatere detaljer endrer ansvarlig enhet") {
+            database.runAndRollback {
+                gjennomforing.upsert(Oppfolging1)
+
+                gjennomforing.updateDetaljer(
+                    GjennomforingDetaljerDbo(
+                        id = Oppfolging1.id,
+                        arrangorId = Oppfolging1.arrangorId,
+                        oppstart = Oppfolging1.oppstart,
+                        pameldingType = Oppfolging1.pameldingType,
+                        navn = Oppfolging1.navn,
+                        startDato = Oppfolging1.startDato,
+                        sluttDato = Oppfolging1.sluttDato,
+                        status = Oppfolging1.status,
+                        deltidsprosent = Oppfolging1.deltidsprosent,
+                        antallPlasser = Oppfolging1.antallPlasser,
+                        prismodellId = Oppfolging1.prismodellId,
+                        oppmoteSted = null,
+                        tilgjengeligForArrangorDato = null,
+                        ansvarligEnhet = Gjovik.enhetsnummer,
+                    ),
+                )
+
+                gjennomforing.getGjennomforingAvtaleOrError(Oppfolging1.id).ansvarligEnhet shouldBe
+                    AnsvarligEnhet(Gjovik.enhetsnummer, Gjovik.navn)
             }
         }
 
@@ -598,7 +627,7 @@ class GjennomforingQueriesTest : FunSpec({
                     it.startDato shouldBe LocalDate.of(2025, 1, 1)
                     it.sluttDato.shouldBeNull()
                     it.status shouldBe GjennomforingEnkeltplassStatus.Deltar
-                    it.ansvarligEnhet shouldBe GjennomforingEnkeltplass.AnsvarligEnhet(
+                    it.ansvarligEnhet shouldBe AnsvarligEnhet(
                         enhetsnummer = NavEnhetNummer("0400"),
                         navn = "Nav Innlandet",
                     )

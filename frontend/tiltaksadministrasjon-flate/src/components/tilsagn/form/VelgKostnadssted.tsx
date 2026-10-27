@@ -1,10 +1,12 @@
 import { FormCombobox } from "@/components/skjema/FormCombobox";
 import { tilsagnTekster } from "../TilsagnTekster";
 import { FieldPath, FieldValues } from "react-hook-form";
+import { ReactNode } from "react";
 
 interface Props<T extends FieldValues> {
   kostnadssteder: KostnadsstedOption[];
   name: FieldPath<T>;
+  label?: ReactNode;
 }
 
 export interface KostnadsstedOption {
@@ -12,7 +14,11 @@ export interface KostnadsstedOption {
   navn: string;
 }
 
-export function VelgKostnadssted<T extends FieldValues>({ kostnadssteder, name }: Props<T>) {
+export function VelgKostnadssted<T extends FieldValues>({
+  kostnadssteder,
+  name,
+  label = tilsagnTekster.kostnadssted.label,
+}: Props<T>) {
   const options = kostnadssteder
     .sort((a, b) => a.navn.localeCompare(b.navn))
     .map(({ navn, enhetsnummer }) => {
@@ -26,7 +32,7 @@ export function VelgKostnadssted<T extends FieldValues>({ kostnadssteder, name }
     <FormCombobox<T>
       placeholder="-- Velg kostnadssted --"
       size="small"
-      label={tilsagnTekster.kostnadssted.label}
+      label={label}
       name={name}
       options={options}
     />

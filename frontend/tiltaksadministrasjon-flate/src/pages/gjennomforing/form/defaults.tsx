@@ -50,6 +50,7 @@ export function defaultGjennomforingData(
         ? avtale.sluttDato
         : null,
     arrangorId: defaultArrangor(avtale, gjennomforing),
+    ansvarligEnhet: gjennomforing?.ansvarligEnhet?.enhetsnummer,
     oppstart,
     kontaktpersoner: veilederinfo?.kontaktpersoner ?? [],
     arrangorKontaktpersoner: gjennomforing?.arrangor?.kontaktpersoner.map((p) => p.id) ?? [],

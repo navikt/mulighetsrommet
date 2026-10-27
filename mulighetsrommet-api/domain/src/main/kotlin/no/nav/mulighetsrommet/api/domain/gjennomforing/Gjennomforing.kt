@@ -138,6 +138,7 @@ data class GjennomforingAvtale(
     override val pameldingType: GjennomforingPameldingType,
     @Serializable(with = UUIDSerializer::class)
     val avtaleId: UUID,
+    val ansvarligEnhet: AnsvarligEnhet,
     val kontorstruktur: List<Kontorstruktur>,
     val apentForPamelding: Boolean,
     val stengt: List<StengtPeriode>,
@@ -184,13 +185,13 @@ data class GjennomforingEnkeltplass(
             "oppstart må være satt til ${GjennomforingOppstartstype.ENKELTPLASS} for enkeltplasser"
         }
     }
-
-    @Serializable
-    data class AnsvarligEnhet(
-        val enhetsnummer: NavEnhetNummer,
-        val navn: String,
-    )
 }
+
+@Serializable
+data class AnsvarligEnhet(
+    val enhetsnummer: NavEnhetNummer,
+    val navn: String,
+)
 
 @Serializable
 data class GjennomforingArena(

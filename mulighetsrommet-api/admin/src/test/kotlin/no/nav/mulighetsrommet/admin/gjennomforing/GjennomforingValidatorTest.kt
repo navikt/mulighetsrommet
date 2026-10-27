@@ -186,6 +186,13 @@ class GjennomforingValidatorTest : FunSpec({
         )
     }
 
+    test("ansvarlig enhet er påkrevd") {
+        validateCreate(
+            request.copy(detaljer = request.detaljer.copy(ansvarligEnhet = null)),
+            ctx,
+        ).shouldBeLeft().shouldContain(FieldError("/ansvarligEnhet", "Du må velge ansvarlig enhet"))
+    }
+
     test("kan ikke bare opprettes med status GJENNOMFORES") {
         validateCreate(request, ctx.copy(today = request.detaljer.startDato!!)).shouldBeRight()
 
