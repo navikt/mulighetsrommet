@@ -1,12 +1,7 @@
-import {
-  TilskuddBehandlingRequestTilskuddRequest,
-  Valuta,
-} from "@tiltaksadministrasjon/api-client";
+import { TilskuddVedtakRequest, Valuta } from "@tiltaksadministrasjon/api-client";
 import { v4 } from "uuid";
 
-export function defaultTilskuddRequest(
-  kostnadssted: string | null = null,
-): TilskuddBehandlingRequestTilskuddRequest {
+export function defaultTilskuddRequest(kostnadssted: string | null = null): TilskuddVedtakRequest {
   return {
     id: v4(),
     tilskuddId: v4(),

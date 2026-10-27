@@ -9552,7 +9552,7 @@ components:
       - tilskuddtype
       - type
       - vedtakResultat
-    TilskuddBehandlingRequest.TilskuddRequest:
+    TilskuddVedtakRequest:
       type: object
       properties:
         id:
@@ -9645,14 +9645,14 @@ components:
         gjennomforingId:
           type: string
           format: uuid
-        tilskudd:
+        tilskuddVedtak:
           type: array
           items:
-            $ref: "#/components/schemas/TilskuddBehandlingRequest.TilskuddRequest"
+            $ref: "#/components/schemas/TilskuddVedtakRequest"
       required:
       - gjennomforingId
       - id
-      - tilskudd
+      - tilskuddVedtak
     TilskuddBehandlingStatusAarsak:
       type: string
       enum:

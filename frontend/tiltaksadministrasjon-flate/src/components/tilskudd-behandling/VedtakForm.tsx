@@ -30,7 +30,7 @@ export function VedtakForm({ arrangorId }: { arrangorId: string }) {
 
   const { data: kostnadssteder } = useKostnadssteder();
 
-  const tilskudd = watch("tilskudd");
+  const tilskuddVedtak = watch("tilskuddVedtak");
 
   // FIXME: Småhacky konvertering fra separate dato-felter til Periode
   //  Det ideelle hadde kanskje heller vært å ta høyde off-by-one-problematikken ved å ha en egen FormPeriode-komponent
@@ -52,7 +52,7 @@ export function VedtakForm({ arrangorId }: { arrangorId: string }) {
         Vedtak og beregning
       </Heading>
       <VStack gap="space-20">
-        {tilskudd.map((t, index) => {
+        {tilskuddVedtak.map((t, index) => {
           const periode = valgtPeriode(t.periodeStart, t.periodeSlutt) ?? null;
           const title =
             t.tilskuddOpplaeringType && periode
@@ -84,7 +84,7 @@ export function VedtakForm({ arrangorId }: { arrangorId: string }) {
                   <HStack gap="space-24" align="start" justify="space-between">
                     <ControlledRadioGroup
                       size="small"
-                      name={`tilskudd.${index}.vedtakResultat`}
+                      name={`tilskuddVedtak.${index}.vedtakResultat`}
                       legend="Vedtaksresultat"
                       horisontal
                     >
@@ -92,15 +92,15 @@ export function VedtakForm({ arrangorId }: { arrangorId: string }) {
                       <Radio value={VedtakResultat.AVSLAG}>Avslag</Radio>
                     </ControlledRadioGroup>
                   </HStack>
-                  {watch("tilskudd")[index].vedtakResultat === VedtakResultat.INNVILGELSE && (
+                  {watch("tilskuddVedtak")[index].vedtakResultat === VedtakResultat.INNVILGELSE && (
                     <HStack align="start" gap="space-8">
                       <TextField
                         className="w-40"
                         size="small"
                         type="text"
                         label="Beløp til utbetaling"
-                        error={errors.tilskudd?.[index]?.belop?.message}
-                        {...register(`tilskudd.${index}.belop`, {
+                        error={errors.tilskuddVedtak?.[index]?.belop?.message}
+                        {...register(`tilskuddVedtak.${index}.belop`, {
                           setValueAs: (v: string) => (v === "" ? null : Number(v)),
                           validate: (value: number | null) => {
                             if (!Number.isInteger(value)) return "Beløp må være et heltall";
@@ -115,7 +115,7 @@ export function VedtakForm({ arrangorId }: { arrangorId: string }) {
                   )}
                   <FormTextarea
                     label="Kommentar til deltaker (vil vises i vedtaksbrev)"
-                    name={`tilskudd.${index}.kommentarVedtaksbrev`}
+                    name={`tilskuddVedtak.${index}.kommentarVedtaksbrev`}
                     rules={{
                       validate: (value: string | null) => {
                         if (t.vedtakResultat === VedtakResultat.AVSLAG && !value?.trim()) {
@@ -127,7 +127,7 @@ export function VedtakForm({ arrangorId }: { arrangorId: string }) {
                   />
                   <FormTextarea
                     label="Kommentar (internt i Nav)"
-                    name={`tilskudd.${index}.kommentarIntern`}
+                    name={`tilskuddVedtak.${index}.kommentarIntern`}
                   />
                 </VStack>
               </ExpansionCard.Content>
@@ -137,14 +137,14 @@ export function VedtakForm({ arrangorId }: { arrangorId: string }) {
         <TotaltBelopBox
           label="Totalt beløp fra fakturaer"
           belop={{
-            belop: watch("tilskudd").reduce((sum, t) => sum + (t.soknadBelop?.belop ?? 0), 0),
+            belop: watch("tilskuddVedtak").reduce((sum, t) => sum + (t.soknadBelop?.belop ?? 0), 0),
             valuta: Valuta.NOK,
           }}
         />
         <TotaltBelopBox
           label="Totalt beløp til utbetaling"
           belop={{
-            belop: watch("tilskudd").reduce((sum, t) => sum + (t.belop ?? 0), 0),
+            belop: watch("tilskuddVedtak").reduce((sum, t) => sum + (t.belop ?? 0), 0),
             valuta: Valuta.NOK,
           }}
         />

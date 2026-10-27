@@ -6,7 +6,7 @@ import {
 } from "./Utils";
 
 describe("Utils - getValidationError", () => {
-  const errors = [{ pointer: "/tilskudd/0/soknadDato", detail: "Søknadsdato er påkrevd" }];
+  const errors = [{ pointer: "/tilskuddVedtak/0/soknadDato", detail: "Søknadsdato er påkrevd" }];
 
   test("normalizes validation errors returned at the top level", () => {
     expect(

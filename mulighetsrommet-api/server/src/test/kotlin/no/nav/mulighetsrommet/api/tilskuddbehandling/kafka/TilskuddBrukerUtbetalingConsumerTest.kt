@@ -29,6 +29,7 @@ import no.nav.mulighetsrommet.api.tilskuddbehandling.db.BrukerUtbetalingType
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
 import no.nav.mulighetsrommet.api.tilskuddbehandling.gyldigJournalpostValidator
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingRequest
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddVedtakRequest
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
 import no.nav.mulighetsrommet.api.tilskuddbehandling.task.JournalforVedtaksbrev
 import no.nav.mulighetsrommet.api.utbetaling.api.ValutaBelopRequest
@@ -86,8 +87,8 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
     val request = TilskuddBehandlingRequest(
         id = behandlingId,
         gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
-        tilskudd = listOf(
-            TilskuddBehandlingRequest.TilskuddRequest(
+        tilskuddVedtak = listOf(
+            TilskuddVedtakRequest(
                 id = tilskuddVedtakId,
                 tilskuddId = tilskuddId,
                 tilskuddOpplaeringType = Opplaeringtilskudd.Kode.SKOLEPENGER,
