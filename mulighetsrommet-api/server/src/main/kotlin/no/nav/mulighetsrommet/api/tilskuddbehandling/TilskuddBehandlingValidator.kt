@@ -30,7 +30,6 @@ import no.nav.mulighetsrommet.validation.FieldError
 import no.nav.mulighetsrommet.validation.Validated
 import no.nav.mulighetsrommet.validation.validation
 import java.time.LocalDate
-import java.util.UUID
 
 data class TilskuddSaksopplysninger(
     val periode: Periode,
@@ -60,7 +59,6 @@ object TilskuddBehandlingValidator {
             validateTilskuddRequest(
                 req = v,
                 index = index,
-                tilskuddBehandlingId = request.id,
                 ctx = ctx,
             ).bind()
         }
@@ -78,7 +76,6 @@ object TilskuddBehandlingValidator {
     fun validateTilskuddRequest(
         req: TilskuddRequest,
         index: Int,
-        tilskuddBehandlingId: UUID,
         ctx: Ctx,
     ): Validated<TilskuddVedtak> = validation {
         validateNotNull(req.vedtakResultat) {
@@ -107,7 +104,6 @@ object TilskuddBehandlingValidator {
         val saksopplysninger = validateSaksopplysningTilskuddVedtak(req, index, ctx).bind()
         TilskuddVedtak(
             id = req.id,
-            behandlingId = tilskuddBehandlingId,
             tilskuddId = req.tilskuddId,
             tilskuddOpplaeringType = saksopplysninger.tilskuddOpplaeringType,
             soknadJournalpostId = saksopplysninger.soknadJournalpostId,

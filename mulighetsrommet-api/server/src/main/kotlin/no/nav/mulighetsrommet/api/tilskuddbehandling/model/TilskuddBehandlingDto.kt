@@ -30,7 +30,7 @@ data class TilskuddBehandlingDto(
     fun toDbo() = TilskuddBehandling(
         id = this.id,
         gjennomforingId = this.gjennomforingId,
-        tilskudd = this.tilskudd.map { it.toTilskuddVedtak(this.id) },
+        tilskudd = this.tilskudd.map { it.toTilskuddVedtak() },
         status = this.status.type,
         type = this.type,
         behandlendeEnhet = this.behandlendeEnhet,
@@ -45,7 +45,7 @@ data class TilskuddBehandlingDetaljerDto(
 )
 
 @Serializable
-data class TilskuddBehandlingKompakt(
+data class TilskuddBehandlingKompaktDto(
     @Serializable(with = UUIDSerializer::class)
     val tilskuddId: UUID,
     @Serializable(with = UUIDSerializer::class)

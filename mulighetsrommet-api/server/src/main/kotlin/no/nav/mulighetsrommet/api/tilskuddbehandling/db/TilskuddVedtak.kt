@@ -12,7 +12,6 @@ import java.util.UUID
 
 data class TilskuddVedtak(
     val id: UUID,
-    val behandlingId: UUID,
     val tilskuddId: UUID,
     val tilskuddOpplaeringType: Opplaeringtilskudd.Kode,
     val soknadJournalpostId: JournalpostId,

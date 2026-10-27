@@ -32,10 +32,11 @@ import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandling
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingDetaljerDto
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingDto
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingHandling
-import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingKompakt
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingKompaktDto
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingRequest
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatusAarsak
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatusDto
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultatDto
 import no.nav.mulighetsrommet.api.tilskuddbehandling.task.JournalforVedtaksbrev
 import no.nav.mulighetsrommet.api.tilskuddbehandling.task.hentForhandsvisningVedtaksbrevInnhold
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingException
@@ -150,23 +151,21 @@ class TilskuddBehandlingService(
             ?: throw IllegalStateException("Fant ikke deltaker for enkeltplass")
     }
 
-    fun getByGjennomforingId(gjennomforingId: UUID): List<TilskuddBehandlingKompakt> {
+    fun getByGjennomforingId(gjennomforingId: UUID): List<TilskuddBehandlingKompaktDto> {
         return db.session {
-            queries.tilskuddBehandling.getByGjennomforingId(gjennomforingId).flatMap {
-                it.tilskudd.map { tilskudd ->
-                    TilskuddBehandlingKompakt(
-                        tilskuddId = tilskudd.id,
-                        behandlingId = it.id,
-                        soknadDato = tilskudd.soknadDato,
-                        periode = tilskudd.periode,
-                        journalpostId = tilskudd.soknadJournalpostId,
-                        tilskuddtype = tilskudd.tilskuddOpplaeringType,
-                        kostnadssted = tilskudd.kostnadssted,
-                        status = it.status,
-                        type = it.type,
-                        vedtakResultat = tilskudd.vedtakResultat,
-                    )
-                }
+            queries.tilskuddBehandling.getByGjennomforingId(gjennomforingId).map {
+                TilskuddBehandlingKompaktDto(
+                    tilskuddId = it.tilskuddVedtakId,
+                    behandlingId = it.id,
+                    soknadDato = it.soknadDato,
+                    periode = it.periode,
+                    journalpostId = it.journalpostId,
+                    tilskuddtype = it.tilskuddtype,
+                    kostnadssted = it.kostnadssted,
+                    status = TilskuddBehandlingStatusDto(it.status),
+                    type = it.type,
+                    vedtakResultat = VedtakResultatDto(it.vedtakResultat),
+                )
             }
         }
     }

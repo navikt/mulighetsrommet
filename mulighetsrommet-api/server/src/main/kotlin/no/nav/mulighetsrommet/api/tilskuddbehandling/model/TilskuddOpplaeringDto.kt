@@ -40,9 +40,8 @@ data class TilskuddOpplaeringDto(
     val kommentarIntern: String?,
     val vedtakJournalpostId: String?,
 ) {
-    fun toTilskuddVedtak(tilskuddBehandlingId: UUID) = TilskuddVedtak(
+    fun toTilskuddVedtak() = TilskuddVedtak(
         id = this.id,
-        behandlingId = tilskuddBehandlingId,
         tilskuddId = this.tilskuddId,
         tilskuddOpplaeringType = this.tilskuddOpplaeringType,
         soknadDato = this.soknadDato,

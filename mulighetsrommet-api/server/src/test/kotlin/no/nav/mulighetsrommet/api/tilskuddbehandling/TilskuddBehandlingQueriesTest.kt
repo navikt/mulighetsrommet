@@ -36,14 +36,12 @@ class TilskuddBehandlingQueriesTest : FunSpec({
         gjennomforinger = listOf(GjennomforingFixtures.AFT1),
     )
 
-    val behandligId = UUID.randomUUID()
     val behandling = TilskuddBehandling(
-        id = behandligId,
+        id = UUID.randomUUID(),
         gjennomforingId = GjennomforingFixtures.AFT1.id,
         tilskudd = listOf(
             TilskuddVedtak(
                 id = UUID.randomUUID(),
-                behandlingId = behandligId,
                 tilskuddId = UUID.randomUUID(),
                 tilskuddOpplaeringType = Opplaeringtilskudd.Kode.SKOLEPENGER,
                 soknadBelop = ValutaBelop(
@@ -67,7 +65,6 @@ class TilskuddBehandlingQueriesTest : FunSpec({
             ),
             TilskuddVedtak(
                 id = UUID.randomUUID(),
-                behandlingId = behandligId,
                 tilskuddId = UUID.randomUUID(),
                 tilskuddOpplaeringType = Opplaeringtilskudd.Kode.EKSAMENSGEBYR,
                 soknadBelop = ValutaBelop(
@@ -91,7 +88,6 @@ class TilskuddBehandlingQueriesTest : FunSpec({
             ),
             TilskuddVedtak(
                 id = UUID.randomUUID(),
-                behandlingId = behandligId,
                 tilskuddId = UUID.randomUUID(),
                 tilskuddOpplaeringType = Opplaeringtilskudd.Kode.INTEGRERT_BOTILBUD,
                 soknadBelop = ValutaBelop(
@@ -200,11 +196,11 @@ class TilskuddBehandlingQueriesTest : FunSpec({
                 queries.tilskuddBehandling.upsert(otherBehandling)
 
                 val result = queries.tilskuddBehandling.getByGjennomforingId(GjennomforingFixtures.AFT1.id)
-                    .associateBy { it.id }
+                    .groupBy { it.id }
 
                 result.keys shouldBe setOf(behandling.id, otherBehandling.id)
-                result.getValue(behandling.id).tilskudd.map { it.id }.toSet() shouldBe behandling.tilskudd.map { it.id }.toSet()
-                result.getValue(otherBehandling.id).tilskudd.map { it.id }.toSet() shouldBe setOf(otherVedtak.id)
+                result.getValue(behandling.id).map { it.tilskuddVedtakId }.toSet() shouldBe behandling.tilskudd.map { it.id }.toSet()
+                result.getValue(otherBehandling.id).map { it.tilskuddVedtakId }.toSet() shouldBe setOf(otherVedtak.id)
                 queries.tilskuddBehandling.get(UUID.randomUUID()) shouldBe null
             }
         }
@@ -221,16 +217,17 @@ class TilskuddBehandlingQueriesTest : FunSpec({
             }
         }
 
-        test("getByGjennomforingId feiler hvis en av behandlingene mangler vedtak") {
+        test("getByGjennomforingId viser bare tilskuddsbehandlinger med vedtak") {
             database.runAndRollback {
                 domain.initialize()
                 queries.tilskuddBehandling.upsert(behandling)
                 val noVedtakBehandling = behandling.copy(id = UUID.randomUUID(), tilskudd = emptyList())
                 queries.tilskuddBehandling.upsert(noVedtakBehandling)
 
-                shouldThrow<IllegalArgumentException> {
+                val result =
                     queries.tilskuddBehandling.getByGjennomforingId(GjennomforingFixtures.AFT1.id)
-                }.message shouldBe "Tilskuddsbehandling med id ${noVedtakBehandling.id} mangler vedtak"
+
+                result.map { it.id }.toSet() shouldBe setOf(behandling.id)
 
                 queries.tilskuddBehandling.getByGjennomforingId(UUID.randomUUID()) shouldBe emptyList()
             }

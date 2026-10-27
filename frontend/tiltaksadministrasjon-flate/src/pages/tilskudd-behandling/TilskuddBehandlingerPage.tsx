@@ -14,7 +14,7 @@ import { opplaeringTilskuddToString } from "@/utils/Utils";
 import { TableColumnHeader } from "@navikt/ds-react/Table";
 import {
   GjennomforingHandling,
-  TilskuddBehandlingKompakt,
+  TilskuddBehandlingKompaktDto,
 } from "@tiltaksadministrasjon/api-client";
 import { useGjennomforingHandlinger } from "@/api/gjennomforing/useGjennomforing";
 import { InformationSquareIcon } from "@navikt/aksel-icons";
@@ -45,7 +45,7 @@ export function TilskuddBehandlingerPage() {
           ]}
         />
       </KnapperadContainer>
-      {behandlinger.length && (
+      {behandlinger.length === 0 && (
         <InfoCard data-color="info" className="mt-4">
           <InfoCard.Message icon={<InformationSquareIcon aria-hidden />}>
             Det finnes ingen tilskuddsbehandlinger for dette tiltaket
@@ -81,7 +81,7 @@ export function TilskuddBehandlingerPage() {
             </Table.Row>
           </Table.Header>
           <Table.Body>
-            {sortedData.map((b: TilskuddBehandlingKompakt) => (
+            {sortedData.map((b: TilskuddBehandlingKompaktDto) => (
               <Table.Row key={b.tilskuddId}>
                 <Table.DataCell>{formaterDato(b.soknadDato)}</Table.DataCell>
                 <Table.DataCell>{b.journalpostId}</Table.DataCell>

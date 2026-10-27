@@ -3715,7 +3715,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/TilskuddBehandlingKompakt"
+                  $ref: "#/components/schemas/TilskuddBehandlingKompaktDto"
         default:
           description: Problem details
           headers: {}
@@ -4038,7 +4038,7 @@ components:
     OpenApiVersion:
       type: number
       enum:
-        - 30
+        - 31
     RedaksjoneltInnholdLenke:
       type: object
       properties:
@@ -9515,7 +9515,7 @@ components:
       - behandling
       - handlinger
       - opprettelse
-    TilskuddBehandlingKompakt:
+    TilskuddBehandlingKompaktDto:
       type: object
       properties:
         tilskuddId:

@@ -297,7 +297,7 @@ class TilskuddBehandlingQueries(private val session: Session) {
         select *
         from view_tilskudd_vedtak v
         where v.tilskudd_behandling_id = any(:behandling_ids::uuid[])
-        order by v.lopenummer desc
+        order by v.lopenummer, v.tilskuddsnummer
         """.trimIndent()
 
         val behandlingIdsArray = createUuidArray(behandlingIds.toList())
@@ -345,33 +345,40 @@ class TilskuddBehandlingQueries(private val session: Session) {
         return checkNotNull(get(id)) { "Tilskuddsbehadling med id $id finnes ikke" }
     }
 
-    fun getByGjennomforingId(gjennomforingId: UUID): List<TilskuddBehandlingDto> {
+    fun getByGjennomforingId(gjennomforingId: UUID): List<TilskuddBehandlingKompakt> {
         @Language("PostgreSQL")
         val query = """
-            select id, status, type, gjennomforing_id, behandlende_enhet
-            from tilskudd_behandling
+            select *
+            from view_tilskudd_behandling_kompakt
             where gjennomforing_id = :gjennomforing_id::uuid
         """.trimIndent()
 
-        return withTransaction(session) {
-            val behandlinger = list(
-                queryOf(
-                    query,
-                    mapOf("gjennomforing_id" to gjennomforingId),
-                ),
-            ) { it.toTilskuddBehandlingDbo() }
-            if (behandlinger.isEmpty()) {
-                return@withTransaction emptyList()
-            }
-
-            val vedtakByBehandlingId = getVedtakForBehandlingIds(behandlinger.map { it.id })
-                .groupBy { it.behandlingId }
-
-            behandlinger.map { behandling ->
-                behandling.toDto(vedtakByBehandlingId[behandling.id].orEmpty().map { it.dto })
-            }
-        }
+        return session.list(
+            queryOf(
+                query,
+                mapOf("gjennomforing_id" to gjennomforingId),
+            ),
+        ) { it.toTilskuddBehandlingKompakt() }
     }
+}
+
+private fun Row.toTilskuddBehandlingKompakt(): TilskuddBehandlingKompakt {
+    return TilskuddBehandlingKompakt(
+        id = uuid("id"),
+        status = TilskuddBehandlingStatus.valueOf(string("status")),
+        type = TilskuddBehandlingType.valueOf(string("type")),
+        tilskuddVedtakId = uuid("tilskudd_vedtak_id"),
+        soknadDato = localDate("tilskudd_vedtak_soknad_dato"),
+        journalpostId = JournalpostId(string("tilskudd_vedtak_soknad_journalpost_id")),
+        tilskuddtype = Opplaeringtilskudd.Kode.valueOf(string("tilskudd_opplaering_kode")),
+        periode = string("tilskudd_vedtak_periode").toPeriode(),
+        kostnadssted = KostnadsstedDto(
+            navn = string("tilskudd_vedtak_kostnadssted_navn"),
+            enhetsnummer = NavEnhetNummer(string("tilskudd_vedtak_kostnadssted")),
+        ),
+
+        vedtakResultat = VedtakResultat.valueOf(string("tilskudd_vedtak_resultat")),
+    )
 }
 
 private data class TilskuddVedtakRow(
