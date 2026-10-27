@@ -271,7 +271,7 @@ class TilskuddBehandlingService(
         navIdent: NavIdent,
         totrinnskontroll: TotrinnskontrollDto,
     ): Set<TilskuddBehandlingHandling> = db.session {
-        val kostnadssteder = behandling.tilskudd.map { it.kostnadssted.enhetsnummer }.toNonEmptySetOrNull()
+        val kostnadssteder = behandling.tilskuddVedtak.map { it.kostnadssted.enhetsnummer }.toNonEmptySetOrNull()
             ?: error("Tilskuddsbehandling med id=${behandling.id} mangler tilskudd")
         return setOfNotNull(
             TilskuddBehandlingHandling.REDIGER.takeIf { behandling.status.type == TilskuddBehandlingStatus.RETURNERT },
@@ -326,7 +326,7 @@ class TilskuddBehandlingService(
     ): Either<List<FieldError>, UUID> = db.transaction {
         val tidligereBehandling = queries.tilskuddBehandling.get(behandlingId)
             ?: throw IllegalStateException("Fant ikke tilskuddsbehandling for behandlingId=$behandlingId")
-        val forrigeTilskuddVedtak = tidligereBehandling.tilskudd.firstOrNull { it.id == forrigeTilskuddVedtakId }
+        val forrigeTilskuddVedtak = tidligereBehandling.tilskuddVedtak.firstOrNull { it.id == forrigeTilskuddVedtakId }
             ?: throw IllegalStateException("Fant ikke tilskudd for tilskuddVedtakId=$forrigeTilskuddVedtakId i behandlingId=$behandlingId")
 
         queries.tilskuddBehandling.acquireLockTilskudd(forrigeTilskuddVedtak.tilskuddId)
@@ -337,7 +337,7 @@ class TilskuddBehandlingService(
             id = UUID.randomUUID(),
             type = TilskuddBehandlingType.REVURDERING,
             status = TilskuddBehandlingStatusDto(TilskuddBehandlingStatus.TIL_GODKJENNING),
-            tilskudd = listOf(
+            tilskuddVedtak = listOf(
                 forrigeTilskuddVedtak.copy(
                     id = UUID.randomUUID(),
                     utbetalingBelop = forrigeTilskuddVedtak.utbetalingBelop?.copy(belop = 0),

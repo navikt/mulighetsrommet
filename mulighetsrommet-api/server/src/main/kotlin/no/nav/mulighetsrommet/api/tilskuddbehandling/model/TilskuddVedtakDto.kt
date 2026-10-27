@@ -18,7 +18,7 @@ import java.time.LocalDate
 import java.util.UUID
 
 @Serializable
-data class TilskuddOpplaeringDto(
+data class TilskuddVedtakDto(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val tilskuddsnummer: Tilskuddsnummer,

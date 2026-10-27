@@ -232,7 +232,7 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
         val revurderingBehandling = database.api.session {
             queries.tilskuddBehandling.get(revurderingBehandlingId)
         }.shouldNotBeNull()
-        val revurderingTilskuddVedtakId = revurderingBehandling.tilskudd.single().id
+        val revurderingTilskuddVedtakId = revurderingBehandling.tilskuddVedtak.single().id
 
         database.api.transaction {
             queries.brukerUtbetaling.insert(

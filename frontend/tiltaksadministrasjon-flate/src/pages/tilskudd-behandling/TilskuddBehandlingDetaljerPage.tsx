@@ -111,7 +111,7 @@ export function TilskuddBehandlingDetaljerPage() {
             </Heading>
             <DataElementStatusTag {...behandling.status.status} />
           </HStack>
-          {behandling.tilskudd.map((t, i) => {
+          {behandling.tilskuddVedtak.map((t, i) => {
             return (
               <ExpansionCard
                 aria-label={`${opplaeringTilskuddToString(t.tilskuddOpplaeringType)} ${formaterPeriode(t.periode)}`}
@@ -149,14 +149,14 @@ export function TilskuddBehandlingDetaljerPage() {
           <TotaltBelopBox
             label="Totalt beløp fra søknad"
             belop={{
-              belop: behandling.tilskudd.reduce((sum, t) => sum + t.soknadBelop.belop, 0),
-              valuta: behandling.tilskudd.at(0)?.soknadBelop.valuta ?? Valuta.NOK,
+              belop: behandling.tilskuddVedtak.reduce((sum, t) => sum + t.soknadBelop.belop, 0),
+              valuta: behandling.tilskuddVedtak.at(0)?.soknadBelop.valuta ?? Valuta.NOK,
             }}
           />
           <TotaltBelopBox
             label="Totalt beløp til utbetaling"
             belop={{
-              belop: behandling.tilskudd.reduce(
+              belop: behandling.tilskuddVedtak.reduce(
                 (sum, t) => sum + (t.utbetalingBelop?.belop ?? 0),
                 0,
               ),
@@ -248,7 +248,7 @@ function godkjennModalInnhold(behandling: TilskuddBehandlingDto) {
     <>
       <BodyShort spacing>Du er i ferd med å godkjenne vedtak om:</BodyShort>
       <List>
-        {behandling.tilskudd.map((t) =>
+        {behandling.tilskuddVedtak.map((t) =>
           t.vedtakResultat.type === VedtakResultat.INNVILGELSE ? (
             <List.Item key={t.id}>
               {t.utbetalingBelop?.belop ?? 0} {(t.utbetalingBelop?.valuta ?? Valuta.NOK).toString()}{" "}

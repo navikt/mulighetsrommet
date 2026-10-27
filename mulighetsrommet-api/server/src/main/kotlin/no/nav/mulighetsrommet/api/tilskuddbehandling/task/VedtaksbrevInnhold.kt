@@ -90,7 +90,7 @@ suspend fun QueryContext.hentVedtaksbrevInnhold(
         periode = periode,
     )
 
-    val tilskuddvedtak = tilskuddBehandling.tilskudd.map { tilskudd ->
+    val tilskuddvedtak = tilskuddBehandling.tilskuddVedtak.map { tilskudd ->
         TilskuddBrevVedtak(
             periode = tilskudd.periode,
             tilskuddType = tilskudd.tilskuddOpplaeringType.toDisplayName(),

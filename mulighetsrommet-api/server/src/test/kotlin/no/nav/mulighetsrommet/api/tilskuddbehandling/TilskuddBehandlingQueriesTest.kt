@@ -124,8 +124,8 @@ class TilskuddBehandlingQueriesTest : FunSpec({
                     it.id shouldBe behandling.id
                     it.gjennomforingId shouldBe GjennomforingFixtures.AFT1.id
 
-                    it.tilskudd.size shouldBe 3
-                    val vedtakById = it.tilskudd.associateBy { vedtak -> vedtak.id }
+                    it.tilskuddVedtak.size shouldBe 3
+                    val vedtakById = it.tilskuddVedtak.associateBy { vedtak -> vedtak.id }
                     vedtakById[behandling.tilskudd[0].id] should { v ->
                         requireNotNull(v)
                         v.id shouldBe behandling.tilskudd[0].id

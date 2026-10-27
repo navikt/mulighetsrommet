@@ -4038,7 +4038,7 @@ components:
     OpenApiVersion:
       type: number
       enum:
-        - 31
+        - 32
     RedaksjoneltInnholdLenke:
       type: object
       properties:
@@ -9369,10 +9369,10 @@ components:
         gjennomforingId:
           type: string
           format: uuid
-        tilskudd:
+        tilskuddVedtak:
           type: array
           items:
-            $ref: "#/components/schemas/TilskuddOpplaeringDto"
+            $ref: "#/components/schemas/TilskuddVedtakDto"
         status:
           $ref: "#/components/schemas/TilskuddBehandlingStatusDto"
         type:
@@ -9389,9 +9389,9 @@ components:
       - id
       - samletVedtakResultat
       - status
-      - tilskudd
+      - tilskuddVedtak
       - type
-    TilskuddOpplaeringDto:
+    TilskuddVedtakDto:
       type: object
       properties:
         id:

@@ -8,7 +8,7 @@ import no.nav.mulighetsrommet.api.tilsagn.api.KostnadsstedDto
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandling
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingDto
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatusDto
-import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddOpplaeringDto
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddVedtakDto
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultatDto
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.samletVedtakResultatStatusTag
@@ -304,7 +304,7 @@ class TilskuddBehandlingQueries(private val session: Session) {
         return list(queryOf(query, mapOf("behandling_ids" to behandlingIdsArray))) { row ->
             TilskuddVedtakRow(
                 behandlingId = row.uuid("tilskudd_behandling_id"),
-                dto = row.toTilskuddOpplaeringDto(),
+                dto = row.toTilskuddVedtakDto(),
             )
         }
     }
@@ -383,7 +383,7 @@ private fun Row.toTilskuddBehandlingKompakt(): TilskuddBehandlingKompakt {
 
 private data class TilskuddVedtakRow(
     val behandlingId: UUID,
-    val dto: TilskuddOpplaeringDto,
+    val dto: TilskuddVedtakDto,
 )
 
 private fun Row.toTilskuddBehandlingDbo(): TilskuddBehandlingDbo {
@@ -396,7 +396,7 @@ private fun Row.toTilskuddBehandlingDbo(): TilskuddBehandlingDbo {
     )
 }
 
-private fun Row.toTilskuddOpplaeringDto(): TilskuddOpplaeringDto {
+private fun Row.toTilskuddVedtakDto(): TilskuddVedtakDto {
     val soknadBelop = ValutaBelop(
         belop = int("soknad_belop"),
         valuta = Valuta.valueOf(string("soknad_valuta")),
@@ -408,7 +408,7 @@ private fun Row.toTilskuddOpplaeringDto(): TilskuddOpplaeringDto {
         )
     }
 
-    return TilskuddOpplaeringDto(
+    return TilskuddVedtakDto(
         id = uuid("id"),
         tilskuddId = uuid("tilskudd_id"),
         tilskuddsnummer = Tilskuddsnummer(string("tilskuddsnummer")),
@@ -432,16 +432,16 @@ private fun Row.toTilskuddOpplaeringDto(): TilskuddOpplaeringDto {
     )
 }
 
-private fun TilskuddBehandlingDbo.toDto(tilskudd: List<TilskuddOpplaeringDto>): TilskuddBehandlingDto {
-    require(tilskudd.isNotEmpty()) { "Tilskuddsbehandling med id $id mangler vedtak" }
+private fun TilskuddBehandlingDbo.toDto(tilskuddVedtak: List<TilskuddVedtakDto>): TilskuddBehandlingDto {
+    require(tilskuddVedtak.isNotEmpty()) { "Tilskuddsbehandling med id $id mangler vedtak" }
 
     return TilskuddBehandlingDto(
         id = id,
         gjennomforingId = gjennomforingId,
-        tilskudd = tilskudd,
+        tilskuddVedtak = tilskuddVedtak,
         status = TilskuddBehandlingStatusDto(status),
         type = type,
-        samletVedtakResultat = samletVedtakResultatStatusTag(tilskudd.map { it.vedtakResultat.type }),
+        samletVedtakResultat = samletVedtakResultatStatusTag(tilskuddVedtak.map { it.vedtakResultat.type }),
         behandlendeEnhet = behandlendeEnhet,
     )
 }

@@ -56,7 +56,7 @@ function TilskuddBehandlingForm({
     ? {
         id: behandling.id,
         gjennomforingId: behandling.gjennomforingId,
-        tilskudd: behandling.tilskudd.map((t) => ({
+        tilskudd: behandling.tilskuddVedtak.map((t) => ({
           id: t.id,
           tilskuddId: t.tilskuddId,
           tilskuddOpplaeringType: t.tilskuddOpplaeringType,

@@ -125,9 +125,9 @@ class TilskuddBehandlingServiceTest : FunSpec({
         val behandling = detaljer.behandling
         service.handlinger(behandling, ansatt2, detaljer.opprettelse) shouldContain TilskuddBehandlingHandling.GODKJENN
 
-        val tilskudd = behandling.tilskudd.single()
+        val tilskudd = behandling.tilskuddVedtak.single()
         val toKostnadssteder = behandling.copy(
-            tilskudd = listOf(
+            tilskuddVedtak = listOf(
                 tilskudd,
                 tilskudd.copy(
                     id = UUID.randomUUID(),

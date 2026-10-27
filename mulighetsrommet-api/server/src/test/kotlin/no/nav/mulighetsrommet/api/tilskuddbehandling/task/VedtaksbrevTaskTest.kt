@@ -106,7 +106,7 @@ class VedtaksbrevTaskTest : FunSpec({
         task.journalfor(behandlingId).shouldBeRight()
 
         database.run {
-            queries.tilskuddBehandling.getOrError(behandlingId).tilskudd[0].vedtakJournalpostId shouldBe "121212"
+            queries.tilskuddBehandling.getOrError(behandlingId).tilskuddVedtak[0].vedtakJournalpostId shouldBe "121212"
         }
     }
 
