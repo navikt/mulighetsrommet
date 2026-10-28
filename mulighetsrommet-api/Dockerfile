@@ -7,6 +7,7 @@ COPY server/build/install/*/lib /lib
 
 USER nonroot
 
+ENV XDG_CACHE_HOME="/tmp/.mulighetsrommet_api_cache"
 ENV TZ="Europe/Oslo"
 EXPOSE 8080
 ENTRYPOINT ["java", "-cp", "/lib/*", "no.nav.mulighetsrommet.api.ApplicationKt"]
