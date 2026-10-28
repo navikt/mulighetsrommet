@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.utbetaling.model
 
 import no.nav.mulighetsrommet.api.domain.deltaker.Deltakelsesmengde
 import no.nav.mulighetsrommet.api.domain.deltaker.Deltaker
+import no.nav.mulighetsrommet.api.domain.gjennomforing.AnsvarligEnhet
 import no.nav.mulighetsrommet.api.domain.gjennomforing.Gjennomforing
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingAvtaleStatus
@@ -208,6 +209,7 @@ object BeregningTestHelpers {
             status = GjennomforingAvtaleStatus.Gjennomfores,
             apentForPamelding = true,
             avtaleId = UUID.randomUUID(),
+            ansvarligEnhet = AnsvarligEnhet(NavEnhetNummer("0400"), "Nav Innlandet"),
             kontorstruktur = emptyList(),
             oppstart = GjennomforingOppstartstype.LOPENDE,
             pameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,

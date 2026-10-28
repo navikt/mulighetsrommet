@@ -115,7 +115,7 @@ object GjennomforingValidator {
                 prismodellId = result.detaljer.prismodellId,
                 oppstart = result.detaljer.oppstart,
                 pameldingType = result.detaljer.pameldingType,
-                ansvarligEnhet = null,
+                ansvarligEnhet = result.detaljer.ansvarligEnhet,
                 arenaTiltaksnummer = null,
                 arenaAnsvarligEnhet = null,
             ),
@@ -242,7 +242,12 @@ object GjennomforingValidator {
                 GjennomforingDetaljerRequest::prismodellId,
             )
         }
-
+        validateNotNull(detaljer.ansvarligEnhet) {
+            FieldError.of(
+                "Du må velge ansvarlig enhet",
+                GjennomforingDetaljerRequest::ansvarligEnhet,
+            )
+        }
         when (detaljer.oppstart) {
             GjennomforingOppstartstype.LOPENDE -> if (ctx.harEgenskap(TiltakstypeEgenskap.KREVER_DIREKTE_VEDTAK_FOR_LOPENDE_OPPSTART)) {
                 validate(detaljer.pameldingType == GjennomforingPameldingType.DIREKTE_VEDTAK) {
@@ -308,6 +313,7 @@ object GjennomforingValidator {
                 prismodellId = detaljer.prismodellId,
                 oppmoteSted = detaljer.oppmoteSted?.ifBlank { null },
                 tilgjengeligForArrangorDato = detaljer.tilgjengeligForArrangorDato,
+                ansvarligEnhet = requireNotNull(detaljer.ansvarligEnhet),
             ),
             administratorer = detaljer.administratorer,
             arrangorKontaktpersoner = detaljer.arrangorKontaktpersoner,

@@ -122,6 +122,7 @@ data class GjennomforingDetaljerRequest(
     @Serializable(with = UUIDSerializer::class)
     val prismodellId: UUID?,
     val pameldingType: GjennomforingPameldingType?,
+    val ansvarligEnhet: NavEnhetNummer?,
 ) {
     @Serializable
     data class Kontaktperson(

@@ -5,6 +5,7 @@ import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.admin.gjennomforing.GjennomforingQueryHandler
+import no.nav.mulighetsrommet.api.domain.gjennomforing.AnsvarligEnhet
 import no.nav.mulighetsrommet.api.domain.gjennomforing.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.domain.gjennomforing.Gjennomforing
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingArena
@@ -144,7 +145,8 @@ class GjennomforingQueries(private val session: Session) : GjennomforingReposito
                 antall_plasser                  = :antall_plasser,
                 prismodell_id                   = :prismodell_id::uuid,
                 oppmote_sted                    = :oppmote_sted,
-                tilgjengelig_for_arrangor_dato  = :tilgjengelig_for_arrangor_dato
+                tilgjengelig_for_arrangor_dato  = :tilgjengelig_for_arrangor_dato,
+                ansvarlig_enhet                 = :ansvarlig_enhet
             where id = :id::uuid
         """.trimIndent()
 
@@ -162,6 +164,7 @@ class GjennomforingQueries(private val session: Session) : GjennomforingReposito
             "prismodell_id" to detaljer.prismodellId,
             "oppmote_sted" to detaljer.oppmoteSted,
             "tilgjengelig_for_arrangor_dato" to detaljer.tilgjengeligForArrangorDato,
+            "ansvarlig_enhet" to detaljer.ansvarligEnhet.value,
         )
 
         session.execute(queryOf(query, params))
@@ -788,6 +791,7 @@ private fun Row.toGjennomforingAvtale(): GjennomforingAvtale {
         antallPlasser = int("antall_plasser"),
         apentForPamelding = boolean("apent_for_pamelding"),
         avtaleId = uuid("avtale_id"),
+        ansvarligEnhet = toAnsvarligEnhet(),
         prismodell = toPrismodell(),
         oppstart = GjennomforingOppstartstype.valueOf(string("oppstart")),
         pameldingType = string("pamelding_type").let { GjennomforingPameldingType.valueOf(it) },
@@ -907,12 +911,14 @@ private fun Row.toGjennomforingEnkeltplass(): GjennomforingEnkeltplass {
         prismodell = toPrismodell(),
         oppstart = GjennomforingOppstartstype.valueOf(string("oppstart")),
         pameldingType = GjennomforingPameldingType.valueOf(string("pamelding_type")),
-        ansvarligEnhet = GjennomforingEnkeltplass.AnsvarligEnhet(
-            enhetsnummer = NavEnhetNummer(string("ansvarlig_enhet_enhetsnummer")),
-            navn = string("ansvarlig_enhet_navn"),
-        ),
+        ansvarligEnhet = toAnsvarligEnhet(),
     )
 }
+
+private fun Row.toAnsvarligEnhet(): AnsvarligEnhet = AnsvarligEnhet(
+    enhetsnummer = NavEnhetNummer(string("ansvarlig_enhet_enhetsnummer")),
+    navn = string("ansvarlig_enhet_navn"),
+)
 
 private fun Row.toGjennomforingArena(): GjennomforingArena {
     return GjennomforingArena(

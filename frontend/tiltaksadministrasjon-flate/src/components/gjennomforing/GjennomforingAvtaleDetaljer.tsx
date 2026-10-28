@@ -30,6 +30,7 @@ import {
 import { kursOgTiltakErStudiespesialisering } from "@/utils/Utils";
 import { GjennomforingPageLayout } from "@/pages/gjennomforing/GjennomforingPageLayout";
 import { PrisOgBetalingsbetingelser } from "@/components/prismodell/PrisOgBetalingsbetingelser";
+import { formaterNavEnhet } from "@/utils/nav-enhet";
 
 interface Props {
   tiltakstype: TiltakstypeDto;
@@ -74,6 +75,10 @@ export function GjennomforingAvtaleDetaljer(props: Props) {
         </HStack>
       ),
     },
+    {
+      key: gjennomforingTekster.ansvarligEnhet.label,
+      value: formaterNavEnhet(gjennomforing.ansvarligEnhet),
+    },
   ];
 
   const { arrangor } = gjennomforing;
@@ -94,6 +99,7 @@ export function GjennomforingAvtaleDetaljer(props: Props) {
       key: gjennomforingTekster.tiltaksarrangorUnderenhetLabel,
       value: `${arrangor.navn} - ${arrangor.organisasjonsnummer}`,
     },
+
     {
       key: gjennomforingTekster.kontaktpersonerHosTiltaksarrangorLabel,
       value:

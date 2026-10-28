@@ -64,6 +64,7 @@ class SqlGjennomforingWriter(private val queries: GjennomforingQueries) : Gjenno
                 prismodellId = detaljer.prismodellId,
                 oppmoteSted = detaljer.oppmoteSted,
                 tilgjengeligForArrangorDato = detaljer.tilgjengeligForArrangorDato,
+                ansvarligEnhet = detaljer.ansvarligEnhet,
             ),
         )
     }

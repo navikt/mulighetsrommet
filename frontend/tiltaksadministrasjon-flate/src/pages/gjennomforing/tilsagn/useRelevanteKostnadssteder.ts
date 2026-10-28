@@ -9,6 +9,8 @@ export function useRelevanteKostnadssteder(
 ): KostnadsstedOption[] {
   const { data: kostnadssteder } = useKostnadssteder();
 
+  // TODO: bare return alle kostnadsteder her når alle gj har ansvarlig_enhet
+
   if (kostnadssted) {
     return kostnadssteder.flatMap(({ kostnadssteder }) => kostnadssteder);
   }

@@ -1,5 +1,9 @@
 import { TilsagnFormContainer } from "@/components/tilsagn/TilsagnFormContainer";
-import { TilsagnBeregningType, TilsagnType } from "@tiltaksadministrasjon/api-client";
+import {
+  GjennomforingEnkeltplassDtoType,
+  TilsagnBeregningType,
+  TilsagnType,
+} from "@tiltaksadministrasjon/api-client";
 import { useSearchParams } from "react-router";
 import { useGjennomforing } from "@/api/gjennomforing/useGjennomforing";
 import { useTilsagnDefaults } from "./opprettTilsagnLoader";
@@ -52,7 +56,7 @@ function useHentData(gjennomforingId: string) {
 
   const kostnadssteder = useRelevanteKostnadssteder(
     defaults.type,
-    "ansvarligEnhet" in detaljer.gjennomforing
+    detaljer.gjennomforing.type === GjennomforingEnkeltplassDtoType.ENKELTPLASS
       ? detaljer.gjennomforing.ansvarligEnhet.enhetsnummer
       : null,
     "veilederinfo" in detaljer ? detaljer.veilederinfo.kontorstruktur : [],

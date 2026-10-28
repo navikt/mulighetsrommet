@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.fixtures
 
 import no.nav.mulighetsrommet.admin.gjennomforing.GjennomforingRequest
 import no.nav.mulighetsrommet.api.domain.avtale.Avtale
+import no.nav.mulighetsrommet.api.domain.gjennomforing.AnsvarligEnhet
 import no.nav.mulighetsrommet.api.domain.gjennomforing.Gjennomforing
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingAvtaleStatus
@@ -73,6 +74,7 @@ object GjennomforingFixtures {
             status = GjennomforingAvtaleStatus.Gjennomfores,
             apentForPamelding = true,
             avtaleId = UUID.randomUUID(),
+            ansvarligEnhet = AnsvarligEnhet(NavEnhetNummer("0400"), "Nav Innlandet"),
             kontorstruktur = emptyList(),
             oppstart = GjennomforingOppstartstype.LOPENDE,
             pameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,
