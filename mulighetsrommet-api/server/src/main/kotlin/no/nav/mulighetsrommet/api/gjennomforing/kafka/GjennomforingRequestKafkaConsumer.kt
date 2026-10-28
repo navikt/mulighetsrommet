@@ -53,7 +53,7 @@ class GjennomforingRequestKafkaConsumer(
 
     private suspend fun handterEnkeltplassUtkast(request: GjennomforingRequest.EnkeltplassUtkast) {
         val (gjennomforingId, payload) = request
-        validateTiltakskode(payload.tiltakskode)
+        validateTiltakskode(payload.tiltakskode, gjennomforingId)
 
         val arrangor = getArrangor(payload.organisasjonsnummer)
         val utkast = toRequest(gjennomforingId, arrangor.id, payload)
@@ -63,7 +63,7 @@ class GjennomforingRequestKafkaConsumer(
 
     private suspend fun handterEnkeltplassSoktInn(request: GjennomforingRequest.EnkeltplassSoktInn) {
         val (gjennomforingId, totrinnskontroll, payload) = request
-        validateTiltakskode(payload.tiltakskode)
+        validateTiltakskode(payload.tiltakskode, gjennomforingId)
 
         val arrangor = getArrangor(payload.organisasjonsnummer)
         val soktInn = toRequest(gjennomforingId, arrangor.id, payload)
@@ -72,12 +72,12 @@ class GjennomforingRequestKafkaConsumer(
             .onLeft { errors -> error("Klarte ikke opprette enkeltplass: $errors") }
     }
 
-    private fun validateTiltakskode(tiltakskode: Tiltakskode) {
+    private fun validateTiltakskode(tiltakskode: Tiltakskode, gjennomforingId: UUID) {
         require(tiltakstyper.erMigrert(tiltakskode)) {
-            "Enkeltplass kan bare opprettes når tiltakstypen er migrert"
+            "Enkeltplass kan bare opprettes når tiltakstypen er migrert, gjennomforingId: $gjennomforingId, tiltakskode: $tiltakskode"
         }
         require(tiltakskode.harEgenskap(TiltakstypeEgenskap.STOTTER_ENKELTPLASSER)) {
-            "Enkeltplass kan bare opprettes for tiltakstyper med støtte for enkeltplasser"
+            "Enkeltplass kan bare opprettes for tiltakstyper med støtte for enkeltplasser, gjennomforingId: $gjennomforingId, tiltakskode: $tiltakskode"
         }
     }
 
