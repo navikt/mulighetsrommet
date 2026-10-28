@@ -56,7 +56,7 @@ function TilskuddBehandlingForm({
     ? {
         id: behandling.id,
         gjennomforingId: behandling.gjennomforingId,
-        tilskudd: behandling.tilskudd.map((t) => ({
+        tilskuddVedtak: behandling.tilskuddVedtak.map((t) => ({
           id: t.id,
           tilskuddId: t.tilskuddId,
           tilskuddOpplaeringType: t.tilskuddOpplaeringType,
@@ -78,7 +78,7 @@ function TilskuddBehandlingForm({
     : {
         id: v4(),
         gjennomforingId,
-        tilskudd: [defaultTilskuddRequest(gjennomforing.ansvarligEnhet.enhetsnummer)],
+        tilskuddVedtak: [defaultTilskuddRequest(gjennomforing.ansvarligEnhet.enhetsnummer)],
       };
 
   const listUrl = `/gjennomforinger/${gjennomforingId}/tilskudd-behandling`;

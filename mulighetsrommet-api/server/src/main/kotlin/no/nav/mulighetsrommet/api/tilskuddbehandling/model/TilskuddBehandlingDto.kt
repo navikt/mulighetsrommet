@@ -4,7 +4,8 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollDto
 import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd
 import no.nav.mulighetsrommet.api.tilsagn.api.KostnadsstedDto
-import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandling
+import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandlingStatus
+import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandlingType
 import no.nav.mulighetsrommet.model.DataElement
 import no.nav.mulighetsrommet.model.JournalpostId
 import no.nav.mulighetsrommet.model.NavEnhetNummer
@@ -20,7 +21,7 @@ data class TilskuddBehandlingDto(
     val id: UUID,
     @Serializable(with = UUIDSerializer::class)
     val gjennomforingId: UUID,
-    val tilskudd: List<TilskuddOpplaeringDto>,
+    val tilskuddVedtak: List<TilskuddVedtakDto>,
     val status: TilskuddBehandlingStatusDto,
     val type: TilskuddBehandlingType,
     val samletVedtakResultat: SamletVedtakResultat,
@@ -29,7 +30,7 @@ data class TilskuddBehandlingDto(
     fun toDbo() = TilskuddBehandling(
         id = this.id,
         gjennomforingId = this.gjennomforingId,
-        tilskudd = this.tilskudd.map { it.toTilskuddVedtak() },
+        tilskudd = this.tilskuddVedtak.map { it.toTilskuddVedtak() },
         status = this.status.type,
         type = this.type,
         behandlendeEnhet = this.behandlendeEnhet,
@@ -44,7 +45,7 @@ data class TilskuddBehandlingDetaljerDto(
 )
 
 @Serializable
-data class TilskuddBehandlingKompakt(
+data class TilskuddBehandlingKompaktDto(
     @Serializable(with = UUIDSerializer::class)
     val tilskuddId: UUID,
     @Serializable(with = UUIDSerializer::class)

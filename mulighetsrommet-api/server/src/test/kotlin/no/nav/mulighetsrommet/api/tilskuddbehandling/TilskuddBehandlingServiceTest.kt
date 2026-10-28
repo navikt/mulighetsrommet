@@ -23,11 +23,12 @@ import no.nav.mulighetsrommet.api.domain.testing.fixture.DeltakerFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
+import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandlingStatus
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingHandling
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingRequest
-import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatus
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatusAarsak
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddVedtakRequest
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
 import no.nav.mulighetsrommet.api.utbetaling.api.ValutaBelopRequest
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
@@ -75,8 +76,8 @@ class TilskuddBehandlingServiceTest : FunSpec({
     val request = TilskuddBehandlingRequest(
         id = UUID.randomUUID(),
         gjennomforingId = GjennomforingFixtures.AFT1.id,
-        tilskudd = listOf(
-            TilskuddBehandlingRequest.TilskuddRequest(
+        tilskuddVedtak = listOf(
+            TilskuddVedtakRequest(
                 id = UUID.randomUUID(),
                 tilskuddId = UUID.randomUUID(),
                 tilskuddOpplaeringType = Opplaeringtilskudd.Kode.SKOLEPENGER,
@@ -125,9 +126,9 @@ class TilskuddBehandlingServiceTest : FunSpec({
         val behandling = detaljer.behandling
         service.handlinger(behandling, ansatt2, detaljer.opprettelse) shouldContain TilskuddBehandlingHandling.GODKJENN
 
-        val tilskudd = behandling.tilskudd.single()
+        val tilskudd = behandling.tilskuddVedtak.single()
         val toKostnadssteder = behandling.copy(
-            tilskudd = listOf(
+            tilskuddVedtak = listOf(
                 tilskudd,
                 tilskudd.copy(
                     id = UUID.randomUUID(),
@@ -147,11 +148,11 @@ class TilskuddBehandlingServiceTest : FunSpec({
             val service = createService()
 
             service.upsert(
-                request.copy(tilskudd = request.tilskudd.first().copy(soknadJournalpostId = "asdf").nel()),
+                request.copy(tilskuddVedtak = request.tilskuddVedtak.first().copy(soknadJournalpostId = "asdf").nel()),
                 ansatt1,
             ).shouldBeLeft().should {
                 it shouldHaveSize 1
-                it.first().pointer shouldBe "/tilskudd/0/soknadJournalpostId"
+                it.first().pointer shouldBe "/tilskuddVedtak/0/soknadJournalpostId"
             }
         }
     }
@@ -162,7 +163,7 @@ class TilskuddBehandlingServiceTest : FunSpec({
 
             service.upsert(request, ansatt1).shouldBeLeft().should {
                 it shouldHaveSize 1
-                it.first().pointer shouldBe "/tilskudd/0/utbetalingMottaker"
+                it.first().pointer shouldBe "/tilskuddVedtak/0/utbetalingMottaker"
                 it.first().detail shouldBe "Betalingsinformasjon for arrangøren må være registrert"
             }
         }

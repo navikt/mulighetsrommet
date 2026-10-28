@@ -58,7 +58,7 @@ class TilskuddArrangorUtbetalingConsumer(
     }
 
     private suspend fun utbetalTilskuddTilArrangor(behandling: TilskuddBehandlingDto) {
-        behandling.tilskudd
+        behandling.tilskuddVedtak
             .filter { it.vedtakResultat.type == VedtakResultat.INNVILGELSE }
             .filter { it.utbetalingMottaker == TilskuddMottaker.ARRANGOR }
             .forEach { tilskuddVedtak ->

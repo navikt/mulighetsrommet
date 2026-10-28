@@ -25,17 +25,18 @@ import no.nav.mulighetsrommet.api.domain.navansatt.OkonomiBeslutningContext
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.Totrinnskontroll
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
-import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandling
+import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandlingStatus
+import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandlingType
 import no.nav.mulighetsrommet.api.tilskuddbehandling.mapper.TilskuddVedtakToPdfDocumentContentMapper
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandling
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingDetaljerDto
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingDto
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingHandling
-import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingKompakt
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingKompaktDto
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingRequest
-import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatus
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatusAarsak
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatusDto
-import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingType
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultatDto
 import no.nav.mulighetsrommet.api.tilskuddbehandling.task.JournalforVedtaksbrev
 import no.nav.mulighetsrommet.api.tilskuddbehandling.task.hentForhandsvisningVedtaksbrevInnhold
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingException
@@ -150,23 +151,21 @@ class TilskuddBehandlingService(
             ?: throw IllegalStateException("Fant ikke deltaker for enkeltplass")
     }
 
-    fun getByGjennomforingId(gjennomforingId: UUID): List<TilskuddBehandlingKompakt> {
+    fun getByGjennomforingId(gjennomforingId: UUID): List<TilskuddBehandlingKompaktDto> {
         return db.session {
-            queries.tilskuddBehandling.getByGjennomforingId(gjennomforingId).flatMap {
-                it.tilskudd.map { tilskudd ->
-                    TilskuddBehandlingKompakt(
-                        tilskuddId = tilskudd.id,
-                        behandlingId = it.id,
-                        soknadDato = tilskudd.soknadDato,
-                        periode = tilskudd.periode,
-                        journalpostId = tilskudd.soknadJournalpostId,
-                        tilskuddtype = tilskudd.tilskuddOpplaeringType,
-                        kostnadssted = tilskudd.kostnadssted,
-                        status = it.status,
-                        type = it.type,
-                        vedtakResultat = tilskudd.vedtakResultat,
-                    )
-                }
+            queries.tilskuddBehandling.getByGjennomforingId(gjennomforingId).map {
+                TilskuddBehandlingKompaktDto(
+                    tilskuddId = it.tilskuddVedtakId,
+                    behandlingId = it.id,
+                    soknadDato = it.soknadDato,
+                    periode = it.periode,
+                    journalpostId = it.journalpostId,
+                    tilskuddtype = it.tilskuddtype,
+                    kostnadssted = it.kostnadssted,
+                    status = TilskuddBehandlingStatusDto(it.status),
+                    type = it.type,
+                    vedtakResultat = VedtakResultatDto(it.vedtakResultat),
+                )
             }
         }
     }
@@ -272,7 +271,7 @@ class TilskuddBehandlingService(
         navIdent: NavIdent,
         totrinnskontroll: TotrinnskontrollDto,
     ): Set<TilskuddBehandlingHandling> = db.session {
-        val kostnadssteder = behandling.tilskudd.map { it.kostnadssted.enhetsnummer }.toNonEmptySetOrNull()
+        val kostnadssteder = behandling.tilskuddVedtak.map { it.kostnadssted.enhetsnummer }.toNonEmptySetOrNull()
             ?: error("Tilskuddsbehandling med id=${behandling.id} mangler tilskudd")
         return setOfNotNull(
             TilskuddBehandlingHandling.REDIGER.takeIf { behandling.status.type == TilskuddBehandlingStatus.RETURNERT },
@@ -327,7 +326,7 @@ class TilskuddBehandlingService(
     ): Either<List<FieldError>, UUID> = db.transaction {
         val tidligereBehandling = queries.tilskuddBehandling.get(behandlingId)
             ?: throw IllegalStateException("Fant ikke tilskuddsbehandling for behandlingId=$behandlingId")
-        val forrigeTilskuddVedtak = tidligereBehandling.tilskudd.firstOrNull { it.id == forrigeTilskuddVedtakId }
+        val forrigeTilskuddVedtak = tidligereBehandling.tilskuddVedtak.firstOrNull { it.id == forrigeTilskuddVedtakId }
             ?: throw IllegalStateException("Fant ikke tilskudd for tilskuddVedtakId=$forrigeTilskuddVedtakId i behandlingId=$behandlingId")
 
         queries.tilskuddBehandling.acquireLockTilskudd(forrigeTilskuddVedtak.tilskuddId)
@@ -338,7 +337,7 @@ class TilskuddBehandlingService(
             id = UUID.randomUUID(),
             type = TilskuddBehandlingType.REVURDERING,
             status = TilskuddBehandlingStatusDto(TilskuddBehandlingStatus.TIL_GODKJENNING),
-            tilskudd = listOf(
+            tilskuddVedtak = listOf(
                 forrigeTilskuddVedtak.copy(
                     id = UUID.randomUUID(),
                     utbetalingBelop = forrigeTilskuddVedtak.utbetalingBelop?.copy(belop = 0),

@@ -26,7 +26,7 @@ import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.tilskuddbehandling.TilskuddBehandlingService
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingDetaljerDto
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingDto
-import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingKompakt
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingKompaktDto
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingRequest
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatusAarsak
 import no.nav.mulighetsrommet.env.NaisEnv
@@ -84,7 +84,7 @@ fun Route.tilskuddBehandlingRoutes() {
                 response {
                     code(HttpStatusCode.OK) {
                         description = "Tilskuddsbehandlinger"
-                        body<List<TilskuddBehandlingKompakt>>()
+                        body<List<TilskuddBehandlingKompaktDto>>()
                     }
                     default {
                         description = "Problem details"
