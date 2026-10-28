@@ -19,7 +19,7 @@ object TilsagnTilJournalpostMapper {
         tilsagn: TilsagnJournalpostSnapshot,
         pdf: ByteArray,
     ): Journalpost = Journalpost(
-        tittel = "Tilsagnsbrev",
+        tittel = "Bekreftelse på bestilling",
         journalposttype = "UTGAAENDE",
         avsenderMottaker = Journalpost.AvsenderMottaker(
             id = tilsagn.arrangorOrganisasjonsnummer.value,
@@ -37,8 +37,8 @@ object TilsagnTilJournalpostMapper {
         datoMottatt = tilsagn.besluttetTidspunkt.toString(),
         dokumenter = listOf(
             Journalpost.Dokument(
-                tittel = "Tilsagnsbrev",
-                brevKode = "Tilsagnsbrev_v1",
+                tittel = "bekreftelse på bestilling",
+                brevKode = "Bekreftelsesbrev_v1",
                 dokumentvarianter = listOf(
                     Journalpost.Dokument.Dokumentvariant(
                         "PDFA",
