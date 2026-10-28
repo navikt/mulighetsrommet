@@ -29,7 +29,7 @@
 
 
   #if top != none {
-    let deltaker  = top.at("deltaker", default: (:))
+    let deltaker  = top.at("deltaker", default: none)
     let dato = top.at("date", default: none)
     let mottaker = top.at("addressedTo", default: none)
     let saksnummer = top.at("reference", default: none)
@@ -40,7 +40,7 @@
 
       ([Navn:], grid.cell(colspan: 2)[#par(deltakernavn)],
       [Fødselsnummer:], grid.cell(colspan: 2)[#par(if fnr != none { str(fnr) } else { "" })])
-    } 
+    }
 
     let mottakerInfo = if mottaker != none {
       ([Mottaker:], grid.cell(colspan: 2)[#par[#mottaker]])
@@ -52,7 +52,7 @@
       [Saksnummer:], [#par[#str(saksnummer)]], align(right)[#par[#iso-til-nor-dato(dato)]],
     ))
   }
-  
+
   #for seksjon in data.at("sections", default: none) {
     section(seksjon)
   }

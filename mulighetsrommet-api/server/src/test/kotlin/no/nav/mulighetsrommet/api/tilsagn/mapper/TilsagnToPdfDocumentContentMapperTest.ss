@@ -8,11 +8,7 @@
     "publicExemption": true,
     "addressedTo": "AKSEPTABEL EMPIRISK TIGER AS",
     "date": "2026-03-01",
-    "reference": "A-2026/9999-1",
-    "deltaker": {
-      "navn": "Normann, Olivia",
-      "norskIdent": "01010199997"
-    }
+    "reference": "2025/11457"
   },
   "sections": [
     {
@@ -144,10 +140,7 @@
     "publicExemption": true,
     "addressedTo": "AKSEPTABEL EMPIRISK TIGER AS",
     "date": "2026-03-01",
-    "reference": "A-2026/9999-1",
-    "deltaker": {
-      "navn": "Adressebeskyttet"
-    }
+    "reference": "2025/11457"
   },
   "sections": [
     {
@@ -279,11 +272,7 @@
     "publicExemption": true,
     "addressedTo": "AKSEPTABEL EMPIRISK TIGER AS",
     "date": "2026-03-01",
-    "reference": "A-2026/9999-1",
-    "deltaker": {
-      "navn": "Normann, Olve",
-      "norskIdent": "01010199998"
-    }
+    "reference": "2025/11457"
   },
   "sections": [
     {
@@ -415,10 +404,7 @@
     "publicExemption": true,
     "addressedTo": "AKSEPTABEL EMPIRISK TIGER AS",
     "date": "2026-03-01",
-    "reference": "A-2026/9999-1",
-    "deltaker": {
-      "navn": "Skjermet"
-    }
+    "reference": "2025/11457"
   },
   "sections": [
     {
@@ -550,11 +536,7 @@
     "publicExemption": true,
     "addressedTo": "AKSEPTABEL EMPIRISK TIGER AS",
     "date": "2026-03-01",
-    "reference": "A-2026/9999-1",
-    "deltaker": {
-      "navn": "Normann, Ola",
-      "norskIdent": "01010199999"
-    }
+    "reference": "2025/11457"
   },
   "sections": [
     {
