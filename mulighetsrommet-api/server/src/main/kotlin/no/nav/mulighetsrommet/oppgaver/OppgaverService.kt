@@ -178,7 +178,7 @@ class OppgaverService(val db: ApiDatabase, private val features: FeatureToggleSe
                 arrangorer = arrangorer.ifEmpty { null },
             )
             .asSequence()
-            .filter { utbetaling -> byKostnadssted(utbetaling.kostnadssteder, kostnadssteder) }
+            .filter { utbetaling -> byKostnadssted(utbetaling.kostnadssteder + utbetaling.ansvarligEnhet.nummer, kostnadssteder) }
             .mapNotNull { toOppgave(it, ansatt) }
             .toList()
     }
@@ -492,8 +492,20 @@ private fun tilAvbrytelseOppgave(data: UtbetalingBehandlingOppgaveData, ansatt: 
     createdAt = data.avbrytelseBehandletTidspunkt ?: data.createdAt,
     arrangor = data.arrangor,
 ).takeIf {
-    OkonomiAuthorization.erSaksbehandler(ansatt, data.gjennomforing.type) &&
-        data.avbrytelseBehandletAv != ansatt.navIdent
+    if (data.kostnadssteder.isEmpty()) {
+        OkonomiAuthorization.erAttestantUtbetaling(ansatt, OkonomiBeslutningContext(
+            gjennomforingType = data.gjennomforing.type,
+            kostnadssteder =  setOf(data.ansvarligEnhet.nummer).toNonEmptySetOrThrow(),
+        ))
+    } else {
+        data.kostnadssteder
+            .any {
+                OkonomiAuthorization.erAttestantUtbetaling(ansatt, OkonomiBeslutningContext(
+                    gjennomforingType = data.gjennomforing.type,
+                    kostnadssteder =  setOf(it).toNonEmptySetOrThrow()
+                ))
+            } && data.avbrytelseBehandletAv != ansatt.navIdent
+    }
 }
 
 private fun AvtaleManglerAdministratorOppgaveData.toOppgave(ansatt: NavAnsatt) = Oppgave(
@@ -523,12 +535,7 @@ private fun GjennomforingManglerAdministratorOppgaveData.toOppgave(ansatt: NavAn
     id = id,
     type = OppgaveType.GJENNOMFORING_MANGLER_ADMINISTRATOR,
     navn = OppgaveType.GJENNOMFORING_MANGLER_ADMINISTRATOR.navn,
-    enhet = kontorstruktur.firstOrNull()?.region?.let {
-        OppgaveEnhet(
-            nummer = it.enhetsnummer,
-            navn = it.navn,
-        )
-    },
+    enhet = ansvarligEnhet,
     title = navn,
     description = """Gå til gjennomføringen og sett deg som administrator hvis du eier gjennomføringen.""",
     tiltakstype = tiltakstype,

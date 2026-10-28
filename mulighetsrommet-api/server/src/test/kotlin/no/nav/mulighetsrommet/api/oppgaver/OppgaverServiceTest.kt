@@ -887,7 +887,7 @@ class OppgaverServiceTest : FunSpec({
                     NavEnhetFixtures.Oslo,
                     NavEnhetFixtures.TiltakOslo,
                 ),
-                gjennomforinger = listOf(AFT1, VTA1),
+                gjennomforinger = listOf(AFT1, VTA1.copy(ansvarligEnhet = NavEnhetFixtures.Innlandet.enhetsnummer)),
                 tilsagn = listOf(
                     TilsagnFixtures.Tilsagn1.copy(
                         gjennomforingId = AFT1.id,
@@ -952,7 +952,7 @@ class OppgaverServiceTest : FunSpec({
                         NavAnsattRolle.generell(Rolle.OKONOMI_SAKSBEHANDLER_GRUPPETILTAK),
                         NavAnsattRolle.kontorspesifikk(
                             Rolle.OKONOMI_ATTESTANT_GRUPPETILTAK,
-                            setOf(NavEnhetNummer("0100")),
+                            setOf(NavEnhetNummer("0400")),
                         ),
                     ),
                 ),
@@ -973,7 +973,6 @@ class OppgaverServiceTest : FunSpec({
                 ),
             ) shouldMatchAllOppgaver listOf(
                 PartialOppgave(UtbetalingFixtures.utbetaling3.id, OppgaveType.UTBETALING_TIL_BEHANDLING),
-                PartialOppgave(tilAvbrytelseId, OppgaveType.UTBETALING_TIL_AVBRYTELSE),
             )
 
             service.oppgaver(
@@ -996,7 +995,7 @@ class OppgaverServiceTest : FunSpec({
                 ansatt = NavAnsattFixture.MikkeMus.medRoller(
                     roller = setOf(NavAnsattRolle.generell(Rolle.OKONOMI_ATTESTANT_GRUPPETILTAK)),
                 ),
-            ) shouldHaveSize 0
+            ) shouldHaveSize 1
 
             service.oppgaver(
                 oppgavetyper = setOf(),
