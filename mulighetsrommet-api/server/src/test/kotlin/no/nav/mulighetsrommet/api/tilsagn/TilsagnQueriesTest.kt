@@ -14,6 +14,7 @@ import no.nav.mulighetsrommet.api.domain.testing.fixture.ArrangorFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.AvtaleFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.DeltakerFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavEnhetFixtures.Gjovik
+import no.nav.mulighetsrommet.api.domain.testing.fixture.NavEnhetFixtures.Innlandet
 import no.nav.mulighetsrommet.api.domain.testing.fixture.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
@@ -34,6 +35,7 @@ import no.nav.mulighetsrommet.database.utils.IntegrityConstraintViolation
 import no.nav.mulighetsrommet.database.utils.query
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.NOK
+import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.tiltak.okonomi.BestillingStatusType
 import java.time.LocalDate
@@ -412,6 +414,48 @@ class TilsagnQueriesTest : FunSpec({
 
                 result.totalCount shouldBe 2
                 result.items.shouldHaveSize(1)
+            }
+        }
+
+        test("filter by kostnadssteder before pagination") {
+            database.runAndRollback {
+                domain.initialize()
+                queries.tilsagn.upsert(tilsagn)
+                queries.tilsagn.upsert(
+                    tilsagn.copy(
+                        id = UUID.randomUUID(),
+                        lopenummer = 2,
+                        bestillingsnummer = "2",
+                        beregning = beregningAnnenAvtaltPris(),
+                    ),
+                )
+                queries.tilsagn.upsert(
+                    tilsagn.copy(
+                        id = UUID.randomUUID(),
+                        lopenummer = 3,
+                        bestillingsnummer = "3",
+                        kostnadssted = Innlandet.enhetsnummer,
+                        beregning = beregningAnnenAvtaltPris(),
+                    ),
+                )
+
+                val result = queries.tilsagn.getAllPaginated(
+                    kostnadssteder = setOf(Gjovik.enhetsnummer),
+                    pagination = Pagination.of(page = 2, size = 1),
+                )
+                result.totalCount shouldBe 2
+                result.items.map { it.kostnadssted.enhetsnummer } shouldBe listOf(NavEnhetNummer("0502"))
+
+                queries.tilsagn.getAll(
+                    kostnadssteder = setOf(Innlandet.enhetsnummer),
+                ).map { it.bestilling.bestillingsnummer } shouldBe listOf("3")
+                queries.tilsagn.getAll(
+                    kostnadssteder = setOf(Gjovik.enhetsnummer, Innlandet.enhetsnummer),
+                ).shouldHaveSize(3)
+                queries.tilsagn.getAll(
+                    kostnadssteder = setOf(NavEnhetNummer("9999")),
+                ).shouldHaveSize(0)
+                queries.tilsagn.getAll(kostnadssteder = emptySet()).shouldHaveSize(0)
             }
         }
 

@@ -5,11 +5,22 @@ import { useKostnadssteder } from "@/api/enhet/useKostnadssteder";
 interface Props {
   value: string[];
   onChange: (value: string[]) => void;
+  tilgjengeligeKostnadssteder?: string[];
 }
 
-export function KostnadsstedFilter({ value, onChange }: Props) {
+export function KostnadsstedFilter({ value, onChange, tilgjengeligeKostnadssteder }: Props) {
   const { data: regioner } = useKostnadssteder();
-  const groups = toCheckboxGroups(regioner);
+  const filtrerteRegioner = tilgjengeligeKostnadssteder
+    ? regioner
+        .map(({ region, kostnadssteder }) => ({
+          region,
+          kostnadssteder: kostnadssteder.filter(({ enhetsnummer }) =>
+            tilgjengeligeKostnadssteder.includes(enhetsnummer),
+          ),
+        }))
+        .filter(({ kostnadssteder }) => kostnadssteder.length > 0)
+    : regioner;
+  const groups = toCheckboxGroups(filtrerteRegioner);
   return (
     <CheckboxDropdownGroup
       legend="Kostnadssteder"

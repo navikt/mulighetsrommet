@@ -5,6 +5,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.util.getValue
+import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.parameters.getPaginationParams
 import no.nav.mulighetsrommet.api.plugins.queryParameterUuid
@@ -20,15 +21,16 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.model.DataDrivenTableDto
 import no.nav.mulighetsrommet.model.DataElement
+import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.ProblemDetail
 import org.koin.ktor.ext.inject
 import java.util.UUID
-import kotlinx.serialization.Serializable
 
 @Serializable
 data class PaginatedDataDrivenTableResponse(
     val pagination: PaginationSummary,
     val table: DataDrivenTableDto,
+    val kostnadssteder: List<NavEnhetNummer>,
 )
 
 fun Route.tilsagnRoutesGetAll() {
@@ -43,6 +45,9 @@ fun Route.tilsagnRoutesGetAll() {
             queryParameter<Int>("size")
             queryParameterUuid("gjennomforingId")
             queryParameter<List<TilsagnStatus>>("statuser") {
+                explode = true
+            }
+            queryParameter<List<NavEnhetNummer>>("kostnadssteder") {
                 explode = true
             }
         }
@@ -60,23 +65,26 @@ fun Route.tilsagnRoutesGetAll() {
         val gjennomforingId: UUID? by call.queryParameters
         val status = call.queryParameters.getAll("statuser")
             ?.map { TilsagnStatus.valueOf(it) }
+        val kostnadssteder = call.queryParameters.getAll("kostnadssteder")
+            ?.map { NavEnhetNummer(it) }
+            ?.toSet()
         val pagination = getPaginationParams()
 
-        val tilsagn = db.session {
-            queries.tilsagn.getAllPaginated(
+        val response = db.session {
+            val tilsagn = queries.tilsagn.getAllPaginated(
                 gjennomforingId = gjennomforingId,
                 statuser = status,
+                kostnadssteder = kostnadssteder,
                 pagination = pagination,
             )
-        }
-        val table = toTilsagnDataTable(tilsagn.items)
-
-        call.respond(
             PaginatedDataDrivenTableResponse(
-                PaginationSummary.of(pagination, tilsagn.totalCount),
-                table,
+                pagination = PaginationSummary.of(pagination, tilsagn.totalCount),
+                table = toTilsagnDataTable(tilsagn.items),
+                kostnadssteder = queries.tilsagn.getKostnadssteder(gjennomforingId),
             )
-        )
+        }
+
+        call.respond(response)
     }
 }
 
@@ -128,13 +136,13 @@ private fun toTilsagnAction(tilsagn: Tilsagn): DataElement.Link {
         TilsagnStatus.GODKJENT,
         TilsagnStatus.OPPGJORT,
         TilsagnStatus.ANNULLERT,
-            -> "Detaljer"
+        -> "Detaljer"
 
         TilsagnStatus.TIL_GODKJENNING,
         TilsagnStatus.RETURNERT,
         TilsagnStatus.TIL_ANNULLERING,
         TilsagnStatus.TIL_OPPGJOR,
-            -> "Behandle"
+        -> "Behandle"
     }
     return DataElement.Link(
         text = text,
@@ -156,7 +164,7 @@ fun toTilsagnStatusTag(status: TilsagnStatus): DataElement.Status {
 
         TilsagnStatus.TIL_ANNULLERING,
         TilsagnStatus.TIL_OPPGJOR,
-            -> DataElement.Status.Variant.ERROR
+        -> DataElement.Status.Variant.ERROR
     }
     return DataElement.Status(status.beskrivelse, variant)
 }

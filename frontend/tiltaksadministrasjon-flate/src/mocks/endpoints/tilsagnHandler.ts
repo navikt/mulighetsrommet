@@ -1,5 +1,5 @@
 import {
-  DataDrivenTableDto,
+  PaginatedDataDrivenTableResponse,
   DataElementTextFormat,
   LabeledDataElementType,
   TilsagnBeregningDto,
@@ -16,9 +16,20 @@ import { v4 } from "uuid";
 import { mockGjennomforinger } from "../fixtures/mock_gjennomforinger";
 
 export const tilsagnHandlers = [
-  http.get<PathParams, any, DataDrivenTableDto>("*/api/tiltaksadministrasjon/tilsagn", async () => {
-    return HttpResponse.json(mockTilsagnTable);
-  }),
+  http.get<PathParams, never, PaginatedDataDrivenTableResponse>(
+    "*/api/tiltaksadministrasjon/tilsagn",
+    async () => {
+      return HttpResponse.json({
+        table: mockTilsagnTable,
+        pagination: {
+          totalCount: mockTilsagnTable.rows.length,
+          pageSize: mockTilsagnTable.rows.length,
+          totalPages: 1,
+        },
+        kostnadssteder: [...new Set(mockTilsagn.map((t) => t.kostnadssted.enhetsnummer))],
+      });
+    },
+  ),
   http.get<PathParams, any, TilsagnRequest>(
     "*/api/tiltaksadministrasjon/tilsagn/defaults",
     async () => {

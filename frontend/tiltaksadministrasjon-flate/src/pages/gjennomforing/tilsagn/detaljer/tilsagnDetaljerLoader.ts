@@ -22,12 +22,18 @@ export function useTilsagnRequest(id: string) {
 
 export function useTilsagnTableData(
   gjennomforingId: string,
-  filter: { page?: number; pageSize?: number; statuser?: TilsagnStatus[] },
+  filter: {
+    page?: number;
+    pageSize?: number;
+    statuser?: TilsagnStatus[];
+    kostnadssteder?: string[];
+  },
 ) {
   const request = {
     query: {
       gjennomforingId,
       statuser: filter.statuser ?? [],
+      kostnadssteder: filter.kostnadssteder ?? [],
       page: filter.page ?? 1,
       size: filter.pageSize,
     },

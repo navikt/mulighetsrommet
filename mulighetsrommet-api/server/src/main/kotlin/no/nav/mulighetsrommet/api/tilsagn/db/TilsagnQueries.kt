@@ -349,6 +349,7 @@ class TilsagnQueries(private val session: Session) {
         statuser: List<TilsagnStatus>? = null,
         periodeIntersectsWith: Periode? = null,
         valuta: Valuta? = null,
+        kostnadssteder: Set<NavEnhetNummer>? = null,
     ): List<Tilsagn> {
         @Language("PostgreSQL")
         val query = """
@@ -358,8 +359,22 @@ class TilsagnQueries(private val session: Session) {
             order by created_at desc, id desc
         """.trimIndent()
 
-        val params = getAllParams(typer, gjennomforingId, arrangorer, statuser, periodeIntersectsWith, valuta)
+        val params = getAllParams(typer, gjennomforingId, arrangorer, statuser, periodeIntersectsWith, valuta, kostnadssteder)
         return session.list(queryOf(query, params)) { it.toTilsagn() }
+    }
+
+    fun getKostnadssteder(gjennomforingId: UUID?): List<NavEnhetNummer> {
+        @Language("PostgreSQL")
+        val query = """
+            select distinct kostnadssted
+            from tilsagn
+            where (:gjennomforing_id::uuid is null or gjennomforing_id = :gjennomforing_id::uuid)
+            order by kostnadssted
+        """.trimIndent()
+
+        return session.list(queryOf(query, mapOf("gjennomforing_id" to gjennomforingId))) {
+            NavEnhetNummer(it.string("kostnadssted"))
+        }
     }
 
     fun getAllPaginated(
@@ -369,6 +384,7 @@ class TilsagnQueries(private val session: Session) {
         statuser: List<TilsagnStatus>? = null,
         periodeIntersectsWith: Periode? = null,
         valuta: Valuta? = null,
+        kostnadssteder: Set<NavEnhetNummer>? = null,
         pagination: Pagination,
     ): PaginatedResult<Tilsagn> {
         @Language("PostgreSQL")
@@ -384,7 +400,7 @@ class TilsagnQueries(private val session: Session) {
 
         return queryOf(
             query,
-            getAllParams(typer, gjennomforingId, arrangorer, statuser, periodeIntersectsWith, valuta) + pagination.parameters,
+            getAllParams(typer, gjennomforingId, arrangorer, statuser, periodeIntersectsWith, valuta, kostnadssteder) + pagination.parameters,
         )
             .mapPaginated { it.toTilsagn() }
             .runWithSession(session)
@@ -397,6 +413,7 @@ class TilsagnQueries(private val session: Session) {
         statuser: List<TilsagnStatus>?,
         periodeIntersectsWith: Periode?,
         valuta: Valuta?,
+        kostnadssteder: Set<NavEnhetNummer>?,
     ) = mapOf(
         "typer" to typer?.let { session.createTextArray(it) },
         "gjennomforing_id" to gjennomforingId,
@@ -404,6 +421,7 @@ class TilsagnQueries(private val session: Session) {
         "statuser" to statuser?.let { session.createTextArray(it) },
         "periode" to periodeIntersectsWith?.toDaterange(),
         "valuta" to valuta?.name,
+        "kostnadssteder" to kostnadssteder?.let { session.createArrayOfValue(it) { it.value } },
     )
 
     private companion object {
@@ -415,6 +433,7 @@ class TilsagnQueries(private val session: Session) {
               and (:statuser::text[] is null or status = any(:statuser))
               and (:periode::daterange is null or periode && :periode::daterange)
               and (:valuta::currency is null or valuta = :valuta::currency)
+              and (:kostnadssteder::text[] is null or kostnadssted = any(:kostnadssteder))
         """
     }
 

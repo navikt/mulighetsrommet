@@ -3,6 +3,7 @@ import {
   AvtaleStatusType,
   Avtaletype,
   GjennomforingStatusType,
+  TilsagnStatus,
 } from "@tiltaksadministrasjon/api-client";
 import { avtaletypeTilTekst } from "./Utils";
 
@@ -94,6 +95,37 @@ export const AVTALE_STATUS_OPTIONS: { label: string; value: AvtaleStatusType }[]
   {
     label: "Utkast",
     value: AvtaleStatusType.UTKAST,
+  },
+];
+
+export const TILSAGN_STATUS_OPTIONS: { label: string; value: TilsagnStatus }[] = [
+  {
+    label: "Til godkjenning",
+    value: TilsagnStatus.TIL_GODKJENNING,
+  },
+  {
+    label: "Godkjent",
+    value: TilsagnStatus.GODKJENT,
+  },
+  {
+    label: "Returnert",
+    value: TilsagnStatus.RETURNERT,
+  },
+  {
+    label: "Til annullering",
+    value: TilsagnStatus.TIL_ANNULLERING,
+  },
+  {
+    label: "Annullert",
+    value: TilsagnStatus.ANNULLERT,
+  },
+  {
+    label: "Til oppgjør",
+    value: TilsagnStatus.TIL_OPPGJOR,
+  },
+  {
+    label: "Oppgjort",
+    value: TilsagnStatus.OPPGJORT,
   },
 ];
 
