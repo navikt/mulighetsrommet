@@ -14,7 +14,7 @@ import no.nav.mulighetsrommet.api.domain.navansatt.OkonomiAuthorization
 import no.nav.mulighetsrommet.api.domain.navansatt.OkonomiBeslutningContext
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
-import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatus
+import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandlingStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskLocalDateTime

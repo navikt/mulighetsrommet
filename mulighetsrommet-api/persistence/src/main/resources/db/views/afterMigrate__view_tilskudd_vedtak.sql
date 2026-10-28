@@ -7,17 +7,10 @@ select v.id,
        v.soknad_dato,
        v.periode,
        v.kostnadssted,
-       jsonb_build_object(
-               'valuta', v.soknad_valuta,
-               'belop', v.soknad_belop
-       ) as soknad_belop,
-       CASE
-           WHEN v.belop IS NULL THEN NULL
-           ELSE jsonb_build_object(
-                   'valuta', v.valuta,
-                   'belop', v.belop
-                )
-           END as utbetaling_belop,
+       v.soknad_belop,
+       v.soknad_valuta,
+       v.belop,
+       v.valuta,
        v.vedtak_resultat,
        v.kommentar_vedtaksbrev,
        v.utbetaling_mottaker,
@@ -29,8 +22,13 @@ select v.id,
        v.vedtak_journalfort_tidspunkt,
        v.vedtak_distribuert_tidspunkt,
        utbetaling.id as utbetaling_id,
-       bruker_utbetaling.id as bruker_utbetaling_id
+       bruker_utbetaling.id as bruker_utbetaling_id,
+       tilskudd.tilskuddsnummer,
+       tilskudd_opplaering.kode as tilskudd_opplaering_type,
+       nav_enhet.navn as kostnadssted_navn
 from tilskudd_vedtak v
     inner join nav_enhet on nav_enhet.enhetsnummer = v.kostnadssted
+    inner join tilskudd on v.tilskudd_id = tilskudd.id
+    inner join tilskudd_opplaering on tilskudd_opplaering.id = tilskudd.tilskudd_opplaering_id
     left outer join utbetaling on v.utbetaling_id = utbetaling.id
     left outer join bruker_utbetaling on v.id = bruker_utbetaling.tilskudd_vedtak_id

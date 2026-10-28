@@ -9,7 +9,7 @@ import no.nav.mulighetsrommet.api.domain.navenhet.Kontorstruktur
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetDto
 import no.nav.mulighetsrommet.api.persistence.avtale.createArrayOfAvtaleStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
-import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatus
+import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandlingStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.database.createArrayOfValue

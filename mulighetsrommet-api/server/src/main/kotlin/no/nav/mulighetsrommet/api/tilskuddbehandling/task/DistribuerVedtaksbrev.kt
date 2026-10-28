@@ -56,9 +56,9 @@ class DistribuerVedtaksbrev(
     suspend fun distribuerDok(tilskuddBehandlingId: UUID): Either<DokdistError, DokdistResponse> = db.transaction {
         logger.info("Distribuerer journalpost for vedtak id: $tilskuddBehandlingId")
 
-        val tilskudd = queries.tilskuddBehandling.getOrError(tilskuddBehandlingId)
-        val journalpostId = tilskudd.tilskudd.firstNotNullOfOrNull { it.vedtakJournalpostId }
-        require(journalpostId != null) { "Vedtak med id=$tilskuddBehandlingId har ingen journalpostId, distribuering ikke mulig" }
+        val tilskuddBehandling = queries.tilskuddBehandling.getOrError(tilskuddBehandlingId)
+        val journalpostId = tilskuddBehandling.tilskuddVedtak.firstNotNullOfOrNull { it.vedtakJournalpostId }
+        require(journalpostId != null) { "Vedtak med behandling id=$tilskuddBehandlingId har ingen journalpostId, distribuering ikke mulig" }
 
         dokdistClient.distribuerJournalpost(
             journalpostId = journalpostId,

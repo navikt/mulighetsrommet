@@ -17,12 +17,13 @@ import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.domain.gjennomforing.Gjennomforing
 import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.BrukerUtbetalingType
-import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandling
+import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandlingStatus
+import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandlingType
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddVedtak
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandling
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingRequest
-import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatus
-import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingType
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddVedtakRequest
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
 import no.nav.mulighetsrommet.api.utbetaling.api.ValutaBelopRequest
 import no.nav.mulighetsrommet.model.JournalpostId
@@ -58,7 +59,7 @@ class TilskuddBehandlingValidatorTest : FunSpec({
         journalpostValidator = { journalpostId, _ -> JournalpostId(journalpostId).right() },
     )
 
-    fun validTilskuddRequest() = TilskuddBehandlingRequest.TilskuddRequest(
+    fun validTilskuddVedtakRequest() = TilskuddVedtakRequest(
         id = UUID.randomUUID(),
         tilskuddId = UUID.randomUUID(),
         tilskuddOpplaeringType = Opplaeringtilskudd.Kode.SKOLEPENGER,
@@ -77,14 +78,14 @@ class TilskuddBehandlingValidatorTest : FunSpec({
         kommentarIntern = "Intern kommentar",
     )
 
-    fun createRequest(vararg tilskudd: TilskuddBehandlingRequest.TilskuddRequest) = TilskuddBehandlingRequest(
+    fun createRequest(vararg tilskuddVedtak: TilskuddVedtakRequest) = TilskuddBehandlingRequest(
         id = UUID.randomUUID(),
         gjennomforingId = UUID.randomUUID(),
-        tilskudd = tilskudd.toList(),
+        tilskuddVedtak = tilskuddVedtak.toList(),
     )
 
     test("validerer og mapper en gyldig tilskuddsbehandling") {
-        val request = createRequest(validTilskuddRequest())
+        val request = createRequest(validTilskuddVedtakRequest())
 
         TilskuddBehandlingValidator.validate(
             request = request,
@@ -95,8 +96,8 @@ class TilskuddBehandlingValidatorTest : FunSpec({
             gjennomforingId = request.gjennomforingId,
             tilskudd = listOf(
                 TilskuddVedtak(
-                    id = request.tilskudd.single().id,
-                    tilskuddId = request.tilskudd.single().tilskuddId,
+                    id = request.tilskuddVedtak.single().id,
+                    tilskuddId = request.tilskuddVedtak.single().tilskuddId,
                     tilskuddOpplaeringType = Opplaeringtilskudd.Kode.SKOLEPENGER,
                     soknadJournalpostId = JournalpostId("12345"),
                     soknadDato = LocalDate.of(2024, 1, 15),
@@ -119,7 +120,7 @@ class TilskuddBehandlingValidatorTest : FunSpec({
     }
 
     test("avslag trenger ikke beløp til utbetaling") {
-        val request = validTilskuddRequest().copy(
+        val request = validTilskuddVedtakRequest().copy(
             vedtakResultat = VedtakResultat.AVSLAG,
             belop = null,
         )
@@ -135,7 +136,7 @@ class TilskuddBehandlingValidatorTest : FunSpec({
     }
 
     test("samler feltfeil for ugyldig tilskuddsrequest") {
-        val request = validTilskuddRequest().copy(
+        val request = validTilskuddVedtakRequest().copy(
             tilskuddOpplaeringType = null,
             soknadJournalpostId = null,
             soknadDato = null,
@@ -155,49 +156,49 @@ class TilskuddBehandlingValidatorTest : FunSpec({
             ctx = createCtx(betalingsinformasjonArrangor = null),
         ).shouldBeLeft()
             .shouldContainExactlyInAnyOrder(
-                FieldError("/tilskudd/2/kostnadssted", "Kostnadssted er påkrevd"),
-                FieldError("/tilskudd/2/periodeStart", "Periodestart er påkrevd"),
-                FieldError("/tilskudd/2/periodeSlutt", "Periodeslutt er påkrevd"),
-                FieldError("/tilskudd/2/soknadDato", "Søknadsdato er påkrevd"),
-                FieldError("/tilskudd/2/soknadJournalpostId", "JournalpostId er påkrevd"),
-                FieldError("/tilskudd/2/tilskuddOpplaeringType", "Du må velge en tilskuddstype"),
-                FieldError("/tilskudd/2/utbetalingMottaker", "Du må velge en mottaker"),
+                FieldError("/tilskuddVedtak/2/kostnadssted", "Kostnadssted er påkrevd"),
+                FieldError("/tilskuddVedtak/2/periodeStart", "Periodestart er påkrevd"),
+                FieldError("/tilskuddVedtak/2/periodeSlutt", "Periodeslutt er påkrevd"),
+                FieldError("/tilskuddVedtak/2/soknadDato", "Søknadsdato er påkrevd"),
+                FieldError("/tilskuddVedtak/2/soknadJournalpostId", "JournalpostId er påkrevd"),
+                FieldError("/tilskuddVedtak/2/tilskuddOpplaeringType", "Du må velge en tilskuddstype"),
+                FieldError("/tilskuddVedtak/2/utbetalingMottaker", "Du må velge en mottaker"),
                 FieldError(
-                    "/tilskudd/2/kommentarVedtaksbrev",
+                    "/tilskuddVedtak/2/kommentarVedtaksbrev",
                     "Kommentar kan ikke inneholde mer enn 500 tegn",
                 ),
-                FieldError("/tilskudd/2/soknadBelop/belop", "Beløp fra faktura må være positivt"),
-                FieldError("/tilskudd/2/belop", "Beløp til utbetaling må være positivt"),
+                FieldError("/tilskuddVedtak/2/soknadBelop/belop", "Beløp fra faktura må være positivt"),
+                FieldError("/tilskuddVedtak/2/belop", "Beløp til utbetaling må være positivt"),
             )
     }
 
     test("krever vedtaksresultat") {
-        val request = validTilskuddRequest().copy(vedtakResultat = null)
+        val request = validTilskuddVedtakRequest().copy(vedtakResultat = null)
 
         TilskuddBehandlingValidator.validateTilskuddRequest(
             req = request,
             index = 0,
             ctx = createCtx(),
         ) shouldBeLeft listOf(
-            FieldError("/tilskudd/0/vedtakResultat", "Du må velge et resultat"),
+            FieldError("/tilskuddVedtak/0/vedtakResultat", "Du må velge et resultat"),
         )
     }
 
     test("krever betalingsinformasjon når utbetaling går til arrangør") {
-        val request = validTilskuddRequest()
+        val request = validTilskuddVedtakRequest()
 
         TilskuddBehandlingValidator.validateTilskuddRequest(
             req = request,
             index = 0,
             ctx = createCtx(betalingsinformasjonArrangor = null),
         ) shouldBeLeft listOf(
-            FieldError("/tilskudd/0/utbetalingMottaker", "Betalingsinformasjon for arrangøren må være registrert"),
+            FieldError("/tilskuddVedtak/0/utbetalingMottaker", "Betalingsinformasjon for arrangøren må være registrert"),
         )
     }
 
     BrukerUtbetalingType.entries.forEach { brukerUtbetalingType ->
         test("setter type utbetaling til $brukerUtbetalingType når mottaker er bruker") {
-            val request = validTilskuddRequest().copy(
+            val request = validTilskuddVedtakRequest().copy(
                 utbetalingMottaker = TilskuddMottaker.BRUKER,
                 brukerUtbetalingType = brukerUtbetalingType,
             )
@@ -213,7 +214,7 @@ class TilskuddBehandlingValidatorTest : FunSpec({
     }
 
     test("krever valg om type utbetaling når mottaker er bruker") {
-        val request = validTilskuddRequest().copy(
+        val request = validTilskuddVedtakRequest().copy(
             utbetalingMottaker = TilskuddMottaker.BRUKER,
             brukerUtbetalingType = null,
         )
@@ -223,12 +224,12 @@ class TilskuddBehandlingValidatorTest : FunSpec({
             index = 1,
             ctx = createCtx(betalingsinformasjonArrangor = null),
         ) shouldBeLeft listOf(
-            FieldError("/tilskudd/1/brukerUtbetalingType", "Du må velge forskudd eller refusjon"),
+            FieldError("/tilskuddVedtak/1/brukerUtbetalingType", "Du må velge forskudd eller refusjon"),
         )
     }
 
     test("ignorerer forskuddsutbetalingTilBruker når mottaker er arrangør") {
-        val request = validTilskuddRequest().copy(brukerUtbetalingType = BrukerUtbetalingType.FORSKUDD)
+        val request = validTilskuddVedtakRequest().copy(brukerUtbetalingType = BrukerUtbetalingType.FORSKUDD)
 
         val result = TilskuddBehandlingValidator.validateTilskuddRequest(
             req = request,
@@ -240,7 +241,7 @@ class TilskuddBehandlingValidatorTest : FunSpec({
     }
 
     test("validerer periodens rekkefølge og grensen for gjennomføringen") {
-        val request = validTilskuddRequest().copy(
+        val request = validTilskuddVedtakRequest().copy(
             periodeStart = "2025-08-01",
             periodeSlutt = "2025-07-01",
         )
@@ -251,9 +252,9 @@ class TilskuddBehandlingValidatorTest : FunSpec({
             ctx = createCtx(gjennomforing = createGjennomforing(LocalDate.of(2025, 6, 30))),
         ).shouldBeLeft()
             .shouldContainExactlyInAnyOrder(
-                FieldError("/tilskudd/1/periodeStart", "Periodestart må være før sluttdato"),
+                FieldError("/tilskuddVedtak/1/periodeStart", "Periodestart må være før sluttdato"),
                 FieldError(
-                    "/tilskudd/1/periodeSlutt",
+                    "/tilskuddVedtak/1/periodeSlutt",
                     "Periodeslutt kan ikke være etter gjennomføringsperioden",
                 ),
             )
@@ -261,8 +262,8 @@ class TilskuddBehandlingValidatorTest : FunSpec({
 
     test("feil fra et tilskudd bruker indeksen til elementet i behandlingen") {
         val request = createRequest(
-            validTilskuddRequest(),
-            validTilskuddRequest().copy(kostnadssted = null),
+            validTilskuddVedtakRequest(),
+            validTilskuddVedtakRequest().copy(kostnadssted = null),
         )
 
         TilskuddBehandlingValidator.validate(
@@ -270,14 +271,14 @@ class TilskuddBehandlingValidatorTest : FunSpec({
             behandlendeEnhet = behandlendeEnhet,
             ctx = createCtx(),
         ) shouldBeLeft listOf(
-            FieldError("/tilskudd/1/kostnadssted", "Kostnadssted er påkrevd"),
+            FieldError("/tilskuddVedtak/1/kostnadssted", "Kostnadssted er påkrevd"),
         )
     }
 
     test("samler feltfeil fra flere tilskudd i saksopplysningene") {
         val request = createRequest(
-            validTilskuddRequest().copy(kostnadssted = null),
-            validTilskuddRequest().copy(soknadDato = null),
+            validTilskuddVedtakRequest().copy(kostnadssted = null),
+            validTilskuddVedtakRequest().copy(soknadDato = null),
         )
 
         TilskuddBehandlingValidator.validateSaksopplysninger(
@@ -285,8 +286,8 @@ class TilskuddBehandlingValidatorTest : FunSpec({
             ctx = createCtx(),
         ).shouldBeLeft()
             .shouldContainExactlyInAnyOrder(
-                FieldError("/tilskudd/0/kostnadssted", "Kostnadssted er påkrevd"),
-                FieldError("/tilskudd/1/soknadDato", "Søknadsdato er påkrevd"),
+                FieldError("/tilskuddVedtak/0/kostnadssted", "Kostnadssted er påkrevd"),
+                FieldError("/tilskuddVedtak/1/soknadDato", "Søknadsdato er påkrevd"),
             )
     }
 
@@ -301,7 +302,7 @@ class TilskuddBehandlingValidatorTest : FunSpec({
         validate("12345", 3) shouldBeRight JournalpostId("12345")
         validate("abc", 3) shouldBeLeft listOf(
             FieldError(
-                "/tilskudd/3/soknadJournalpostId",
+                "/tilskuddVedtak/3/soknadJournalpostId",
                 "Feil format på Journalpost-ID: abc",
             ),
         )
@@ -354,7 +355,7 @@ class TilskuddBehandlingValidatorTest : FunSpec({
                 journalpostValidator = journalpostValidator,
                 valideringEnabled = true,
             )("12345", 4) shouldBeLeft listOf(
-                FieldError("/tilskudd/4/soknadJournalpostId", forventetDetalj),
+                FieldError("/tilskuddVedtak/4/soknadJournalpostId", forventetDetalj),
             )
         }
     }
