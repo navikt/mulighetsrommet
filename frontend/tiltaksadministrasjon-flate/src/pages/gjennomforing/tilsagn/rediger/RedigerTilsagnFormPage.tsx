@@ -3,24 +3,18 @@ import { useGjennomforing } from "@/api/gjennomforing/useGjennomforing";
 import { useTilsagn, useTilsagnRequest } from "../detaljer/tilsagnDetaljerLoader";
 import { TotrinnskontrollReturnert } from "@/components/totrinnskontroll/TotrinnskontrollReturnert";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
-import { useRelevanteKostnadssteder } from "@/pages/gjennomforing/tilsagn/useRelevanteKostnadssteder";
-import { GjennomforingEnkeltplassDtoType } from "@tiltaksadministrasjon/api-client";
+import { useKostnadssteder } from "@/api/enhet/useKostnadssteder";
+import { RegionKostnadssteder } from "@tiltaksadministrasjon/api-client";
 
 function useRedigerTilsagnFormData(gjennomforingId: string, tilsagnId: string) {
   const detaljer = useGjennomforing(gjennomforingId);
   const { data: tilsagnDetaljer } = useTilsagn(tilsagnId);
   const { data: defaults } = useTilsagnRequest(tilsagnId);
-  const kostnadssteder = useRelevanteKostnadssteder(
-    tilsagnDetaljer.tilsagn.type,
-    detaljer.gjennomforing.type === GjennomforingEnkeltplassDtoType.ENKELTPLASS
-      ? detaljer.gjennomforing.ansvarligEnhet.enhetsnummer
-      : null,
-    "veilederinfo" in detaljer ? detaljer.veilederinfo.kontorstruktur : [],
-  );
+  const { data: kostnadssteder } = useKostnadssteder();
   return {
     gjennomforing: detaljer.gjennomforing,
     prismodell: detaljer.prismodell,
-    kostnadssteder,
+    kostnadssteder: kostnadssteder.flatMap((r: RegionKostnadssteder) => r.kostnadssteder),
     defaults,
     opprettelse: tilsagnDetaljer.opprettelse,
   };

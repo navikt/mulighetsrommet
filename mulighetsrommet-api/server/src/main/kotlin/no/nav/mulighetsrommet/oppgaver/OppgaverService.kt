@@ -493,17 +493,23 @@ private fun tilAvbrytelseOppgave(data: UtbetalingBehandlingOppgaveData, ansatt: 
     arrangor = data.arrangor,
 ).takeIf {
     if (data.kostnadssteder.isEmpty()) {
-        OkonomiAuthorization.erAttestantUtbetaling(ansatt, OkonomiBeslutningContext(
-            gjennomforingType = data.gjennomforing.type,
-            kostnadssteder =  setOf(data.ansvarligEnhet.nummer).toNonEmptySetOrThrow(),
-        ))
+        OkonomiAuthorization.erAttestantUtbetaling(
+            ansatt,
+            OkonomiBeslutningContext(
+                gjennomforingType = data.gjennomforing.type,
+                kostnadssteder = setOf(data.ansvarligEnhet.nummer).toNonEmptySetOrThrow(),
+            ),
+        )
     } else {
         data.kostnadssteder
             .any {
-                OkonomiAuthorization.erAttestantUtbetaling(ansatt, OkonomiBeslutningContext(
-                    gjennomforingType = data.gjennomforing.type,
-                    kostnadssteder =  setOf(it).toNonEmptySetOrThrow()
-                ))
+                OkonomiAuthorization.erAttestantUtbetaling(
+                    ansatt,
+                    OkonomiBeslutningContext(
+                        gjennomforingType = data.gjennomforing.type,
+                        kostnadssteder = setOf(it).toNonEmptySetOrThrow(),
+                    ),
+                )
             } && data.avbrytelseBehandletAv != ansatt.navIdent
     }
 }
