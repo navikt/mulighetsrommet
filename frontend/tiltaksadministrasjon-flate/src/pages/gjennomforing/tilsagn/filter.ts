@@ -1,4 +1,5 @@
 import { z } from "zod";
+import type { TilsagnStatus } from "@tiltaksadministrasjon/api-client";
 import { createFilterStateAtom } from "@/filter/filter-state";
 import {
   createFilterValidator,
@@ -8,6 +9,8 @@ import { createSorteringProps } from "@/api/atoms";
 import { atom } from "jotai/vanilla";
 
 export const TilsagnFilterSchema = z.object({
+  statuser: z.array(z.custom<TilsagnStatus>()),
+  kostnadssteder: z.array(z.string()),
   sortering: createSorteringProps(z.string()),
   page: z.number(),
   pageSize: z.number(),
@@ -16,6 +19,8 @@ export const TilsagnFilterSchema = z.object({
 export type TilsagnFilterType = z.infer<typeof TilsagnFilterSchema>;
 
 const defaultTilsagnFilter: TilsagnFilterType = {
+  statuser: [],
+  kostnadssteder: [],
   sortering: {
     sortString: "navn-ascending",
     tableSort: {

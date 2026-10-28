@@ -1,5 +1,4 @@
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
-import { KnapperadContainer } from "@/layouts/KnapperadContainer";
 import { GjennomforingHandling, TilsagnType } from "@tiltaksadministrasjon/api-client";
 import { useGjennomforingHandlinger } from "@/api/gjennomforing/useGjennomforing";
 import { useTilsagnTableData } from "@/pages/gjennomforing/tilsagn/detaljer/tilsagnDetaljerLoader";
@@ -12,7 +11,12 @@ import { Pagination } from "@navikt/ds-react";
 import { useTilsagnSavedFilterState } from "@/filter/useSavedFiltersState";
 import { TilToppenKnapp } from "@mr/frontend-common/components/tilToppenKnapp/TilToppenKnapp";
 import { ContentBox } from "@/layouts/ContentBox";
-import { LagreFilterButton, ListSkeleton, useOpenFilterWhenThreshold } from "@mr/frontend-common";
+import {
+  LagredeFilterOversikt,
+  LagreFilterButton,
+  ListSkeleton,
+  useOpenFilterWhenThreshold,
+} from "@mr/frontend-common";
 import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
 import { NullstillFilterKnapp } from "@mr/frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
 import { Suspense } from "react";
@@ -22,48 +26,40 @@ import { TilsagnFilterTags } from "@/components/filter/TilsagnFilterTags";
 export function TilsagnForGjennomforingPage() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
   const handlinger = useGjennomforingHandlinger(gjennomforingId);
-  const { filter, updateFilter, hasChanged, resetFilterToDefault, saveFilter } =
-    useTilsagnSavedFilterState();
+  const {
+    filter,
+    updateFilter,
+    hasChanged,
+    resetFilterToDefault,
+    saveFilter,
+    filters,
+    deleteFilter,
+    selectFilter,
+    setDefaultFilter,
+  } = useTilsagnSavedFilterState();
   const { data: tilsagn } = useTilsagnTableData(gjennomforingId, filter.values);
 
   const [filterOpen, setFilterOpen] = useOpenFilterWhenThreshold(1450);
 
   return (
     <>
-      <KnapperadContainer>
-        <Handlinger
-          handlinger={handlinger}
-          grupper={[
-            {
-              items: [
-                {
-                  label: `Opprett ${avtaletekster.tilsagn.type(TilsagnType.TILSAGN).toLowerCase()}`,
-                  href: `opprett-tilsagn?type=${TilsagnType.TILSAGN}`,
-                  handling: GjennomforingHandling.OPPRETT_TILSAGN,
-                },
-                {
-                  label: `Opprett ${avtaletekster.tilsagn.type(TilsagnType.EKSTRATILSAGN).toLowerCase()}`,
-                  href: `opprett-tilsagn?type=${TilsagnType.EKSTRATILSAGN}`,
-                  handling: GjennomforingHandling.OPPRETT_EKSTRATILSAGN,
-                },
-                {
-                  label: `Opprett ${avtaletekster.tilsagn.type(TilsagnType.INVESTERING).toLowerCase()}`,
-                  href: `opprett-tilsagn?type=${TilsagnType.INVESTERING}`,
-                  handling: GjennomforingHandling.OPPRETT_TILSAGN_FOR_INVESTERINGER,
-                },
-              ],
-            },
-          ]}
-        />
-      </KnapperadContainer>
       <ContentBox>
         <FilterAndTableLayout
           hasChanged={hasChanged}
           filter={
             <TilsagnFilter
               filter={filter.values}
+              tilgjengeligeKostnadssteder={tilsagn.kostnadssteder}
               updateFilter={updateFilter}
-              lagredeFilterOversikt={<div />}
+              lagredeFilterOversikt={
+                <LagredeFilterOversikt
+                  filters={filters}
+                  selectedFilterId={filter.id}
+                  onSelectFilterId={selectFilter}
+                  onDeleteFilter={deleteFilter}
+                  onSetDefaultFilter={setDefaultFilter}
+                />
+              }
             />
           }
           nullstillFilterButton={<NullstillFilterKnapp onClick={resetFilterToDefault} />}
@@ -75,7 +71,32 @@ export function TilsagnForGjennomforingPage() {
               filterOpen={filterOpen}
             />
           }
-          buttons={null}
+          buttons={
+            <Handlinger
+              handlinger={handlinger}
+              grupper={[
+                {
+                  items: [
+                    {
+                      label: `Opprett ${avtaletekster.tilsagn.type(TilsagnType.TILSAGN).toLowerCase()}`,
+                      href: `opprett-tilsagn?type=${TilsagnType.TILSAGN}`,
+                      handling: GjennomforingHandling.OPPRETT_TILSAGN,
+                    },
+                    {
+                      label: `Opprett ${avtaletekster.tilsagn.type(TilsagnType.EKSTRATILSAGN).toLowerCase()}`,
+                      href: `opprett-tilsagn?type=${TilsagnType.EKSTRATILSAGN}`,
+                      handling: GjennomforingHandling.OPPRETT_EKSTRATILSAGN,
+                    },
+                    {
+                      label: `Opprett ${avtaletekster.tilsagn.type(TilsagnType.INVESTERING).toLowerCase()}`,
+                      href: `opprett-tilsagn?type=${TilsagnType.INVESTERING}`,
+                      handling: GjennomforingHandling.OPPRETT_TILSAGN_FOR_INVESTERINGER,
+                    },
+                  ],
+                },
+              ]}
+            />
+          }
           table={
             <Suspense fallback={<ListSkeleton />}>
               <TilsagnTable
@@ -89,7 +110,6 @@ export function TilsagnForGjennomforingPage() {
         />
       </ContentBox>
       <TilToppenKnapp />
-
       <PagineringContainer>
         <PagineringsOversikt
           page={filter.values.page}
