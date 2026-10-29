@@ -26,6 +26,7 @@ import no.nav.mulighetsrommet.api.fixtures.setTilBehandling
 import no.nav.mulighetsrommet.api.pdfgen.PdfDocumentContent
 import no.nav.mulighetsrommet.api.persistence.testing.fixture.GjennomforingDboFixtures.HoyereUtdanning
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.BrukerUtbetalingType
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddMottaker
 import no.nav.mulighetsrommet.api.tilskuddbehandling.task.hentVedtaksbrevInnhold
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
@@ -46,7 +47,7 @@ class TilskuddVedtakToPdfDocumentContentMapperTest : FunSpec({
         id = UUID.randomUUID(),
         tilskuddId = UUID.randomUUID(),
         tilskuddOpplaeringType = Opplaeringtilskudd.Kode.SEMESTERAVGIFT,
-        brukerUtbetalingType = BrukerUtbetalingType.FORSKUDD,
+        utbetalingMottaker = TilskuddMottaker.Bruker(BrukerUtbetalingType.FORSKUDD),
     )
 
     val tilskudd = listOf(TilskuddFixtures.TilskuddVedtakInnvilgelse, innvilgetForskuddsutbetalingTilBruker, TilskuddFixtures.TilskuddVedtakAvslag)

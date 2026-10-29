@@ -22,8 +22,9 @@ import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.model.GyldigTilsagnPeriode
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.tilskuddbehandling.TilskuddBehandlingService
-import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
+import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottakerType
 import no.nav.mulighetsrommet.api.tilskuddbehandling.gyldigJournalpostValidator
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.ArrangorReferanseType
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingRequest
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddVedtakRequest
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
@@ -91,8 +92,10 @@ class TilskuddArrangorUtbetalingConsumerTest : FunSpec({
                 soknadBelop = ValutaBelopRequest(belop = 100, valuta = Valuta.NOK),
                 vedtakResultat = VedtakResultat.INNVILGELSE,
                 kommentarVedtaksbrev = null,
-                utbetalingMottaker = TilskuddMottaker.ARRANGOR,
+                utbetalingMottaker = TilskuddMottakerType.ARRANGOR,
+                arrangorReferanse = ArrangorReferanseType.KID,
                 kidNummer = "116",
+                fakturanummer = null,
                 belop = 100,
                 brukerUtbetalingType = null,
                 kommentarIntern = null,

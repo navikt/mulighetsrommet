@@ -14,11 +14,13 @@ import no.nav.mulighetsrommet.api.persistence.testing.fixture.GjennomforingDboFi
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.BrukerUtbetalingType
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandlingStatus
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandlingType
-import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddVedtak
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.ArrangorReferanse
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandling
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddMottaker
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
+import no.nav.mulighetsrommet.model.Fakturanummer
 import no.nav.mulighetsrommet.model.JournalpostId
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.NavEnhetNummer
@@ -54,9 +56,7 @@ class TilskuddBehandlingQueriesTest : FunSpec({
                 ),
                 vedtakResultat = VedtakResultat.INNVILGELSE,
                 kommentarVedtaksbrev = "k1",
-                utbetalingMottaker = TilskuddMottaker.BRUKER,
-                kid = null,
-                brukerUtbetalingType = BrukerUtbetalingType.REFUSJON,
+                utbetalingMottaker = TilskuddMottaker.Bruker(utbetalingType = BrukerUtbetalingType.REFUSJON),
                 soknadJournalpostId = JournalpostId("123"),
                 soknadDato = LocalDate.of(2024, 1, 15),
                 periode = Periode(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 7, 1)),
@@ -77,9 +77,7 @@ class TilskuddBehandlingQueriesTest : FunSpec({
                 ),
                 vedtakResultat = VedtakResultat.INNVILGELSE,
                 kommentarVedtaksbrev = "k2",
-                utbetalingMottaker = TilskuddMottaker.ARRANGOR,
-                kid = Kid.parse("116"),
-                brukerUtbetalingType = null,
+                utbetalingMottaker = TilskuddMottaker.Arrangor(referanse = ArrangorReferanse.Kid(Kid.parse("116")!!)),
                 soknadJournalpostId = JournalpostId("123"),
                 soknadDato = LocalDate.of(2024, 1, 15),
                 periode = Periode(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 7, 1)),
@@ -97,9 +95,7 @@ class TilskuddBehandlingQueriesTest : FunSpec({
                 utbetalingBelop = null,
                 vedtakResultat = VedtakResultat.AVSLAG,
                 kommentarVedtaksbrev = "k2",
-                utbetalingMottaker = TilskuddMottaker.ARRANGOR,
-                kid = null,
-                brukerUtbetalingType = null,
+                utbetalingMottaker = TilskuddMottaker.Arrangor(referanse = ArrangorReferanse.Kid(Kid.parse("116")!!)),
                 soknadJournalpostId = JournalpostId("123"),
                 soknadDato = LocalDate.of(2024, 1, 15),
                 periode = Periode(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 7, 1)),
@@ -113,6 +109,30 @@ class TilskuddBehandlingQueriesTest : FunSpec({
     )
 
     context("insert and get") {
+        listOf(
+            "fakturanummer" to ArrangorReferanse.Fakturanummer(Fakturanummer.parseOrThrow("123456")),
+            "KID" to ArrangorReferanse.Kid(requireNotNull(Kid.parse("116"))),
+            "null KID" to ArrangorReferanse.Kid(null),
+        ).forEach { (navn, referanse) ->
+            test("insert og get returnerer tilskuddvedtak med $navn som arrangørreferanse") {
+                database.runAndRollback {
+                    domain.initialize()
+                    val mottaker = TilskuddMottaker.Arrangor(referanse)
+                    val vedtak = behandling.tilskudd[1].copy(utbetalingMottaker = mottaker)
+                    val behandlingMedReferanse = behandling.copy(tilskudd = listOf(vedtak))
+
+                    queries.tilskuddBehandling.upsert(behandlingMedReferanse)
+
+                    val resultat = requireNotNull(queries.tilskuddBehandling.get(behandlingMedReferanse.id))
+                        .tilskuddVedtak.single()
+
+                    resultat.id shouldBe vedtak.id
+                    resultat.utbetalingMottaker shouldBe mottaker
+                    resultat.kid shouldBe (referanse as? ArrangorReferanse.Kid)?.kid
+                }
+            }
+        }
+
         test("insert og get returnerer behandling med tilskudd") {
             database.runAndRollback {
                 domain.initialize()
@@ -135,7 +155,7 @@ class TilskuddBehandlingQueriesTest : FunSpec({
                         v.soknadBelop.valuta shouldBe Valuta.SEK
                         v.vedtakResultat.type shouldBe VedtakResultat.INNVILGELSE
                         v.kommentarVedtaksbrev shouldBe "k1"
-                        v.utbetalingMottaker shouldBe TilskuddMottaker.BRUKER
+                        v.utbetalingMottaker shouldBe TilskuddMottaker.Bruker(utbetalingType = BrukerUtbetalingType.REFUSJON)
                         v.kid shouldBe null
                         v.utbetalingBelop?.valuta shouldBe Valuta.NOK
                         v.utbetalingBelop?.belop shouldBe 100
@@ -154,7 +174,7 @@ class TilskuddBehandlingQueriesTest : FunSpec({
                         v.soknadBelop.valuta shouldBe Valuta.NOK
                         v.vedtakResultat.type shouldBe VedtakResultat.INNVILGELSE
                         v.kommentarVedtaksbrev shouldBe "k2"
-                        v.utbetalingMottaker shouldBe TilskuddMottaker.ARRANGOR
+                        v.utbetalingMottaker shouldBe TilskuddMottaker.Arrangor(referanse = ArrangorReferanse.Kid(Kid.parse("116")!!))
                         v.kid shouldBe Kid.parse("116")
                         v.utbetalingBelop?.belop shouldBe 200
                         v.utbetalingBelop?.valuta shouldBe Valuta.NOK

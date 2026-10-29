@@ -6,9 +6,10 @@ import no.nav.mulighetsrommet.api.persistence.testing.fixture.GjennomforingDboFi
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.BrukerUtbetalingType
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandlingStatus
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandlingType
-import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddVedtak
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.ArrangorReferanse
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandling
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddMottaker
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
 import no.nav.mulighetsrommet.model.JournalpostId
 import no.nav.mulighetsrommet.model.Kid
@@ -33,9 +34,7 @@ object TilskuddFixtures {
         ),
         vedtakResultat = VedtakResultat.INNVILGELSE,
         kommentarVedtaksbrev = null,
-        utbetalingMottaker = TilskuddMottaker.BRUKER,
-        kid = null,
-        brukerUtbetalingType = BrukerUtbetalingType.REFUSJON,
+        utbetalingMottaker = TilskuddMottaker.Bruker(utbetalingType = BrukerUtbetalingType.REFUSJON),
         soknadJournalpostId = JournalpostId("123"),
         soknadDato = LocalDate.of(2024, 1, 15),
         periode = Periode(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 7, 1)),
@@ -57,9 +56,9 @@ object TilskuddFixtures {
         ),
         vedtakResultat = VedtakResultat.AVSLAG,
         kommentarVedtaksbrev = "Vilkårene for tilskuddet er ikke oppfylt, derfor avslås søknaden.",
-        utbetalingMottaker = TilskuddMottaker.ARRANGOR,
-        kid = Kid.parse("116"),
-        brukerUtbetalingType = null,
+        utbetalingMottaker = TilskuddMottaker.Arrangor(
+            referanse = ArrangorReferanse.Kid(Kid.parse("116")!!),
+        ),
         soknadJournalpostId = JournalpostId("123"),
         soknadDato = LocalDate.of(2024, 1, 15),
         periode = Periode(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 7, 1)),
