@@ -62,7 +62,7 @@ async function enableMocking() {
     const worker = await import("./mocks/worker");
 
     return worker.initializeMockServiceWorker().start({
-      onUnhandledRequest: "bypass",
+      onUnhandledFrame: "bypass",
     });
   } else {
     return;
