@@ -614,8 +614,8 @@ importers:
         specifier: 2.12.1
         version: 2.12.1
       '@highcharts/react':
-        specifier: 5.4.0
-        version: 5.4.0(@types/react@19.2.14)(highcharts@13.1.1)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+        specifier: 5.2.2
+        version: 5.2.2(@types/react@19.2.14)(highcharts@13.1.1)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       '@hookform/resolvers':
         specifier: 6.0.0
         version: 6.0.0(react-hook-form@7.90.0(@types/react@19.2.14)(react@19.2.8))(valibot@1.5.0(typescript@6.0.3))(zod@4.6.7)
@@ -1711,8 +1711,8 @@ packages:
   '@hey-api/types@0.1.4':
     resolution: {integrity: sha512-thWfawrDIP7wSI9ioT13I5soaaqB5vAPIiZmgD8PbeEVKNrkonc0N/Sjj97ezl7oQgusZmaNphGdMKipPO6IBg==}
 
-  '@highcharts/react@5.4.0':
-    resolution: {integrity: sha512-5XBNoDdt7thvL/ihnJ7SvkZyCjDehZaHe9KVzmUZP/10cXt8kFAsIIUTtRtjoX5rkXezlsdjnqr1dhrrR6GBHA==}
+  '@highcharts/react@5.2.2':
+    resolution: {integrity: sha512-yeJt37+yrReKip4nxKmjhkYX8c+wZBYy/p0TtUw4ZIUApGc66zjP6jTQw3NnenMrsPKgtsv791pqlvN9qT62aQ==}
     peerDependencies:
       '@types/react': '>=18'
       highcharts: '>=13.0.0'
@@ -9279,7 +9279,7 @@ snapshots:
 
   '@hey-api/types@0.1.4': {}
 
-  '@highcharts/react@5.4.0(@types/react@19.2.14)(highcharts@13.1.1)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)':
+  '@highcharts/react@5.2.2(@types/react@19.2.14)(highcharts@13.1.1)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)':
     dependencies:
       highcharts: 13.1.1
       react: 19.2.8
