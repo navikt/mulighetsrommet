@@ -4,7 +4,6 @@ import { HGrid, TextField, VStack } from "@navikt/ds-react";
 import { useFormContext } from "react-hook-form";
 import { tilsagnTekster } from "../TilsagnTekster";
 import { useFindAvtaltSats } from "@/api/avtaler/useFindAvtaltSats";
-import { KostnadsstedOption } from "@/components/tilsagn/form/VelgKostnadssted";
 import { NumberInput } from "@/components/skjema/NumberInput";
 import { LabelWithHelpText } from "@mr/frontend-common/components/label/LabelWithHelpText";
 import { GjennomforingDto } from "@/api/gjennomforing/utils";
@@ -15,7 +14,6 @@ interface Props {
   onSuccess: () => void;
   onAvbryt: () => void;
   defaultValues: TilsagnRequest;
-  kostnadssteder: KostnadsstedOption[];
 }
 
 export function TilsagnFormPrisPerTimeOppfolging(props: Props) {

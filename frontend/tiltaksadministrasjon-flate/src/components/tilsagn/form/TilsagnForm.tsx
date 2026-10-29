@@ -1,4 +1,4 @@
-import { KostnadsstedOption, VelgKostnadssted } from "@/components/tilsagn/form/VelgKostnadssted";
+import { VelgKostnadssted } from "@/components/tilsagn/form/VelgKostnadssted";
 import {
   PrismodellDto,
   TilsagnRequest,
@@ -40,26 +40,22 @@ interface Props {
   onSuccess: () => void;
   onAvbryt: () => void;
   defaultValues: TilsagnRequest;
-  kostnadssteder: KostnadsstedOption[];
   beregningInput: ReactElement;
   gjennomforing: GjennomforingDto;
   prismodell: PrismodellDto;
 }
 
 export function TilsagnForm(props: Props) {
-  const { onSuccess, onAvbryt, defaultValues, kostnadssteder, gjennomforing } = props;
+  const { onSuccess, onAvbryt, defaultValues, gjennomforing } = props;
   const [searchParams] = useSearchParams();
 
   const tilsagnstype: TilsagnType =
     (searchParams.get("type") as TilsagnType | null) || TilsagnType.TILSAGN;
 
   const mutation = useOpprettTilsagn();
-  const forhandsvalgKostnadssted =
-    kostnadssteder.length === 1 ? kostnadssteder[0].enhetsnummer : defaultValues.kostnadssted;
   const form = useForm<TilsagnRequest>({
     defaultValues: {
       ...defaultValues,
-      kostnadssted: forhandsvalgKostnadssted,
     } as TilsagnRequest,
   });
 
@@ -115,7 +111,7 @@ export function TilsagnForm(props: Props) {
                     toDate={toDate}
                   />
                 </HGrid>
-                <VelgKostnadssted name="kostnadssted" kostnadssteder={kostnadssteder} />
+                <VelgKostnadssted name="kostnadssted" />
                 {props.beregningInput}
                 <FormTextarea<TilsagnRequest>
                   name="kommentar"

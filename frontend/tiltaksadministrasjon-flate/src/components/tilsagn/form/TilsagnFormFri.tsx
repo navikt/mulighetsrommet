@@ -1,7 +1,6 @@
 import { TilsagnForm } from "@/components/tilsagn/form/TilsagnForm";
 import { PrismodellDto, TilsagnRequest } from "@tiltaksadministrasjon/api-client";
 import { HGrid, VStack } from "@navikt/ds-react";
-import { KostnadsstedOption } from "@/components/tilsagn/form/VelgKostnadssted";
 import { NumberInput } from "@/components/skjema/NumberInput";
 import { GjennomforingDto } from "@/api/gjennomforing/utils";
 
@@ -11,7 +10,6 @@ interface Props {
   onSuccess: () => void;
   onAvbryt: () => void;
   defaultValues: TilsagnRequest;
-  kostnadssteder: KostnadsstedOption[];
 }
 
 export function TilsagnFormFri(props: Props) {
