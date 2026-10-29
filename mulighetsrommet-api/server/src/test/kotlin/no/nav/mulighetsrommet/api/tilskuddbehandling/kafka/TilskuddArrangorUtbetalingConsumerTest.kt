@@ -19,6 +19,7 @@ import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
+import no.nav.mulighetsrommet.api.tilsagn.model.GyldigTilsagnPeriode
 import no.nav.mulighetsrommet.api.tilskuddbehandling.TilskuddBehandlingService
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
 import no.nav.mulighetsrommet.api.tilskuddbehandling.gyldigJournalpostValidator
@@ -108,14 +109,19 @@ class TilskuddArrangorUtbetalingConsumerTest : FunSpec({
         besluttetAarsaker = emptyList(),
     )
 
-    val gyldigTilsagnPeriode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2026, 1, 1))
+    val gyldigTilsagnPeriode = GyldigTilsagnPeriode(
+        mapOf(
+            Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING to Periode(
+                LocalDate.of(2025, 1, 1),
+                LocalDate.of(2026, 1, 1),
+            ),
+        ),
+    )
 
     fun createConsumer(): TilskuddArrangorUtbetalingConsumer {
         val tilsagnService = TilsagnService(
             db = database.api,
-            config = TilsagnService.Config(
-                gyldigTilsagnPeriode = mapOf(Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING to gyldigTilsagnPeriode),
-            ),
+            gyldigTilsagnPeriode = gyldigTilsagnPeriode,
             navAnsattService = mockk(relaxed = true),
         )
         val utbetalingService = UtbetalingService(
@@ -134,6 +140,7 @@ class TilskuddArrangorUtbetalingConsumerTest : FunSpec({
 
     test("oppretter utbetaling for innvilget tilskudd til arrangør") {
         val service = TilskuddBehandlingService(
+            gyldigTilsagnPeriode = gyldigTilsagnPeriode,
             database.api,
             journalforVedtaksbrev,
             pdf = mockk(relaxed = true),
@@ -159,6 +166,7 @@ class TilskuddArrangorUtbetalingConsumerTest : FunSpec({
 
     test("behandler ikke tilskudd to ganger hvis utbetaling allerede eksisterer") {
         val service = TilskuddBehandlingService(
+            gyldigTilsagnPeriode = gyldigTilsagnPeriode,
             database.api,
             journalforVedtaksbrev,
             mockk(relaxed = true),
@@ -180,6 +188,7 @@ class TilskuddArrangorUtbetalingConsumerTest : FunSpec({
 
     test("hopper over arrangorutbetaling når utbetaling allerede finnes") {
         val service = TilskuddBehandlingService(
+            gyldigTilsagnPeriode = gyldigTilsagnPeriode,
             database.api,
             journalforVedtaksbrev,
             mockk(relaxed = true),

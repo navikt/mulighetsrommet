@@ -137,7 +137,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
         return utbetaling
     }
 
-    arrangorflateOpprettKravRoutes(config.okonomi)
+    arrangorflateOpprettKravRoutes()
 
     route("/orgnr-tilganger") {
         get(

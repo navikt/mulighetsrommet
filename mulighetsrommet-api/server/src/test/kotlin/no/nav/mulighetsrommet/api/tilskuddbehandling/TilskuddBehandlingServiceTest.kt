@@ -23,6 +23,7 @@ import no.nav.mulighetsrommet.api.domain.testing.fixture.DeltakerFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
+import no.nav.mulighetsrommet.api.tilsagn.model.GyldigTilsagnPeriode
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandlingStatus
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingHandling
@@ -33,6 +34,8 @@ import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
 import no.nav.mulighetsrommet.api.utbetaling.api.ValutaBelopRequest
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.NavEnhetNummer
+import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Valuta
 import java.time.LocalDate
 import java.util.UUID
@@ -107,6 +110,11 @@ class TilskuddBehandlingServiceTest : FunSpec({
         val betalingsinformasjon = mockk<BetalingsinformasjonQuery>()
         coEvery { betalingsinformasjon.execute(any()) } returns arrangorBetalingsinformasjon
         return TilskuddBehandlingService(
+            gyldigTilsagnPeriode = GyldigTilsagnPeriode(
+                Tiltakskode.entries.associateWith {
+                    Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2027, 1, 1))
+                },
+            ),
             db = database.api,
             journalforVedtaksbrev = mockk(relaxed = true),
             pdf = mockk(relaxed = true),

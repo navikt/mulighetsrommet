@@ -51,6 +51,7 @@ import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.createAvtaleRequest
 import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadGjennomforinger
+import no.nav.mulighetsrommet.api.tilsagn.model.GyldigTilsagnPeriode
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.AvtaleStatusType
 import no.nav.mulighetsrommet.model.Avtaletype
@@ -99,7 +100,7 @@ class AvtaleServiceTest : FunSpec({
         syncArrangor: SyncArrangorUseCase = SyncArrangorUseCase(database.admin, mockk()),
         features: Map<Tiltakskode, Set<TiltakstypeFeature>> = mapOf(),
     ) = AvtaleService(
-        config = AvtaleService.Config(mapOf()),
+        gyldigTilsagnPeriode = GyldigTilsagnPeriode(emptyMap()),
         database.api,
         syncArrangor,
         TiltakstypeService(TiltakstypeService.Config(features), database.admin),
