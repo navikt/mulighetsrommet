@@ -1,5 +1,5 @@
 import { HGrid, VStack } from "@navikt/ds-react";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo } from "react";
 import { useFormContext } from "react-hook-form";
 import { MAKS_DATEPICKER_SLUTT_DATO, MIN_START_DATO_FOR_AVTALER } from "@/constants";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
@@ -20,14 +20,11 @@ interface Props {
 }
 
 export function AvtaleVarighet({ opsjonUtlost }: Props) {
-  const { setValue, watch, getValues } = useFormContext<AvtaleFormValues>();
-  const initialStartDato = useRef(getValues("detaljer.startDato"));
+  const { setValue, watch } = useFormContext<AvtaleFormValues>();
   const startDato = watch("detaljer.startDato");
   const sluttDato = watch("detaljer.sluttDato");
 
-  const minStartDato = initialStartDato.current
-    ? new Date(initialStartDato.current)
-    : MIN_START_DATO_FOR_AVTALER;
+  const minStartDato = MIN_START_DATO_FOR_AVTALER;
 
   const sluttDatoFraDato = useMemo(
     () => (startDato ? new Date(startDato) : MIN_START_DATO_FOR_AVTALER),

@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.admin.gjennomforing
 
 import no.nav.mulighetsrommet.admin.tiltak.toPrismodellDto
 import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollDto
+import no.nav.mulighetsrommet.api.domain.gjennomforing.AnsvarligEnhet
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingAvtaleDetaljer
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingAvtaleStatus
@@ -34,6 +35,7 @@ object GjennomforingDtoMapper {
                 status = fromGjennomforingAvtaleStatus(gjennomforing.status),
                 antallPlasser = gjennomforing.antallPlasser,
                 avtaleId = gjennomforing.avtaleId,
+                ansvarligEnhet = gjennomforing.ansvarligEnhet.toAnsvarligEnhetDto(),
                 oppstart = gjennomforing.oppstart,
                 pameldingType = gjennomforing.pameldingType,
                 apentForPamelding = gjennomforing.apentForPamelding,
@@ -80,7 +82,7 @@ object GjennomforingDtoMapper {
                 startDato = gjennomforing.startDato,
                 sluttDato = gjennomforing.sluttDato,
                 status = deltaker?.status ?: fromEnkeltplassStatus(gjennomforing.status),
-                ansvarligEnhet = gjennomforing.toAnsvarligEnhetDto(),
+                ansvarligEnhet = gjennomforing.ansvarligEnhet.toAnsvarligEnhetDto(),
             ),
             prismodell = gjennomforing.prismodell.toPrismodellDto(),
             okonomi = okonomi,
@@ -164,8 +166,8 @@ object GjennomforingDtoMapper {
         return GjennomforingVeilederinfoDto.EstimertVentetid(verdi, enhet)
     }
 
-    private fun GjennomforingEnkeltplass.toAnsvarligEnhetDto(): GjennomforingEnkeltplassDto.AnsvarligEnhet = GjennomforingEnkeltplassDto.AnsvarligEnhet(
-        enhetsnummer = ansvarligEnhet.enhetsnummer,
-        navn = ansvarligEnhet.navn,
+    private fun AnsvarligEnhet.toAnsvarligEnhetDto(): AnsvarligEnhetDto = AnsvarligEnhetDto(
+        enhetsnummer = enhetsnummer,
+        navn = navn,
     )
 }

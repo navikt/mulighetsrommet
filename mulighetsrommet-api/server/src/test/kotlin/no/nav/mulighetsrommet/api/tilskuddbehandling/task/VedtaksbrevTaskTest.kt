@@ -31,6 +31,7 @@ import no.nav.mulighetsrommet.api.tilskuddbehandling.db.BrukerUtbetalingType
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
 import no.nav.mulighetsrommet.api.tilskuddbehandling.gyldigJournalpostValidator
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingRequest
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddVedtakRequest
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
 import no.nav.mulighetsrommet.api.utbetaling.api.ValutaBelopRequest
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
@@ -109,7 +110,7 @@ class VedtaksbrevTaskTest : FunSpec({
         task.journalfor(behandlingId).shouldBeRight()
 
         database.run {
-            queries.tilskuddBehandling.getOrError(behandlingId).tilskudd[0].vedtakJournalpostId shouldBe "121212"
+            queries.tilskuddBehandling.getOrError(behandlingId).tilskuddVedtak[0].vedtakJournalpostId shouldBe "121212"
         }
     }
 
@@ -230,7 +231,7 @@ class VedtaksbrevTaskTest : FunSpec({
             task.distribuerDok(behandlingId)
         }.exceptionOrNull()
 
-        error?.message shouldBe "Vedtak med id=$behandlingId har ingen journalpostId, distribuering ikke mulig"
+        error?.message shouldBe "Vedtak med behandling id=$behandlingId har ingen journalpostId, distribuering ikke mulig"
     }
 })
 
@@ -243,8 +244,8 @@ private suspend fun opprettOgGodkjennTilskudd(
     val request = TilskuddBehandlingRequest(
         id = behandlingId,
         gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
-        tilskudd = listOf(
-            TilskuddBehandlingRequest.TilskuddRequest(
+        tilskuddVedtak = listOf(
+            TilskuddVedtakRequest(
                 id = tilskuddVedtakId,
                 tilskuddId = tilskuddId,
                 tilskuddOpplaeringType = Opplaeringtilskudd.Kode.SKOLEPENGER,

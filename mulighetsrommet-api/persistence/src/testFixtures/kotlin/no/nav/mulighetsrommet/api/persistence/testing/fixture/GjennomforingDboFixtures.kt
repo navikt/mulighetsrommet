@@ -31,7 +31,7 @@ object GjennomforingDboFixtures {
         pameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,
         deltidsprosent = 100.0,
         prismodellId = PrismodellFixtures.AvtaltPrisPerTimeOppfolging.id,
-        ansvarligEnhet = null,
+        ansvarligEnhet = NavEnhetNummer("0400"),
         arenaTiltaksnummer = null,
         arenaAnsvarligEnhet = null,
     )
@@ -51,7 +51,7 @@ object GjennomforingDboFixtures {
         pameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,
         deltidsprosent = 100.0,
         prismodellId = PrismodellFixtures.ForhandsgodkjentVtas.id,
-        ansvarligEnhet = null,
+        ansvarligEnhet = NavEnhetNummer("0400"),
         arenaTiltaksnummer = null,
         arenaAnsvarligEnhet = null,
     )
@@ -71,7 +71,7 @@ object GjennomforingDboFixtures {
         pameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,
         deltidsprosent = 100.0,
         prismodellId = PrismodellFixtures.ForhandsgodkjentAft.id,
-        ansvarligEnhet = null,
+        ansvarligEnhet = NavEnhetNummer("0400"),
         arenaTiltaksnummer = null,
         arenaAnsvarligEnhet = null,
     )
@@ -91,7 +91,7 @@ object GjennomforingDboFixtures {
         pameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,
         deltidsprosent = 100.0,
         prismodellId = PrismodellFixtures.ForhandsgodkjentTao.id,
-        ansvarligEnhet = null,
+        ansvarligEnhet = NavEnhetNummer("0400"),
         arenaTiltaksnummer = null,
         arenaAnsvarligEnhet = null,
     )
@@ -111,7 +111,7 @@ object GjennomforingDboFixtures {
         pameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,
         deltidsprosent = 100.0,
         prismodellId = PrismodellFixtures.AnnenAvtaltPris.id,
-        ansvarligEnhet = null,
+        ansvarligEnhet = NavEnhetNummer("0400"),
         arenaTiltaksnummer = null,
         arenaAnsvarligEnhet = null,
     )
@@ -131,7 +131,7 @@ object GjennomforingDboFixtures {
         pameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,
         deltidsprosent = 100.0,
         prismodellId = PrismodellFixtures.AnnenAvtaltPris.id,
-        ansvarligEnhet = null,
+        ansvarligEnhet = NavEnhetNummer("0400"),
         arenaTiltaksnummer = null,
         arenaAnsvarligEnhet = null,
     )
@@ -151,7 +151,7 @@ object GjennomforingDboFixtures {
         pameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,
         deltidsprosent = 100.0,
         prismodellId = PrismodellFixtures.AnnenAvtaltPris.id,
-        ansvarligEnhet = null,
+        ansvarligEnhet = NavEnhetNummer("0400"),
         arenaTiltaksnummer = null,
         arenaAnsvarligEnhet = null,
     )

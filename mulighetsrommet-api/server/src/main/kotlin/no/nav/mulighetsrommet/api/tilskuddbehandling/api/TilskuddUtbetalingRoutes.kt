@@ -50,42 +50,41 @@ fun Route.tilskuddUtbetalingRoutes() {
         val gjennomforingId: UUID by call.queryParameters
         val utbetalinger = db.session {
             queries.tilskuddBehandling.getByGjennomforingId(gjennomforingId)
-                .flatMap { behandling ->
-                    behandling.tilskudd.mapNotNull { tilskudd ->
-                        val arrangorUtbetaling = queries.utbetaling.getByTilskuddVedtak(tilskudd.id)
-                        if (arrangorUtbetaling != null) {
-                            val utbetalingLinje = queries.utbetalingLinje.getByUtbetalingId(arrangorUtbetaling.id)[0]
-                            val belopUtbetalt = utbetalingLinje.pris.belop.withValuta(arrangorUtbetaling.valuta)
-                            val kostnadssted = queries.tilsagn.get(utbetalingLinje.tilsagnId)?.kostnadssted
+                .mapNotNull { behandlingKompakt ->
+                    val arrangorUtbetaling = queries.utbetaling.getByTilskuddVedtak(behandlingKompakt.tilskuddVedtakId)
+                    if (arrangorUtbetaling != null) {
+                        val utbetalingLinje = queries.utbetalingLinje.getByUtbetalingId(arrangorUtbetaling.id)[0]
+                        val belopUtbetalt = utbetalingLinje.pris.belop.withValuta(arrangorUtbetaling.valuta)
+                        val kostnadssted = queries.tilsagn.get(utbetalingLinje.tilsagnId)?.kostnadssted
 
-                            TilskuddUtbetalingKompaktDto(
-                                id = arrangorUtbetaling.id,
-                                tilskuddBehandlingId = behandling.id,
-                                status = TilskuddUtbetalingStatusDto.from(arrangorUtbetaling.status),
-                                periode = arrangorUtbetaling.periode,
-                                type = tilskudd.tilskuddOpplaeringType,
-                                kostnadssted = kostnadssted?.let { KostnadsstedDto.fromNavEnhet(it) },
-                                belopUtbetalt = belopUtbetalt,
-                                mottaker = TilskuddMottaker.ARRANGOR,
-                                vedtakResultat = tilskudd.vedtakResultat,
-                            )
-                        } else {
-                            queries.brukerUtbetaling.getByTilskuddVedtak(tilskudd.id)?.let { utbetaling ->
+                        TilskuddUtbetalingKompaktDto(
+                            id = arrangorUtbetaling.id,
+                            tilskuddBehandlingId = behandlingKompakt.id,
+                            status = TilskuddUtbetalingStatusDto.from(arrangorUtbetaling.status),
+                            periode = arrangorUtbetaling.periode,
+                            type = behandlingKompakt.tilskuddtype,
+                            kostnadssted = kostnadssted?.let { KostnadsstedDto.fromNavEnhet(it) },
+                            belopUtbetalt = belopUtbetalt,
+                            mottaker = TilskuddMottaker.ARRANGOR,
+                            vedtakResultat = VedtakResultatDto(behandlingKompakt.vedtakResultat),
+                        )
+                    } else {
+                        queries.brukerUtbetaling.getByTilskuddVedtak(behandlingKompakt.tilskuddVedtakId)
+                            ?.let { utbetaling ->
                                 TilskuddUtbetalingKompaktDto(
                                     id = utbetaling.id,
-                                    tilskuddBehandlingId = behandling.id,
+                                    tilskuddBehandlingId = behandlingKompakt.id,
                                     status = TilskuddUtbetalingStatusDto.from(utbetaling.helVedStatus),
-                                    periode = tilskudd.periode,
-                                    type = tilskudd.tilskuddOpplaeringType,
+                                    periode = behandlingKompakt.periode,
+                                    type = behandlingKompakt.tilskuddtype,
                                     kostnadssted = utbetaling.kostnadssted.let {
                                         KostnadsstedDto(it.navn, it.enhetsnummer)
                                     },
                                     belopUtbetalt = utbetaling.belop.withValuta(Valuta.NOK),
                                     mottaker = TilskuddMottaker.BRUKER,
-                                    vedtakResultat = tilskudd.vedtakResultat,
+                                    vedtakResultat = VedtakResultatDto(behandlingKompakt.vedtakResultat),
                                 )
                             }
-                        }
                     }
                 }
         }

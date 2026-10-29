@@ -29,4 +29,10 @@ value class Tilskuddsnummer(val value: String) {
         tiltaksnummer.toFreeTextSearch().toString(),
         lopenummer.toString(),
     )
+
+    companion object {
+        fun from(tiltaksnummer: Tiltaksnummer, lopenummer: Int): Tilskuddsnummer {
+            return Tilskuddsnummer("${tiltaksnummer.value}-$lopenummer")
+        }
+    }
 }

@@ -17,10 +17,10 @@ import { FormSelect } from "@/components/skjema/FormSelect";
 import { FormTextField } from "@/components/skjema/FormTextField";
 import {
   BrukerUtbetalingType,
-  GjennomforingEnkeltplassDtoAnsvarligEnhet,
+  AnsvarligEnhetDto,
   OpplaeringtilskuddKode,
   TilskuddBehandlingRequest,
-  TilskuddBehandlingRequestTilskuddRequest,
+  TilskuddVedtakRequest,
   TilskuddMottaker,
   Valuta,
   ValutaBelop,
@@ -36,7 +36,7 @@ import { TilskuddFormGroup } from "@/layouts/TilskuddFormGroup";
 
 interface Props {
   arrangorId: string;
-  ansvarligEnhet: GjennomforingEnkeltplassDtoAnsvarligEnhet;
+  ansvarligEnhet: AnsvarligEnhetDto;
 }
 
 export function SaksopplysningerForm({ arrangorId, ansvarligEnhet }: Props) {
@@ -49,7 +49,7 @@ export function SaksopplysningerForm({ arrangorId, ansvarligEnhet }: Props) {
 
   const { fields, append, remove } = useFieldArray({
     control,
-    name: "tilskudd",
+    name: "tilskuddVedtak",
   });
 
   const { data: kostnadssteder } = useKostnadssteder();
@@ -57,10 +57,10 @@ export function SaksopplysningerForm({ arrangorId, ansvarligEnhet }: Props) {
   const sisteDatoIAar = new Date(new Date().getFullYear(), 11, 31);
 
   function totaltBelop(): ValutaBelop {
-    const tilskudd = watch("tilskudd");
+    const tilskuddVedtak = watch("tilskuddVedtak");
     return {
-      belop: tilskudd.reduce((sum, v) => sum + (v.soknadBelop?.belop ?? 0), 0),
-      valuta: tilskudd.at(0)?.soknadBelop?.valuta ?? Valuta.NOK,
+      belop: tilskuddVedtak.reduce((sum, v) => sum + (v.soknadBelop?.belop ?? 0), 0),
+      valuta: tilskuddVedtak.at(0)?.soknadBelop?.valuta ?? Valuta.NOK,
     };
   }
 
@@ -82,37 +82,37 @@ export function SaksopplysningerForm({ arrangorId, ansvarligEnhet }: Props) {
               <HGrid columns="0.8fr 1fr" gap="space-24" align="start">
                 <FormTextField
                   label="Journalpost-ID i Gosys"
-                  name={`tilskudd.${index}.soknadJournalpostId`}
+                  name={`tilskuddVedtak.${index}.soknadJournalpostId`}
                   autoFocus
                   rules={{ required: "Journalpost-ID er påkrevd" }}
                 />
                 <FormDateInput
-                  name={`tilskudd.${index}.soknadDato`}
+                  name={`tilskuddVedtak.${index}.soknadDato`}
                   label="Søknadsdato"
                   rules={{ required: "Søknadsdato er påkrevd" }}
                 />
                 <FormDateInput
-                  name={`tilskudd.${index}.periodeStart`}
+                  name={`tilskuddVedtak.${index}.periodeStart`}
                   label="Periodestart"
                   rules={{ required: "Periodestart er påkrevd" }}
                   toDate={sisteDatoIAar}
                   invalidDatoEtterPeriode="Periodestart kan ikke være etter siste dag i inneværende år"
                 />
                 <FormDateInput
-                  name={`tilskudd.${index}.periodeSlutt`}
+                  name={`tilskuddVedtak.${index}.periodeSlutt`}
                   label="Periodeslutt"
                   rules={{ required: "Periodeslutt er påkrevd" }}
                   toDate={sisteDatoIAar}
                   invalidDatoEtterPeriode="Periodeslutt kan ikke være etter siste dag i inneværende år"
                 />
                 <VelgKostnadssted
-                  name={`tilskudd.${index}.kostnadssted`}
+                  name={`tilskuddVedtak.${index}.kostnadssted`}
                   kostnadssteder={kostnadssteder.flatMap((r) => r.kostnadssteder.map((k) => k))}
                 />
                 <Spacer />
                 <FormSelect
                   label="Tilskuddstype"
-                  name={`tilskudd.${index}.tilskuddOpplaeringType`}
+                  name={`tilskuddVedtak.${index}.tilskuddOpplaeringType`}
                   rules={{ required: "Tilskuddstype er påkrevd" }}
                 >
                   <option value="">-- Velg tilskuddstype --</option>
@@ -127,8 +127,8 @@ export function SaksopplysningerForm({ arrangorId, ansvarligEnhet }: Props) {
                     size="small"
                     type="text"
                     label="Beløp fra faktura"
-                    error={errors.tilskudd?.[index]?.soknadBelop?.belop?.message}
-                    {...register(`tilskudd.${index}.soknadBelop.belop`, {
+                    error={errors.tilskuddVedtak?.[index]?.soknadBelop?.belop?.message}
+                    {...register(`tilskuddVedtak.${index}.soknadBelop.belop`, {
                       setValueAs: (t: string) => (t === "" ? null : Number(t)),
                       validate: (value: number | null) => {
                         if (!Number.isInteger(value)) return "Beløp må være et heltall";
@@ -139,7 +139,7 @@ export function SaksopplysningerForm({ arrangorId, ansvarligEnhet }: Props) {
                   <FormSelect
                     size="small"
                     label="Valuta"
-                    name={`tilskudd.${index}.soknadBelop.valuta`}
+                    name={`tilskuddVedtak.${index}.soknadBelop.valuta`}
                     readOnly
                   >
                     <option value={Valuta.NOK}>NOK</option>
@@ -170,7 +170,7 @@ export function SaksopplysningerForm({ arrangorId, ansvarligEnhet }: Props) {
             icon={<PlusIcon aria-hidden />}
             onClick={() =>
               append(defaultTilskuddRequest(ansvarligEnhet.enhetsnummer), {
-                focusName: `tilskudd.${fields.length}.soknadJournalpostId`,
+                focusName: `tilskuddVedtak.${fields.length}.soknadJournalpostId`,
               })
             }
           >
@@ -190,24 +190,24 @@ interface MottakerValgProps {
 
 function MottakerValg({ index, arrangorId }: MottakerValgProps) {
   const { watch } = useFormContext<TilskuddBehandlingRequest>();
-  const tilskudd = watch("tilskudd")[index];
+  const tilskuddVedtak = watch("tilskuddVedtak")[index];
 
   return (
     <>
       <ControlledRadioGroup
         size="small"
-        name={`tilskudd.${index}.utbetalingMottaker`}
+        name={`tilskuddVedtak.${index}.utbetalingMottaker`}
         legend="Hvem skal motta utbetalingen?"
         horisontal
       >
         <Radio value={TilskuddMottaker.BRUKER}>Utbetales til brukeren</Radio>
         <Radio value={TilskuddMottaker.ARRANGOR}>Utbetales til arrangøren</Radio>
       </ControlledRadioGroup>
-      {tilskudd.utbetalingMottaker === TilskuddMottaker.BRUKER && (
+      {tilskuddVedtak.utbetalingMottaker === TilskuddMottaker.BRUKER && (
         <>
           <ControlledRadioGroup
             size="small"
-            name={`tilskudd.${index}.brukerUtbetalingType`}
+            name={`tilskuddVedtak.${index}.brukerUtbetalingType`}
             legend="Har bruker lagt ut for tilskuddet selv?"
             horisontal
           >
@@ -225,18 +225,16 @@ function MottakerValg({ index, arrangorId }: MottakerValgProps) {
           </Bleed>
         </>
       )}{" "}
-      {tilskudd.utbetalingMottaker === TilskuddMottaker.ARRANGOR && (
+      {tilskuddVedtak.utbetalingMottaker === TilskuddMottaker.ARRANGOR && (
         <>
           <Bleed marginBlock="space-16 space-0">
             <BodyShort size="small">
               Husk at arrangør må ha sendt faktura med Nav som mottaker av fakturaen
             </BodyShort>
           </Bleed>
-          <BetalingsinformasjonFields<TilskuddBehandlingRequestTilskuddRequest>
+          <BetalingsinformasjonFields<TilskuddVedtakRequest>
             arrangorId={arrangorId}
-            kidNummerName={
-              `tilskudd.${index}.kidNummer` as Path<TilskuddBehandlingRequestTilskuddRequest>
-            }
+            kidNummerName={`tilskuddVedtak.${index}.kidNummer` as Path<TilskuddVedtakRequest>}
           />
         </>
       )}

@@ -9,7 +9,7 @@ const belopFraFakturaError = "Beløp fra faktura må være positivt";
 
 export const saksopplysningerSchema = z
   .object({
-    tilskudd: z
+    tilskuddVedtak: z
       .array(
         z
           .object({
@@ -51,7 +51,7 @@ const belopTilUtbetalingError = "Beløp til utbetaling må være positivt";
 
 export const vedtakSchema = z
   .object({
-    tilskudd: z.array(
+    tilskuddVedtak: z.array(
       z
         .object({
           vedtakResultat: z.enum(VedtakResultat, { error: "Vedtaksresultat er påkrevd" }),
@@ -64,8 +64,11 @@ export const vedtakSchema = z
           kommentarIntern: z.string().nullable(),
         })
         .loose()
-        .superRefine((tilskudd, ctx) => {
-          if (tilskudd.vedtakResultat === VedtakResultat.INNVILGELSE && tilskudd.belop === null) {
+        .superRefine((tilskuddVedtak, ctx) => {
+          if (
+            tilskuddVedtak.vedtakResultat === VedtakResultat.INNVILGELSE &&
+            tilskuddVedtak.belop === null
+          ) {
             ctx.addIssue({
               code: "custom",
               path: ["belop"],
@@ -73,8 +76,8 @@ export const vedtakSchema = z
             });
           }
           if (
-            tilskudd.vedtakResultat === VedtakResultat.AVSLAG &&
-            !tilskudd.kommentarVedtaksbrev?.trim()
+            tilskuddVedtak.vedtakResultat === VedtakResultat.AVSLAG &&
+            !tilskuddVedtak.kommentarVedtaksbrev?.trim()
           ) {
             ctx.addIssue({
               code: "custom",

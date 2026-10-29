@@ -4,6 +4,7 @@ import no.nav.mulighetsrommet.admin.gjennomforing.GjennomforingDetaljerRequest
 import no.nav.mulighetsrommet.admin.gjennomforing.GjennomforingRequest
 import no.nav.mulighetsrommet.admin.gjennomforing.GjennomforingVeilederinfoRequest
 import no.nav.mulighetsrommet.api.domain.avtale.Avtale
+import no.nav.mulighetsrommet.api.domain.gjennomforing.AnsvarligEnhet
 import no.nav.mulighetsrommet.api.domain.gjennomforing.Gjennomforing
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingAvtaleDetaljer
@@ -60,6 +61,7 @@ object GjennomforingFixtures {
         oppstart = GjennomforingOppstartstype.LOPENDE,
         pameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,
         avtaleId = UUID.randomUUID(),
+        ansvarligEnhet = AnsvarligEnhet(NavEnhetNummer("0400"), "Nav Innlandet"),
         kontorstruktur = emptyList(),
         apentForPamelding = true,
         stengt = emptyList(),
@@ -94,7 +96,7 @@ object GjennomforingFixtures {
         prismodell = prismodell,
         oppstart = GjennomforingOppstartstype.ENKELTPLASS,
         pameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,
-        ansvarligEnhet = GjennomforingEnkeltplass.AnsvarligEnhet(
+        ansvarligEnhet = AnsvarligEnhet(
             enhetsnummer = NavEnhetNummer("0400"),
             navn = "Nav Innlandet",
         ),
@@ -176,6 +178,7 @@ object GjennomforingFixtures {
         navRegioner: Set<NavEnhetNummer> = setOf(NavEnhetFixtures.Innlandet.enhetsnummer),
         navKontorer: Set<NavEnhetNummer> = setOf(NavEnhetFixtures.Gjovik.enhetsnummer),
         administratorer: Set<NavIdent> = setOf(NavIdent("DD1")),
+        ansvarligEnhet: NavEnhetNummer? = NavEnhetFixtures.Innlandet.enhetsnummer,
     ): GjennomforingRequest {
         return GjennomforingRequest(
             id = id,
@@ -195,6 +198,7 @@ object GjennomforingFixtures {
                 oppmoteSted = null,
                 tilgjengeligForArrangorDato = null,
                 amoKategorisering = null,
+                ansvarligEnhet = ansvarligEnhet,
             ),
             veilederinformasjon = GjennomforingVeilederinfoRequest(
                 navRegioner = navRegioner,
