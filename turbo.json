@@ -48,7 +48,7 @@
     "playwright": {
       "env": ["PLAYWRIGHT_BROWSERS_PATH"],
       "dependsOn": ["^build"],
-      "outputs": []
+      "cache": false
     },
     "playwright:open": {
       "passThroughEnv": ["*"],
