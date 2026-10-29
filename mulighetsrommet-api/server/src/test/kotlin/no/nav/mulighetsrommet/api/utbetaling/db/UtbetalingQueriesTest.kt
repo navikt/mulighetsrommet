@@ -552,7 +552,7 @@ class UtbetalingQueriesTest : FunSpec({
             }
         }
 
-        test("Utleder kostnadssteder fra tilsagn") {
+        test("Utleder kostnadssteder fra tilsagn og ansvarlig enhet") {
             var periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1))
 
             database.runAndRollback {
@@ -588,6 +588,64 @@ class UtbetalingQueriesTest : FunSpec({
                         KostnadsstedDto(
                             NavEnhetFixtures.Gjovik.navn,
                             NavEnhetFixtures.Gjovik.enhetsnummer,
+                        ),
+                    )
+                }
+            }
+        }
+
+        test("Innsending uten overlappende tilsagn kan filtreres på ansvarlig enhet") {
+            database.runAndRollback {
+                domain.initialize()
+
+                val utbetalingQueries = UtbetalingQueries(session)
+                val utbetalingUtenOverlappendeTilsagn = utbetaling1.copy(
+                    status = UtbetalingStatusType.GENERERT,
+                    gjennomforingId = AFT1.id,
+                    periode = Periode.forMonthOf(LocalDate.of(2099, 1, 1)),
+                )
+                utbetalingQueries.upsert(utbetalingUtenOverlappendeTilsagn)
+
+                val filteredByInnlandet = utbetalingQueries.getAll(
+                    navEnheter = listOf(NavEnhetFixtures.Innlandet.enhetsnummer),
+                )
+                filteredByInnlandet.shouldHaveSize(1).should { (utbetaling) ->
+                    utbetaling.id shouldBe utbetalingUtenOverlappendeTilsagn.id
+                    utbetaling.kostnadssteder shouldBe listOf(
+                        KostnadsstedDto(
+                            NavEnhetFixtures.Innlandet.navn,
+                            NavEnhetFixtures.Innlandet.enhetsnummer,
+                        ),
+                    )
+                }
+
+                utbetalingQueries.getAll(
+                    navEnheter = listOf(NavEnhetFixtures.Gjovik.enhetsnummer),
+                ).shouldHaveSize(0)
+            }
+        }
+
+        test("Ansvarlig enhet som også er tilsagnets kostnadssted gir ikke duplikat") {
+            database.runAndRollback {
+                domain.copy(
+                    tilsagn = listOf(
+                        Tilsagn1.copy(kostnadssted = NavEnhetFixtures.Innlandet.enhetsnummer),
+                    ),
+                ).initialize()
+
+                val utbetalingQueries = UtbetalingQueries(session)
+                val utbetalingMedSammeAnsvarligEnhetOgKostnadssted = utbetaling1.copy(
+                    status = UtbetalingStatusType.GENERERT,
+                    gjennomforingId = AFT1.id,
+                    periode = Tilsagn1.periode,
+                )
+                utbetalingQueries.upsert(utbetalingMedSammeAnsvarligEnhetOgKostnadssted)
+
+                utbetalingQueries.getAll().shouldHaveSize(1).should { (utbetaling) ->
+                    utbetaling.kostnadssteder shouldBe listOf(
+                        KostnadsstedDto(
+                            NavEnhetFixtures.Innlandet.navn,
+                            NavEnhetFixtures.Innlandet.enhetsnummer,
                         ),
                     )
                 }
@@ -642,10 +700,14 @@ class UtbetalingQueriesTest : FunSpec({
                     navEnheter = listOf(NavEnhetFixtures.Gjovik.enhetsnummer),
                 ).shouldHaveSize(1).should { (first) ->
                     first.id shouldBe utbetaling2.id
-                    first.kostnadssteder shouldBe listOf(
+                    first.kostnadssteder shouldContainExactlyInAnyOrder listOf(
                         KostnadsstedDto(
                             NavEnhetFixtures.Gjovik.navn,
                             NavEnhetFixtures.Gjovik.enhetsnummer,
+                        ),
+                        KostnadsstedDto(
+                            NavEnhetFixtures.Innlandet.navn,
+                            NavEnhetFixtures.Innlandet.enhetsnummer,
                         ),
                     )
                 }

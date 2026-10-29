@@ -1,6 +1,6 @@
 import { TilsagnFormContainer } from "@/components/tilsagn/TilsagnFormContainer";
 import {
-  GjennomforingEnkeltplassDtoType,
+  RegionKostnadssteder,
   TilsagnBeregningType,
   TilsagnType,
 } from "@tiltaksadministrasjon/api-client";
@@ -8,7 +8,7 @@ import { useSearchParams } from "react-router";
 import { useGjennomforing } from "@/api/gjennomforing/useGjennomforing";
 import { useTilsagnDefaults } from "./opprettTilsagnLoader";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
-import { useRelevanteKostnadssteder } from "@/pages/gjennomforing/tilsagn/useRelevanteKostnadssteder";
+import { useKostnadssteder } from "@/api/enhet/useKostnadssteder";
 
 export function OpprettTilsagnFormPage() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
@@ -54,17 +54,11 @@ function useHentData(gjennomforingId: string) {
     deltakere: [],
   });
 
-  const kostnadssteder = useRelevanteKostnadssteder(
-    defaults.type,
-    detaljer.gjennomforing.type === GjennomforingEnkeltplassDtoType.ENKELTPLASS
-      ? detaljer.gjennomforing.ansvarligEnhet.enhetsnummer
-      : null,
-    "veilederinfo" in detaljer ? detaljer.veilederinfo.kontorstruktur : [],
-  );
+  const { data: kostnadssteder } = useKostnadssteder();
   return {
     gjennomforing: detaljer.gjennomforing,
     prismodell: detaljer.prismodell,
-    kostnadssteder,
+    kostnadssteder: kostnadssteder.flatMap((r: RegionKostnadssteder) => r.kostnadssteder),
     defaults,
   };
 }
