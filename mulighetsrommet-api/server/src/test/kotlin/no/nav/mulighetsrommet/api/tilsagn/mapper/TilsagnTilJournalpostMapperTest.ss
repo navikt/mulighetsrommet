@@ -1,6 +1,6 @@
 ╔═ mapping av tilsagn til journalpost inneholder ingen personopplysninger utover deltakers fødselsnummer/journalpost ═╗
 {
-  "tittel": "Tilsagnsbrev",
+  "tittel": "Bekreftelse på bestilling",
   "avsenderMottaker": {
     "id": "310438707",
     "idType": "ORGNR",
@@ -33,8 +33,8 @@
           "variantformat": "ARKIV"
         }
       ],
-      "tittel": "Tilsagnsbrev",
-      "brevKode": "Tilsagnsbrev_v1"
+      "tittel": "bekreftelse på bestilling",
+      "brevKode": "Bekreftelsesbrev_v1"
     }
   ],
   "eksternReferanseId": "72c45b92-4452-4b44-b1cd-9cfe7be86222",

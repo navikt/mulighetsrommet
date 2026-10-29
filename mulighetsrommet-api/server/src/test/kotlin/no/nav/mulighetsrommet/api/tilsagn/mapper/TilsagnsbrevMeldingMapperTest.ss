@@ -3,15 +3,15 @@
   "mottakerOrganisasjonsnummer": "310438707",
   "sendersReferanse": "A-2026/1000-1",
   "innhold": {
-    "tittel": "Tilsagnsbrev Enkeltplass Arbeidsmarkedsopplæring A-2026/1000-1",
-    "brevtekst": "Se vedlagt tilsagnsbrev for Enkeltplass Arbeidsmarkedsopplæring."
+    "tittel": "Bekreftelse på bestilling Enkeltplass Arbeidsmarkedsopplæring A-2026/1000-1",
+    "brevtekst": "Se vedlagt bekreftelsesbrev for Enkeltplass Arbeidsmarkedsopplæring."
   },
   "varsel": {
-    "emne": "Tilsagnsbrev for 310438707 AKSEPTABEL EMPIRISK TIGER AS er tilgjengelig i Altinn",
-    "tekst": "Tilsagnsbrev for 310438707 AKSEPTABEL EMPIRISK TIGER AS er tilgjengelig. Logg inn i Altinn for å se innholdet.\n\nVennlig hilsen Nav"
+    "emne": "Bekreftelse på bestilling for 310438707 AKSEPTABEL EMPIRISK TIGER AS er tilgjengelig i Altinn",
+    "tekst": "\nBekreftelse på bestilling for 310438707 AKSEPTABEL EMPIRISK TIGER AS er tilgjengelig. Logg inn i Altinn for å se innholdet.\n\nVennlig hilsen Nav"
   },
   "vedlegg": {
-    "navn": "Tilsagnsbrev-Enkeltplass Arbeidsmarkedsopplæring.pdf",
+    "navn": "Bekreftelsesbrev-Enkeltplass Arbeidsmarkedsopplæring.pdf",
     "innhold": [
       112,
       100,
