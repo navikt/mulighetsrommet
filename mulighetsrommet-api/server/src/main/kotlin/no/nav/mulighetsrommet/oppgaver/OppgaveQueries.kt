@@ -189,7 +189,9 @@ class OppgaveQueries(private val session: Session) {
                 nav_enheter_json,
                 arrangor_organisasjonsnummer,
                 arrangor_navn,
-                arrangor_id
+                arrangor_id,
+                ansvarlig_enhet_enhetsnummer,
+                ansvarlig_enhet_navn
             from view_gjennomforing
             where (:tiltakskoder::text[] is null or tiltakstype_tiltakskode = any(:tiltakskoder))
                 and gjennomforing_type = 'AVTALE'
@@ -215,6 +217,10 @@ class OppgaveQueries(private val session: Session) {
             GjennomforingManglerAdministratorOppgaveData(
                 id = row.uuid("id"),
                 navn = row.string("navn"),
+                ansvarligEnhet = OppgaveEnhet(
+                    nummer = NavEnhetNummer(row.string("ansvarlig_enhet_enhetsnummer")),
+                    navn = row.string("ansvarlig_enhet_navn"),
+                ),
                 oppdatertTidspunkt = row.localDateTime("oppdatert_tidspunkt"),
                 kontorstruktur = Kontorstruktur.fromNavEnheter(navEnheter),
                 tiltakstype = row.toOppgaveTiltakstype(),
@@ -388,6 +394,8 @@ class OppgaveQueries(private val session: Session) {
                 gjennomforing.lopenummer as gjennomforing_lopenummer,
                 gjennomforing.navn as gjennomforing_navn,
                 gjennomforing.gjennomforing_type,
+                gjennomforing.ansvarlig_enhet as ansvarlig_enhet_enhetsnummer,
+                nav_enhet.navn as ansvarlig_enhet_navn,
                 tiltakstype.navn as tiltakstype_navn,
                 tiltakstype.tiltakskode as tiltakstype_tiltakskode,
                 coalesce(ks.kostnadssteder, enheter.enheter) as kostnadssteder,
@@ -398,6 +406,7 @@ class OppgaveQueries(private val session: Session) {
                 avbrytelse.avbrytelse_behandlet_av
             from utbetaling
                 join gjennomforing on gjennomforing.id = utbetaling.gjennomforing_id
+                inner join nav_enhet on gjennomforing.ansvarlig_enhet = nav_enhet.enhetsnummer
                 inner join arrangor on gjennomforing.arrangor_id = arrangor.id
                 join tiltakstype on gjennomforing.tiltakstype_id = tiltakstype.id
                 left join lateral (
@@ -435,6 +444,10 @@ class OppgaveQueries(private val session: Session) {
                 id = row.uuid("id"),
                 periode = row.periode("periode"),
                 createdAt = row.localDateTime("created_at"),
+                ansvarligEnhet = OppgaveEnhet(
+                    nummer = NavEnhetNummer(row.string("ansvarlig_enhet_enhetsnummer")),
+                    navn = row.string("ansvarlig_enhet_navn"),
+                ),
                 godkjentAvArrangorTidspunkt = row.localDateTimeOrNull("innsendt_av_arrangor_tidspunkt"),
                 status = UtbetalingStatusType.valueOf(row.string("status")),
                 kostnadssteder = row.arrayOrNull<String>("kostnadssteder")?.map { NavEnhetNummer(it) } ?: emptyList(),
@@ -668,6 +681,7 @@ data class GjennomforingManglerAdministratorOppgaveData(
     val id: UUID,
     val navn: String,
     val kontorstruktur: List<Kontorstruktur>,
+    val ansvarligEnhet: OppgaveEnhet,
     val oppdatertTidspunkt: LocalDateTime,
     val tiltakstype: OppgaveTiltakstype,
     val arrangor: OppgaveArrangor,
@@ -707,6 +721,7 @@ data class UtbetalingBehandlingOppgaveData(
     val id: UUID,
     val status: UtbetalingStatusType,
     val periode: Periode,
+    val ansvarligEnhet: OppgaveEnhet,
     val createdAt: LocalDateTime,
     val godkjentAvArrangorTidspunkt: LocalDateTime?,
     val kostnadssteder: List<NavEnhetNummer>,

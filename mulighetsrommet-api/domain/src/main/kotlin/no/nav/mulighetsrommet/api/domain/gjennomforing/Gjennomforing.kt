@@ -63,6 +63,7 @@ sealed class Gjennomforing {
 @Serializable
 sealed class GjennomforingTiltaksadministrasjon : Gjennomforing() {
     abstract val prismodell: Prismodell
+    abstract val ansvarligEnhet: AnsvarligEnhet
 }
 
 @Serializable
@@ -138,7 +139,7 @@ data class GjennomforingAvtale(
     override val pameldingType: GjennomforingPameldingType,
     @Serializable(with = UUIDSerializer::class)
     val avtaleId: UUID,
-    val ansvarligEnhet: AnsvarligEnhet,
+    override val ansvarligEnhet: AnsvarligEnhet,
     val kontorstruktur: List<Kontorstruktur>,
     val apentForPamelding: Boolean,
     val stengt: List<StengtPeriode>,
@@ -177,7 +178,7 @@ data class GjennomforingEnkeltplass(
     override val prismodell: Prismodell,
     override val oppstart: GjennomforingOppstartstype,
     override val pameldingType: GjennomforingPameldingType,
-    val ansvarligEnhet: AnsvarligEnhet,
+    override val ansvarligEnhet: AnsvarligEnhet,
 ) : GjennomforingTiltaksadministrasjon() {
 
     init {
