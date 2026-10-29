@@ -1,4 +1,4 @@
-import test, { Page } from "@playwright/test";
+import test, { expect, Page } from "@playwright/test";
 import { locateAndFillInput, selectFirstComboboxOption } from "./utils";
 
 const mockAvtaleId = "d1f163b7-1a41-4547-af16-03fd4492b7ba";
@@ -14,8 +14,14 @@ const fyllInnGjennomforing = async (page: Page) => {
 
   await locateAndFillInput(page, "antallPlasser", "20");
   await selectFirstComboboxOption(page, page.locator('input[name="arrangorId"]'));
+  const ansvarligEnhet = page.getByRole("combobox", { name: "Ansvarlig enhet" });
+  await ansvarligEnhet.click();
+  const navBjerke = page.getByRole("option", { name: "Nav St. Hanshaugen" });
+  await expect(navBjerke).toBeVisible();
+  await navBjerke.click();
 
   await page.locator('button:has-text("Neste")').click();
+  await expect(page.locator('textarea[name="veilederinformasjon.beskrivelse"]')).toBeVisible();
 
   await page.fill('textarea[name="veilederinformasjon.beskrivelse"]', "Dette er en test");
   await page.fill(

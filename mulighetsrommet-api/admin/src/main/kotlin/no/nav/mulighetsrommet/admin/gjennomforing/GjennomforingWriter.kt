@@ -103,6 +103,7 @@ data class UpdateGjennomforingDetaljer(
     val prismodellId: UUID?,
     val oppmoteSted: String?,
     val tilgjengeligForArrangorDato: LocalDate?,
+    val ansvarligEnhet: NavEnhetNummer,
 )
 
 data class SetGjennomforingArenaData(

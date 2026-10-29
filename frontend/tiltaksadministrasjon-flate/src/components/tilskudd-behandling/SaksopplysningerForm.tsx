@@ -17,7 +17,7 @@ import { FormSelect } from "@/components/skjema/FormSelect";
 import { FormTextField } from "@/components/skjema/FormTextField";
 import {
   BrukerUtbetalingType,
-  GjennomforingEnkeltplassDtoAnsvarligEnhet,
+  AnsvarligEnhetDto,
   OpplaeringtilskuddKode,
   TilskuddBehandlingRequest,
   TilskuddVedtakRequest,
@@ -36,7 +36,7 @@ import { TilskuddFormGroup } from "@/layouts/TilskuddFormGroup";
 
 interface Props {
   arrangorId: string;
-  ansvarligEnhet: GjennomforingEnkeltplassDtoAnsvarligEnhet;
+  ansvarligEnhet: AnsvarligEnhetDto;
 }
 
 export function SaksopplysningerForm({ arrangorId, ansvarligEnhet }: Props) {

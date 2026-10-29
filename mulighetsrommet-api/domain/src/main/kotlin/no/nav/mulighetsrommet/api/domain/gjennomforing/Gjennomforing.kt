@@ -63,6 +63,7 @@ sealed class Gjennomforing {
 @Serializable
 sealed class GjennomforingTiltaksadministrasjon : Gjennomforing() {
     abstract val prismodell: Prismodell
+    abstract val ansvarligEnhet: AnsvarligEnhet
 }
 
 @Serializable
@@ -138,6 +139,7 @@ data class GjennomforingAvtale(
     override val pameldingType: GjennomforingPameldingType,
     @Serializable(with = UUIDSerializer::class)
     val avtaleId: UUID,
+    override val ansvarligEnhet: AnsvarligEnhet,
     val kontorstruktur: List<Kontorstruktur>,
     val apentForPamelding: Boolean,
     val stengt: List<StengtPeriode>,
@@ -176,7 +178,7 @@ data class GjennomforingEnkeltplass(
     override val prismodell: Prismodell,
     override val oppstart: GjennomforingOppstartstype,
     override val pameldingType: GjennomforingPameldingType,
-    val ansvarligEnhet: AnsvarligEnhet,
+    override val ansvarligEnhet: AnsvarligEnhet,
 ) : GjennomforingTiltaksadministrasjon() {
 
     init {
@@ -184,13 +186,13 @@ data class GjennomforingEnkeltplass(
             "oppstart må være satt til ${GjennomforingOppstartstype.ENKELTPLASS} for enkeltplasser"
         }
     }
-
-    @Serializable
-    data class AnsvarligEnhet(
-        val enhetsnummer: NavEnhetNummer,
-        val navn: String,
-    )
 }
+
+@Serializable
+data class AnsvarligEnhet(
+    val enhetsnummer: NavEnhetNummer,
+    val navn: String,
+)
 
 @Serializable
 data class GjennomforingArena(

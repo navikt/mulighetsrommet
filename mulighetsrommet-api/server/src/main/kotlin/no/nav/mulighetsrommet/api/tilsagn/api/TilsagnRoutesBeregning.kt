@@ -10,10 +10,7 @@ import io.ktor.server.util.getValue
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.admin.gjennomforing.GjennomforingDetaljerService
 import no.nav.mulighetsrommet.api.ApiDatabase
-import no.nav.mulighetsrommet.api.AppConfig
-import no.nav.mulighetsrommet.api.OkonomiConfig
 import no.nav.mulighetsrommet.api.domain.gjennomforing.Gjennomforing
-import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingTiltaksadministrasjon
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
@@ -23,6 +20,7 @@ import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.model.BeregnTilsagnRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.BeregnTilsagnResponse
+import no.nav.mulighetsrommet.api.tilsagn.model.GyldigTilsagnPeriode
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregning
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAnnenAvtaltPris
@@ -54,9 +52,9 @@ import java.time.temporal.TemporalAdjusters.lastDayOfYear
 import java.util.UUID
 
 fun Route.tilsagnRoutesBeregning() {
-    val config: AppConfig by inject()
     val db: ApiDatabase by inject()
     val service: TilsagnService by inject()
+    val gyldigTilsagnPeriode: GyldigTilsagnPeriode by inject()
     val gjennomforinger: GjennomforingDetaljerService by inject()
     val personaliaService: PersonaliaService by inject()
 
@@ -129,7 +127,7 @@ fun Route.tilsagnRoutesBeregning() {
                         .getAll(typer = listOf(TilsagnType.TILSAGN), gjennomforingId = request.gjennomforingId)
                         .firstOrNull()
 
-                    resolveTilsagnDefaults(config.okonomi, gjennomforing, sisteTilsagn)
+                    resolveTilsagnDefaults(gyldigTilsagnPeriode, gjennomforing, sisteTilsagn)
                 }
 
                 TilsagnType.INVESTERING, TilsagnType.EKSTRATILSAGN -> db.session {
@@ -284,7 +282,7 @@ fun resolveTilsagnRequest(tilsagn: Tilsagn, prismodell: Prismodell): TilsagnRequ
 }
 
 fun resolveTilsagnDefaults(
-    config: OkonomiConfig,
+    gyldigTilsagnPeriode: GyldigTilsagnPeriode,
     gjennomforing: GjennomforingTiltaksadministrasjon,
     tilsagn: Tilsagn?,
 ): TilsagnRequest {
@@ -294,17 +292,17 @@ fun resolveTilsagnDefaults(
         is Prismodell.AnnenAvtaltPris -> null
 
         is Prismodell.AnskaffetEnkeltplass,
-        -> getAnskaffetEnkeltplassPeriode(config, gjennomforing)
+        -> getAnskaffetEnkeltplassPeriode(gyldigTilsagnPeriode, gjennomforing)
 
         is Prismodell.FastSatsPerBenyttetPlassPerManed,
         is Prismodell.FastSatsPerAvtaltPlassPerManed,
-        -> getForhandsgodkjentTiltakPeriode(config, gjennomforing, tilsagn)
+        -> getForhandsgodkjentTiltakPeriode(gyldigTilsagnPeriode, gjennomforing, tilsagn)
 
         is Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker,
         is Prismodell.AvtaltPrisPerBenyttetPlassPerUke,
         is Prismodell.AvtaltPrisPerBenyttetPlassPerHeleUke,
         is Prismodell.AvtaltPrisPerBenyttetPlassPerManed,
-        -> getAnskaffetTiltakPeriode(config, gjennomforing, tilsagn)
+        -> getAnskaffetTiltakPeriode(gyldigTilsagnPeriode, gjennomforing, tilsagn)
 
         is Prismodell.TilskuddTilOpplaering,
         is Prismodell.IngenKostnader,
@@ -332,7 +330,7 @@ fun resolveTilsagnDefaults(
     )
 
     val kostnadssted = tilsagn?.kostnadssted?.enhetsnummer
-        ?: (gjennomforing as? GjennomforingEnkeltplass)?.ansvarligEnhet?.enhetsnummer
+        ?: gjennomforing.ansvarligEnhet.enhetsnummer
 
     return TilsagnRequest(
         id = UUID.randomUUID(),
@@ -347,12 +345,12 @@ fun resolveTilsagnDefaults(
 }
 
 private fun getForhandsgodkjentTiltakPeriode(
-    config: OkonomiConfig,
+    gyldigTilsagnPeriode: GyldigTilsagnPeriode,
     gjennomforing: Gjennomforing,
     tilsagn: Tilsagn?,
 ): Periode {
     val periodeStart = listOfNotNull(
-        config.gyldigTilsagnPeriode[gjennomforing.tiltakstype.tiltakskode]?.start,
+        gyldigTilsagnPeriode.forTiltakskode(gjennomforing.tiltakstype.tiltakskode)?.start,
         gjennomforing.startDato,
         tilsagn?.periode?.slutt,
     ).max()
@@ -369,13 +367,13 @@ private fun getForhandsgodkjentTiltakPeriode(
 }
 
 private fun getAnskaffetTiltakPeriode(
-    config: OkonomiConfig,
+    gyldigTilsagnPeriode: GyldigTilsagnPeriode,
     gjennomforing: Gjennomforing,
     tilsagn: Tilsagn?,
 ): Periode {
     val firstDayOfCurrentMonth = now().withDayOfMonth(1)
     val periodeStart = listOfNotNull(
-        config.gyldigTilsagnPeriode[gjennomforing.tiltakstype.tiltakskode]?.start,
+        gyldigTilsagnPeriode.forTiltakskode(gjennomforing.tiltakstype.tiltakskode)?.start,
         gjennomforing.startDato,
         tilsagn?.periode?.slutt,
         firstDayOfCurrentMonth,
@@ -390,11 +388,11 @@ private fun getAnskaffetTiltakPeriode(
 }
 
 private fun getAnskaffetEnkeltplassPeriode(
-    config: OkonomiConfig,
+    gyldigTilsagnPeriode: GyldigTilsagnPeriode,
     gjennomforing: Gjennomforing,
 ): Periode {
     val periodeStart = listOfNotNull(
-        config.gyldigTilsagnPeriode[gjennomforing.tiltakstype.tiltakskode]?.start,
+        gyldigTilsagnPeriode.forTiltakskode(gjennomforing.tiltakstype.tiltakskode)?.start,
         gjennomforing.startDato,
     ).max()
 

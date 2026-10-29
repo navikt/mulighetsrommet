@@ -649,15 +649,23 @@ class UtbetalingQueries(private val session: Session) {
                          from utbetaling_blokkering
                          where utbetaling_id = utbetaling.id
                      ) blokkeringer on true
-                     left join lateral (select jsonb_agg(
-                                                      distinct jsonb_build_object(
-                                                               'enhetsnummer', nav_enhet.enhetsnummer,
-                                                               'navn', nav_enhet.navn
-                                                       )
-                                               ) as kostnadssteder_json
-                                        from tilsagn
-                                                 join nav_enhet on nav_enhet.enhetsnummer = tilsagn.kostnadssted
-                                        where utbetaling.gjennomforing_id = tilsagn.gjennomforing_id and utbetaling.periode && tilsagn.periode) on true
+                      left join lateral (
+                          select jsonb_agg(
+                                     distinct jsonb_build_object(
+                                         'enhetsnummer', nav_enhet.enhetsnummer,
+                                         'navn', nav_enhet.navn
+                                     )
+                                 ) as kostnadssteder_json
+                          from (
+                              select tilsagn.kostnadssted as enhetsnummer
+                              from tilsagn
+                              where utbetaling.gjennomforing_id = tilsagn.gjennomforing_id
+                                and utbetaling.periode && tilsagn.periode
+                              union
+                              select gjennomforing.ansvarlig_enhet as enhetsnummer
+                          ) kostnadssteder
+                                   join nav_enhet on nav_enhet.enhetsnummer = kostnadssteder.enhetsnummer
+                      ) on true
             where (utbetaling.status = 'GENERERT')
               and (:tiltakskoder::text[] is null or tiltakstype.tiltakskode = any (:tiltakskoder))
               and (:nav_enheter::text[] is null or (

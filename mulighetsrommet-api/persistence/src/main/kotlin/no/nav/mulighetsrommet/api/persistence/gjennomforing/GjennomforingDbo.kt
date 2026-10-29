@@ -45,6 +45,7 @@ data class GjennomforingDetaljerDbo(
     val prismodellId: UUID?,
     val oppmoteSted: String?,
     val tilgjengeligForArrangorDato: LocalDate?,
+    val ansvarligEnhet: NavEnhetNummer,
 )
 
 data class GjennomforingArenaDataDbo(

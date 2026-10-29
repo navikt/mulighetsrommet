@@ -5702,9 +5702,14 @@ components:
           oneOf:
           - type: "null"
           - $ref: "#/components/schemas/GjennomforingPameldingType"
+        ansvarligEnhet:
+          type:
+          - "null"
+          - string
       required:
       - administratorer
       - amoKategorisering
+      - ansvarligEnhet
       - antallPlasser
       - arrangorId
       - arrangorKontaktpersoner
@@ -6111,6 +6116,8 @@ components:
         avtaleId:
           type: string
           format: uuid
+        ansvarligEnhet:
+          $ref: "#/components/schemas/AnsvarligEnhetDto"
         oppstart:
           $ref: "#/components/schemas/GjennomforingOppstartstype"
         pameldingType:
@@ -6141,6 +6148,7 @@ components:
           $ref: "#/components/schemas/GjennomforingAvtaleDto.Type"
       required:
       - administratorer
+      - ansvarligEnhet
       - antallPlasser
       - apentForPamelding
       - arrangor
@@ -6205,6 +6213,16 @@ components:
       - id
       - navn
       - telefon
+    AnsvarligEnhetDto:
+      type: object
+      properties:
+        enhetsnummer:
+          type: string
+        navn:
+          type: string
+      required:
+      - enhetsnummer
+      - navn
     GjennomforingAvtaleDto.Administrator:
       type: object
       properties:
@@ -6388,7 +6406,7 @@ components:
         status:
           $ref: "#/components/schemas/DATA_ELEMENT_STATUS"
         ansvarligEnhet:
-          $ref: "#/components/schemas/GjennomforingEnkeltplassDto.AnsvarligEnhet"
+          $ref: "#/components/schemas/AnsvarligEnhetDto"
         type:
           $ref: "#/components/schemas/GjennomforingEnkeltplassDto.Type"
       required:
@@ -6402,16 +6420,6 @@ components:
       - status
       - tiltaksnummer
       - type
-    GjennomforingEnkeltplassDto.AnsvarligEnhet:
-      type: object
-      properties:
-        enhetsnummer:
-          type: string
-        navn:
-          type: string
-      required:
-      - enhetsnummer
-      - navn
     GjennomforingEnkeltplassDto.Type:
       type: string
       enum:

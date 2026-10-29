@@ -35,6 +35,7 @@ export function toGjennomforingDetaljerRequest(
     sluttDato: data.sluttDato || null,
     antallPlasser: data.antallPlasser,
     arrangorId: data.arrangorId,
+    ansvarligEnhet: data.ansvarligEnhet || null,
     arrangorKontaktpersoner: data.arrangorKontaktpersoner,
     administratorer: data.administratorer,
     oppstart: data.oppstart,

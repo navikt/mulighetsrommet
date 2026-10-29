@@ -78,6 +78,7 @@ data class GjennomforingAvtaleDto(
     val status: DataElement.Status,
     val antallPlasser: Int,
     val avtaleId: UUID,
+    val ansvarligEnhet: AnsvarligEnhetDto,
     val oppstart: GjennomforingOppstartstype,
     val pameldingType: GjennomforingPameldingType,
     val apentForPamelding: Boolean,
@@ -124,20 +125,20 @@ data class GjennomforingEnkeltplassDto(
     val startDato: LocalDate?,
     val sluttDato: LocalDate?,
     val status: DataElement.Status,
-    val ansvarligEnhet: AnsvarligEnhet,
+    val ansvarligEnhet: AnsvarligEnhetDto,
 ) {
     val type = Type.ENKELTPLASS
 
     enum class Type {
         ENKELTPLASS,
     }
-
-    @Serializable
-    data class AnsvarligEnhet(
-        val enhetsnummer: NavEnhetNummer,
-        val navn: String,
-    )
 }
+
+@Serializable
+data class AnsvarligEnhetDto(
+    val enhetsnummer: NavEnhetNummer,
+    val navn: String,
+)
 
 @Serializable
 data class GjennomforingVeilederinfoDto(

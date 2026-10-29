@@ -21,6 +21,9 @@ export const gjennomforingDetaljerSchema = z
       .string({ error: "Du må velge en prismodell fra avtalen" })
       .min(1, "Du må velge en prismodell fra avtalen"),
     arrangorId: z.string({ error: "Du må velge arrangør" }).min(1, "Du må velge arrangør"),
+    ansvarligEnhet: z
+      .string({ error: "Du må velge ansvarlig enhet" })
+      .min(1, "Du må velge ansvarlig enhet"),
     arrangorKontaktpersoner: z.string().array(),
     oppmoteSted: z.string().nullable(),
     deltidsprosent: z.number(),
