@@ -1,4 +1,5 @@
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
+import { useState } from "react";
 import { GjennomforingHandling, TilsagnType } from "@tiltaksadministrasjon/api-client";
 import { useGjennomforingHandlinger } from "@/api/gjennomforing/useGjennomforing";
 import { useTilsagnTableData } from "@/pages/gjennomforing/tilsagn/detaljer/tilsagnDetaljerLoader";
@@ -8,15 +9,11 @@ import { Handlinger } from "@/components/handlinger/Handlinger";
 import { PagineringContainer } from "@/components/paginering/PagineringContainer";
 import { PagineringsOversikt } from "@/components/paginering/PagineringOversikt";
 import { Pagination } from "@navikt/ds-react";
-import { useTilsagnSavedFilterState } from "@/filter/useSavedFiltersState";
+import { useFilterState } from "@/filter/useFilterState";
+import { tilsagnFilterStateAtom } from "@/pages/gjennomforing/tilsagn/filter";
 import { TilToppenKnapp } from "@mr/frontend-common/components/tilToppenKnapp/TilToppenKnapp";
 import { ContentBox } from "@/layouts/ContentBox";
-import {
-  LagredeFilterOversikt,
-  LagreFilterButton,
-  ListSkeleton,
-  useOpenFilterWhenThreshold,
-} from "@mr/frontend-common";
+import { ListSkeleton } from "@mr/frontend-common";
 import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
 import { NullstillFilterKnapp } from "@mr/frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
 import { Suspense } from "react";
@@ -26,20 +23,11 @@ import { TilsagnFilterTags } from "@/components/filter/TilsagnFilterTags";
 export function TilsagnForGjennomforingPage() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
   const handlinger = useGjennomforingHandlinger(gjennomforingId);
-  const {
-    filter,
-    updateFilter,
-    hasChanged,
-    resetFilterToDefault,
-    saveFilter,
-    filters,
-    deleteFilter,
-    selectFilter,
-    setDefaultFilter,
-  } = useTilsagnSavedFilterState();
+  const { filter, updateFilter, hasChanged, resetToDefault } =
+    useFilterState(tilsagnFilterStateAtom);
   const { data: tilsagn } = useTilsagnTableData(gjennomforingId, filter.values);
 
-  const [filterOpen, setFilterOpen] = useOpenFilterWhenThreshold(1450);
+  const [filterOpen, setFilterOpen] = useState(false);
 
   return (
     <>
@@ -51,19 +39,9 @@ export function TilsagnForGjennomforingPage() {
               filter={filter.values}
               tilgjengeligeKostnadssteder={tilsagn.kostnadssteder}
               updateFilter={updateFilter}
-              lagredeFilterOversikt={
-                <LagredeFilterOversikt
-                  filters={filters}
-                  selectedFilterId={filter.id}
-                  onSelectFilterId={selectFilter}
-                  onDeleteFilter={deleteFilter}
-                  onSetDefaultFilter={setDefaultFilter}
-                />
-              }
             />
           }
-          nullstillFilterButton={<NullstillFilterKnapp onClick={resetFilterToDefault} />}
-          lagreFilterButton={<LagreFilterButton filter={filter.values} onLagre={saveFilter} />}
+          nullstillFilterButton={<NullstillFilterKnapp onClick={resetToDefault} />}
           tags={
             <TilsagnFilterTags
               filter={filter.values}

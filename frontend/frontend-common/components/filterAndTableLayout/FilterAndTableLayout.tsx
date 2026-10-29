@@ -14,7 +14,7 @@ interface Props {
   filterOpen: boolean;
   setFilterOpen: (filterOpen: boolean) => void;
   nullstillFilterButton: React.ReactNode;
-  lagreFilterButton: React.ReactNode;
+  lagreFilterButton?: React.ReactNode;
   hasChanged: boolean;
 }
 
@@ -40,7 +40,7 @@ export function FilterAndTableLayout({
           {hasChanged ? (
             <div className={styles.button_row_left}>
               <HStack align="center" gap="space-4">
-                {lagreFilterButton}
+                {lagreFilterButton && lagreFilterButton}
                 {nullstillFilterButton}
               </HStack>
             </div>

@@ -14,15 +14,9 @@ interface Props {
   filter: TilsagnFilterType;
   tilgjengeligeKostnadssteder: string[];
   updateFilter: (values: Partial<TilsagnFilterType>) => void;
-  lagredeFilterOversikt: React.ReactElement;
 }
 
-export function TilsagnFilter({
-  filter,
-  tilgjengeligeKostnadssteder,
-  updateFilter,
-  lagredeFilterOversikt,
-}: Props) {
+export function TilsagnFilter({ filter, tilgjengeligeKostnadssteder, updateFilter }: Props) {
   const [accordionsOpen, setAccordionsOpen] = useAtom(tilsagnFilterAccordionAtom);
 
   const { data: arrangorer } = useArrangorer(ArrangorKobling.TILTAKSGJENNOMFORING, {
@@ -39,15 +33,6 @@ export function TilsagnFilter({
 
   return (
     <Accordion size="small">
-      <FilterAccordion
-        tittel="Lagrede filter"
-        open={accordionsOpen.includes("lagrede-filter")}
-        onClick={() => {
-          setAccordionsOpen([...addOrRemove(accordionsOpen, "lagrede-filter")]);
-        }}
-      >
-        {lagredeFilterOversikt}
-      </FilterAccordion>
       <FilterAccordion
         tittel="Status"
         antallValgteFilter={filter.statuser.length}
