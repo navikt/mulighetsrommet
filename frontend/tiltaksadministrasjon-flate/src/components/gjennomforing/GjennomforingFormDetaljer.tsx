@@ -34,7 +34,6 @@ import { FormSelect } from "@/components/skjema/FormSelect";
 import { FormComboboxMulti } from "@/components/skjema/FormComboboxMulti";
 import { NumberInput } from "@/components/skjema/NumberInput";
 import { VelgKostnadssted } from "@/components/tilsagn/form/VelgKostnadssted";
-import { useKostnadssteder } from "@/api/enhet/useKostnadssteder";
 
 interface Props {
   tiltakstype: TiltakstypeDto;
@@ -49,14 +48,6 @@ export function GjennomforingFormDetaljer(props: Props) {
   const endreSluttDatoModalRef = useRef<HTMLDialogElement>(null);
 
   const { setValue, watch } = useFormContext<GjennomforingFormValues>();
-  const { data: kostnadssteder } = useKostnadssteder();
-  const ansvarligEnhetOptions = kostnadssteder.flatMap((region) => region.kostnadssteder);
-  if (
-    gjennomforing &&
-    !ansvarligEnhetOptions.some((k) => k.enhetsnummer === gjennomforing.ansvarligEnhet.enhetsnummer)
-  ) {
-    ansvarligEnhetOptions.push(gjennomforing.ansvarligEnhet);
-  }
 
   const watchStartDato = watch("startDato");
 
@@ -237,7 +228,6 @@ export function GjennomforingFormDetaljer(props: Props) {
                   Brukes som standard kostnadssted og som geografisk filter for oppgaver.
                 </LabelWithHelpText>
               }
-              kostnadssteder={ansvarligEnhetOptions}
             />
           </FormGroup>
           {avtale.arrangor ? (

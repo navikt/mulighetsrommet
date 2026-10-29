@@ -177,7 +177,7 @@ class UtbetalingRoutesTest : FunSpec({
                         UtbetalingRequest(
                             id = id,
                             gjennomforingId = AFT1.id,
-                            korrigererUtbetaling = UUID.randomUUID(),
+                            korrigererUtbetaling = UtbetalingFixtures.utbetaling1.id,
                             korreksjonBegrunnelse = "Gyldig begrunnelse",
                         ),
                     )
@@ -195,7 +195,7 @@ class UtbetalingRoutesTest : FunSpec({
         test("validerer anskaffelse-spesifikke felter") {
             withTestApplication(appConfig()) {
                 val id = UUID.randomUUID()
-                val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, enkeltplassSaksbehandlerRolle))
+                val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, saksbehandlerGruppetiltakRolle))
 
                 val response = client.post("/api/tiltaksadministrasjon/utbetaling/opprett") {
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
@@ -207,6 +207,7 @@ class UtbetalingRoutesTest : FunSpec({
                             periodeStart = LocalDate.now(),
                             periodeSlutt = LocalDate.now().plusDays(1),
                             pris = ValutaBelopRequest(150, Valuta.NOK),
+                            utbetalingsDato = LocalDate.now(),
                             journalpostId = "foo",
                         ),
                     )
@@ -214,7 +215,7 @@ class UtbetalingRoutesTest : FunSpec({
 
                 response.status shouldBe HttpStatusCode.BadRequest
                 response.body<ValidationError>().errors shouldContainExactlyInAnyOrder listOf(
-                    FieldError("/journalpostId", "Journalpost-ID er på ugyldig format"),
+                    FieldError(pointer = "/journalpostId", detail = "Feil format på Journalpost-ID: foo"),
                 )
             }
         }
@@ -222,7 +223,7 @@ class UtbetalingRoutesTest : FunSpec({
         test("validerer korrigering-spesifikke felter") {
             withTestApplication(appConfig()) {
                 val id = UUID.randomUUID()
-                val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, enkeltplassSaksbehandlerRolle))
+                val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, saksbehandlerGruppetiltakRolle))
 
                 val response = client.post("/api/tiltaksadministrasjon/utbetaling/opprett") {
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
@@ -231,7 +232,7 @@ class UtbetalingRoutesTest : FunSpec({
                         UtbetalingRequest(
                             id = id,
                             gjennomforingId = AFT1.id,
-                            korrigererUtbetaling = UUID.randomUUID(),
+                            korrigererUtbetaling = UtbetalingFixtures.utbetaling1.id,
                             periodeStart = LocalDate.now(),
                             periodeSlutt = LocalDate.now().plusDays(1),
                             pris = ValutaBelopRequest(150, Valuta.NOK),

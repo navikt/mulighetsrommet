@@ -27,7 +27,6 @@ import {
 } from "@tiltaksadministrasjon/api-client";
 import { VelgKostnadssted } from "../tilsagn/form/VelgKostnadssted";
 import { ControlledRadioGroup } from "../skjema/ControlledRadioGroup";
-import { useKostnadssteder } from "@/api/enhet/useKostnadssteder";
 import { BetalingsinformasjonFields } from "../utbetaling/form/BetalingsinformasjonFields";
 import { opplaeringTilskuddToString } from "@/utils/Utils";
 import { defaultTilskuddRequest } from "./defaultTilskuddRequest";
@@ -51,8 +50,6 @@ export function SaksopplysningerForm({ arrangorId, ansvarligEnhet }: Props) {
     control,
     name: "tilskuddVedtak",
   });
-
-  const { data: kostnadssteder } = useKostnadssteder();
 
   const sisteDatoIAar = new Date(new Date().getFullYear(), 11, 31);
 
@@ -105,10 +102,7 @@ export function SaksopplysningerForm({ arrangorId, ansvarligEnhet }: Props) {
                   toDate={sisteDatoIAar}
                   invalidDatoEtterPeriode="Periodeslutt kan ikke være etter siste dag i inneværende år"
                 />
-                <VelgKostnadssted
-                  name={`tilskuddVedtak.${index}.kostnadssted`}
-                  kostnadssteder={kostnadssteder.flatMap((r) => r.kostnadssteder.map((k) => k))}
-                />
+                <VelgKostnadssted name={`tilskuddVedtak.${index}.kostnadssted`} />
                 <Spacer />
                 <FormSelect
                   label="Tilskuddstype"

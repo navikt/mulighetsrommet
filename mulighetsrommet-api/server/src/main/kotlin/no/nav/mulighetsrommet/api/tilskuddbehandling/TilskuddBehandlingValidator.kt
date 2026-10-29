@@ -285,61 +285,10 @@ object TilskuddBehandlingValidator {
                     accessType = AccessType.M2M,
                 )
                     .mapLeft {
-                        when (it) {
-                            JournalpostValidator.JournalpostValideringError.NotFound ->
-                                FieldError(
-                                    pointer = "/tilskuddVedtak/$index/soknadJournalpostId",
-                                    detail = "Fant ingen journalpost med id $journalpostId",
-                                ).nel()
-
-                            JournalpostValidator.JournalpostValideringError.SafError ->
-                                FieldError(
-                                    pointer = "/tilskuddVedtak/$index/soknadJournalpostId",
-                                    detail = "Klarte ikke å slå opp journalpost",
-                                ).nel()
-
-                            JournalpostValidator.JournalpostValideringError.FeilFormat ->
-                                FieldError(
-                                    pointer = "/tilskuddVedtak/$index/soknadJournalpostId",
-                                    detail = "Feil format på Journalpost-ID: $journalpostId",
-                                ).nel()
-
-                            JournalpostValidator.JournalpostValideringError.TilhorerVirksomhet ->
-                                FieldError(
-                                    pointer = "/tilskuddVedtak/$index/soknadJournalpostId",
-                                    detail = "Journalposten tilhører en virksomhet",
-                                ).nel()
-
-                            JournalpostValidator.JournalpostValideringError.TilhorerPerson ->
-                                FieldError(
-                                    pointer = "/tilskuddVedtak/$index/soknadJournalpostId",
-                                    detail = "Journalposten tilhører en person",
-                                ).nel()
-
-                            JournalpostValidator.JournalpostValideringError.TilhorerAnnenPerson ->
-                                FieldError(
-                                    pointer = "/tilskuddVedtak/$index/soknadJournalpostId",
-                                    detail = "Journalposten tilhører en annen person enn deltakeren",
-                                ).nel()
-
-                            JournalpostValidator.JournalpostValideringError.TilhorerAnnenVirksomhet ->
-                                FieldError(
-                                    pointer = "/tilskuddVedtak/$index/soknadJournalpostId",
-                                    detail = "Journalposten tilhører en annen virksomhet",
-                                ).nel()
-
-                            JournalpostValidator.JournalpostValideringError.KunneIkkeVeksleAktoerId ->
-                                FieldError(
-                                    pointer = "/tilskuddVedtak/$index/soknadJournalpostId",
-                                    detail = "Kunne ikke slå opp person i PDL for å verifisere journalposten",
-                                ).nel()
-
-                            JournalpostValidator.JournalpostValideringError.IngenTilknytning ->
-                                FieldError(
-                                    pointer = "/tilskuddVedtak/$index/soknadJournalpostId",
-                                    detail = "Journalposten var ikke tilknyttet en bruker eller virksomhet",
-                                ).nel()
-                        }
+                        FieldError(
+                            pointer = "/tilskuddVedtak/$index/soknadJournalpostId",
+                            detail = it.melding(journalpostId),
+                        ).nel()
                     }
             }
         }

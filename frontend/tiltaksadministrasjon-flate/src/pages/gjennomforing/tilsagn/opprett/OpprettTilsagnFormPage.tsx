@@ -1,24 +1,18 @@
 import { TilsagnFormContainer } from "@/components/tilsagn/TilsagnFormContainer";
-import {
-  RegionKostnadssteder,
-  TilsagnBeregningType,
-  TilsagnType,
-} from "@tiltaksadministrasjon/api-client";
+import { TilsagnBeregningType, TilsagnType } from "@tiltaksadministrasjon/api-client";
 import { useSearchParams } from "react-router";
 import { useGjennomforing } from "@/api/gjennomforing/useGjennomforing";
 import { useTilsagnDefaults } from "./opprettTilsagnLoader";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
-import { useKostnadssteder } from "@/api/enhet/useKostnadssteder";
 
 export function OpprettTilsagnFormPage() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
-  const { gjennomforing, prismodell, kostnadssteder, defaults } = useHentData(gjennomforingId);
+  const { gjennomforing, prismodell, defaults } = useHentData(gjennomforingId);
 
   return (
     <TilsagnFormContainer
       gjennomforing={gjennomforing}
       prismodell={prismodell}
-      kostnadssteder={kostnadssteder}
       defaults={defaults}
     />
   );
@@ -54,11 +48,9 @@ function useHentData(gjennomforingId: string) {
     deltakere: [],
   });
 
-  const { data: kostnadssteder } = useKostnadssteder();
   return {
     gjennomforing: detaljer.gjennomforing,
     prismodell: detaljer.prismodell,
-    kostnadssteder: kostnadssteder.flatMap((r: RegionKostnadssteder) => r.kostnadssteder),
     defaults,
   };
 }
