@@ -20,19 +20,20 @@ object TilsagnsbrevMeldingMapper {
         mottakerOrganisasjonsnummer = tilsagn.arrangorOrganisasjonsnummer,
         sendersReferanse = tilsagn.bestillingsnummer,
         innhold = TilsagnsbrevArrangorMelding.Innhold(
-            tittel = "Tilsagnsbrev ${tilsagn.tiltakstypeNavn} ${tilsagn.bestillingsnummer}",
-            brevtekst = "Se vedlagt tilsagnsbrev for ${tilsagn.tiltakstypeNavn}.",
+            tittel = "Bekreftelse på bestilling ${tilsagn.tiltakstypeNavn} ${tilsagn.bestillingsnummer}",
+            brevtekst = "Se vedlagt bekreftelsesbrev for ${tilsagn.tiltakstypeNavn}.",
         ),
         varsel = TilsagnsbrevArrangorMelding.Varsel(
-            emne = "Tilsagnsbrev for ${tilsagn.arrangorOrganisasjonsnummer} ${tilsagn.arrangorNavn} er tilgjengelig i Altinn",
+            emne = "Bekreftelse på bestilling for ${tilsagn.arrangorOrganisasjonsnummer} ${tilsagn.arrangorNavn} er tilgjengelig i Altinn",
             tekst = """
-                Tilsagnsbrev for ${tilsagn.arrangorOrganisasjonsnummer} ${tilsagn.arrangorNavn} er tilgjengelig. Logg inn i Altinn for å se innholdet.
+
+                Bekreftelse på bestilling for ${tilsagn.arrangorOrganisasjonsnummer} ${tilsagn.arrangorNavn} er tilgjengelig. Logg inn i Altinn for å se innholdet.
 
                 Vennlig hilsen Nav
             """.trimIndent(),
         ),
         vedlegg = TilsagnsbrevArrangorMelding.Vedlegg(
-            navn = "Tilsagnsbrev-${tilsagn.tiltakstypeNavn}.pdf",
+            navn = "Bekreftelsesbrev-${tilsagn.tiltakstypeNavn}.pdf",
             innhold = pdf,
         ),
         idempotentKey = tilsagn.tilsagnId,
