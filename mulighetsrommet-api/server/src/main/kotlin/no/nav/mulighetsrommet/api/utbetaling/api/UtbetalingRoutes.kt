@@ -8,7 +8,6 @@ import io.github.smiley4.ktoropenapi.get
 import io.github.smiley4.ktoropenapi.post
 import io.github.smiley4.ktoropenapi.put
 import io.ktor.http.HttpStatusCode
-import io.ktor.server.http.content.default
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
@@ -39,7 +38,6 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusAarsak
 import no.nav.mulighetsrommet.api.utbetaling.service.AdminUtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.api.utbetaling.service.UtbetalingError
-import no.nav.mulighetsrommet.api.utbetaling.service.UtbetalingValidator
 import no.nav.mulighetsrommet.ktor.exception.Forbidden
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.ProblemDetail
@@ -135,9 +133,7 @@ fun Route.utbetalingRoutes() {
                 val request = call.receive<UtbetalingRequest>()
                 val navIdent = getNavIdent()
 
-                val result = UtbetalingValidator.validateUpsertUtbetaling(request)
-                    .mapLeft(UtbetalingError::Valideringsfeil)
-                    .flatMap { utbetalingService.opprettUtbetaling(it, navIdent) }
+                val result = utbetalingService.opprettUtbetaling(request, navIdent)
                     .mapLeft { toProblemDetail(it, "Klarte ikke opprette utbetaling") }
                     .map { HttpStatusCode.Created }
 
@@ -163,9 +159,7 @@ fun Route.utbetalingRoutes() {
                 val request = call.receive<UtbetalingRequest>()
                 val navIdent = getNavIdent()
 
-                val result = UtbetalingValidator.validateUpsertUtbetaling(request)
-                    .mapLeft { UtbetalingError.Valideringsfeil(it) }
-                    .flatMap { utbetalingService.redigerUtbetaling(it, navIdent) }
+                val result = utbetalingService.redigerUtbetaling(request, navIdent)
                     .mapLeft { toProblemDetail(it, "Klarte ikke redigere utbetaling") }
                     .map { HttpStatusCode.OK }
 

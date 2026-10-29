@@ -1,6 +1,14 @@
 package no.nav.mulighetsrommet.api.utbetaling.service
 
 import arrow.core.Either
+import arrow.core.left
+import arrow.core.nel
+import arrow.core.right
+import kotlinx.coroutines.runBlocking
+import no.nav.mulighetsrommet.admin.journalpost.ForventetBruker
+import no.nav.mulighetsrommet.admin.journalpost.JournalpostValidator
+import no.nav.mulighetsrommet.admin.journalpost.JournalpostValidator.JournalpostValideringError
+import no.nav.mulighetsrommet.api.domain.arrangor.Arrangor
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingRequest
 import no.nav.mulighetsrommet.api.utbetaling.api.ValutaBelopRequest
 import no.nav.mulighetsrommet.api.utbetaling.model.UpsertUtbetaling
@@ -9,18 +17,34 @@ import no.nav.mulighetsrommet.model.JournalpostId
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.ValutaBelop
+import no.nav.mulighetsrommet.tokenprovider.AccessType
 import no.nav.mulighetsrommet.validation.FieldError
+import no.nav.mulighetsrommet.validation.Validated
 import no.nav.mulighetsrommet.validation.validation
 import no.nav.tiltak.okonomi.Tilskuddstype
 import java.time.LocalDate
 
+/**
+ * Slår opp journalposten og sjekker at den tilhører [ForventetBruker].
+ */
+typealias JournalpostOppslag =
+    suspend (JournalpostId, ForventetBruker) -> Either<JournalpostValideringError, JournalpostId>
+
 object UtbetalingValidator {
     const val MIN_ANTALL_VEDLEGG_OPPRETT_KRAV = 1
 
-    fun validateUpsertUtbetaling(
+    data class Ctx(
+        val arrangor: Arrangor?,
+        val korrigertUtbetalingFinnes: Boolean,
+        val journalpostValidator: (String) -> Validated<JournalpostId>,
+        val today: LocalDate = LocalDate.now(),
+    )
+
+    suspend fun validateUpsertUtbetaling(
         request: UtbetalingRequest,
-        today: LocalDate = LocalDate.now(),
-    ): Either<List<FieldError>, UpsertUtbetaling> = validation {
+        ctx: Ctx,
+    ): Validated<UpsertUtbetaling> = validation {
+        val today = ctx.today
         validateNotNull(request.periodeStart) {
             FieldError.of("Periodestart må være satt", UtbetalingRequest::periodeStart)
         }
@@ -37,14 +61,16 @@ object UtbetalingValidator {
             }
         }
 
-        val journalpostId = when (request.korrigererUtbetaling) {
-            null -> request.journalpostId?.let { value ->
-                validateNotNull(JournalpostId.parse(value)) {
-                    FieldError.of("Journalpost-ID er på ugyldig format", UtbetalingRequest::journalpostId)
+        when (request.korrigererUtbetaling) {
+            null -> if (ctx.arrangor is Arrangor.Norsk) {
+                validateNotNull(request.utbetalingsDato) {
+                    FieldError.of("Utbetalingsdato er påkrevd", UtbetalingRequest::utbetalingsDato)
                 }
             }
 
-            else -> null
+            else -> validate(ctx.korrigertUtbetalingFinnes) {
+                FieldError.of("Utbetaling som skal korrigeres eksisterer ikke")
+            }
         }
 
         val sisteGyldigeUtbetalingsDato = today.plusMonths(3)
@@ -75,6 +101,15 @@ object UtbetalingValidator {
             validate(value.length <= 250) {
                 FieldError.of("Kommentar kan ikke være mer enn 250 tegn", UtbetalingRequest::kommentar)
             }
+        }
+
+        val jId = if (ctx.arrangor is Arrangor.Norsk && request.korrigererUtbetaling == null) {
+            requireNotNull(request.journalpostId) {
+                FieldError.of("Journalpost-ID er påkrevd", UtbetalingRequest::journalpostId)
+            }
+            ctx.journalpostValidator(request.journalpostId).bind()
+        } else {
+            null
         }
 
         val korreksjonBegrunnelse = when (request.korrigererUtbetaling) {
@@ -123,7 +158,7 @@ object UtbetalingValidator {
                 id = request.id,
                 gjennomforingId = request.gjennomforingId,
                 periode = periode,
-                journalpostId = journalpostId,
+                journalpostId = jId,
                 beregning = beregning,
                 kid = kid,
                 kommentar = kommentar,
@@ -131,5 +166,38 @@ object UtbetalingValidator {
                 tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
             )
         }
+    }
+
+    fun createJournalpostValidator(
+        forventetBruker: ForventetBruker,
+        journalpostValidator: JournalpostValidator,
+        valideringEnabled: Boolean,
+    ): (String) -> Validated<JournalpostId> {
+        if (!valideringEnabled) {
+            return { journalpostId: String ->
+                JournalpostId.parse(journalpostId)
+                    ?.right()
+                    ?: FieldError.of(
+                        detail = "Feil format på Journalpost-ID: $journalpostId",
+                        UtbetalingRequest::journalpostId,
+                    ).nel().left()
+            }
+        }
+        val journalpostValidatorFunc: (String) -> Validated<JournalpostId> = { journalpostId: String ->
+            runBlocking {
+                journalpostValidator.validerJournalpost(
+                    journalpostId = journalpostId,
+                    forventetBruker = forventetBruker,
+                    accessType = AccessType.M2M,
+                )
+                    .mapLeft {
+                        FieldError.of(
+                            detail = it.melding(journalpostId),
+                            UtbetalingRequest::journalpostId,
+                        ).nel()
+                    }
+            }
+        }
+        return journalpostValidatorFunc
     }
 }

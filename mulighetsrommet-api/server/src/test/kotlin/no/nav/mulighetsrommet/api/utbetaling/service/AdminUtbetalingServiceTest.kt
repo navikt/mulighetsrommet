@@ -1,6 +1,8 @@
 package no.nav.mulighetsrommet.api.utbetaling.service
 
 import arrow.core.Either
+import arrow.core.left
+import arrow.core.right
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.assertions.throwables.shouldThrow
@@ -15,12 +17,18 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
 import io.mockk.coEvery
+import io.mockk.coVerify
+import io.mockk.every
 import io.mockk.mockk
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import no.nav.common.kafka.util.KafkaUtils
 import no.nav.mulighetsrommet.admin.aarsakerbegrunnelse.AarsakerOgBegrunnelseRequest
 import no.nav.mulighetsrommet.admin.arrangor.BetalingsinformasjonQuery
 import no.nav.mulighetsrommet.admin.endringshistorikk.EndringshistorikkType
+import no.nav.mulighetsrommet.admin.journalpost.ForventetBruker
+import no.nav.mulighetsrommet.admin.journalpost.JournalpostValidator
+import no.nav.mulighetsrommet.admin.journalpost.JournalpostValidator.JournalpostValideringError
 import no.nav.mulighetsrommet.api.ApplicationConfigTest
 import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsattRolle
@@ -47,6 +55,8 @@ import no.nav.mulighetsrommet.api.fixtures.setUtbetalingLinjeStatus
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAnnenAvtaltPris
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
+import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingRequest
+import no.nav.mulighetsrommet.api.utbetaling.api.ValutaBelopRequest
 import no.nav.mulighetsrommet.api.utbetaling.model.OpprettUtbetalingLinje
 import no.nav.mulighetsrommet.api.utbetaling.model.OpprettUtbetalingLinjer
 import no.nav.mulighetsrommet.api.utbetaling.model.UpsertUtbetaling
@@ -57,6 +67,8 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusAarsak
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
+import no.nav.mulighetsrommet.featuretoggle.model.FeatureToggle
+import no.nav.mulighetsrommet.featuretoggle.service.FeatureToggleService
 import no.nav.mulighetsrommet.kafka.KAFKA_CONSUMER_RECORD_PROCESSOR_SCHEDULED_AT
 import no.nav.mulighetsrommet.model.JournalpostId
 import no.nav.mulighetsrommet.model.Kontonummer
@@ -65,6 +77,7 @@ import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
 import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.model.ValutaBelop
+import no.nav.mulighetsrommet.tokenprovider.AccessType
 import no.nav.mulighetsrommet.validation.FieldError
 import no.nav.tiltak.okonomi.FakturaStatusType
 import no.nav.tiltak.okonomi.Fakturanummer
@@ -99,20 +112,35 @@ class AdminUtbetalingServiceTest : FunSpec({
         navAnsattService = mockk(),
     )
 
+    fun createInnerUtbetalingService(
+        tilsagnService: TilsagnService = createTilsagnService(),
+        tidligstTidspunktForUtbetaling: TidligstTidspunktForUtbetalingCalculator = umiddelbarUtbetaling,
+    ): UtbetalingService = UtbetalingService(
+        config = UtbetalingService.Config(
+            tidligstTidspunktForUtbetaling = tidligstTidspunktForUtbetaling,
+        ),
+        tilsagnService = tilsagnService,
+        betalingsinformasjon = betalingsinformasjon,
+    )
+
     fun createUtbetalingService(
         tilsagnService: TilsagnService = createTilsagnService(),
         tidligstTidspunktForUtbetaling: TidligstTidspunktForUtbetalingCalculator = umiddelbarUtbetaling,
+        journalpostValidator: JournalpostValidator = mockk(),
+        journalpostValideringEnabled: Boolean = false,
     ): AdminUtbetalingService {
-        val utbetalingService = UtbetalingService(
-            config = UtbetalingService.Config(
-                tidligstTidspunktForUtbetaling = tidligstTidspunktForUtbetaling,
-            ),
-            tilsagnService = tilsagnService,
-            betalingsinformasjon = betalingsinformasjon,
-        )
+        val utbetalingService = createInnerUtbetalingService(tilsagnService, tidligstTidspunktForUtbetaling)
+        val featureToggleService = mockk<FeatureToggleService> {
+            every {
+                isEnabled(FeatureToggle.TILTAKSADMINISTRASJON_JOURNALPOST_VALIDERING)
+            } returns journalpostValideringEnabled
+        }
         return AdminUtbetalingService(
             db = database.api,
             utbetalingService = utbetalingService,
+            journalpostValidator = journalpostValidator,
+            featureToggleService = featureToggleService,
+            today = { LocalDate.of(2025, 1, 10) },
         )
     }
 
@@ -148,16 +176,15 @@ class AdminUtbetalingServiceTest : FunSpec({
     val utbetalingsDato = LocalDate.of(2025, 1, 12)
 
     context("opprett og rediger utbetaling") {
-        val upsert = UpsertUtbetaling.Anskaffelse(
+        val upsert = UtbetalingRequest(
             id = UUID.randomUUID(),
             gjennomforingId = AFT1.id,
-            periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
-            journalpostId = JournalpostId("123123123"),
-            kid = null,
-            beregning = UtbetalingBeregningFri.from(10.NOK),
+            periodeStart = LocalDate.of(2025, 1, 1),
+            periodeSlutt = LocalDate.of(2025, 1, 31),
+            journalpostId = "123123123",
+            pris = ValutaBelopRequest(10, Valuta.NOK),
             utbetalingsDato = utbetalingsDato,
             kommentar = "Arrangør trenger penger",
-            tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
         )
 
         beforeEach {
@@ -173,13 +200,13 @@ class AdminUtbetalingServiceTest : FunSpec({
             val service = createUtbetalingService()
 
             val utbetaling = service.opprettUtbetaling(
-                opprett = upsert,
+                request = upsert,
                 agent = saksbehandler.navIdent,
             ).shouldBeRight()
 
             utbetaling.id.shouldNotBeNull()
             utbetaling.periode shouldBe Periode.forMonthOf(LocalDate.of(2025, 1, 1))
-            utbetaling.beregning shouldBe upsert.beregning
+            utbetaling.beregning shouldBe UtbetalingBeregningFri.from(10.NOK)
         }
 
         test("samme utbetaling kan ikke opprettes to ganger") {
@@ -224,8 +251,8 @@ class AdminUtbetalingServiceTest : FunSpec({
                 saksbehandler.navIdent,
             ) shouldBeLeft UtbetalingError.Valideringsfeil(
                 listOf(
-                    FieldError("/journalpostId", "Journalpost-ID er påkrevd"),
                     FieldError("/utbetalingsDato", "Utbetalingsdato er påkrevd"),
+                    FieldError("/journalpostId", "Journalpost-ID er påkrevd"),
                 ),
             )
         }
@@ -270,8 +297,8 @@ class AdminUtbetalingServiceTest : FunSpec({
                 saksbehandler.navIdent,
             ) shouldBeLeft UtbetalingError.Valideringsfeil(
                 listOf(
-                    FieldError("/journalpostId", "Journalpost-ID er påkrevd"),
                     FieldError("/utbetalingsDato", "Utbetalingsdato er påkrevd"),
+                    FieldError("/journalpostId", "Journalpost-ID er påkrevd"),
                 ),
             )
         }
@@ -310,6 +337,58 @@ class AdminUtbetalingServiceTest : FunSpec({
             ).shouldBeRight()
         }
 
+        context("journalpostvalidering") {
+            fun arrangorOrgnr(arrangorId: UUID) = database.api.session {
+                repository.arrangor.get(arrangorId).organisasjonsnummer
+            }
+
+            test("journalpost som tilhører arrangøren godtas") {
+                val journalpostValidator = mockk<JournalpostValidator>()
+                coEvery {
+                    journalpostValidator.validerJournalpost(any(), any(), any())
+                } returns JournalpostId("123123123").right()
+                val service = createUtbetalingService(
+                    journalpostValidator = journalpostValidator,
+                    journalpostValideringEnabled = true,
+                )
+
+                service.opprettUtbetaling(upsert, saksbehandler.navIdent).shouldBeRight()
+
+                val forventetBruker = ForventetBruker.Bedrift(arrangorOrgnr(AFT1.arrangorId))
+                coVerify(exactly = 1) {
+                    journalpostValidator.validerJournalpost(
+                        journalpostId = "123123123",
+                        forventetBruker = forventetBruker,
+                        accessType = AccessType.M2M,
+                    )
+                }
+            }
+
+            test("feil fra journalpostvalidering gir valideringsfeil på journalpostId") {
+                forAll(
+                    row(
+                        JournalpostValideringError.TilhorerAnnenVirksomhet,
+                        "Journalposten tilhører en annen virksomhet",
+                    ),
+                    row(JournalpostValideringError.TilhorerPerson, "Journalposten tilhører en person"),
+                    row(JournalpostValideringError.NotFound, "Fant ingen journalpost med id 123123123"),
+                    row(JournalpostValideringError.SafError, "Klarte ikke å slå opp journalpost"),
+                ) { error, melding ->
+                    val journalpostValidator = mockk<JournalpostValidator>()
+                    coEvery { journalpostValidator.validerJournalpost(any(), any(), any()) } returns error.left()
+                    val service = createUtbetalingService(
+                        journalpostValidator = journalpostValidator,
+                        journalpostValideringEnabled = true,
+                    )
+
+                    runBlocking {
+                        service.opprettUtbetaling(upsert, saksbehandler.navIdent) shouldBeLeft
+                            UtbetalingError.Valideringsfeil(listOf(FieldError("/journalpostId", melding)))
+                    }
+                }
+            }
+        }
+
         test("kan redigeres når den er til behandling") {
             val service = createUtbetalingService()
 
@@ -321,7 +400,7 @@ class AdminUtbetalingServiceTest : FunSpec({
             val kommentar = "Arrangør trenger mer penger"
             val beregning = UtbetalingBeregningFri.from(ValutaBelop(100, Valuta.NOK))
             service.redigerUtbetaling(
-                upsert.copy(kommentar = kommentar, beregning = beregning),
+                upsert.copy(kommentar = kommentar, pris = ValutaBelopRequest(100, Valuta.NOK)),
                 saksbehandler.navIdent,
             ).shouldBeRight().should {
                 it.kommentar shouldBe kommentar
@@ -335,15 +414,15 @@ class AdminUtbetalingServiceTest : FunSpec({
             val innsending = UpsertUtbetaling.Innsending(
                 id = upsert.id,
                 gjennomforingId = upsert.gjennomforingId,
-                periode = upsert.periode,
-                beregning = upsert.beregning,
-                tilskuddstype = upsert.tilskuddstype,
+                periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
+                beregning = UtbetalingBeregningFri.from(10.NOK),
+                tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
                 kid = null,
             )
-            service.opprettUtbetaling(
-                innsending,
-                saksbehandler.navIdent,
-            ).shouldBeRight().status shouldBe UtbetalingStatusType.TIL_BEHANDLING
+            val innerService = createInnerUtbetalingService()
+            database.api.transaction {
+                innerService.opprettUtbetaling(innsending, saksbehandler.navIdent)
+            }.shouldBeRight().status shouldBe UtbetalingStatusType.TIL_BEHANDLING
 
             service.redigerUtbetaling(
                 upsert,
@@ -435,15 +514,14 @@ class AdminUtbetalingServiceTest : FunSpec({
     }
 
     context("opprett og rediger korreksjon") {
-        val upsert = UpsertUtbetaling.Korreksjon(
+        val upsert = UtbetalingRequest(
             id = UUID.randomUUID(),
-            periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
-            korreksjonGjelderUtbetalingId = utbetaling1.id,
+            gjennomforingId = AFT1.id,
+            periodeStart = LocalDate.of(2025, 1, 1),
+            periodeSlutt = LocalDate.of(2025, 1, 31),
+            korrigererUtbetaling = utbetaling1.id,
             korreksjonBegrunnelse = "Feilutbetaling",
-            kid = null,
-            beregning = UtbetalingBeregningFri.from(10.NOK),
-            kommentar = null,
-            tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
+            pris = ValutaBelopRequest(10, Valuta.NOK),
         )
 
         beforeEach {
@@ -467,7 +545,7 @@ class AdminUtbetalingServiceTest : FunSpec({
 
             val service = createUtbetalingService()
 
-            val korreksjon = upsert.copy(korreksjonGjelderUtbetalingId = enkeltplassUtbetaling.id)
+            val korreksjon = upsert.copy(korrigererUtbetaling = enkeltplassUtbetaling.id)
 
             service.opprettUtbetaling(korreksjon, saksbehandler.navIdent)
                 .shouldBeLeft().shouldBeTypeOf<UtbetalingError.ManglerTilgang>()
@@ -479,7 +557,7 @@ class AdminUtbetalingServiceTest : FunSpec({
             val service = createUtbetalingService()
 
             service.opprettUtbetaling(
-                opprett = upsert.copy(korreksjonGjelderUtbetalingId = UUID.randomUUID()),
+                request = upsert.copy(korrigererUtbetaling = UUID.randomUUID()),
                 agent = saksbehandler.navIdent,
             ) shouldHaveValidationErrors listOf(
                 FieldError.of("Utbetaling som skal korrigeres eksisterer ikke"),
@@ -490,7 +568,7 @@ class AdminUtbetalingServiceTest : FunSpec({
             val service = createUtbetalingService()
 
             service.opprettUtbetaling(
-                opprett = upsert.copy(korreksjonGjelderUtbetalingId = utbetaling2.id),
+                request = upsert.copy(korrigererUtbetaling = utbetaling2.id),
                 agent = saksbehandler.navIdent,
             ) shouldHaveValidationErrors listOf(
                 FieldError.of("Utbetaling kan ikke korrigeres når den har status GENERERT"),
@@ -501,7 +579,7 @@ class AdminUtbetalingServiceTest : FunSpec({
             val service = createUtbetalingService()
 
             service.opprettUtbetaling(
-                opprett = upsert,
+                request = upsert,
                 agent = saksbehandler.navIdent,
             ).shouldBeRight().korreksjon shouldBe Utbetaling.Korreksjon(
                 gjelderUtbetalingId = utbetaling1.id,
@@ -509,11 +587,11 @@ class AdminUtbetalingServiceTest : FunSpec({
             )
 
             service.redigerUtbetaling(
-                rediger = upsert.copy(korreksjonBegrunnelse = "Fordi"),
+                request = upsert.copy(korreksjonBegrunnelse = "Fordi det ble feil"),
                 agent = saksbehandler.navIdent,
             ).shouldBeRight().korreksjon shouldBe Utbetaling.Korreksjon(
                 gjelderUtbetalingId = utbetaling1.id,
-                begrunnelse = "Fordi",
+                begrunnelse = "Fordi det ble feil",
             )
         }
     }
@@ -1839,15 +1917,14 @@ class AdminUtbetalingServiceTest : FunSpec({
 
                 val service = createUtbetalingService()
 
-                val korreksjon = UpsertUtbetaling.Korreksjon(
+                val korreksjon = UtbetalingRequest(
                     id = UUID.randomUUID(),
-                    periode = Periode.forMonthOf(utbetaling1.periode.start),
-                    korreksjonGjelderUtbetalingId = utbetaling1.id,
+                    gjennomforingId = AFT1.id,
+                    periodeStart = Periode.forMonthOf(utbetaling1.periode.start).start,
+                    periodeSlutt = Periode.forMonthOf(utbetaling1.periode.start).getLastInclusiveDate(),
+                    korrigererUtbetaling = utbetaling1.id,
                     korreksjonBegrunnelse = "Feilutbetaling",
-                    kid = null,
-                    beregning = UtbetalingBeregningFri.from(10.NOK),
-                    kommentar = null,
-                    tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
+                    pris = ValutaBelopRequest(10, Valuta.NOK),
                 )
                 service.opprettUtbetaling(korreksjon, saksbehandler.navIdent).shouldBeRight()
 

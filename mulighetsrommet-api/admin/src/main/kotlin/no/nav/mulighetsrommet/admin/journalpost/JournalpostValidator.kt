@@ -143,6 +143,19 @@ class JournalpostValidator(
         TilhorerAnnenVirksomhet,
         KunneIkkeVeksleAktoerId,
         IngenTilknytning,
+        ;
+
+        fun melding(journalpostId: String?): String = when (this) {
+            NotFound -> "Fant ingen journalpost med id $journalpostId"
+            SafError -> "Klarte ikke å slå opp journalpost"
+            FeilFormat -> "Feil format på Journalpost-ID: $journalpostId"
+            TilhorerVirksomhet -> "Journalposten tilhører en virksomhet"
+            TilhorerPerson -> "Journalposten tilhører en person"
+            TilhorerAnnenPerson -> "Journalposten tilhører en annen person enn deltakeren"
+            TilhorerAnnenVirksomhet -> "Journalposten tilhører en annen virksomhet"
+            KunneIkkeVeksleAktoerId -> "Kunne ikke slå opp person i PDL for å verifisere journalposten"
+            IngenTilknytning -> "Journalposten var ikke tilknyttet en bruker eller virksomhet"
+        }
     }
 }
 
