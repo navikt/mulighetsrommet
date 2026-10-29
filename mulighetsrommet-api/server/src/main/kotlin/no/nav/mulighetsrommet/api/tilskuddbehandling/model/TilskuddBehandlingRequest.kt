@@ -3,7 +3,7 @@ package no.nav.mulighetsrommet.api.tilskuddbehandling.model
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.BrukerUtbetalingType
-import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
+import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottakerType
 import no.nav.mulighetsrommet.api.utbetaling.api.ValutaBelopRequest
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
@@ -33,8 +33,10 @@ data class TilskuddVedtakRequest(
     val soknadBelop: ValutaBelopRequest?,
     val vedtakResultat: VedtakResultat?,
     val kommentarVedtaksbrev: String?,
-    val utbetalingMottaker: TilskuddMottaker?,
+    val utbetalingMottaker: TilskuddMottakerType?,
+    val arrangorReferanse: ArrangorReferanseType?,
     val kidNummer: String?,
+    val fakturanummer: String?,
     val brukerUtbetalingType: BrukerUtbetalingType?,
     val belop: Int?,
     val periodeStart: String?,

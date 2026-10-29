@@ -19,13 +19,17 @@ import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.BrukerUtbetalingType
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandlingStatus
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandlingType
-import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
+import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottakerType
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddVedtak
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.ArrangorReferanse
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.ArrangorReferanseType
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandling
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingRequest
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddMottaker
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddVedtakRequest
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
 import no.nav.mulighetsrommet.api.utbetaling.api.ValutaBelopRequest
+import no.nav.mulighetsrommet.model.Fakturanummer
 import no.nav.mulighetsrommet.model.JournalpostId
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.NavEnhetNummer
@@ -47,7 +51,7 @@ class TilskuddBehandlingValidatorTest : FunSpec({
     val gyldigTilsagnPeriode = Periode.fromInclusiveDates(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 12, 31))
     val behandlendeEnhet = NavEnhetNummer("0502")
     val arrangorBetalingsinformasjon = mockk<Betalingsinformasjon>(relaxed = true)
-    val tiltakstypeNavn = "Arbeidsforberedende trening"
+    val tiltakstypeNavn = "Norskopplæring, grunnleggende ferdigheter og FOV"
 
     fun createGjennomforing(sluttDato: LocalDate? = gjennomforingSluttDato): Gjennomforing = mockk<Gjennomforing>().also { gjennomforing ->
         every { gjennomforing.sluttDato } returns sluttDato
@@ -76,8 +80,10 @@ class TilskuddBehandlingValidatorTest : FunSpec({
         soknadBelop = ValutaBelopRequest(belop = 1200, valuta = Valuta.SEK),
         vedtakResultat = VedtakResultat.INNVILGELSE,
         kommentarVedtaksbrev = "Vedtakskommentar",
-        utbetalingMottaker = TilskuddMottaker.ARRANGOR,
+        utbetalingMottaker = TilskuddMottakerType.ARRANGOR,
+        arrangorReferanse = ArrangorReferanseType.KID,
         kidNummer = "116",
+        fakturanummer = null,
         brukerUtbetalingType = null,
         belop = 2000,
         periodeStart = periodeStart.toString(),
@@ -113,9 +119,7 @@ class TilskuddBehandlingValidatorTest : FunSpec({
                     periode = Periode.fromInclusiveDates(periodeStart, periodeSlutt),
                     kostnadssted = behandlendeEnhet,
                     vedtakResultat = VedtakResultat.INNVILGELSE,
-                    utbetalingMottaker = TilskuddMottaker.ARRANGOR,
-                    kid = Kid.parse("116"),
-                    brukerUtbetalingType = null,
+                    utbetalingMottaker = TilskuddMottaker.Arrangor(referanse = ArrangorReferanse.Kid(Kid.parse("116")!!)),
                     utbetalingBelop = ValutaBelop(2000, Valuta.NOK),
                     kommentarIntern = "Intern kommentar",
                     kommentarVedtaksbrev = "Vedtakskommentar",
@@ -218,11 +222,97 @@ class TilskuddBehandlingValidatorTest : FunSpec({
         )
     }
 
+    context("arrangørreferanse") {
+        ArrangorReferanseType.entries.forEach { referanseType ->
+            test("godtar $referanseType uten den andre referansen når mottaker er arrangør") {
+                val request = validTilskuddVedtakRequest().copy(
+                    arrangorReferanse = referanseType,
+                    kidNummer = if (referanseType == ArrangorReferanseType.KID) "116" else null,
+                    fakturanummer = if (referanseType == ArrangorReferanseType.FAKTURANUMMER) "123456" else null,
+                )
+
+                val result = TilskuddBehandlingValidator.validateTilskuddRequest(
+                    req = request,
+                    index = 0,
+                    ctx = createCtx(),
+                ).shouldBeRight()
+
+                val referanse = when (referanseType) {
+                    ArrangorReferanseType.KID -> ArrangorReferanse.Kid(requireNotNull(Kid.parse("116")))
+                    ArrangorReferanseType.FAKTURANUMMER -> ArrangorReferanse.Fakturanummer(Fakturanummer.parseOrThrow("123456"))
+                }
+                result.utbetalingMottaker shouldBe TilskuddMottaker.Arrangor(referanse)
+            }
+
+            listOf(false, true).forEach { harAnnenReferanse ->
+                test("krever nummer for valgt $referanseType når annen referanse er ${if (harAnnenReferanse) "oppgitt" else "null"}") {
+                    val request = validTilskuddVedtakRequest().copy(
+                        arrangorReferanse = referanseType,
+                        kidNummer = if (harAnnenReferanse && referanseType == ArrangorReferanseType.FAKTURANUMMER) "116" else null,
+                        fakturanummer = if (harAnnenReferanse && referanseType == ArrangorReferanseType.KID) "123456" else null,
+                    )
+                    val (felt, melding, ugyldigMelding) = when (referanseType) {
+                        ArrangorReferanseType.KID -> Triple("kidNummer", "Du må oppgi et kid-nummer", "Ugyldig kid")
+                        ArrangorReferanseType.FAKTURANUMMER -> Triple("fakturanummer", "Du må oppgi et fakturanummer", "Ugyldig fakturanummer")
+                    }
+
+                    TilskuddBehandlingValidator.validateTilskuddRequest(
+                        req = request,
+                        index = 2,
+                        ctx = createCtx(),
+                    ).shouldBeLeft().shouldContainExactlyInAnyOrder(
+                        FieldError("/tilskuddVedtak/2/$felt", melding),
+                        FieldError("/tilskuddVedtak/2/$felt", ugyldigMelding),
+                    )
+                }
+            }
+
+            listOf("", " ", "ugyldig").forEach { nummer ->
+                test("avviser ugyldig $referanseType med verdi '$nummer'") {
+                    val request = validTilskuddVedtakRequest().copy(
+                        arrangorReferanse = referanseType,
+                        kidNummer = if (referanseType == ArrangorReferanseType.KID) nummer else null,
+                        fakturanummer = if (referanseType == ArrangorReferanseType.FAKTURANUMMER) nummer else null,
+                    )
+                    val (felt, melding) = when (referanseType) {
+                        ArrangorReferanseType.KID -> "kidNummer" to "Ugyldig kid"
+                        ArrangorReferanseType.FAKTURANUMMER -> "fakturanummer" to "Ugyldig fakturanummer"
+                    }
+
+                    TilskuddBehandlingValidator.validateTilskuddRequest(
+                        req = request,
+                        index = 1,
+                        ctx = createCtx(),
+                    ) shouldBeLeft listOf(FieldError("/tilskuddVedtak/1/$felt", melding))
+                }
+            }
+        }
+
+        test("krever valg av KID eller fakturanummer når mottaker er arrangør") {
+            val request = validTilskuddVedtakRequest().copy(
+                arrangorReferanse = null,
+                kidNummer = null,
+                fakturanummer = null,
+            )
+
+            TilskuddBehandlingValidator.validateTilskuddRequest(
+                req = request,
+                index = 0,
+                ctx = createCtx(),
+            ) shouldBeLeft listOf(
+                FieldError("/tilskuddVedtak/0/arrangorReferanse", "Du må velge kid eller fakturanummer"),
+            )
+        }
+    }
+
     BrukerUtbetalingType.entries.forEach { brukerUtbetalingType ->
         test("setter type utbetaling til $brukerUtbetalingType når mottaker er bruker") {
             val request = validTilskuddVedtakRequest().copy(
-                utbetalingMottaker = TilskuddMottaker.BRUKER,
+                utbetalingMottaker = TilskuddMottakerType.BRUKER,
                 brukerUtbetalingType = brukerUtbetalingType,
+                arrangorReferanse = null,
+                kidNummer = null,
+                fakturanummer = null,
             )
 
             val result = TilskuddBehandlingValidator.validateTilskuddRequest(
@@ -231,13 +321,13 @@ class TilskuddBehandlingValidatorTest : FunSpec({
                 ctx = createCtx(betalingsinformasjonArrangor = null),
             ).shouldBeRight()
 
-            result.brukerUtbetalingType shouldBe brukerUtbetalingType
+            result.utbetalingMottaker shouldBe TilskuddMottaker.Bruker(brukerUtbetalingType)
         }
     }
 
     test("krever valg om type utbetaling når mottaker er bruker") {
         val request = validTilskuddVedtakRequest().copy(
-            utbetalingMottaker = TilskuddMottaker.BRUKER,
+            utbetalingMottaker = TilskuddMottakerType.BRUKER,
             brukerUtbetalingType = null,
         )
 
@@ -259,7 +349,7 @@ class TilskuddBehandlingValidatorTest : FunSpec({
             ctx = createCtx(),
         ).shouldBeRight()
 
-        result.brukerUtbetalingType shouldBe null
+        result.utbetalingMottaker shouldBe TilskuddMottaker.Arrangor(ArrangorReferanse.Kid(Kid.parse("116")!!))
     }
 
     test("validerer periodens rekkefølge og grensen for gjennomføringen") {

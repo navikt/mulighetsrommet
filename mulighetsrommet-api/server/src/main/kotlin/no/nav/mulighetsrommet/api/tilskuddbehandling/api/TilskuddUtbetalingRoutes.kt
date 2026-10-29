@@ -11,7 +11,7 @@ import no.nav.mulighetsrommet.api.clients.helved.HelVedStatus
 import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd
 import no.nav.mulighetsrommet.api.plugins.queryParameterUuid
 import no.nav.mulighetsrommet.api.tilsagn.api.KostnadsstedDto
-import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
+import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottakerType
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultatDto
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.model.DataElement
@@ -65,7 +65,7 @@ fun Route.tilskuddUtbetalingRoutes() {
                             type = behandlingKompakt.tilskuddtype,
                             kostnadssted = kostnadssted?.let { KostnadsstedDto.fromNavEnhet(it) },
                             belopUtbetalt = belopUtbetalt,
-                            mottaker = TilskuddMottaker.ARRANGOR,
+                            mottaker = TilskuddMottakerType.ARRANGOR,
                             vedtakResultat = VedtakResultatDto(behandlingKompakt.vedtakResultat),
                         )
                     } else {
@@ -81,7 +81,7 @@ fun Route.tilskuddUtbetalingRoutes() {
                                         KostnadsstedDto(it.navn, it.enhetsnummer)
                                     },
                                     belopUtbetalt = utbetaling.belop.withValuta(Valuta.NOK),
-                                    mottaker = TilskuddMottaker.BRUKER,
+                                    mottaker = TilskuddMottakerType.BRUKER,
                                     vedtakResultat = VedtakResultatDto(behandlingKompakt.vedtakResultat),
                                 )
                             }
@@ -105,7 +105,7 @@ data class TilskuddUtbetalingKompaktDto(
     val kostnadssted: KostnadsstedDto?,
     val belopUtbetalt: ValutaBelop?,
     val vedtakResultat: VedtakResultatDto,
-    val mottaker: TilskuddMottaker,
+    val mottaker: TilskuddMottakerType,
 )
 
 @Serializable

@@ -5,9 +5,11 @@ import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd
 import no.nav.mulighetsrommet.api.tilsagn.api.KostnadsstedDto
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.ArrangorReferanse
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandling
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingDto
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatusDto
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddMottaker
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddVedtakDto
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultatDto
@@ -16,6 +18,7 @@ import no.nav.mulighetsrommet.database.createUuidArray
 import no.nav.mulighetsrommet.database.datatypes.toDaterange
 import no.nav.mulighetsrommet.database.datatypes.toPeriode
 import no.nav.mulighetsrommet.database.withTransaction
+import no.nav.mulighetsrommet.model.Fakturanummer
 import no.nav.mulighetsrommet.model.JournalpostId
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.NavEnhetNummer
@@ -145,7 +148,8 @@ class TilskuddBehandlingQueries(private val session: Session) {
                 kid,
                 bruker_utbetaling_type,
                 belop,
-                valuta
+                valuta,
+                fakturanummer
             ) values (
              :id::uuid,
              :tilskudd_id::uuid,
@@ -164,7 +168,8 @@ class TilskuddBehandlingQueries(private val session: Session) {
              :kid,
              :bruker_utbetaling_type,
              :belop,
-             :valuta::currency
+             :valuta::currency,
+             :fakturanummer
          ) on conflict (id) do update set
               tilskudd_id = excluded.tilskudd_id,
               tilskudd_behandling_id = excluded.tilskudd_behandling_id,
@@ -181,10 +186,27 @@ class TilskuddBehandlingQueries(private val session: Session) {
               kid = excluded.kid,
               bruker_utbetaling_type = excluded.bruker_utbetaling_type,
               belop = excluded.belop,
-              valuta = excluded.valuta
+              valuta = excluded.valuta,
+              fakturanummer = excluded.fakturanummer
          returning id)
          select id from update
         """.trimIndent()
+
+        val mottakerParams = when (val mottaker = tilskuddVedtak.utbetalingMottaker) {
+            is TilskuddMottaker.Arrangor -> {
+                mapOf(
+                    "utbetaling_mottaker" to mottaker.toType().name,
+                    "kid" to if (mottaker.referanse is ArrangorReferanse.Kid) mottaker.referanse.kid?.value else null,
+                    "fakturanummer" to if (mottaker.referanse is ArrangorReferanse.Fakturanummer) mottaker.referanse.fakturanummer.value else null,
+                )
+            }
+
+            is TilskuddMottaker.Bruker ->
+                mapOf(
+                    "utbetaling_mottaker" to mottaker.toType().name,
+                    "bruker_utbetaling_type" to mottaker.utbetalingType.name,
+                )
+        }
 
         val vedtakParams = mapOf(
             "id" to tilskuddVedtak.id,
@@ -199,14 +221,11 @@ class TilskuddBehandlingQueries(private val session: Session) {
             "vedtak_resultat" to tilskuddVedtak.vedtakResultat.name,
             "kommentar_vedtaksbrev" to tilskuddVedtak.kommentarVedtaksbrev,
             "kommentar_intern" to tilskuddVedtak.kommentarIntern,
-            "utbetaling_mottaker" to tilskuddVedtak.utbetalingMottaker.name,
-            "kid" to tilskuddVedtak.kid?.value,
-            "bruker_utbetaling_type" to tilskuddVedtak.brukerUtbetalingType?.name,
             "belop" to tilskuddVedtak.utbetalingBelop?.belop,
             "valuta" to tilskuddVedtak.utbetalingBelop?.valuta?.name,
             "datastream_periode_start" to tilskuddVedtak.periode.start,
             "datastream_periode_slutt" to tilskuddVedtak.periode.getLastInclusiveDate(),
-        )
+        ) + mottakerParams
 
         execute(queryOf(vedtakQuery, vedtakParams))
     }
@@ -410,6 +429,23 @@ private fun Row.toTilskuddVedtakDto(): TilskuddVedtakDto {
         )
     }
 
+    val mottaker = when (TilskuddMottakerType.valueOf(string("utbetaling_mottaker"))) {
+        TilskuddMottakerType.BRUKER -> TilskuddMottaker.Bruker(
+            utbetalingType = BrukerUtbetalingType.valueOf(string("bruker_utbetaling_type")),
+        )
+
+        TilskuddMottakerType.ARRANGOR -> {
+            val kid = stringOrNull("kid")?.let(Kid::parse)
+            val fakturanummer = stringOrNull("fakturanummer")?.let(Fakturanummer::parse)
+            val referanse = if (fakturanummer != null) {
+                ArrangorReferanse.Fakturanummer(fakturanummer)
+            } else {
+                ArrangorReferanse.Kid(kid)
+            }
+            TilskuddMottaker.Arrangor(referanse)
+        }
+    }
+
     return TilskuddVedtakDto(
         id = uuid("id"),
         tilskuddId = uuid("tilskudd_id"),
@@ -425,7 +461,7 @@ private fun Row.toTilskuddVedtakDto(): TilskuddVedtakDto {
         ),
         vedtakResultat = VedtakResultatDto(VedtakResultat.valueOf(string("vedtak_resultat"))),
         kommentarVedtaksbrev = stringOrNull("kommentar_vedtaksbrev"),
-        utbetalingMottaker = TilskuddMottaker.valueOf(string("utbetaling_mottaker")),
+        utbetalingMottaker = mottaker,
         kid = stringOrNull("kid")?.let(Kid::parse),
         brukerUtbetalingType = stringOrNull("bruker_utbetaling_type")?.let(BrukerUtbetalingType::valueOf),
         utbetalingBelop = utbetalingBelop,

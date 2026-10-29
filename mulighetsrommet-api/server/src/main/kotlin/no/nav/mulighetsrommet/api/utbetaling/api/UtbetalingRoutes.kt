@@ -29,6 +29,7 @@ import no.nav.mulighetsrommet.api.plugins.queryParameterUuid
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.tilsagn.api.KostnadsstedDto
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.ArrangorReferanseType
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingDtoQuery
 import no.nav.mulighetsrommet.api.utbetaling.UtbetalingDtoQueryError
 import no.nav.mulighetsrommet.api.utbetaling.model.OpprettUtbetalingLinje
@@ -607,7 +608,9 @@ data class UtbetalingRequest(
     val utbetalingsDato: LocalDate? = null,
     val korreksjonBegrunnelse: String? = null,
     val kommentar: String? = null,
+    val referanse: ArrangorReferanseType? = null,
     val kidNummer: String? = null,
+    val fakturanummer: String? = null,
     val pris: ValutaBelopRequest? = null,
 )
 
