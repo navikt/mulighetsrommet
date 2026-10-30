@@ -19,7 +19,6 @@ import {
 } from "@navikt/ds-react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { useSearchParams } from "react-router";
-import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { ReactElement, Suspense } from "react";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { addDuration, subDuration } from "@mr/frontend-common/utils/date";
@@ -93,9 +92,9 @@ export function TilsagnForm(props: Props) {
               <VStack gap="space-24">
                 <TextField
                   size="small"
-                  label="Tilsagnstype"
                   readOnly
-                  value={avtaletekster.tilsagn.type(tilsagnstype)}
+                  label={tilsagnTekster.type.label}
+                  value={tilsagnTekster.type.beskrivelse(tilsagnstype)}
                 />
                 {tilsagnstype === TilsagnType.INVESTERING && <InfomeldingOmInvesteringsTilsagn />}
                 <Suspense fallback={<Loader size="small" />}>

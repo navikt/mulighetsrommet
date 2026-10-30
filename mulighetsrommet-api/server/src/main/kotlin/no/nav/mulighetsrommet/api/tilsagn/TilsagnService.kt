@@ -80,6 +80,12 @@ class TilsagnService(
     fun upsertInTx(request: TilsagnRequest, agent: Agent): Either<TilsagnError, Tilsagn> = with(tx) {
         requireNotNull(request.id) { "id mangler" }
 
+        if (request.type == TilsagnType.TILSKUDD_TIL_OPPLAERING && agent != Tiltaksadministrasjon) {
+            return TilsagnError.Valideringsfeil(
+                FieldError.of("Tilskudd til opplæring kan ikke opprettes manuelt", TilsagnRequest::type).nel(),
+            ).left()
+        }
+
         val gjennomforing = queries.gjennomforing.getGjennomforingTiltaksadministrasjon(request.gjennomforingId)
         if (!kanOppretteTilsagn(agent, gjennomforing)) {
             val message = when (agent) {
@@ -729,7 +735,8 @@ class TilsagnService(
             bestillingsnummer = Bestillingsnummer(tilsagn.bestilling.bestillingsnummer),
             tilskuddstype = when (tilsagn.type) {
                 TilsagnType.INVESTERING -> Tilskuddstype.TILTAK_INVESTERINGER
-                else -> Tilskuddstype.TILTAK_DRIFTSTILSKUDD
+                TilsagnType.TILSKUDD_TIL_OPPLAERING -> Tilskuddstype.TILTAK_OPPLAERING_TILSKUDD
+                TilsagnType.TILSAGN, TilsagnType.EKSTRATILSAGN -> Tilskuddstype.TILTAK_DRIFTSTILSKUDD
             },
             tiltakskode = gjennomforing.tiltakstype.tiltakskode,
             arrangor = arrangor,

@@ -400,8 +400,9 @@ function UtbetalingLinjeView({
 function tilsagnType(tilskuddstype: Tilskuddstype): TilsagnType {
   switch (tilskuddstype) {
     case Tilskuddstype.TILTAK_DRIFTSTILSKUDD:
-    case Tilskuddstype.TILTAK_OPPLAERING_TILSKUDD:
       return TilsagnType.EKSTRATILSAGN;
+    case Tilskuddstype.TILTAK_OPPLAERING_TILSKUDD:
+      return TilsagnType.TILSKUDD_TIL_OPPLAERING;
     case Tilskuddstype.TILTAK_INVESTERINGER:
       return TilsagnType.INVESTERING;
   }

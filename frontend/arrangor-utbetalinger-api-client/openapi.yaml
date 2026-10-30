@@ -1129,6 +1129,7 @@ components:
       - TILSAGN
       - EKSTRATILSAGN
       - INVESTERING
+      - TILSKUDD_TIL_OPPLAERING
     Periode:
       type: object
       properties:
