@@ -89,7 +89,6 @@ enum class Regnskapskonto {
     TILTAK_DRIFTSTILSKUDD,
     TILTAK_INVESTERINGER,
     TILTAK_OPPLAERING_TILSKUDD,
-    TILTAK_EKSPERTBISTAND,
 }
 
 enum class Artskonto {
