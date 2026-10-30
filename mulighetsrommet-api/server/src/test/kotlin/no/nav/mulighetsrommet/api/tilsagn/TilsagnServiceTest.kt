@@ -42,6 +42,7 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatusAarsak
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingLinjeDbo
+import no.nav.mulighetsrommet.api.utbetaling.model.Tilskuddstype
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
@@ -56,7 +57,6 @@ import no.nav.mulighetsrommet.validation.FieldError
 import no.nav.tiltak.okonomi.Bestillingsnummer
 import no.nav.tiltak.okonomi.OkonomiBestillingMelding
 import no.nav.tiltak.okonomi.OkonomiPart
-import no.nav.tiltak.okonomi.Tilskuddstype
 import java.time.LocalDate
 import java.util.UUID
 

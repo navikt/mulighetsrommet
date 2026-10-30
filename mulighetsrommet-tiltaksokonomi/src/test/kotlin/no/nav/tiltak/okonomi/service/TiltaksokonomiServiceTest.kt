@@ -40,9 +40,9 @@ import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
-import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Valuta
 import no.nav.tiltak.okonomi.AnnullerBestilling
+import no.nav.tiltak.okonomi.Artskonto
 import no.nav.tiltak.okonomi.BestillingStatus
 import no.nav.tiltak.okonomi.BestillingStatusType
 import no.nav.tiltak.okonomi.Bestillingsnummer
@@ -56,7 +56,7 @@ import no.nav.tiltak.okonomi.OkonomiFagsystem
 import no.nav.tiltak.okonomi.OkonomiPart
 import no.nav.tiltak.okonomi.OpprettBestilling
 import no.nav.tiltak.okonomi.OpprettFaktura
-import no.nav.tiltak.okonomi.Tilskuddstype
+import no.nav.tiltak.okonomi.Regnskapskonto
 import no.nav.tiltak.okonomi.databaseConfig
 import no.nav.tiltak.okonomi.db.OkonomiDatabase
 import no.nav.tiltak.okonomi.db.QueryContext
@@ -860,8 +860,8 @@ private fun oebsClient(mockEngine: MockEngine): OebsPoApClient {
 private fun initializeData(db: OkonomiDatabase) = db.session {
     queries.kontering.insertKontering(
         OebsKontering(
-            tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
-            tiltakskode = Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
+            regnskapskonto = Regnskapskonto.TILTAK_DRIFTSTILSKUDD,
+            artskonto = Artskonto.ARBEIDSFORBEREDENDE_TRENING,
             periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2099, 1, 1)),
             statligRegnskapskonto = "12345678901",
             statligArtskonto = "23456789012",
@@ -874,8 +874,8 @@ private fun createOpprettBestilling(
     organisasjonsnummer: Organisasjonsnummer? = null,
 ) = OpprettBestilling(
     bestillingsnummer = bestillingsnummer,
-    tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
-    tiltakskode = Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
+    regnskapskonto = Regnskapskonto.TILTAK_DRIFTSTILSKUDD,
+    artskonto = Artskonto.ARBEIDSFORBEREDENDE_TRENING,
     arrangor = OpprettBestilling.Arrangor.Norsk(organisasjonsnummer ?: Organisasjonsnummer("234567891")),
     avtalenummer = null,
     belop = 1000,
@@ -893,7 +893,8 @@ private fun createBestilling(
     status: BestillingStatusType = BestillingStatusType.SENDT,
 ): Bestilling {
     return Bestilling(
-        tiltakskode = Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
+        regnskapskonto = Regnskapskonto.TILTAK_DRIFTSTILSKUDD,
+        artskonto = Artskonto.ARBEIDSFORBEREDENDE_TRENING,
         arrangorHovedenhet = Organisasjonsnummer("234567891"),
         arrangorUnderenhet = Organisasjonsnummer("123456789"),
         kostnadssted = NavEnhetNummer("0400"),

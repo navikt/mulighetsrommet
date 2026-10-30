@@ -6,6 +6,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingRequest
 import no.nav.mulighetsrommet.api.utbetaling.api.ValutaBelopRequest
+import no.nav.mulighetsrommet.api.utbetaling.model.Tilskuddstype
 import no.nav.mulighetsrommet.api.utbetaling.model.UpsertUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
 import no.nav.mulighetsrommet.model.JournalpostId
@@ -13,7 +14,6 @@ import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.model.ValutaBelop
 import no.nav.mulighetsrommet.validation.FieldError
-import no.nav.tiltak.okonomi.Tilskuddstype
 import java.time.LocalDate
 import java.util.UUID
 

@@ -43,6 +43,7 @@ import no.nav.mulighetsrommet.api.utbetaling.model.PrisPerHeleUkeBeregning
 import no.nav.mulighetsrommet.api.utbetaling.model.PrisPerManedBeregning
 import no.nav.mulighetsrommet.api.utbetaling.model.PrisPerUkeBeregning
 import no.nav.mulighetsrommet.api.utbetaling.model.SatsPeriode
+import no.nav.mulighetsrommet.api.utbetaling.model.Tilskuddstype
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerHeleUke
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerManed
@@ -60,7 +61,6 @@ import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.NOK
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
-import no.nav.tiltak.okonomi.Tilskuddstype
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime

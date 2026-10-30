@@ -9,6 +9,7 @@ import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.tiltak.okonomi.BestillingStatusType
 import no.nav.tiltak.okonomi.OkonomiFagsystem
 import no.nav.tiltak.okonomi.OkonomiPart
+import no.nav.tiltak.okonomi.Regnskapskonto
 import no.nav.tiltak.okonomi.databaseConfig
 import no.nav.tiltak.okonomi.model.Bestilling
 import no.nav.tiltak.okonomi.test.Fixtures
@@ -45,6 +46,18 @@ class BestillingQueriesTest : FunSpec({
             queries.getByBestillingsnummer(bestillingsnummer).shouldNotBeNull().should {
                 it.status shouldBe BestillingStatusType.ANNULLERT
             }
+        }
+    }
+
+    test("bevarer regnskapskonto for investering ved lagring og uthenting") {
+        database.runAndRollback { session ->
+            val queries = BestillingQueries(session)
+            val investering = bestilling.copy(regnskapskonto = Regnskapskonto.TILTAK_INVESTERINGER)
+
+            queries.insertBestilling(investering)
+
+            queries.getByBestillingsnummer(bestillingsnummer) shouldBe investering
+            queries.getNotAvstemt() shouldBe listOf(investering)
         }
     }
 

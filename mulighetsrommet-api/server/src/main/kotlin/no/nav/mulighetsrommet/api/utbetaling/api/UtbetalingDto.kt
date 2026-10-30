@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.utbetaling.api
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollDto
 import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsinformasjon
+import no.nav.mulighetsrommet.api.utbetaling.model.Tilskuddstype
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinje
 import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskDato
@@ -11,7 +12,6 @@ import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.ValutaBelop
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
-import no.nav.tiltak.okonomi.Tilskuddstype
 import java.time.LocalDate
 import java.util.UUID
 

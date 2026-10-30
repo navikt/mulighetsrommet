@@ -6,6 +6,7 @@ import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.decodeFromJsonElement
+import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 
 /**
@@ -40,9 +41,21 @@ private fun JsonElement.migrateLegacyTypeDiscriminators(): JsonElement = when (t
     else -> this
 }
 
+private fun JsonElement.migrateLegacyBestillingFields(): JsonElement {
+    val message = jsonObject
+    if (message["type"]?.jsonPrimitive?.content != "BESTILLING") return this
+
+    val payload = message.getValue("payload").jsonObject.toMutableMap()
+    payload.remove("tilskuddstype")?.let { payload.putIfAbsent("regnskapskonto", it) }
+    payload.remove("tiltakskode")?.let { payload.putIfAbsent("artskonto", it) }
+    return JsonObject(message + ("payload" to JsonObject(payload)))
+}
+
 /**
  * Dekoder en [OkonomiBestillingMelding] fra "bestillinger"-topicet. Oversetter gammelt format til nytt.
  *
  * TODO: fjern denne oversettelsen når det ikke lenger finnes meldinger i det gamle formatet på "bestillinger"-topicet.
  */
-fun decodeOkonomiBestillingMelding(message: JsonElement): OkonomiBestillingMelding = bestillingMeldingJson.decodeFromJsonElement(message.migrateLegacyTypeDiscriminators())
+fun decodeOkonomiBestillingMelding(message: JsonElement): OkonomiBestillingMelding = bestillingMeldingJson.decodeFromJsonElement(
+    message.migrateLegacyTypeDiscriminators().migrateLegacyBestillingFields(),
+)

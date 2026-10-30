@@ -6,7 +6,6 @@ import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.domain.tiltak.PrismodellType
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.ValutaBelop
-import no.nav.tiltak.okonomi.Tilskuddstype
 import java.time.DayOfWeek
 import java.time.temporal.TemporalAdjusters.nextOrSame
 import java.time.temporal.TemporalAdjusters.previousOrSame

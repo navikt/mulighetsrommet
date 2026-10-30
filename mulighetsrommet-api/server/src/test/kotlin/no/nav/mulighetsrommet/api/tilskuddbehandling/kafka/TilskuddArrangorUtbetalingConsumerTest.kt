@@ -29,6 +29,7 @@ import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddVedtakRequest
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
 import no.nav.mulighetsrommet.api.tilskuddbehandling.task.JournalforVedtaksbrev
 import no.nav.mulighetsrommet.api.utbetaling.api.ValutaBelopRequest
+import no.nav.mulighetsrommet.api.utbetaling.model.Tilskuddstype
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.api.utbetaling.service.UtbetalingService
@@ -38,7 +39,6 @@ import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Valuta
-import no.nav.tiltak.okonomi.Tilskuddstype
 import java.time.Instant
 import java.time.LocalDate
 import java.util.UUID

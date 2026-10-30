@@ -13,14 +13,14 @@ import no.nav.common.kafka.consumer.feilhandtering.KafkaConsumerRepository
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
-import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Valuta
+import no.nav.tiltak.okonomi.Artskonto
 import no.nav.tiltak.okonomi.Bestillingsnummer
 import no.nav.tiltak.okonomi.OkonomiBestillingMelding
 import no.nav.tiltak.okonomi.OkonomiFagsystem
 import no.nav.tiltak.okonomi.OkonomiPart
 import no.nav.tiltak.okonomi.OpprettBestilling
-import no.nav.tiltak.okonomi.Tilskuddstype
+import no.nav.tiltak.okonomi.Regnskapskonto
 import no.nav.tiltak.okonomi.model.Bestilling
 import no.nav.tiltak.okonomi.service.TiltaksokonomiService
 import java.time.Instant
@@ -33,12 +33,12 @@ class TiltaksadministrasjonBestillingConsumerTest : FunSpec({
 
     fun opprettBestillingMelding(
         bestillingsnummer: String,
-        tiltakskode: Tiltakskode = Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
+        artskonto: Artskonto = Artskonto.ARBEIDSFORBEREDENDE_TRENING,
     ): OkonomiBestillingMelding.Bestilling = OkonomiBestillingMelding.Bestilling(
         OpprettBestilling(
             bestillingsnummer = Bestillingsnummer(bestillingsnummer),
-            tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
-            tiltakskode = tiltakskode,
+            regnskapskonto = Regnskapskonto.TILTAK_DRIFTSTILSKUDD,
+            artskonto = artskonto,
             arrangor = OpprettBestilling.Arrangor.Norsk(Organisasjonsnummer("234567891")),
             avtalenummer = null,
             belop = 1000,
@@ -65,16 +65,16 @@ class TiltaksadministrasjonBestillingConsumerTest : FunSpec({
         coVerify(exactly = 0) { okonomi.opprettBestilling(any(), any()) }
     }
 
-    test("avviser bestilling-melding når tiltakskode er EKSPERTBISTAND") {
+    test("avviser bestilling-melding når artskonto er EKSPERTBISTAND") {
         val melding = opprettBestillingMelding(
             bestillingsnummer = "A-1-1",
-            tiltakskode = Tiltakskode.EKSPERTBISTAND,
+            artskonto = Artskonto.EKSPERTBISTAND,
         )
 
         val exception = shouldThrow<IllegalArgumentException> {
             consumer.consume("A-1-1", toJson(melding))
         }
-        exception.message shouldBe "Ugyldig tiltakskode EKSPERTBISTAND fra Tiltaksadministrasjon"
+        exception.message shouldBe "Ugyldig artskonto EKSPERTBISTAND fra Tiltaksadministrasjon"
 
         coVerify(exactly = 0) { okonomi.opprettBestilling(any(), any()) }
     }
