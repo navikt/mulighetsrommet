@@ -77,8 +77,8 @@ class TiltaksokonomiService(
 
         val kontering = queries.kontering
             .getOebsKontering(
-                tilskuddstype = opprettBestilling.tilskuddstype,
-                tiltakskode = opprettBestilling.tiltakskode,
+                regnskapskonto = opprettBestilling.regnskapskonto,
+                artskonto = opprettBestilling.artskonto,
                 periode = opprettBestilling.periode,
             )
             ?: return TiltaksokonomiError.OpprettBestilling("Kontering for bestilling $bestillingsnummer mangler")

@@ -1,6 +1,6 @@
 package no.nav.mulighetsrommet.api.tilsagn.model
 
-import no.nav.tiltak.okonomi.Tilskuddstype
+import no.nav.mulighetsrommet.api.utbetaling.model.Tilskuddstype
 
 enum class TilsagnType {
     TILSAGN,

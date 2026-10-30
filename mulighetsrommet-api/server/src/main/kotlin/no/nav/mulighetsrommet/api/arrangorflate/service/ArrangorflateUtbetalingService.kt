@@ -14,6 +14,7 @@ import no.nav.mulighetsrommet.api.arrangorflate.model.AvtaltPrisPerTimeOppfolgin
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
 import no.nav.mulighetsrommet.api.utbetaling.model.AutomatisertUtbetalingResult
+import no.nav.mulighetsrommet.api.utbetaling.model.Tilskuddstype
 import no.nav.mulighetsrommet.api.utbetaling.model.UpsertUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregning
@@ -38,7 +39,6 @@ import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.validation.FieldError
 import no.nav.mulighetsrommet.validation.Validated
 import no.nav.mulighetsrommet.validation.validation
-import no.nav.tiltak.okonomi.Tilskuddstype
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.time.LocalDate

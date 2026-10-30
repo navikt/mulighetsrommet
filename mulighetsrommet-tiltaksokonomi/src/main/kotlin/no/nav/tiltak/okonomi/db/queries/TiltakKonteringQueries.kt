@@ -5,8 +5,8 @@ import kotliquery.queryOf
 import no.nav.mulighetsrommet.database.datatypes.periode
 import no.nav.mulighetsrommet.database.datatypes.toDaterange
 import no.nav.mulighetsrommet.model.Periode
-import no.nav.mulighetsrommet.model.Tiltakskode
-import no.nav.tiltak.okonomi.Tilskuddstype
+import no.nav.tiltak.okonomi.Artskonto
+import no.nav.tiltak.okonomi.Regnskapskonto
 import no.nav.tiltak.okonomi.oebs.OebsKontering
 import org.intellij.lang.annotations.Language
 
@@ -15,13 +15,13 @@ class TiltakKonteringQueries(private val session: Session) {
     fun insertKontering(kontering: OebsKontering) {
         @Language("PostgreSQL")
         val query = """
-            insert into tiltak_kontering_oebs (tilskuddstype, tiltakskode, periode, statlig_regnskapskonto, statlig_artskonto)
-            values (:tilskuddstype::tilskuddstype, :tiltakskode, :periode::daterange, :statlig_regnskapskonto, :statlig_artskonto)
+            insert into tiltak_kontering_oebs (regnskapskonto, artskonto, periode, statlig_regnskapskonto, statlig_artskonto)
+            values (:regnskapskonto::regnskapskonto, :artskonto, :periode::daterange, :statlig_regnskapskonto, :statlig_artskonto)
         """.trimIndent()
 
         val params = mapOf(
-            "tilskuddstype" to kontering.tilskuddstype.name,
-            "tiltakskode" to kontering.tiltakskode.name,
+            "regnskapskonto" to kontering.regnskapskonto.name,
+            "artskonto" to kontering.artskonto.name,
             "periode" to kontering.periode.toDaterange(),
             "statlig_regnskapskonto" to kontering.statligRegnskapskonto,
             "statlig_artskonto" to kontering.statligArtskonto,
@@ -31,29 +31,29 @@ class TiltakKonteringQueries(private val session: Session) {
     }
 
     fun getOebsKontering(
-        tilskuddstype: Tilskuddstype,
-        tiltakskode: Tiltakskode,
+        regnskapskonto: Regnskapskonto,
+        artskonto: Artskonto,
         periode: Periode,
     ): OebsKontering? {
         @Language("PostgreSQL")
         val query = """
-            select tilskuddstype, tiltakskode, periode, statlig_regnskapskonto, statlig_artskonto
+            select regnskapskonto, artskonto, periode, statlig_regnskapskonto, statlig_artskonto
             from tiltak_kontering_oebs
-            where tilskuddstype = :tilskuddstype
-              and tiltakskode = :tiltakskode
+            where regnskapskonto = :regnskapskonto
+              and artskonto = :artskonto
               and periode @> :periode::daterange
         """.trimIndent()
 
         val params = mapOf(
-            "tilskuddstype" to tilskuddstype.name,
-            "tiltakskode" to tiltakskode.name,
+            "regnskapskonto" to regnskapskonto.name,
+            "artskonto" to artskonto.name,
             "periode" to periode.toDaterange(),
         )
 
         return session.single(queryOf(query, params)) {
             OebsKontering(
-                tilskuddstype = Tilskuddstype.valueOf(it.string("tilskuddstype")),
-                tiltakskode = Tiltakskode.valueOf(it.string("tiltakskode")),
+                regnskapskonto = Regnskapskonto.valueOf(it.string("regnskapskonto")),
+                artskonto = Artskonto.valueOf(it.string("artskonto")),
                 periode = it.periode("periode"),
                 statligRegnskapskonto = it.string("statlig_regnskapskonto"),
                 statligArtskonto = it.string("statlig_artskonto"),

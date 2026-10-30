@@ -25,6 +25,7 @@ import no.nav.mulighetsrommet.api.domain.navansatt.OkonomiBeslutningContext
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.Totrinnskontroll
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
+import no.nav.mulighetsrommet.api.tilsagn.mapper.TilsagnOkonomiMapper
 import no.nav.mulighetsrommet.api.tilsagn.model.BeregnTilsagnRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.GyldigTilsagnPeriode
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
@@ -61,7 +62,6 @@ import no.nav.tiltak.okonomi.Bestillingsnummer
 import no.nav.tiltak.okonomi.GjorOppBestilling
 import no.nav.tiltak.okonomi.OkonomiBestillingMelding
 import no.nav.tiltak.okonomi.OpprettBestilling
-import no.nav.tiltak.okonomi.Tilskuddstype
 import no.nav.tiltak.okonomi.toOkonomiPart
 import java.time.Instant
 import java.time.LocalDateTime
@@ -733,12 +733,8 @@ class TilsagnService(
 
         val bestilling = OpprettBestilling(
             bestillingsnummer = Bestillingsnummer(tilsagn.bestilling.bestillingsnummer),
-            tilskuddstype = when (tilsagn.type) {
-                TilsagnType.INVESTERING -> Tilskuddstype.TILTAK_INVESTERINGER
-                TilsagnType.TILSKUDD_TIL_OPPLAERING -> Tilskuddstype.TILTAK_OPPLAERING_TILSKUDD
-                TilsagnType.TILSAGN, TilsagnType.EKSTRATILSAGN -> Tilskuddstype.TILTAK_DRIFTSTILSKUDD
-            },
-            tiltakskode = gjennomforing.tiltakstype.tiltakskode,
+            regnskapskonto = TilsagnOkonomiMapper.toRegnskapskonto(tilsagn.type),
+            artskonto = TilsagnOkonomiMapper.toArtskonto(gjennomforing.tiltakstype.tiltakskode),
             arrangor = arrangor,
             kostnadssted = tilsagn.kostnadssted.enhetsnummer,
             avtalenummer = avtale?.sakarkivNummer?.value,

@@ -4,8 +4,8 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.model.Periode
-import no.nav.mulighetsrommet.model.Tiltakskode
-import no.nav.tiltak.okonomi.Tilskuddstype
+import no.nav.tiltak.okonomi.Artskonto
+import no.nav.tiltak.okonomi.Regnskapskonto
 import no.nav.tiltak.okonomi.test.Fixtures
 import java.time.LocalDate
 
@@ -17,8 +17,8 @@ class OebsMeldingMapperTest : FunSpec({
 
     context("toOebsBestillingMelding") {
         val kontering = OebsKontering(
-            tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
-            tiltakskode = Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
+            regnskapskonto = Regnskapskonto.TILTAK_DRIFTSTILSKUDD,
+            artskonto = Artskonto.ARBEIDSFORBEREDENDE_TRENING,
             periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2026, 1, 1)),
             statligRegnskapskonto = "12345678901",
             statligArtskonto = "23456789012",

@@ -15,43 +15,42 @@ import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
-import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.serializers.InstantSerializer
 import java.time.Instant
 
 @Serializable
-sealed class OkonomiBestillingMelding {
+sealed interface OkonomiBestillingMelding {
     @Serializable
     @SerialName("BESTILLING")
     data class Bestilling(
         val payload: OpprettBestilling,
-    ) : OkonomiBestillingMelding()
+    ) : OkonomiBestillingMelding
 
     @Serializable
     @SerialName("ANNULLERING")
     data class Annullering(
         val payload: AnnullerBestilling,
-    ) : OkonomiBestillingMelding()
+    ) : OkonomiBestillingMelding
 
     @Serializable
     @SerialName("FAKTURA")
     data class Faktura(
         val payload: OpprettFaktura,
-    ) : OkonomiBestillingMelding()
+    ) : OkonomiBestillingMelding
 
     @Serializable
     @SerialName("GJOR_OPP_BESTILLING")
     data class GjorOppBestilling(
         val payload: no.nav.tiltak.okonomi.GjorOppBestilling,
-    ) : OkonomiBestillingMelding()
+    ) : OkonomiBestillingMelding
 }
 
 @Serializable
 data class OpprettBestilling(
     val bestillingsnummer: Bestillingsnummer,
-    val tilskuddstype: Tilskuddstype,
-    val tiltakskode: Tiltakskode,
+    val regnskapskonto: Regnskapskonto,
+    val artskonto: Artskonto,
     val arrangor: Arrangor,
     val kostnadssted: NavEnhetNummer,
     val avtalenummer: String?,
@@ -86,10 +85,32 @@ data class OpprettBestilling(
     }
 }
 
-enum class Tilskuddstype {
+enum class Regnskapskonto {
     TILTAK_DRIFTSTILSKUDD,
     TILTAK_INVESTERINGER,
     TILTAK_OPPLAERING_TILSKUDD,
+}
+
+enum class Artskonto {
+    ARBEIDSRETTET_REHABILITERING,
+    AVKLARING,
+    DIGITALT_OPPFOLGINGSTILTAK,
+    JOBBKLUBB,
+    OPPFOLGING,
+    ARBEIDSFORBEREDENDE_TRENING,
+    VARIG_TILRETTELAGT_ARBEID_SKJERMET,
+    TILRETTELAGT_ARBEID_ORDINAER,
+    ARBEIDSMARKEDSOPPLAERING,
+    ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
+    ENKELTPLASS_FAG_OG_YRKESOPPLAERING,
+    FAG_OG_YRKESOPPLAERING,
+    GRUPPE_ARBEIDSMARKEDSOPPLAERING,
+    GRUPPE_FAG_OG_YRKESOPPLAERING,
+    HOYERE_UTDANNING,
+    HOYERE_YRKESFAGLIG_UTDANNING,
+    NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV,
+    STUDIESPESIALISERING,
+    EKSPERTBISTAND,
 }
 
 @Serializable
