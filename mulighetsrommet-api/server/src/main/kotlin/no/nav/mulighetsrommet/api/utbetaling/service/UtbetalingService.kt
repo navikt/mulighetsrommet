@@ -346,7 +346,7 @@ class UtbetalingService(
         val relevanteTilsagn = queries.tilsagn.getAll(
             gjennomforingId = utbetaling.gjennomforing.id,
             statuser = listOf(TilsagnStatus.GODKJENT),
-            typer = listOf(TilsagnType.TILSAGN, TilsagnType.EKSTRATILSAGN),
+            typer = TilsagnType.fromTilskuddstype(utbetaling.tilskuddstype),
             periodeIntersectsWith = utbetaling.periode,
         )
         if (relevanteTilsagn.size != 1) {

@@ -99,7 +99,7 @@ class TilskuddArrangorUtbetalingConsumer(
         return tilsagnService.upsertInTx(
             TilsagnRequest(
                 id = UUID.randomUUID(),
-                type = TilsagnType.TILSAGN,
+                type = TilsagnType.TILSKUDD_TIL_OPPLAERING,
                 gjennomforingId = gjennomforingId,
                 kostnadssted = kostnadssted,
                 beregning = TilsagnBeregningRequest(

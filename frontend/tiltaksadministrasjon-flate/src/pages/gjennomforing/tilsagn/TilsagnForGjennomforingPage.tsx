@@ -1,4 +1,3 @@
-import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { KnapperadContainer } from "@/layouts/KnapperadContainer";
 import { GjennomforingHandling, TilsagnType } from "@tiltaksadministrasjon/api-client";
 import { useGjennomforingHandlinger } from "@/api/gjennomforing/useGjennomforing";
@@ -6,6 +5,7 @@ import { useTilsagnTableData } from "@/pages/gjennomforing/tilsagn/detaljer/tils
 import { TilsagnTable } from "@/pages/gjennomforing/tilsagn/tabell/TilsagnTable";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
 import { Handlinger } from "@/components/handlinger/Handlinger";
+import { tilsagnTekster } from "@/components/tilsagn/TilsagnTekster";
 
 export function TilsagnForGjennomforingPage() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
@@ -21,17 +21,17 @@ export function TilsagnForGjennomforingPage() {
             {
               items: [
                 {
-                  label: `Opprett ${avtaletekster.tilsagn.type(TilsagnType.TILSAGN).toLowerCase()}`,
+                  label: `Opprett ${tilsagnTekster.type.beskrivelse(TilsagnType.TILSAGN).toLowerCase()}`,
                   href: `opprett-tilsagn?type=${TilsagnType.TILSAGN}`,
                   handling: GjennomforingHandling.OPPRETT_TILSAGN,
                 },
                 {
-                  label: `Opprett ${avtaletekster.tilsagn.type(TilsagnType.EKSTRATILSAGN).toLowerCase()}`,
+                  label: `Opprett ${tilsagnTekster.type.beskrivelse(TilsagnType.EKSTRATILSAGN).toLowerCase()}`,
                   href: `opprett-tilsagn?type=${TilsagnType.EKSTRATILSAGN}`,
                   handling: GjennomforingHandling.OPPRETT_EKSTRATILSAGN,
                 },
                 {
-                  label: `Opprett ${avtaletekster.tilsagn.type(TilsagnType.INVESTERING).toLowerCase()}`,
+                  label: `Opprett ${tilsagnTekster.type.beskrivelse(TilsagnType.INVESTERING).toLowerCase()}`,
                   href: `opprett-tilsagn?type=${TilsagnType.INVESTERING}`,
                   handling: GjennomforingHandling.OPPRETT_TILSAGN_FOR_INVESTERINGER,
                 },

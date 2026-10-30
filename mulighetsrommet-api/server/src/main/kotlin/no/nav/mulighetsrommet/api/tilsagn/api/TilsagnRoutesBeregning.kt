@@ -133,6 +133,9 @@ fun Route.tilsagnRoutesBeregning() {
                 TilsagnType.INVESTERING, TilsagnType.EKSTRATILSAGN -> db.session {
                     resolveEkstraTilsagnInvesteringDefaults(request, gjennomforing)
                 }
+
+                TilsagnType.TILSKUDD_TIL_OPPLAERING ->
+                    throw StatusException(HttpStatusCode.BadRequest, "Tilskudd til opplæring kan ikke opprettes manuelt")
             }
 
             call.respond(HttpStatusCode.OK, defaults)
