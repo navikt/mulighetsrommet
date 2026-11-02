@@ -61,7 +61,7 @@ export const ControlledDateInput = ({
   });
 
   return (
-    <DatePicker {...datepickerProps} dropdownCaption>
+    <DatePicker {...datepickerProps} fixedWeeks dropdownCaption>
       <DatePicker.Input
         {...inputProps}
         error={ugyldigDatoError || error}
