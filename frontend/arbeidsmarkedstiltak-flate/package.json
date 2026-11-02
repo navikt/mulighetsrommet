@@ -50,7 +50,7 @@
     "react-dom": "19.2.8",
     "react-error-boundary": "6.1.6",
     "react-markdown": "10.1.0",
-    "react-router": "8.4.0",
+    "react-router": "8.5.0",
     "tailwindcss": "4.3.3",
     "uuid": "14.0.3",
     "zod": "4.6.7"
