@@ -21,7 +21,7 @@
     "date-fns": "4.4.0",
     "date-fns-tz": "^3.2.0",
     "react-error-boundary": "6.1.6",
-    "react-hook-form": "7.90.0",
+    "react-hook-form": "7.91.0",
     "zod": "4.6.7"
   },
   "peerDependencies": {
