@@ -1,3 +1,23 @@
+resource "google_bigquery_table_iam_member" "mr_api_views_all_users_data_viewer" {
+  for_each = {
+    tiltakstype_view                     = module.mr_api_tiltakstype_view.bigquery_view_id
+    avtale_view                          = module.mr_api_avtale_view.bigquery_view_id
+    gjennomforing_view                   = module.mr_api_gjennomforing_view.bigquery_view_id
+    gjennomforing_nav_enhet_view         = module.mr_api_gjennomforing_nav_enhet_view.bigquery_view_id
+    avtale_nav_enhet_view                = module.mr_api_avtale_nav_enhet_view.bigquery_view_id
+    del_med_bruker_view                  = module.mr_api_del_med_bruker_view.bigquery_view_id
+    utdanningsprogram_view               = module.mr_api_utdanningsprogram_view.bigquery_view_id
+    utdanning_view                       = module.mr_api_utdanning_view.bigquery_view_id
+    gjennomforing_utdanningsprogram_view = module.mr_api_gjennomforing_utdanningsprogram_view.bigquery_view_id
+  }
+
+  project    = var.gcp_project["project"]
+  dataset_id = module.mr_api_datastream.dataset_id
+  table_id   = each.value
+  role       = "roles/bigquery.dataViewer"
+  member     = "group:all-users@nav.no"
+}
+
 module "mr_api_tiltakstype_view" {
   view_id             = "tiltakstype_view"
   source              = "../modules/google-bigquery-view"

@@ -152,6 +152,64 @@ module "mr_api_datastream" {
         },
         { table = "tilsagn_type" },
         { table = "tilsagn_status_type" },
+        { table = "tilskudd_behandling",
+          columns = [
+            "id",
+            "gjennomforing_id",
+            "status",
+            "type",
+            "behandlende_enhet",
+          ]
+        },
+        {
+          table = "tilskudd_opplaering",
+          columns = [
+            "id",
+            "navn",
+            "kode",
+            "created_at",
+            "updated_at",
+          ]
+        },
+        {
+          table = "tilskudd_vedtak",
+          columnds = [
+            "id",
+            "tilskudd_id",
+            "tilskudd_behandling_id",
+            "lopenummer",
+            "kostnadssted",
+            "datastream_periode_start",
+            "datastream_periode_slutt",
+            "soknad_dato",
+            "soknad_belop",
+            "soknad_valuta",
+            "vedtak_resultat",
+            "utbetaling_mottaker",
+            "belop",
+            "valuta",
+            "utbetaling_id",
+            "vedtak_journalfort_tidspunkt",
+            "vedtak_distribuert_tidspunkt",
+            "bruker_utbetaling_type",
+          ]
+        },
+        {
+          table = "bruker_utbetaling"
+          columns = [
+            "id",
+            "tilskudd_vedtak_id",
+            "sak_id",
+            "behandling_id",
+            "belop",
+            "tilskuddstype",
+            "tiltakskode",
+            "hel_ved_status",
+            "besluttet_tidspunkt",
+            "created_at",
+            "transaksjons_dato"
+          ]
+        },
         {
           table = "utbetaling",
           columns = [

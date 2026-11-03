@@ -1,6 +1,6 @@
 variable "gcp_project" {
   description = "GCP project and region defaults."
-  type = map(string)
+  type        = map(string)
 }
 
 variable "cloud_sql_port" {
