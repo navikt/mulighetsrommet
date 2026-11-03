@@ -166,4 +166,4 @@ apache-poi-ooxml = "org.apache.poi:poi-ooxml:6.0.0"
 testcontainers = { module = "org.testcontainers:testcontainers", version.ref = "testcontainers" }
 testcontainers-kafka = { module = "org.testcontainers:testcontainers-kafka", version.ref = "testcontainers" }
 
-unleash = "io.getunleash:unleash-client-java:12.3.0"
+unleash = "io.getunleash:unleash-client-java:12.3.1"
