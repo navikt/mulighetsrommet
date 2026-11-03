@@ -5,9 +5,9 @@
 at.yawk.lz4:lz4-java:1.10.2=runtimeClasspath,testRuntimeClasspath
 biz.aQute.bnd:biz.aQute.bnd.annotation:7.1.0=compileClasspath,testCompileClasspath
 ch.qos.logback:logback-classic:1.3.16=ktlint
-ch.qos.logback:logback-classic:1.6.5=compileClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
+ch.qos.logback:logback-classic:1.6.6=compileClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
 ch.qos.logback:logback-core:1.3.16=ktlint
-ch.qos.logback:logback-core:1.6.5=compileClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
+ch.qos.logback:logback-core:1.6.6=compileClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
 co.touchlab:stately-concurrency-jvm:2.1.0=runtimeClasspath,testRuntimeClasspath
 co.touchlab:stately-concurrency:2.1.0=runtimeClasspath,testRuntimeClasspath
 co.touchlab:stately-concurrent-collections-jvm:2.1.0=runtimeClasspath,testRuntimeClasspath
