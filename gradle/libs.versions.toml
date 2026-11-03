@@ -1,6 +1,6 @@
 [versions]
 common-java-modules = "4.2026.09.01_09.49-e681e09ca089"
-flyway = "13.10.3"
+flyway = "13.11.1"
 jackson2 = "2.22.4"
 jackson3 = "3.2.4"
 koin-bom = "4.2.2"
