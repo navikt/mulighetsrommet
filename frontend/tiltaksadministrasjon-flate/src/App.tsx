@@ -10,6 +10,7 @@ import {
   Outlet,
   RouteObject,
   RouterProvider,
+  useLocation,
 } from "react-router";
 import { ForsidePage } from "./pages/forside/ForsidePage";
 import { AdministratorHeader } from "./components/administrator/AdministratorHeader";
@@ -33,7 +34,7 @@ import { TiltakstypeInformasjonForVeilederePage } from "./pages/tiltakstyper/Til
 import { TiltakstypePageRedigerInformasjonForVeiledere } from "./pages/tiltakstyper/TiltakstypePageRedigerInformasjonForVeiledere";
 import { TiltakstypeDeltakerRegistreringPage } from "./pages/tiltakstyper/TiltakstypeDeltakerRegistreringPage";
 import { TiltakstypePageRedigerDeltakerRegistrering } from "./pages/tiltakstyper/TiltakstypePageRedigerDeltakerRegistrering";
-import { Suspense } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { Laster } from "./components/laster/Laster";
 import { InlineErrorBoundary } from "./ErrorBoundary";
 import { UtbetalingDetaljerPage } from "./pages/gjennomforing/utbetaling/UtbetalingDetaljerPage";
@@ -69,6 +70,7 @@ import { TiltakBeskrivelseDetaljer } from "./pages/tiltak-beskrivelse/TiltakBesk
 import { TiltakBeskrivelseRedaksjoneltInnhold } from "./pages/tiltak-beskrivelse/TiltakBeskrivelseRedaksjoneltInnhold";
 import { RedigerTiltakBeskrivelsePage } from "./pages/tiltak-beskrivelse/RedigerTiltakBeskrivelsePage";
 import { APPLICATION_NAME } from "./constants";
+import { initializeInnblikk, trackInnblikkPageView } from "./sporing/innblikk";
 
 const head = createHead();
 
@@ -94,14 +96,23 @@ const SPORING_WEBSITE_ID = isProduction()
 
 const SPORING_DATA_DOMAINS = isProduction()
   ? "tiltaksadministrasjon.intern.nav.no, tiltaksadministrasjon.ansatt.nav.no"
-  : "tiltaksadministrasjon.intern.dev.nav.no";
+  : "tiltaksadministrasjon.intern.dev.nav.no, tiltaksadministrasjon.ansatt.dev.nav.no";
 
 export function App() {
-  const router = createBrowserRouter(routes);
+  const [router] = useState(() => {
+    initializeInnblikk(routes, window);
+    return createBrowserRouter(routes);
+  });
   return <RouterProvider router={router} />;
 }
 
 function AppLayout() {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    trackInnblikkPageView();
+  }, [pathname]);
+
   return (
     <UnheadProvider head={head}>
       <Head>
@@ -110,6 +121,9 @@ function AppLayout() {
           src={SPORING_SRC}
           data-website-id={SPORING_WEBSITE_ID}
           data-domains={SPORING_DATA_DOMAINS}
+          data-exclude-search="true"
+          data-do-not-track="true"
+          data-before-send="innblikkBeforeSend"
         />
       </Head>
       <Theme theme="light" hasBackground={false}>
