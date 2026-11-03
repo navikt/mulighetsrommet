@@ -10,7 +10,10 @@ import { PagineringContainer } from "@/components/paginering/PagineringContainer
 import { PagineringsOversikt } from "@/components/paginering/PagineringOversikt";
 import { Pagination } from "@navikt/ds-react";
 import { useFilterState } from "@/filter/useFilterState";
-import { tilsagnFilterStateAtom } from "@/pages/gjennomforing/tilsagn/filter";
+import {
+  tilsagnFilterStateAtom,
+  type TilsagnFilterType,
+} from "@/pages/gjennomforing/tilsagn/filter";
 import { TilToppenKnapp } from "@mr/frontend-common/components/tilToppenKnapp/TilToppenKnapp";
 import { ContentBox } from "@/layouts/ContentBox";
 import { ListSkeleton } from "@mr/frontend-common";
@@ -19,7 +22,9 @@ import { NullstillFilterKnapp } from "@mr/frontend-common/components/nullstillFi
 import { Suspense } from "react";
 import { TilsagnFilter } from "@/components/filter/TilsagnFilter";
 import { TilsagnFilterTags } from "@/components/filter/TilsagnFilterTags";
-import { tilsagnTekster } from "@/components/tilsagn/TilsagnTekster";
+import type { FilterKilde } from "@/sporing/useUmami";
+import { useFilterTracking } from "@/sporing/useFilterTracking";
+import { useKostnadsstedTracking } from "@/sporing/useKostnadsstedTracking";
 
 export function TilsagnForGjennomforingPage() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
@@ -27,8 +32,53 @@ export function TilsagnForGjennomforingPage() {
   const { filter, updateFilter, hasChanged, resetToDefault } =
     useFilterState(tilsagnFilterStateAtom);
   const { data: tilsagn } = useTilsagnTableData(gjennomforingId, filter.values);
+  const { logFilterEndret, logFilterpanelÅpnet } = useFilterTracking("tilsagn");
+  const { logKostnadsstederEndret } = useKostnadsstedTracking("tilsagn");
 
   const [filterOpen, setFilterOpen] = useState(false);
+
+  const logStatusEndringer = (
+    forrigeStatuser: TilsagnFilterType["statuser"],
+    nesteStatuser: TilsagnFilterType["statuser"],
+    kilde: FilterKilde,
+  ) => {
+    for (const status of new Set([...forrigeStatuser, ...nesteStatuser])) {
+      const varValgt = forrigeStatuser.includes(status);
+      const erValgt = nesteStatuser.includes(status);
+      if (varValgt !== erValgt) {
+        logFilterEndret({
+          kategori: "Status",
+          filternavn: status,
+          handling: erValgt ? "valgt" : "fjernet",
+          kilde,
+        });
+      }
+    }
+  };
+
+  const updateFilterWithTracking = (
+    values: Partial<TilsagnFilterType>,
+    kilde: FilterKilde = "enkeltvalg",
+  ) => {
+    const forrigeFilter = filter.values;
+    const nesteFilter = { ...forrigeFilter, ...values };
+    updateFilter(values);
+    logStatusEndringer(forrigeFilter.statuser, nesteFilter.statuser, kilde);
+  };
+
+  const handleResetFilter = () => {
+    const forrigeFilter = filter.values;
+    resetToDefault();
+    logStatusEndringer(forrigeFilter.statuser, [], "nullstill");
+    logKostnadsstederEndret(forrigeFilter.kostnadssteder, [], "nullstill");
+  };
+
+  const handleSetFilterOpen = (open: boolean) => {
+    setFilterOpen(open);
+    if (open) {
+      logFilterpanelÅpnet();
+    }
+  };
 
   return (
     <>
@@ -39,14 +89,14 @@ export function TilsagnForGjennomforingPage() {
             <TilsagnFilter
               filter={filter.values}
               tilgjengeligeKostnadssteder={tilsagn.kostnadssteder}
-              updateFilter={updateFilter}
+              updateFilter={updateFilterWithTracking}
             />
           }
-          nullstillFilterButton={<NullstillFilterKnapp onClick={resetToDefault} />}
+          nullstillFilterButton={<NullstillFilterKnapp onClick={handleResetFilter} />}
           tags={
             <TilsagnFilterTags
               filter={filter.values}
-              updateFilter={updateFilter}
+              updateFilter={updateFilterWithTracking}
               filterOpen={filterOpen}
             />
           }
@@ -85,7 +135,7 @@ export function TilsagnForGjennomforingPage() {
             </Suspense>
           }
           filterOpen={filterOpen}
-          setFilterOpen={setFilterOpen}
+          setFilterOpen={handleSetFilterOpen}
         />
       </ContentBox>
       <TilToppenKnapp />

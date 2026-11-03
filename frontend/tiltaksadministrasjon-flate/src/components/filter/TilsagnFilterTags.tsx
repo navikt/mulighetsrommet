@@ -4,17 +4,19 @@ import { TilsagnFilterType } from "@/pages/gjennomforing/tilsagn/filter";
 import { Chips } from "@navikt/ds-react/Chips";
 import { TILSAGN_STATUS_OPTIONS } from "@/utils/filterUtils";
 import { KostnadsstedFilterTag } from "./KostnadsstedFilterTag";
+import type { FilterKilde } from "@/sporing/useUmami";
+import type { TilsagnStatus } from "@tiltaksadministrasjon/api-client";
 
 interface Props {
   filter: TilsagnFilterType;
-  updateFilter: (values: Partial<TilsagnFilterType>) => void;
+  updateFilter: (values: Partial<TilsagnFilterType>, kilde?: FilterKilde) => void;
   filterOpen: boolean;
 }
 
 export function TilsagnFilterTags({ filter, updateFilter, filterOpen }: Props) {
-  const removeArrayItem = (key: keyof TilsagnFilterType, value: any) => {
+  const removeStatus = (status: TilsagnStatus) => {
     updateFilter({
-      [key]: addOrRemove(filter[key] as any[], value),
+      statuser: addOrRemove(filter.statuser, status),
     });
   };
 
@@ -25,10 +27,11 @@ export function TilsagnFilterTags({ filter, updateFilter, filterOpen }: Props) {
           <KostnadsstedFilterTag
             kostnadssteder={filter.kostnadssteder}
             onClose={() => updateFilter({ kostnadssteder: [] })}
+            sporingskontekst="tilsagn"
           />
         )}
         {filter.statuser.map((status) => (
-          <Chips.Removable key={status} onClick={() => removeArrayItem("statuser", status)}>
+          <Chips.Removable key={status} onClick={() => removeStatus(status)}>
             {TILSAGN_STATUS_OPTIONS.find((o) => status === o.value)?.label || status}
           </Chips.Removable>
         ))}

@@ -9,22 +9,43 @@ import { TilsagnFilterType } from "@/pages/gjennomforing/tilsagn/filter";
 import { KostnadsstedFilter } from "./KostnadsstedFilter";
 import { CheckboxList } from "./CheckboxList";
 import { TILSAGN_STATUS_OPTIONS } from "@/utils/filterUtils";
+import { type FilterKilde } from "@/sporing/useUmami";
+import { useFilterTracking } from "@/sporing/useFilterTracking";
 
 interface Props {
   filter: TilsagnFilterType;
   tilgjengeligeKostnadssteder: string[];
-  updateFilter: (values: Partial<TilsagnFilterType>) => void;
+  updateFilter: (values: Partial<TilsagnFilterType>, kilde?: FilterKilde) => void;
 }
 
 export function TilsagnFilter({ filter, tilgjengeligeKostnadssteder, updateFilter }: Props) {
   const [accordionsOpen, setAccordionsOpen] = useAtom(tilsagnFilterAccordionAtom);
+  const { logAccordionEndret } = useFilterTracking("tilsagn");
 
   const { data: arrangorer } = useArrangorer(ArrangorKobling.TILTAKSGJENNOMFORING, {
     pageSize: 10000,
   });
 
-  const toggleAccordion = (key: string) => {
+  const toggleAccordion = (key: string, tittel: string) => {
+    const opening = !accordionsOpen.includes(key);
     setAccordionsOpen([...addOrRemove(accordionsOpen, key)]);
+    logAccordionEndret(tittel, opening);
+  };
+
+  const handleStatusChange = (status: (typeof TILSAGN_STATUS_OPTIONS)[number]["value"]) => {
+    updateFilter({
+      statuser: addOrRemove(filter.statuser, status),
+      page: 1,
+    });
+  };
+
+  const handleSelectAllStatuses = (checked: boolean) => {
+    const statuser = checked ? TILSAGN_STATUS_OPTIONS.map((s) => s.value) : [];
+    updateFilter({ statuser, page: 1 }, checked ? "velg_alle" : "fjern_alle");
+  };
+
+  const handleKostnadsstederChange = (kostnadssteder: string[]) => {
+    updateFilter({ kostnadssteder, page: 1 });
   };
 
   if (!arrangorer) {
@@ -37,38 +58,25 @@ export function TilsagnFilter({ filter, tilgjengeligeKostnadssteder, updateFilte
         tittel="Status"
         antallValgteFilter={filter.statuser.length}
         open={accordionsOpen.includes("status")}
-        onClick={() => toggleAccordion("status")}
+        onClick={() => toggleAccordion("status", "Status")}
       >
         <CheckboxList
-          onSelectAll={(checked) =>
-            updateFilter({
-              statuser: checked ? TILSAGN_STATUS_OPTIONS.map((s) => s.value) : [],
-              page: 1,
-            })
-          }
+          onSelectAll={handleSelectAllStatuses}
           items={TILSAGN_STATUS_OPTIONS}
           isChecked={(status) => filter.statuser.includes(status)}
-          onChange={(status) =>
-            updateFilter({
-              statuser: addOrRemove(filter.statuser, status),
-              page: 1,
-            })
-          }
+          onChange={handleStatusChange}
         />
       </FilterAccordion>
       <FilterAccordion
         tittel="Kostnadssted"
         open={accordionsOpen.includes("kostnadssted")}
-        onClick={() => {
-          setAccordionsOpen([...addOrRemove(accordionsOpen, "kostnadssted")]);
-        }}
+        onClick={() => toggleAccordion("kostnadssted", "Kostnadssted")}
       >
         <KostnadsstedFilter
           value={filter.kostnadssteder}
           tilgjengeligeKostnadssteder={tilgjengeligeKostnadssteder}
-          onChange={(kostnadssteder) => {
-            updateFilter({ kostnadssteder, page: 1 });
-          }}
+          onChange={handleKostnadsstederChange}
+          sporingskontekst="tilsagn"
         />
       </FilterAccordion>
     </Accordion>

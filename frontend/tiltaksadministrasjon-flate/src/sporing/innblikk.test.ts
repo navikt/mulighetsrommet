@@ -95,6 +95,7 @@ describe("createInnblikkBeforeSend", () => {
 
   it.each([
     { name: "FILTER_ENDRET", data: statusData },
+    { name: "FILTER_ENDRET", data: { ...statusData, kilde: "nullstill" } },
     {
       name: "FILTER_ENDRET",
       data: {

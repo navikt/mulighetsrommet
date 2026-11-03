@@ -4,6 +4,7 @@ import {
   CheckboxGroupProps,
   CheckboxGroupItem,
   CheckboxGroupSubItem,
+  CheckboxGroupChange,
   CheckboxDropdownGroup,
 } from "./components/filter/CheckboxDropdownGroup";
 import { MultiLabelFilterTag } from "./components/filter/filterTag/MultiLabelFilterTag";
@@ -39,6 +40,7 @@ export {
   type CheckboxGroupProps,
   type CheckboxGroupItem,
   type CheckboxGroupSubItem,
+  type CheckboxGroupChange,
   MultiLabelFilterTag,
   FilterTagsContainer,
   FilterAccordion,

@@ -9,10 +9,16 @@ export const umamiEventSchemas = {
     .object({
       appnavn: z.literal(APP_NAME),
       handling: z.enum(["valgt", "fjernet"]),
-      kilde: z.enum(["enkeltvalg", "velg_alle", "fjern_alle"]),
+      kilde: z.enum(["enkeltvalg", "velg_alle", "fjern_alle", "nullstill"]),
       kategori: nonEmptyString,
       filternavn: nonEmptyString,
       subFilter: nonEmptyString.optional(),
+      kontekst: nonEmptyString,
+    })
+    .strict(),
+  FILTERPANEL_ÅPNET: z
+    .object({
+      appnavn: z.literal(APP_NAME),
       kontekst: nonEmptyString,
     })
     .strict(),
@@ -38,6 +44,7 @@ type HendelseDataMap = {
 
 export type FilterHandling = HendelseDataMap["FILTER_ENDRET"]["handling"];
 export type FilterKilde = HendelseDataMap["FILTER_ENDRET"]["kilde"];
+export type FilterEndring = Omit<HendelseDataMap["FILTER_ENDRET"], "kontekst">;
 
 type UmamiEvent = {
   [K in keyof HendelseDataMap]: { type: K } & HendelseDataMap[K];
