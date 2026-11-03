@@ -25,6 +25,7 @@ import no.nav.mulighetsrommet.api.domain.testing.fixture.NavAnsattFixture
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavEnhetFixtures.Gjovik
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavEnhetFixtures.Lillehammer
+import no.nav.mulighetsrommet.api.domain.testing.fixture.PrismodellFixtures
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollStatus
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
@@ -40,6 +41,7 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatusAarsak
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
+import no.nav.mulighetsrommet.api.tilsagn.model.ValutaBelopRequest
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingLinjeDbo
 import no.nav.mulighetsrommet.api.utbetaling.model.Tilskuddstype
@@ -50,13 +52,16 @@ import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.NOK
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.model.withValuta
 import no.nav.mulighetsrommet.validation.FieldError
+import no.nav.tiltak.okonomi.Artskonto
 import no.nav.tiltak.okonomi.Bestillingsnummer
 import no.nav.tiltak.okonomi.OkonomiBestillingMelding
 import no.nav.tiltak.okonomi.OkonomiPart
+import no.nav.tiltak.okonomi.Regnskapskonto
 import java.time.LocalDate
 import java.util.UUID
 
@@ -145,6 +150,7 @@ class TilsagnServiceTest : FunSpec({
                     Tiltakskode.ARBEIDSFORBEREDENDE_TRENING to gyldigTilsagnPeriode,
                     Tiltakskode.ARBEIDSRETTET_REHABILITERING to gyldigTilsagnPeriode,
                     Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING to gyldigTilsagnPeriode,
+                    Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV to gyldigTilsagnPeriode,
                 ),
             ),
             navAnsattService = navAnsattService,
@@ -412,7 +418,12 @@ class TilsagnServiceTest : FunSpec({
             database.run {
                 setRoller(
                     ansatt1,
-                    setOf(NavAnsattRolle.kontorspesifikk(Rolle.OKONOMI_BESLUTTER_GRUPPETILTAK, setOf(Lillehammer.enhetsnummer))),
+                    setOf(
+                        NavAnsattRolle.kontorspesifikk(
+                            Rolle.OKONOMI_BESLUTTER_GRUPPETILTAK,
+                            setOf(Lillehammer.enhetsnummer),
+                        ),
+                    ),
                 )
             }
 
@@ -469,6 +480,41 @@ class TilsagnServiceTest : FunSpec({
                         LocalDate.parse(request.periodeSlutt!!),
                     )
                 }
+        }
+
+        test("enkeltplass-gjennomføringer benytter artskonto for enkeltplasser i melding til økonomi") {
+            val gjennomforing = GjennomforingFixtures.EnkelAmo.copy(
+                id = UUID.randomUUID(),
+                tiltakskode = Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV,
+                prismodellId = PrismodellFixtures.TilskuddTilOpplaering.id,
+            )
+            MulighetsrommetTestDomain(
+                prismodeller = listOf(PrismodellFixtures.TilskuddTilOpplaering),
+                gjennomforinger = listOf(gjennomforing),
+            ).initialize(database.api)
+
+            val tilsagn = request.copy(
+                gjennomforingId = gjennomforing.id,
+                type = TilsagnType.TILSKUDD_TIL_OPPLAERING,
+                beregning = TilsagnBeregningRequest(
+                    type = TilsagnBeregningType.FRI,
+                    valuta = Valuta.NOK,
+                    pris = ValutaBelopRequest(1000, Valuta.NOK),
+                ),
+            )
+            service.upsert(tilsagn, Tiltaksadministrasjon).shouldBeRight()
+
+            service.godkjennTilsagn(requestId, Tiltaksadministrasjon).shouldBeRight()
+
+            val melding = database.run { queries.kafkaProducerRecord.getRecords(50, listOf(BESTILLING_TOPIC)) }
+                .shouldHaveSize(1)
+                .single()
+            val bestilling = Json.decodeFromString<OkonomiBestillingMelding>(melding.value.decodeToString())
+                .shouldBeTypeOf<OkonomiBestillingMelding.Bestilling>()
+                .payload
+
+            bestilling.artskonto shouldBe Artskonto.ENKELTPLASS_NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV
+            bestilling.regnskapskonto shouldBe Regnskapskonto.TILTAK_OPPLAERING_TILSKUDD
         }
 
         test("totrinnskontroll blir oppdatert i forbindelse med opprettelse av tilsagn") {

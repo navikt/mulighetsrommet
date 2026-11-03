@@ -12,7 +12,7 @@ object TilsagnOkonomiMapper {
         TilsagnType.TILSKUDD_TIL_OPPLAERING -> Regnskapskonto.TILTAK_OPPLAERING_TILSKUDD
     }
 
-    fun toArtskonto(tiltakskode: Tiltakskode): Artskonto = when (tiltakskode) {
+    fun toArtskontoAvtale(tiltakskode: Tiltakskode): Artskonto = when (tiltakskode) {
         Tiltakskode.ARBEIDSRETTET_REHABILITERING -> Artskonto.ARBEIDSRETTET_REHABILITERING
         Tiltakskode.AVKLARING -> Artskonto.AVKLARING
         Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK -> Artskonto.DIGITALT_OPPFOLGINGSTILTAK
@@ -22,15 +22,21 @@ object TilsagnOkonomiMapper {
         Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET -> Artskonto.VARIG_TILRETTELAGT_ARBEID_SKJERMET
         Tiltakskode.TILRETTELAGT_ARBEID_ORDINAER -> Artskonto.TILRETTELAGT_ARBEID_ORDINAER
         Tiltakskode.ARBEIDSMARKEDSOPPLAERING -> Artskonto.ARBEIDSMARKEDSOPPLAERING
-        Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING -> Artskonto.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING
-        Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING -> Artskonto.ENKELTPLASS_FAG_OG_YRKESOPPLAERING
         Tiltakskode.FAG_OG_YRKESOPPLAERING -> Artskonto.FAG_OG_YRKESOPPLAERING
         Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING -> Artskonto.GRUPPE_ARBEIDSMARKEDSOPPLAERING
         Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING -> Artskonto.GRUPPE_FAG_OG_YRKESOPPLAERING
-        Tiltakskode.HOYERE_UTDANNING -> Artskonto.HOYERE_UTDANNING
-        Tiltakskode.HOYERE_YRKESFAGLIG_UTDANNING -> Artskonto.HOYERE_YRKESFAGLIG_UTDANNING
         Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV -> Artskonto.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV
         Tiltakskode.STUDIESPESIALISERING -> Artskonto.STUDIESPESIALISERING
-        else -> error("Artskonto for $tiltakskode er ikke støttet")
+        else -> error("Artskonto for avtale på $tiltakskode er ikke støttet")
+    }
+
+    fun toArtskontoEnkeltplass(tiltakskode: Tiltakskode): Artskonto = when (tiltakskode) {
+        Tiltakskode.ARBEIDSMARKEDSOPPLAERING, Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING -> Artskonto.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING
+        Tiltakskode.FAG_OG_YRKESOPPLAERING, Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING -> Artskonto.ENKELTPLASS_FAG_OG_YRKESOPPLAERING
+        Tiltakskode.HOYERE_UTDANNING -> Artskonto.HOYERE_UTDANNING
+        Tiltakskode.HOYERE_YRKESFAGLIG_UTDANNING -> Artskonto.HOYERE_YRKESFAGLIG_UTDANNING
+        Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV -> Artskonto.ENKELTPLASS_NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV
+        Tiltakskode.STUDIESPESIALISERING -> Artskonto.ENKELTPLASS_STUDIESPESIALISERING
+        else -> error("Artskonto for enkeltplasser på $tiltakskode er ikke støttet")
     }
 }

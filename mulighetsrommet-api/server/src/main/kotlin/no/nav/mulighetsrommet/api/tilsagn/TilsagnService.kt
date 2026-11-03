@@ -734,7 +734,13 @@ class TilsagnService(
         val bestilling = OpprettBestilling(
             bestillingsnummer = Bestillingsnummer(tilsagn.bestilling.bestillingsnummer),
             regnskapskonto = TilsagnOkonomiMapper.toRegnskapskonto(tilsagn.type),
-            artskonto = TilsagnOkonomiMapper.toArtskonto(gjennomforing.tiltakstype.tiltakskode),
+            artskonto = when (gjennomforing) {
+                is GjennomforingAvtale,
+                -> TilsagnOkonomiMapper.toArtskontoAvtale(gjennomforing.tiltakstype.tiltakskode)
+
+                is GjennomforingEnkeltplass,
+                -> TilsagnOkonomiMapper.toArtskontoEnkeltplass(gjennomforing.tiltakstype.tiltakskode)
+            },
             arrangor = arrangor,
             kostnadssted = tilsagn.kostnadssted.enhetsnummer,
             avtalenummer = avtale?.sakarkivNummer?.value,
