@@ -1,0 +1,3 @@
+[propose]
+allow_localhost_any = true
+allow_jvm_attach = true

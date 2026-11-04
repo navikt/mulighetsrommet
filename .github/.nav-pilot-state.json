@@ -1,0 +1,34 @@
+{
+  "collection": "(à la carte)",
+  "version": "2026.10.15-104854-f55d019",
+  "scope": "repo",
+  "source_repo": "navikt/copilot",
+  "source_sha": "f55d019974d00902b328ee85dea2e233ff5029b2",
+  "installed_at": "2026-10-15T12:59:17Z",
+  "files": [
+    {
+      "path": ".github/agents/accessibility.agent.md",
+      "hash": "03d2ec6ccc4a2101"
+    },
+    {
+      "path": ".github/agents/aksel.agent.md",
+      "hash": "700721ce34d631f5"
+    },
+    {
+      "path": ".github/agents/security-champion.agent.md",
+      "hash": "65fed295fcdd5bd1"
+    },
+    {
+      "path": ".github/skills/nais/",
+      "hash": "b0b94d480fbdb4c6"
+    },
+    {
+      "path": ".github/skills/nav-auth/",
+      "hash": "581809ed36d9a6d6"
+    },
+    {
+      "path": ".github/skills/security-owasp/",
+      "hash": "b909907ae0e18174"
+    }
+  ]
+}
