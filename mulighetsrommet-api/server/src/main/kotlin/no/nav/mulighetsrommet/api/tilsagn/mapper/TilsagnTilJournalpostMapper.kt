@@ -37,7 +37,7 @@ object TilsagnTilJournalpostMapper {
         datoMottatt = tilsagn.besluttetTidspunkt.toString(),
         dokumenter = listOf(
             Journalpost.Dokument(
-                tittel = "bekreftelse på bestilling",
+                tittel = "Bekreftelse på bestilling",
                 brevKode = "Bekreftelsesbrev_v1",
                 dokumentvarianter = listOf(
                     Journalpost.Dokument.Dokumentvariant(
