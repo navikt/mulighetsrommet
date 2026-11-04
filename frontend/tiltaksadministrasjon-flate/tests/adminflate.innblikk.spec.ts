@@ -35,7 +35,7 @@ test("sporer enkeltvalg, massevalg og fjerning av chips", async ({ page }) => {
       pageSize: 15,
     };
     sessionStorage.setItem(
-      "Tilsagn-filter",
+      "Tilsagn-filter-a7d63fb0-4366-412c-84b7-7c15518ee361",
       JSON.stringify({
         filter: { values },
         defaultFilter: { values: { ...values, kostnadssteder: [] } },
@@ -98,11 +98,11 @@ test("sporer enkeltvalg, massevalg og fjerning av chips", async ({ page }) => {
   }
 
   await page.getByRole("button", { name: "Filter", exact: true }).click();
-  const costCenterChip = page
+  const kostnadsstedChip = page
     .getByTestId("filtertags")
     .getByRole("button", { name: /Nav St\. Hanshaugen/ });
-  await costCenterChip.click();
-  await expect(costCenterChip).not.toBeVisible();
+  await kostnadsstedChip.click();
+  await expect(kostnadsstedChip).not.toBeVisible();
   await expect.poll(() => events.length).toBe(15);
   expect(events[14]).toEqual({
     appnavn: "tiltaksadministrasjon-flate",
@@ -129,7 +129,7 @@ test("nullstilling logger fjerning av valgte statuser og kostnadssteder", async 
       pageSize: 15,
     };
     sessionStorage.setItem(
-      "Tilsagn-filter",
+      "Tilsagn-filter-a7d63fb0-4366-412c-84b7-7c15518ee361",
       JSON.stringify({
         filter: { values },
         defaultFilter: { values: { ...values, statuser: [], kostnadssteder: [] } },
