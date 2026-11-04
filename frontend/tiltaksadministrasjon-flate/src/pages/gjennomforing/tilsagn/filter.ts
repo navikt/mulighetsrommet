@@ -4,6 +4,7 @@ import { createFilterStateAtom } from "@/filter/filter-state";
 import { createFilterValidator } from "@mr/frontend-common/utils/filter-validator";
 import { createSorteringProps } from "@/api/atoms";
 import { atom } from "jotai/vanilla";
+import { atomFamily } from "jotai-family";
 
 export const TilsagnFilterSchema = z.object({
   statuser: z.array(z.custom<TilsagnStatus>()),
@@ -29,10 +30,12 @@ const defaultTilsagnFilter: TilsagnFilterType = {
   pageSize: 15,
 };
 
-export const tilsagnFilterStateAtom = createFilterStateAtom<TilsagnFilterType>(
-  "Tilsagn-filter",
-  defaultTilsagnFilter,
-  createFilterValidator(TilsagnFilterSchema),
+export const tilsagnFilterStateAtomFamily = atomFamily((gjennomforingId: string) =>
+  createFilterStateAtom<TilsagnFilterType>(
+    `Tilsagn-filter-${gjennomforingId}`,
+    defaultTilsagnFilter,
+    createFilterValidator(TilsagnFilterSchema),
+  ),
 );
 
 export const tilsagnFilterAccordionAtom = atom<string[]>(["status", "kostnadssted"]);

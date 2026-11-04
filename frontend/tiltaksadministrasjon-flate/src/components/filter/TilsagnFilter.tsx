@@ -11,14 +11,16 @@ import { CheckboxList } from "./CheckboxList";
 import { TILSAGN_STATUS_OPTIONS } from "@/utils/filterUtils";
 import { type FilterKilde } from "@/sporing/useUmami";
 import { useFilterTracking } from "@/sporing/useFilterTracking";
+import { useTilsagnTableData } from "@/pages/gjennomforing/tilsagn/detaljer/tilsagnDetaljerLoader";
 
 interface Props {
+  gjennomforingId: string;
   filter: TilsagnFilterType;
-  tilgjengeligeKostnadssteder: string[];
   updateFilter: (values: Partial<TilsagnFilterType>, kilde?: FilterKilde) => void;
 }
 
-export function TilsagnFilter({ filter, tilgjengeligeKostnadssteder, updateFilter }: Props) {
+export function TilsagnFilter({ filter, updateFilter, gjennomforingId }: Props) {
+  const { data: tilsagn } = useTilsagnTableData(gjennomforingId, {});
   const [accordionsOpen, setAccordionsOpen] = useAtom(tilsagnFilterAccordionAtom);
   const { logAccordionEndret } = useFilterTracking("tilsagn");
 
@@ -74,7 +76,7 @@ export function TilsagnFilter({ filter, tilgjengeligeKostnadssteder, updateFilte
       >
         <KostnadsstedFilter
           value={filter.kostnadssteder}
-          tilgjengeligeKostnadssteder={tilgjengeligeKostnadssteder}
+          tilgjengeligeKostnadssteder={tilsagn.kostnadssteder}
           onChange={handleKostnadsstederChange}
           sporingskontekst="tilsagn"
         />

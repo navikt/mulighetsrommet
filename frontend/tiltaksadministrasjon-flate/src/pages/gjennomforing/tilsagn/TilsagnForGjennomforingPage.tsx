@@ -2,21 +2,17 @@ import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { useState } from "react";
 import { GjennomforingHandling, TilsagnType } from "@tiltaksadministrasjon/api-client";
 import { useGjennomforingHandlinger } from "@/api/gjennomforing/useGjennomforing";
-import { useTilsagnTableData } from "@/pages/gjennomforing/tilsagn/detaljer/tilsagnDetaljerLoader";
 import { TilsagnTable } from "@/pages/gjennomforing/tilsagn/tabell/TilsagnTable";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
 import { Handlinger } from "@/components/handlinger/Handlinger";
-import { PagineringContainer } from "@/components/paginering/PagineringContainer";
-import { PagineringsOversikt } from "@/components/paginering/PagineringOversikt";
-import { Pagination } from "@navikt/ds-react";
 import { useFilterState } from "@/filter/useFilterState";
 import {
-  tilsagnFilterStateAtom,
+  tilsagnFilterStateAtomFamily,
   type TilsagnFilterType,
 } from "@/pages/gjennomforing/tilsagn/filter";
-import { TilToppenKnapp } from "@mr/frontend-common/components/tilToppenKnapp/TilToppenKnapp";
 import { ContentBox } from "@/layouts/ContentBox";
 import { ListSkeleton } from "@mr/frontend-common";
+import { ReloadAppErrorBoundary } from "@/ErrorBoundary";
 import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
 import { NullstillFilterKnapp } from "@mr/frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
 import { Suspense } from "react";
@@ -29,9 +25,9 @@ import { useKostnadsstedTracking } from "@/sporing/useKostnadsstedTracking";
 export function TilsagnForGjennomforingPage() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
   const handlinger = useGjennomforingHandlinger(gjennomforingId);
-  const { filter, updateFilter, hasChanged, resetToDefault } =
-    useFilterState(tilsagnFilterStateAtom);
-  const { data: tilsagn } = useTilsagnTableData(gjennomforingId, filter.values);
+  const { filter, updateFilter, hasChanged, resetToDefault } = useFilterState(
+    tilsagnFilterStateAtomFamily(gjennomforingId),
+  );
   const { logFilterEndret, logFilterpanelÅpnet } = useFilterTracking("tilsagn");
   const { logKostnadsstederEndret } = useKostnadsstedTracking("tilsagn");
 
@@ -88,8 +84,8 @@ export function TilsagnForGjennomforingPage() {
           filter={
             <TilsagnFilter
               filter={filter.values}
-              tilgjengeligeKostnadssteder={tilsagn.kostnadssteder}
               updateFilter={updateFilterWithTracking}
+              gjennomforingId={gjennomforingId}
             />
           }
           nullstillFilterButton={<NullstillFilterKnapp onClick={handleResetFilter} />}
@@ -127,42 +123,19 @@ export function TilsagnForGjennomforingPage() {
             />
           }
           table={
-            <Suspense fallback={<ListSkeleton />}>
-              <TilsagnTable
-                emptyStateMessage="Det finnes ingen tilsagn for dette tiltaket"
-                data={tilsagn.table}
-              />
-            </Suspense>
+            <ReloadAppErrorBoundary>
+              <Suspense fallback={<ListSkeleton />}>
+                <TilsagnTable
+                  emptyStateMessage="Det finnes ingen tilsagn for dette tiltaket"
+                  gjennomforingId={gjennomforingId}
+                />
+              </Suspense>
+            </ReloadAppErrorBoundary>
           }
           filterOpen={filterOpen}
           setFilterOpen={handleSetFilterOpen}
         />
       </ContentBox>
-      <TilToppenKnapp />
-      <PagineringContainer>
-        <PagineringsOversikt
-          page={filter.values.page}
-          pageSize={tilsagn.pagination.pageSize}
-          antall={tilsagn.table.rows.length}
-          maksAntall={tilsagn.pagination.totalCount}
-          type="tilsagn"
-          onChangePageSize={(size) => {
-            updateFilter({
-              page: 1,
-              pageSize: size,
-            });
-          }}
-        />
-        <Pagination
-          size="small"
-          page={filter.values.page}
-          count={tilsagn.pagination.totalPages}
-          onPageChange={(page) => {
-            updateFilter({ page });
-          }}
-          data-version="v1"
-        />
-      </PagineringContainer>
     </>
   );
 }
