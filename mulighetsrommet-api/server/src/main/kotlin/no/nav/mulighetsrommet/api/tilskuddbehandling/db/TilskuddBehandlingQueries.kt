@@ -149,7 +149,7 @@ class TilskuddBehandlingQueries(private val session: Session) {
                 betalingsreferanse_melding,
                 bruker_utbetaling_type,
                 belop,
-                valuta,
+                valuta
             ) values (
              :id::uuid,
              :tilskudd_id::uuid,
@@ -169,7 +169,7 @@ class TilskuddBehandlingQueries(private val session: Session) {
              :betalingsreferanse_melding,
              :bruker_utbetaling_type,
              :belop,
-             :valuta::currency,
+             :valuta::currency
          ) on conflict (id) do update set
               tilskudd_id = excluded.tilskudd_id,
               tilskudd_behandling_id = excluded.tilskudd_behandling_id,
@@ -462,7 +462,7 @@ private fun Row.toTilskuddVedtakDto(): TilskuddVedtakDto {
         vedtakResultat = VedtakResultatDto(VedtakResultat.valueOf(string("vedtak_resultat"))),
         kommentarVedtaksbrev = stringOrNull("kommentar_vedtaksbrev"),
         utbetalingMottaker = mottaker,
-        kid = stringOrNull("kid")?.let(Kid::parse),
+        kid = stringOrNull("betalingsreferanse_kid")?.let(Kid::parse),
         brukerUtbetalingType = stringOrNull("bruker_utbetaling_type")?.let(BrukerUtbetalingType::valueOf),
         utbetalingBelop = utbetalingBelop,
         kommentarIntern = stringOrNull("kommentar_intern"),

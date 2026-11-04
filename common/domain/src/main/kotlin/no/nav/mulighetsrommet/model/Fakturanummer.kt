@@ -2,7 +2,7 @@ package no.nav.mulighetsrommet.model
 
 import kotlinx.serialization.Serializable
 
-private val FAKTURANUMMER_REGEX = "^\\d{1,25}$".toRegex()
+private val FAKTURANUMMER_REGEX = "[A-Za-z0-9/._-]+[0-9]".toRegex()
 
 /**
  * Fakturanummer er et lovkrav fra Bokføringsloven som selgere/bedrifter må rette seg etter.
@@ -19,7 +19,7 @@ value class Fakturanummer private constructor(val value: String) {
                 return null
             }
 
-            return if (FAKTURANUMMER_REGEX.matches(normalizedFakturanummer)) {
+            return if (normalizedFakturanummer.length <= 30 && FAKTURANUMMER_REGEX.matches(normalizedFakturanummer)) {
                 Fakturanummer(normalizedFakturanummer)
             } else {
                 null
