@@ -33,7 +33,10 @@ export function VedtakDetaljer({
         ]}
       />
       <MetadataFritekstfelt label="Kommentar til brukeren" value={kommentarVedtaksbrev ?? "-"} />
-      <MetadataFritekstfelt label="Kommentar (internt i Nav)" value={internKommentar ?? "-"} />
+      <MetadataFritekstfelt
+        label="Kommentar (vises til beslutter)"
+        value={internKommentar ?? "-"}
+      />
     </VStack>
   );
 }

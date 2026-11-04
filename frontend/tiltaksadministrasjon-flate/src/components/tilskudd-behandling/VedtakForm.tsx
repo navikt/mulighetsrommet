@@ -126,7 +126,7 @@ export function VedtakForm({ arrangorId }: { arrangorId: string }) {
                     }}
                   />
                   <FormTextarea
-                    label="Kommentar (internt i Nav)"
+                    label="Kommentar (vises til beslutter)"
                     name={`tilskuddVedtak.${index}.kommentarIntern`}
                   />
                 </VStack>
