@@ -141,7 +141,6 @@ class TilsagnRoutesTest : FunSpec({
         }
     }
 
-
     test("standardverdier avvises for manuelt opplæringstilskudd") {
         withTestApplication(appConfig("AVVIST_SKJERMING")) {
             val claims = getAnsattClaims(ansatt, setOf(generellRolle, saksbehandlerRolle))
