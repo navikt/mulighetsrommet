@@ -11,7 +11,7 @@ data class TilsagnsbrevMeldingSnapshot(
     val bestillingsnummer: String,
     val arrangorOrganisasjonsnummer: Organisasjonsnummer,
     val arrangorNavn: String,
-    val lopenummer: Tiltaksnummer
+    val lopenummer: Tiltaksnummer,
 )
 
 object TilsagnsbrevMeldingMapper {

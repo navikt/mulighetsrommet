@@ -19,7 +19,7 @@ class TilsagnsbrevMeldingMapperTest : FunSpec({
         bestillingsnummer = "A-2026/1000-1",
         arrangorOrganisasjonsnummer = Organisasjonsnummer("310438707"),
         arrangorNavn = "AKSEPTABEL EMPIRISK TIGER AS",
-        lopenummer = Tiltaksnummer("2025/11457")
+        lopenummer = Tiltaksnummer("2025/11457"),
     )
 
     val pdf = "pdf-innhold".toByteArray()

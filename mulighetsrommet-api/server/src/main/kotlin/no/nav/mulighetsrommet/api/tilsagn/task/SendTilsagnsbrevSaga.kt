@@ -191,7 +191,7 @@ class SendTilsagnsbrevSaga(
                     bestillingsnummer = innhold.tilsagn.bestilling.bestillingsnummer,
                     arrangorOrganisasjonsnummer = innhold.arrangor.organisasjonsnummer,
                     arrangorNavn = innhold.arrangor.navn,
-                    lopenummer = innhold.tiltaksnummer
+                    lopenummer = innhold.tiltaksnummer,
                 ),
             ),
             Instant.now(),
@@ -258,7 +258,7 @@ class SendTilsagnsbrevSaga(
             bestillingsnummer = data.bestillingsnummer,
             arrangorOrganisasjonsnummer = data.arrangorOrganisasjonsnummer,
             arrangorNavn = data.arrangorNavn,
-            lopenummer = data.lopenummer
+            lopenummer = data.lopenummer,
         )
         val melding = TilsagnsbrevMeldingMapper.tilArrangorMelding(tilsagn, pdfAltinn)
 
