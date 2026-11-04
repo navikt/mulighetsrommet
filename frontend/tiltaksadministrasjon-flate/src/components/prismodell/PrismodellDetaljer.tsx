@@ -1,4 +1,4 @@
-import { BodyShort, Box, Heading, HStack, List, VStack } from "@navikt/ds-react";
+import { BodyShort, Box, Heading, HStack, InfoCard, List, VStack } from "@navikt/ds-react";
 import {
   MetadataFritekstfelt,
   MetadataVStack,
@@ -9,6 +9,7 @@ import { formaterDato } from "@mr/frontend-common/utils/date";
 import { formaterValuta, formaterValutaBelop } from "@mr/frontend-common/utils/utils";
 import { opplaeringTilskuddToString } from "@/utils/Utils";
 import { Definisjonsliste } from "@mr/frontend-common/components/definisjonsliste/Definisjonsliste";
+import { ExclamationmarkTriangleIcon } from "@navikt/aksel-icons";
 
 interface PrismodellDetaljerProps {
   prismodell: PrismodellDto;
@@ -127,6 +128,11 @@ function PrisOgBetalingsbetingelserTilskudd({ prismodell }: PrismodellDetaljerPr
       <BodyShort size="small" weight="semibold" className="ml-auto">
         {`Estimert totalsum: ${formaterValutaBelop(totalt)}`}
       </BodyShort>
+      <InfoCard data-color="warning">
+        <InfoCard.Message icon={<ExclamationmarkTriangleIcon aria-hidden />}>
+          For å få oversikt over tidligere utbetalte tilskudd må du slå opp i Arena
+        </InfoCard.Message>
+      </InfoCard>
     </VStack>
   );
 }
