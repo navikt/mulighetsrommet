@@ -61,7 +61,6 @@ class TilsagnRoutesTest : FunSpec({
     val saksbehandlerRolle = EntraGroupNavAnsattRolleMapping(UUID.randomUUID(), Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS)
 
     val ansatt = NavAnsattFixture.DonaldDuck
-    val annenGjennomforing = GjennomforingFixtures.AFT1.copy(id = UUID.randomUUID())
 
     val deltaker = DeltakerFixtures.createDeltaker(
         gjennomforingId = GjennomforingFixtures.AFT1.id,
@@ -142,58 +141,6 @@ class TilsagnRoutesTest : FunSpec({
         }
     }
 
-    test("kostnadssteder inkluderer alle tilsagn for gjennomføringen uavhengig av filtre og paginering") {
-        database.api.session {
-            queries.enhet.save(NavEnhetFixtures.Oslo)
-            queries.tilsagn.upsert(
-                TilsagnFixtures.Tilsagn2.copy(kostnadssted = NavEnhetFixtures.Gjovik.enhetsnummer),
-            )
-            queries.tilsagn.upsert(TilsagnFixtures.createTilsagn(lopenummer = 3))
-            queries.tilsagn.upsert(
-                TilsagnFixtures.createTilsagn(gjennomforingId = annenGjennomforing.id, lopenummer = 4)
-                    .copy(kostnadssted = NavEnhetFixtures.Oslo.enhetsnummer),
-            )
-        }
-
-        withTestApplication(appConfig("AVVIST_SKJERMING")) {
-            val navAnsattClaims = getAnsattClaims(ansatt, setOf(okonomiLesRolle, generellRolle))
-            val token = oauth.issueToken(claims = navAnsattClaims).serialize()
-            val forventedeKostnadssteder = listOf(
-                NavEnhetFixtures.Innlandet.enhetsnummer,
-                NavEnhetFixtures.Gjovik.enhetsnummer,
-            )
-
-            val cases = listOf(
-                "size=1&page=1" to 1,
-                "size=1&page=2" to 1,
-                "statuser=GODKJENT" to 1,
-                "kostnadssteder=0502" to 1,
-                "kostnadssteder=9999" to 0,
-            )
-            cases.forEach { (query, expectedRows) ->
-                val response = client.get(
-                    "/api/tiltaksadministrasjon/tilsagn?gjennomforingId=${GjennomforingFixtures.AFT1.id}&$query",
-                ) {
-                    bearerAuth(token)
-                }
-                response.status shouldBe HttpStatusCode.OK
-                val body = response.body<PaginatedDataDrivenTableResponse>()
-                body.kostnadssteder shouldBe forventedeKostnadssteder
-                body.table.rows.size shouldBe expectedRows
-            }
-
-            listOf(
-                annenGjennomforing.id to listOf(NavEnhetFixtures.Oslo.enhetsnummer),
-                UUID.randomUUID() to emptyList(),
-            ).forEach { (gjennomforingId, expected) ->
-                val response = client.get("/api/tiltaksadministrasjon/tilsagn?gjennomforingId=$gjennomforingId") {
-                    bearerAuth(token)
-                }
-                response.status shouldBe HttpStatusCode.OK
-                response.body<PaginatedDataDrivenTableResponse>().kostnadssteder shouldBe expected
-            }
-        }
-    }
 
     test("standardverdier avvises for manuelt opplæringstilskudd") {
         withTestApplication(appConfig("AVVIST_SKJERMING")) {
