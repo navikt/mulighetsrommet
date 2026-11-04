@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.tilsagn.mapper
 
 import no.nav.mulighetsrommet.admin.arrangor.TilsagnsbrevArrangorMelding
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
+import no.nav.mulighetsrommet.model.Tiltaksnummer
 import java.util.UUID
 
 data class TilsagnsbrevMeldingSnapshot(
@@ -10,6 +11,7 @@ data class TilsagnsbrevMeldingSnapshot(
     val bestillingsnummer: String,
     val arrangorOrganisasjonsnummer: Organisasjonsnummer,
     val arrangorNavn: String,
+    val lopenummer: Tiltaksnummer
 )
 
 object TilsagnsbrevMeldingMapper {
@@ -20,7 +22,7 @@ object TilsagnsbrevMeldingMapper {
         mottakerOrganisasjonsnummer = tilsagn.arrangorOrganisasjonsnummer,
         sendersReferanse = tilsagn.bestillingsnummer,
         innhold = TilsagnsbrevArrangorMelding.Innhold(
-            tittel = "Bekreftelse på bestilling ${tilsagn.tiltakstypeNavn} ${tilsagn.bestillingsnummer}",
+            tittel = "Bekreftelse på bestilling ${tilsagn.tiltakstypeNavn} ${tilsagn.lopenummer.value}",
             brevtekst = "Se vedlagt bekreftelsesbrev for ${tilsagn.tiltakstypeNavn}.",
         ),
         varsel = TilsagnsbrevArrangorMelding.Varsel(

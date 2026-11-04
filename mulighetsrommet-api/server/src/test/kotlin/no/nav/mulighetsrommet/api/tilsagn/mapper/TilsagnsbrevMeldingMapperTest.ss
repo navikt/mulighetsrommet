@@ -3,7 +3,7 @@
   "mottakerOrganisasjonsnummer": "310438707",
   "sendersReferanse": "A-2026/1000-1",
   "innhold": {
-    "tittel": "Bekreftelse på bestilling Enkeltplass Arbeidsmarkedsopplæring A-2026/1000-1",
+    "tittel": "Bekreftelse på bestilling Enkeltplass Arbeidsmarkedsopplæring 2025/11457",
     "brevtekst": "Se vedlagt bekreftelsesbrev for Enkeltplass Arbeidsmarkedsopplæring."
   },
   "varsel": {

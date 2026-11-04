@@ -33,7 +33,7 @@
           "variantformat": "ARKIV"
         }
       ],
-      "tittel": "bekreftelse på bestilling",
+      "tittel": "Bekreftelse på bestilling",
       "brevKode": "Bekreftelsesbrev_v1"
     }
   ],

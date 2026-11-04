@@ -91,6 +91,7 @@ class SendTilsagnsbrevSaga(
         val bestillingsnummer: String,
         val arrangorOrganisasjonsnummer: Organisasjonsnummer,
         val arrangorNavn: String,
+        val lopenummer: Tiltaksnummer,
     )
 
     val opprettInnholdTask: OneTimeTask<OpprettInnholdTaskData> = Tasks
@@ -190,6 +191,7 @@ class SendTilsagnsbrevSaga(
                     bestillingsnummer = innhold.tilsagn.bestilling.bestillingsnummer,
                     arrangorOrganisasjonsnummer = innhold.arrangor.organisasjonsnummer,
                     arrangorNavn = innhold.arrangor.navn,
+                    lopenummer = innhold.tiltaksnummer
                 ),
             ),
             Instant.now(),
@@ -256,6 +258,7 @@ class SendTilsagnsbrevSaga(
             bestillingsnummer = data.bestillingsnummer,
             arrangorOrganisasjonsnummer = data.arrangorOrganisasjonsnummer,
             arrangorNavn = data.arrangorNavn,
+            lopenummer = data.lopenummer
         )
         val melding = TilsagnsbrevMeldingMapper.tilArrangorMelding(tilsagn, pdfAltinn)
 
