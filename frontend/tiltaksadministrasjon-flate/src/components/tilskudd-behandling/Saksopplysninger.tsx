@@ -1,6 +1,6 @@
 import {
+  ArrangorReferanse,
   Betalingsinformasjon,
-  BrukerUtbetalingType,
   KostnadsstedDto,
   OpplaeringtilskuddKode,
   Periode,
@@ -8,7 +8,10 @@ import {
   Valuta,
 } from "@tiltaksadministrasjon/api-client";
 import { formaterDato, formaterPeriode } from "@mr/frontend-common/utils/date";
-import { Definisjonsliste } from "@mr/frontend-common/components/definisjonsliste/Definisjonsliste";
+import {
+  Definisjonsliste,
+  Definition,
+} from "@mr/frontend-common/components/definisjonsliste/Definisjonsliste";
 import { formaterNavEnhet } from "@/utils/nav-enhet";
 import { opplaeringTilskuddToString, tilskuddMottakerToString } from "@/utils/Utils";
 import { formaterValuta } from "@mr/frontend-common/utils/utils";
@@ -21,8 +24,6 @@ interface SaksopplysningerProps {
   tilskuddOpplaeringType: OpplaeringtilskuddKode | null;
   utbetalingMottaker: TilskuddMottaker | null;
   belop: number | null;
-  kid: string | null;
-  brukerUtbetalingType: BrukerUtbetalingType | null;
   betalingsinformasjon: Betalingsinformasjon | null;
 }
 
@@ -34,8 +35,6 @@ export function Saksopplysninger({
   tilskuddOpplaeringType,
   utbetalingMottaker,
   belop,
-  kid,
-  brukerUtbetalingType,
   betalingsinformasjon,
 }: SaksopplysningerProps) {
   return (
@@ -64,25 +63,50 @@ export function Saksopplysninger({
         },
         {
           key: "Hvem skal motta utbetalingen?",
-          value: utbetalingMottaker
-            ? tilskuddMottakerToString(utbetalingMottaker, brukerUtbetalingType)
-            : "-",
+          value: utbetalingMottaker ? tilskuddMottakerToString(utbetalingMottaker) : "-",
           spanColumns: true,
         },
-        ...(utbetalingMottaker === TilskuddMottaker.ARRANGOR &&
+        ...(utbetalingMottaker
+          ? tilskuddMottakerOpplysninger(utbetalingMottaker, betalingsinformasjon)
+          : []),
+      ]}
+    />
+  );
+}
+
+function tilskuddMottakerOpplysninger(
+  mottaker: TilskuddMottaker,
+  betalingsinformasjon: Betalingsinformasjon | null,
+): Definition[] {
+  switch (mottaker.type) {
+    case "BRUKER":
+      return [];
+    case "ARRANGOR": {
+      const kontoDetaljer =
         betalingsinformasjon?.type === "BBan"
           ? [
               {
                 key: "Kontonummer",
                 value: betalingsinformasjon.kontonummer,
               },
-              {
-                key: "Kid",
-                value: kid,
-              },
             ]
-          : []),
-      ]}
-    />
-  );
+          : [];
+      return [...kontoDetaljer, referanseOpplysning(mottaker.referanse)];
+    }
+  }
+}
+
+function referanseOpplysning(referanse: ArrangorReferanse) {
+  switch (referanse.type) {
+    case "FAKTURANUMMER":
+      return {
+        key: "Fakturanummer",
+        value: referanse.fakturanummer,
+      };
+    case "KID":
+      return {
+        key: "KID",
+        value: referanse.kid,
+      };
+  }
 }

@@ -1,16 +1,33 @@
-import { BodyShort, Heading, InfoCard, Link, Loader, TextField, VStack } from "@navikt/ds-react";
+import {
+  BodyShort,
+  Heading,
+  InfoCard,
+  Link,
+  Loader,
+  Radio,
+  TextField,
+  VStack,
+} from "@navikt/ds-react";
 import { useArrangorBetalingsinformasjon } from "@/api/arrangor/useArrangorBetalingsinformasjon";
 import { FormTextField } from "@/components/skjema/FormTextField";
-import { FieldValues, Path } from "react-hook-form";
+import { FieldValues, Path, useFormContext } from "react-hook-form";
+import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
+import { ControlledRadioGroup } from "@/components/skjema/ControlledRadioGroup";
+import { ArrangorReferanseType, BBan } from "@tiltaksadministrasjon/api-client";
 
-export function BetalingsinformasjonFields<T extends FieldValues>({
-  arrangorId,
-  kidNummerName,
-}: {
+interface BetalingsinformasjonFieldsProps<T extends FieldValues> {
   arrangorId: string;
+  referanseName: Path<T>;
   kidNummerName: Path<T>;
-}) {
-  const { data: betalingsinformasjon, isPending } = useArrangorBetalingsinformasjon(arrangorId);
+  fakturanummerName: Path<T>;
+}
+
+export function BetalingsinformasjonFields<T extends FieldValues>(
+  props: BetalingsinformasjonFieldsProps<T>,
+) {
+  const { data: betalingsinformasjon, isPending } = useArrangorBetalingsinformasjon(
+    props.arrangorId,
+  );
 
   if (isPending) return <Loader />;
 
@@ -30,22 +47,7 @@ export function BetalingsinformasjonFields<T extends FieldValues>({
 
   switch (betalingsinformasjon.type) {
     case "BBan":
-      return (
-        <VStack gap="space-8" align="start">
-          <TextField
-            size="small"
-            label="Kontonummer til arrangør"
-            readOnly
-            value={betalingsinformasjon.kontonummer}
-            description="Kontonummer hentes automatisk fra Altinn"
-          />
-          <BodyShort size="small">
-            Dersom kontonummer er feil må arrangør oppdatere kontonummer i Altinn. Her kan du lese
-            om <EndreKontonummerLink />.
-          </BodyShort>
-          <FormTextField<T> label="KID-nummer (valgfritt)" name={kidNummerName} />
-        </VStack>
-      );
+      return <BbanForm bban={betalingsinformasjon} {...props} />;
     case "IBan":
       return (
         <VStack gap="space-8" align="start">
@@ -65,6 +67,54 @@ export function BetalingsinformasjonFields<T extends FieldValues>({
         </VStack>
       );
   }
+}
+
+interface BbanFormProps<T extends FieldValues> {
+  bban: BBan;
+  referanseName: Path<T>;
+  kidNummerName: Path<T>;
+  fakturanummerName: Path<T>;
+}
+
+function BbanForm<T extends FieldValues>({
+  bban,
+  referanseName,
+  kidNummerName,
+  fakturanummerName,
+}: BbanFormProps<T>) {
+  const { watch } = useFormContext<T>();
+  const referanse = watch(referanseName);
+  return (
+    <VStack gap="space-8" align="start">
+      <TextField
+        size="small"
+        label="Kontonummer til arrangør"
+        readOnly
+        value={bban.kontonummer}
+        description="Kontonummer hentes automatisk fra Altinn"
+      />
+      <BodyShort size="small">
+        Dersom kontonummer er feil må arrangør oppdatere kontonummer i Altinn. Her kan du lese om{" "}
+        <EndreKontonummerLink />.
+      </BodyShort>
+      <Separator />
+      <ControlledRadioGroup
+        size="small"
+        name={referanseName}
+        legend="Hvordan skal utbetalingen merkes?"
+        horisontal
+      >
+        <Radio value={ArrangorReferanseType.KID}>KID-nummer</Radio>
+        <Radio value={ArrangorReferanseType.FAKTURANUMMER}>Fakturanummer</Radio>
+      </ControlledRadioGroup>
+      {referanse === ArrangorReferanseType.KID && (
+        <FormTextField<T> label="KID-nummer" name={kidNummerName} />
+      )}
+      {referanse === ArrangorReferanseType.FAKTURANUMMER && (
+        <FormTextField<T> label="Fakturanummer" name={fakturanummerName} />
+      )}
+    </VStack>
+  );
 }
 
 function EndreKontonummerLink() {
