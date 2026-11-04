@@ -1,3 +1,5 @@
+import "highcharts/es-modules/Series/Line/LineSeries.js";
+import "highcharts/es-modules/Series/Column/ColumnSeries.js";
 import { Heading } from "@navikt/ds-react";
 import { useRef } from "react";
 import { useGjennomforingDeltakerSummary } from "@/api/gjennomforing/useGjennomforingDeltakerSummary";
