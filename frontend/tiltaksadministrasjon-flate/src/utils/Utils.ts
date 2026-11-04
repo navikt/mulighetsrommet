@@ -2,20 +2,21 @@ import {
   AvbrytGjennomforingAarsak,
   Avtaletype,
   BransjeKode as Bransje,
-  BrukerUtbetalingType,
   FieldError,
   ForerkortKlasseKode as ForerkortKlasse,
   GjennomforingType,
   InnholdElementKode as InnholdElement,
   KurstypeKode,
-  OpplaeringtilskuddKode,
   TilsagnStatusAarsak,
   TilskuddBehandlingStatusAarsak,
   TilskuddMottaker,
   Tiltakskode,
   UtbetalingLinjeReturnertAarsak,
-  UtbetalingStatusAarsak,
   ValidationError,
+  OpplaeringtilskuddKode,
+  UtbetalingStatusAarsak,
+  BrukerUtbetalingType,
+  TilskuddMottakerType,
 } from "@tiltaksadministrasjon/api-client";
 import { FieldErrors } from "react-hook-form";
 
@@ -178,18 +179,12 @@ export function opplaeringTilskuddToString(tilskuddType: OpplaeringtilskuddKode)
   }
 }
 
-export function tilskuddMottakerToString(
-  mottaker: TilskuddMottaker,
-  brukerUtbetalingType: BrukerUtbetalingType | null,
-): string {
-  switch (mottaker) {
-    case TilskuddMottaker.BRUKER:
-      if (!brukerUtbetalingType) {
-        return "Brukeren";
-      }
-      return brukerUtbetalingTypeToString(brukerUtbetalingType);
+export function tilskuddMottakerToString(mottaker: TilskuddMottaker): string {
+  switch (mottaker.type) {
+    case "BRUKER":
+      return brukerUtbetalingTypeToString(mottaker.utbetalingType);
 
-    case TilskuddMottaker.ARRANGOR:
+    case "ARRANGOR":
       return "Arrangøren";
   }
 }
@@ -203,11 +198,11 @@ function brukerUtbetalingTypeToString(brukerUtbetalingType: BrukerUtbetalingType
   }
 }
 
-export function tilskuddMottakerTabellToString(mottaker: TilskuddMottaker): string {
+export function tilskuddMottakerTypeTabellToString(mottaker: TilskuddMottakerType): string {
   switch (mottaker) {
-    case TilskuddMottaker.BRUKER:
+    case TilskuddMottakerType.BRUKER:
       return "Utbetales til brukeren";
-    case TilskuddMottaker.ARRANGOR:
+    case TilskuddMottakerType.ARRANGOR:
       return "Utbetales til arrangøren";
   }
 }

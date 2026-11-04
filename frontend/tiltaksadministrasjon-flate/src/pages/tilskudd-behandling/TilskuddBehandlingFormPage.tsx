@@ -3,7 +3,10 @@ import {
   useValidateSaksopplysninger,
   useValidateTilskuddBehandling,
 } from "@/api/tilskudd-behandling/mutations";
-import { defaultTilskuddRequest } from "@/components/tilskudd-behandling/defaultTilskuddRequest";
+import {
+  defaultTilskuddRequest,
+  defaultTilskuddRequestFromBehandling,
+} from "@/components/tilskudd-behandling/defaultTilskuddRequest";
 import { SaksopplysningerForm } from "@/components/tilskudd-behandling/SaksopplysningerForm";
 import { VedtakForm } from "@/components/tilskudd-behandling/VedtakForm";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
@@ -13,7 +16,6 @@ import { useNavigate, useParams } from "react-router";
 import { v4 } from "uuid";
 import { TilskuddBehandlingLayout } from "@/components/tilskudd-behandling/TilskuddBehandlingLayout";
 import { useTilskuddBehandling } from "@/api/tilskudd-behandling/useTilskuddBehandling";
-import { subDuration, yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
 import { useEnkeltplassGjennomforingOrError } from "@/api/gjennomforing/useGjennomforing";
 import { TotrinnskontrollReturnert } from "@/components/totrinnskontroll/TotrinnskontrollReturnert";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
@@ -53,28 +55,7 @@ function TilskuddBehandlingForm({
   const mutationValidationBehandling = useValidateTilskuddBehandling();
 
   const defaultValues: TilskuddBehandlingRequest = behandling
-    ? {
-        id: behandling.id,
-        gjennomforingId: behandling.gjennomforingId,
-        tilskuddVedtak: behandling.tilskuddVedtak.map((t) => ({
-          id: t.id,
-          tilskuddId: t.tilskuddId,
-          tilskuddOpplaeringType: t.tilskuddOpplaeringType,
-          soknadBelop: t.soknadBelop,
-          periodeStart: yyyyMMddFormatting(t.periode.start) ?? null,
-          periodeSlutt: yyyyMMddFormatting(subDuration(t.periode.slutt, { days: 1 })) ?? null,
-          vedtakResultat: t.vedtakResultat.type,
-          kommentarVedtaksbrev: t.kommentarVedtaksbrev,
-          utbetalingMottaker: t.utbetalingMottaker,
-          belop: t.utbetalingBelop?.belop ?? null,
-          kidNummer: t.kid,
-          brukerUtbetalingType: t.brukerUtbetalingType,
-          soknadJournalpostId: t.soknadJournalpostId,
-          kostnadssted: t.kostnadssted.enhetsnummer,
-          soknadDato: t.soknadDato,
-          kommentarIntern: t.kommentarIntern,
-        })),
-      }
+    ? defaultTilskuddRequestFromBehandling(behandling)
     : {
         id: v4(),
         gjennomforingId,
