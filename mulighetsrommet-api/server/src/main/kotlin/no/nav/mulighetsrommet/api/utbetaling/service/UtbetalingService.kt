@@ -791,7 +791,10 @@ class UtbetalingService(
         val betalingsinformasjon = when (utbetaling.betalingsinformasjon) {
             is Betalingsinformasjon.BBan -> OpprettFaktura.Betalingsinformasjon.BBan(
                 kontonummer = utbetaling.betalingsinformasjon.kontonummer,
-                kid = utbetaling.betalingsinformasjon.kid,
+                referanse = when (utbetaling.betalingsinformasjon.kid) {
+                    Kid(value) ->
+                    else -> {}
+                },
             )
 
             is Betalingsinformasjon.IBan -> OpprettFaktura.Betalingsinformasjon.IBan(

@@ -76,7 +76,7 @@ class OebsRoutesTest : FunSpec({
             bestillingsnummer = Bestillingsnummer("A-1-1"),
             betalingsinformasjon = OpprettFaktura.Betalingsinformasjon.BBan(
                 kontonummer = Kontonummer("12345678901"),
-                kid = null,
+                referanse = OpprettFaktura.Betalingsreferanse.MeldingTilMottaker("Melding til mottaker"),
             ),
             belop = 1000,
             periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),

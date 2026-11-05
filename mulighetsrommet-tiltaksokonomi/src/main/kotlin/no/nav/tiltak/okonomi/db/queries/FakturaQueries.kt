@@ -25,7 +25,6 @@ class FakturaQueries(private val session: Session) {
                 fakturanummer,
                 bestillingsnummer,
                 kontonummer,
-                kid,
                 bic,
                 iban,
                 bank_land_kode,
@@ -40,12 +39,13 @@ class FakturaQueries(private val session: Session) {
                 behandlet_tidspunkt,
                 besluttet_av,
                 besluttet_tidspunkt,
-                beskrivelse
+                beskrivelse,
+                betalingsreferanse_kid,
+                betalingsreferanse_melding
             ) values (
                 :fakturanummer,
                 :bestillingsnummer,
                 :kontonummer,
-                :kid,
                 :bic,
                 :iban,
                 :bank_land_kode,
@@ -60,7 +60,9 @@ class FakturaQueries(private val session: Session) {
                 :behandlet_tidspunkt,
                 :besluttet_av,
                 :besluttet_tidspunkt,
-                :beskrivelse
+                :beskrivelse,
+                :betalingsreferanse_kid,
+                :betalingsreferanse_melding
             )
             returning id
         """
@@ -77,13 +79,14 @@ class FakturaQueries(private val session: Session) {
             "besluttet_tidspunkt" to faktura.besluttetTidspunkt,
             "beskrivelse" to faktura.beskrivelse,
             "kontonummer" to faktura.betalingsinformasjon?.kontonummer?.value,
-            "kid" to faktura.betalingsinformasjon?.kid?.value,
             "bic" to faktura.betalingsinformasjon?.bic,
             "iban" to faktura.betalingsinformasjon?.iban,
             "land_kode" to faktura.betalingsinformasjon?.bankLandKode,
             "bank_navn" to faktura.betalingsinformasjon?.bankNavn,
             "valuta" to faktura.valuta.name,
             "betalingskanal" to faktura.betalingsinformasjon?.betalingsKanal?.name,
+            "betalingsreferanse_kid" to (faktura.betalingsinformasjon?.referanse as? Faktura.Betalingsreferanse.KidNummer)?.kid?.value,
+            "betalingsreferanse_melding" to (faktura.betalingsinformasjon?.referanse as? Faktura.Betalingsreferanse.MeldingTilMottaker)?.melding,
         )
 
         val fakturaId = single(queryOf(query, params)) { it.int("id") }
@@ -151,7 +154,6 @@ class FakturaQueries(private val session: Session) {
                 bestillingsnummer,
                 fakturanummer,
                 kontonummer,
-                kid,
                 bic,
                 iban,
                 bank_land_kode,
@@ -166,12 +168,15 @@ class FakturaQueries(private val session: Session) {
                 behandlet_tidspunkt,
                 besluttet_av,
                 besluttet_tidspunkt,
-                beskrivelse
+                beskrivelse,
+                betalingsreferanse_kid,
+                betalingsreferanse_melding
             from faktura
             where fakturanummer = ?
         """.trimIndent()
 
         return session.single(queryOf(selectFaktura, fakturanummer.value)) { row ->
+            val fakturanummer = Fakturanummer(row.string("fakturanummer"))
             val linjer = session.list(queryOf(selectLinje, row.int("id"))) { linje ->
                 Faktura.Linje(
                     linjenummer = linje.int("linjenummer"),
@@ -179,22 +184,38 @@ class FakturaQueries(private val session: Session) {
                     belop = linje.int("belop"),
                 )
             }
+
+            val kid = row.stringOrNull("betalingsreferanse_kid")?.let { kid -> Kid.parseOrThrow(kid) }
+            val referanse = if (kid != null) {
+                Faktura.Betalingsreferanse.KidNummer(kid)
+            } else {
+                row.stringOrNull("betalingsreferanse_melding")?.let { melding ->
+                    Faktura.Betalingsreferanse.MeldingTilMottaker(melding)
+                }
+            }
+
             val betalingskanal = row.stringOrNull("betalingskanal")?.let { OebsBetalingskanal.valueOf(it) }
+            val betalingsinformasjon = when (betalingskanal) {
+                OebsBetalingskanal.BBAN,
+                OebsBetalingskanal.IBAN,
+                -> Faktura.Betalingsinformasjon(
+                    kontonummer = row.stringOrNull("kontonummer")?.let { Kontonummer(it) },
+                    referanse = referanse,
+                    iban = row.stringOrNull("iban"),
+                    bic = row.stringOrNull("bic"),
+                    bankLandKode = row.stringOrNull("bank_land_kode"),
+                    bankNavn = row.stringOrNull("bank_navn"),
+                    betalingsKanal = betalingskanal,
+                )
+
+                // Oppgjorte bestillinger har ingen betalingsinformasjon
+                null -> null
+            }
 
             Faktura(
                 bestillingsnummer = Bestillingsnummer(row.string("bestillingsnummer")),
-                fakturanummer = Fakturanummer(row.string("fakturanummer")),
-                betalingsinformasjon = betalingskanal?.let {
-                    Faktura.Betalingsinformasjon(
-                        kontonummer = row.stringOrNull("kontonummer")?.let { Kontonummer(it) },
-                        kid = row.stringOrNull("kid")?.let { kid -> Kid.parseOrThrow(kid) },
-                        iban = row.stringOrNull("iban"),
-                        bic = row.stringOrNull("bic"),
-                        bankLandKode = row.stringOrNull("bank_land_kode"),
-                        bankNavn = row.stringOrNull("bank_navn"),
-                        betalingsKanal = betalingskanal,
-                    )
-                },
+                fakturanummer = fakturanummer,
+                betalingsinformasjon = betalingsinformasjon,
                 belop = row.int("belop"),
                 periode = row.periode("periode"),
                 status = FakturaStatusType.valueOf(row.string("status")),

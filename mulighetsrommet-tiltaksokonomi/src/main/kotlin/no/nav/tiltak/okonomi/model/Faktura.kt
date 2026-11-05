@@ -29,10 +29,28 @@ data class Faktura(
     val beskrivelse: String?,
     val valuta: Valuta,
 ) {
+    sealed interface Betalingsreferanse {
+        @JvmInline
+        value class KidNummer(
+            val kid: Kid,
+        ) : Betalingsreferanse
+
+        @JvmInline
+        value class MeldingTilMottaker(
+            val melding: String,
+        ) : Betalingsreferanse
+
+        companion object {
+            fun from(betalingsreferanse: OpprettFaktura.Betalingsreferanse): Betalingsreferanse = when (betalingsreferanse) {
+                is OpprettFaktura.Betalingsreferanse.KidNummer -> KidNummer(betalingsreferanse.kid)
+                is OpprettFaktura.Betalingsreferanse.MeldingTilMottaker -> MeldingTilMottaker(betalingsreferanse.melding)
+            }
+        }
+    }
     data class Betalingsinformasjon(
         val betalingsKanal: OebsBetalingskanal,
         val kontonummer: Kontonummer?,
-        val kid: Kid?,
+        val referanse: Betalingsreferanse?,
         val bankNavn: String?,
         val bankLandKode: String?,
         val bic: String?,
@@ -44,7 +62,7 @@ data class Faktura(
                     is OpprettFaktura.Betalingsinformasjon.BBan -> Betalingsinformasjon(
                         betalingsKanal = OebsBetalingskanal.BBAN,
                         kontonummer = betalingsinformasjon.kontonummer,
-                        kid = betalingsinformasjon.kid,
+                        referanse = Betalingsreferanse.from(betalingsinformasjon.referanse),
                         bankNavn = null,
                         bankLandKode = null,
                         bic = null,
@@ -54,7 +72,7 @@ data class Faktura(
                     is OpprettFaktura.Betalingsinformasjon.IBan -> Betalingsinformasjon(
                         betalingsKanal = OebsBetalingskanal.IBAN,
                         kontonummer = null,
-                        kid = null,
+                        referanse = null,
                         bankNavn = betalingsinformasjon.bankNavn,
                         bankLandKode = betalingsinformasjon.bankLandKode,
                         bic = betalingsinformasjon.bic,

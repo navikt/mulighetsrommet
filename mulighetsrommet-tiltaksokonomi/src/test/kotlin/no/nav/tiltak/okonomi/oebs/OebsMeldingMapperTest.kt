@@ -6,6 +6,7 @@ import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.tiltak.okonomi.Artskonto
 import no.nav.tiltak.okonomi.Regnskapskonto
+import no.nav.tiltak.okonomi.model.Faktura
 import no.nav.tiltak.okonomi.test.Fixtures
 import java.time.LocalDate
 
@@ -113,6 +114,12 @@ class OebsMeldingMapperTest : FunSpec({
         }
 
         test("melding til leverandør blir bare satt når kid mangler") {
+            val meldingTilLeverandor = """
+                Tiltakstype: Arbeidsforberedende trening
+                Periode: 01.01.2025 - 31.01.2025
+                Tilsagnsnummer: A-1-1
+            """.trimIndent()
+
             val meldingMedKid = OebsMeldingMapper.toOebsFakturaMelding(
                 bestilling = bestilling,
                 faktura = faktura,
@@ -124,16 +131,12 @@ class OebsMeldingMapperTest : FunSpec({
 
             val meldingUtenKid = OebsMeldingMapper.toOebsFakturaMelding(
                 bestilling = bestilling,
-                faktura = faktura.copy(betalingsinformasjon = faktura.betalingsinformasjon?.copy(kid = null)),
+                faktura = faktura.copy(betalingsinformasjon = faktura.betalingsinformasjon?.copy(referanse = Faktura.Betalingsreferanse.MeldingTilMottaker(meldingTilLeverandor))),
                 erSisteFaktura = false,
             )
 
             meldingUtenKid.kidNummer.shouldBeNull()
-            meldingUtenKid.meldingTilLeverandor shouldBe """
-                Tiltakstype: Arbeidsforberedende trening
-                Periode: 01.01.2025 - 31.01.2025
-                Tilsagnsnummer: A-1-1
-            """.trimIndent()
+            meldingUtenKid.meldingTilLeverandor shouldBe meldingTilLeverandor
         }
     }
 })
