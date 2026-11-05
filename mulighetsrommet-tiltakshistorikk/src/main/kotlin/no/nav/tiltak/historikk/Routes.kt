@@ -1,15 +1,23 @@
 package no.nav.tiltak.historikk
 
 import io.ktor.http.HttpStatusCode
+import io.ktor.openapi.OpenApiDoc
+import io.ktor.openapi.OpenApiInfo
+import io.ktor.openapi.jsonSchema
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
+import io.ktor.server.response.respondText
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.delete
 import io.ktor.server.routing.get
+import io.ktor.server.routing.openapi.OpenApiDocSource
+import io.ktor.server.routing.openapi.describe
+import io.ktor.server.routing.openapi.hide
 import io.ktor.server.routing.post
 import io.ktor.server.routing.put
 import io.ktor.server.routing.route
 import io.ktor.server.util.getValue
+import io.ktor.utils.io.ExperimentalKtorApi
 import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.kafka.Topic
 import no.nav.tiltak.historikk.db.TiltakshistorikkDatabase
@@ -19,13 +27,14 @@ import no.nav.tiltak.historikk.service.TiltakshistorikkService
 import no.nav.tiltak.historikk.service.VirksomhetService
 import java.util.UUID
 
+@OptIn(ExperimentalKtorApi::class)
 fun Route.tiltakshistorikkRoutes(
     kafka: KafkaConsumerOrchestrator,
     db: TiltakshistorikkDatabase,
     tiltakshistorikk: TiltakshistorikkService,
     virksomheter: VirksomhetService,
 ) {
-    authenticate(AuthProvider.TILTAKSHISTORIKK_READ) {
+    val api = authenticate(AuthProvider.TILTAKSHISTORIKK_READ) {
         route("/api/v1/historikk") {
             post {
                 val request = call.receive<TiltakshistorikkV1Request>()
@@ -33,6 +42,28 @@ fun Route.tiltakshistorikkRoutes(
                 val response: TiltakshistorikkV1Response = tiltakshistorikk.getTiltakshistorikk(request)
 
                 call.respond(response)
+            }.describe {
+                summary = "Hent tiltakshistorikk"
+                description = """
+                    Henter tiltakshistorikk for ett eller flere fødselsnummer oppgitt i `identer`.
+                    Resultatet er en samlet liste med deltakelser fra Arena, tiltak hos arrangør fra Team Komet
+                    og tiltak hos arbeidsgiver fra Team Tiltak, der feltet `type` angir deltakelsestypen.
+                    For komplett historikk per bruker så må konsumenten hente alle historiske identer fra PDL
+                    og inkludere dem i forespørselen.
+                """.trimIndent()
+                requestBody {
+                    required = true
+                    schema = jsonSchema<TiltakshistorikkV1Request>()
+                }
+                responses {
+                    HttpStatusCode.OK {
+                        description = "Tiltakshistorikk for de oppgitte identene."
+                        schema = jsonSchema<TiltakshistorikkV1Response>()
+                    }
+                    HttpStatusCode.Unauthorized {
+                        description = "Mangler gyldig tilgang."
+                    }
+                }
             }
         }
     }
@@ -97,4 +128,15 @@ fun Route.tiltakshistorikkRoutes(
             }
         }
     }
+
+    val source = OpenApiDocSource.Routing(
+        routes = { api.descendants() },
+    )
+    get("/openapi.json") {
+        val document = source.read(
+            call.application,
+            OpenApiDoc(info = OpenApiInfo("Tiltakshistorikk", "v1")),
+        )
+        call.respondText(document.content, document.contentType)
+    }.hide()
 }

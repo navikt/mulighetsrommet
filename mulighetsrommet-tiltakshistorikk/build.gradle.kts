@@ -47,6 +47,7 @@ dependencies {
     implementation(libs.ktor.server.defaultHeaders)
     implementation(libs.ktor.server.metricsMicrometer)
     implementation(libs.ktor.server.netty)
+    implementation(libs.ktor.server.routingOpenapi)
     testImplementation(libs.ktor.server.testHost)
     implementation(libs.bundles.netty)
 
@@ -56,4 +57,5 @@ dependencies {
     testImplementation(libs.kotest.assertions.arrow)
     testImplementation(libs.mockk)
     testImplementation(libs.nav.mockOauth2Server)
+    testImplementation(libs.selfie.kotest)
 }
