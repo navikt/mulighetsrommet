@@ -81,6 +81,7 @@ export function TilsagnForGjennomforingPage() {
       <ContentBox>
         <FilterAndTableLayout
           hasChanged={hasChanged}
+          lagreFilterButton={null}
           filter={
             <TilsagnFilter
               filter={filter.values}

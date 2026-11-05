@@ -133,13 +133,24 @@ describe("createInnblikkBeforeSend", () => {
   it.each<[string, Record<string, unknown>]>([
     ["ekstra datafelt", { data: { ...statusData, status: "secret" } }],
     ["manglende filternavn", { data: { ...statusData, filternavn: undefined } }],
-    ["ekstra metadata", { unexpected: "private-value" }],
-    ["tag", { tag: "private-tag" }],
+    ["manglende data", { data: undefined }],
+    ["tekst som data", { data: "private-value" }],
+    ["liste som data", { data: [statusData] }],
     ["identifikator", { id: "private-id" }],
     ["ukjent hendelsesnavn", { name: "unapproved" }],
     ["prototypemetode", { name: "toString" }],
   ])("avviser hendelser med %s", (_, extra) => {
     expect(filter("event", { ...customEvent, ...extra })).toBe(false);
+  });
+
+  it("utelater ekstra metadata uten å avvise en godkjent hendelse", () => {
+    expect(
+      filter("event", { ...customEvent, unexpected: "private-value", tag: "private-tag" }),
+    ).toEqual(filter("event", customEvent));
+    expect(filter("event", customEvent)).toMatchObject({
+      name: "FILTER_ENDRET",
+      data: statusData,
+    });
   });
 
   it("avviser identifikasjon og data uten hendelsesnavn", () => {
@@ -236,5 +247,17 @@ describe("initializeInnblikk", () => {
       referrer: `${window.location.origin}/`,
     });
     expect(beforeSend("event", payload)).toBe(false);
+  });
+
+  it("nullstiller navigasjonstilstanden på en ukjent rute", () => {
+    beforeSend("event", payload);
+    window.history.pushState(null, "", "/ukjent");
+    expect(beforeSend("event", payload)).toBe(false);
+
+    window.history.replaceState(null, "", "/");
+    expect(beforeSend("event", payload)).toMatchObject({
+      url: `${window.location.origin}/`,
+      referrer: undefined,
+    });
   });
 });
