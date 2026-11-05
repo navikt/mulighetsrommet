@@ -22,6 +22,7 @@ import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.domain.testing.fixture.AvtaleFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.DeltakerFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavAnsattFixture
+import no.nav.mulighetsrommet.api.domain.testing.fixture.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures
@@ -37,6 +38,7 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.withTestApplication
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.ktor.createMockEngine
+import no.nav.mulighetsrommet.model.DataElement
 import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import java.util.UUID
@@ -98,6 +100,46 @@ class TilsagnRoutesTest : FunSpec({
             mockTilgangsmaskinenForbidden(avvistGrunn)
         },
     )
+
+    test("filtrer tilsagn på kostnadssteder sammen med eksisterende filtre") {
+        database.api.session {
+            queries.tilsagn.upsert(
+                TilsagnFixtures.Tilsagn2.copy(kostnadssted = NavEnhetFixtures.Gjovik.enhetsnummer),
+            )
+        }
+
+        withTestApplication(appConfig("AVVIST_SKJERMING")) {
+            val navAnsattClaims = getAnsattClaims(ansatt, setOf(okonomiLesRolle, generellRolle))
+            val token = oauth.issueToken(claims = navAnsattClaims).serialize()
+
+            val cases = listOf(
+                "" to listOf("A-2025/1-1", "A-2025/1-2"),
+                "kostnadssteder=0400" to listOf("A-2025/1-1"),
+                "kostnadssteder=0502" to listOf("A-2025/1-2"),
+                "kostnadssteder=0400&kostnadssteder=0502" to listOf("A-2025/1-1", "A-2025/1-2"),
+                "kostnadssteder=0400&kostnadssteder=0400" to listOf("A-2025/1-1"),
+                "kostnadssteder=9999" to emptyList(),
+                "kostnadssteder=0400&statuser=GODKJENT&gjennomforingId=${GjennomforingFixtures.AFT1.id}" to listOf("A-2025/1-1"),
+                "kostnadssteder=0502&statuser=GODKJENT" to emptyList(),
+                "kostnadssteder=0400&gjennomforingId=${UUID.randomUUID()}" to emptyList(),
+            )
+
+            cases.forEach { (query, expected) ->
+                val response = client.get("/api/tiltaksadministrasjon/tilsagn?$query") {
+                    bearerAuth(token)
+                }
+                response.status shouldBe HttpStatusCode.OK
+                val body = response.body<PaginatedDataDrivenTableResponse>()
+                body.pagination.totalCount shouldBe expected.size
+                body.table.rows.map { it.cells["bestillingsnummer"] }.toSet() shouldBe expected.map { DataElement.text(it) }.toSet()
+            }
+
+            val invalidResponse = client.get("/api/tiltaksadministrasjon/tilsagn?kostnadssteder=invalid") {
+                bearerAuth(token)
+            }
+            invalidResponse.status shouldBe HttpStatusCode.BadRequest
+        }
+    }
 
     test("standardverdier avvises for manuelt opplæringstilskudd") {
         withTestApplication(appConfig("AVVIST_SKJERMING")) {

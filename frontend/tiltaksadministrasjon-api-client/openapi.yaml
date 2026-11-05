@@ -2010,6 +2010,22 @@ paths:
       description: Hent alle tilsagn for gitt gjennomføring
       operationId: getTilsagnTableData
       parameters:
+      - name: page
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          type: integer
+          format: int32
+      - name: size
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          type: integer
+          format: int32
       - name: gjennomforingId
         in: query
         required: false
@@ -2027,6 +2043,15 @@ paths:
           type: array
           items:
             $ref: "#/components/schemas/TilsagnStatus"
+      - name: kostnadssteder
+        in: query
+        required: false
+        deprecated: false
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
       responses:
         "200":
           description: Tilsagn i tabellformat
@@ -2034,7 +2059,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/DataDrivenTableDto"
+                $ref: "#/components/schemas/PaginatedDataDrivenTableResponse"
         default:
           description: Problem details
           headers: {}
@@ -7403,6 +7428,20 @@ components:
       - ANNULLERT
       - TIL_OPPGJOR
       - OPPGJORT
+    DataDrivenTableDto:
+      type: object
+      properties:
+        columns:
+          type: array
+          items:
+            $ref: "#/components/schemas/DataDrivenTableDto.Column"
+        rows:
+          type: array
+          items:
+            $ref: "#/components/schemas/DataDrivenTableDto.Row"
+      required:
+      - columns
+      - rows
     DataDrivenTableDto.Column:
       type: object
       properties:
@@ -7615,20 +7654,21 @@ components:
       - warning
       - danger
       - neutral
-    DataDrivenTableDto:
+    PaginatedDataDrivenTableResponse:
       type: object
       properties:
-        columns:
+        pagination:
+          $ref: "#/components/schemas/PaginationSummary"
+        table:
+          $ref: "#/components/schemas/DataDrivenTableDto"
+        kostnadssteder:
           type: array
           items:
-            $ref: "#/components/schemas/DataDrivenTableDto.Column"
-        rows:
-          type: array
-          items:
-            $ref: "#/components/schemas/DataDrivenTableDto.Row"
+            type: string
       required:
-      - columns
-      - rows
+      - kostnadssteder
+      - pagination
+      - table
     TilsagnDto:
       type: object
       properties:
