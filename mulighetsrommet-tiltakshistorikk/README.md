@@ -15,6 +15,8 @@ for datamodell. Det finnes tre typer deltakelser:
 
 ### API
 
+OpenAPI-spesifikasjonen er tilgjengelig som JSON på `GET /openapi.json`.
+
 Tiltakshistorikk hentes via et POST-endepunkt som aksepterer ett eller flere fødselsnummer.
 Autentisering skjer via M2M-token (Entra ID).
 Se [`TiltakshistorikkClient`](../common/tiltakshistorikk-client/src/main/kotlin/no/nav/tiltak/historikk/TiltakshistorikkClient.kt) for referanseimplementasjon.
