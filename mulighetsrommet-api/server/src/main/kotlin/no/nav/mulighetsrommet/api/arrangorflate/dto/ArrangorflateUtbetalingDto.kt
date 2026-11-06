@@ -20,7 +20,6 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
 import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskDato
 import no.nav.mulighetsrommet.model.DataDetails
 import no.nav.mulighetsrommet.model.DataDrivenTableDto
-import no.nav.mulighetsrommet.model.LabeledDataElement
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.model.ValutaBelop
@@ -47,7 +46,7 @@ data class ArrangorflateUtbetalingDto(
     val beregning: ArrangorflateBeregning,
     val periode: Periode,
     val type: UtbetalingTypeDto,
-    val innsendingsDetaljer: List<LabeledDataElement>,
+    val detaljer: UtbetalingsdetaljerDto,
     val linjer: List<ArrangforflateUtbetalingLinje>,
     val advarsler: List<DeltakerAdvarselDto>,
     val regenerering: RegenererStatus,

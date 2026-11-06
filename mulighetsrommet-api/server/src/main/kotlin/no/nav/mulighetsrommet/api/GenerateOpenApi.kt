@@ -33,7 +33,7 @@ fun main(args: Array<String>) {
         configureRouting()
         configureOpenApiGenerator()
         routing {
-            apiRoutes(ApplicationConfigLocal)
+            apiRoutes()
         }
     }
 

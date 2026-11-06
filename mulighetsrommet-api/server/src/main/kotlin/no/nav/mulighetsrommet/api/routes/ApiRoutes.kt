@@ -4,7 +4,6 @@ import io.github.smiley4.ktoropenapi.openApi
 import io.github.smiley4.ktorswaggerui.swaggerUI
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.route
-import no.nav.mulighetsrommet.api.AppConfig
 import no.nav.mulighetsrommet.api.arenaadapter.arenaAdapterRoutes
 import no.nav.mulighetsrommet.api.arrangor.arrangorKontaktpersonRoutes
 import no.nav.mulighetsrommet.api.arrangor.arrangorRoutes
@@ -46,7 +45,7 @@ import no.nav.mulighetsrommet.featuretoggle.api.featureTogglesRoute
 import no.nav.mulighetsrommet.notifications.notificationRoutes
 import no.nav.mulighetsrommet.oppgaver.oppgaverRoutes
 
-fun Route.apiRoutes(config: AppConfig) {
+fun Route.apiRoutes() {
     authenticate(AuthProvider.NAV_ANSATT_WITH_ROLES) {
         authorize(Rolle.TEAM_MULIGHETSROMMET) {
             maamRoutes()
@@ -100,7 +99,7 @@ fun Route.apiRoutes(config: AppConfig) {
             }
 
             authenticate(AuthProvider.TOKEN_X_ARRANGOR_FLATE) {
-                arrangorflateRoutes(config)
+                arrangorflateRoutes()
                 arrangorFeatureToggleRoutes()
             }
         }

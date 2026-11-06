@@ -8,7 +8,11 @@ import {
   utbetalingTabellOversiktAktive,
   utbetalingTabellOversiktHistoriske,
 } from "./utbetalingOversiktMocks";
-import { arrFlateUtbetaling, klarForGodkjenningIds } from "./utbetalingDetaljerMocks";
+import {
+  arrFlateUtbetaling,
+  klarForGodkjenningIds,
+  medUtbetalingsdetaljer,
+} from "./utbetalingDetaljerMocks";
 import { arrangorflateTilsagn, tilsagnTabellOversikt } from "./tilsagnMocks";
 import { handlers as opprettKravHandlers } from "./opprettKrav/handlers";
 import { arrangorMock } from "./opprettKrav/gjennomforingMocks";
@@ -34,12 +38,14 @@ export const handlers = [
       const utbetaling = arrFlateUtbetaling.find((k) => k.id === id);
       if (utbetaling?.id && klarForGodkjenningIds.includes(utbetaling.id)) {
         return HttpResponse.json({
-          ...utbetaling,
-          status: ArrangorflateUtbetalingStatus.BEHANDLES_AV_NAV,
+          ...medUtbetalingsdetaljer({
+            ...utbetaling,
+            status: ArrangorflateUtbetalingStatus.BEHANDLES_AV_NAV,
+          }),
           godkjentAvArrangorTidspunkt: new Date().toISOString(),
         });
       }
-      return HttpResponse.json(utbetaling);
+      return HttpResponse.json(utbetaling && medUtbetalingsdetaljer(utbetaling));
     },
   ),
   http.get<PathParams, string>(

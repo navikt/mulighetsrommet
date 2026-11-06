@@ -1657,6 +1657,46 @@ components:
       - displayName
       - displayNameLong
       - tagName
+    UtbetalingsdetaljerDto:
+      type: object
+      properties:
+        arrangorNavn:
+          type: string
+        tiltakstypeNavn:
+          type: string
+        innsending:
+          $ref: "#/components/schemas/DataDetails"
+        utbetaling:
+          $ref: "#/components/schemas/DataDetails"
+        satsDetaljer:
+          type: array
+          items:
+            $ref: "#/components/schemas/DataDetails"
+        betalingsinformasjon:
+          $ref: "#/components/schemas/DataDetails"
+        status:
+          $ref: "#/components/schemas/DataDetails"
+        avbrytelse:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/DataDetails"
+        tilsagnHeader:
+          type: string
+        tilsagn:
+          type: array
+          items:
+            $ref: "#/components/schemas/DataDetails"
+      required:
+      - arrangorNavn
+      - avbrytelse
+      - betalingsinformasjon
+      - innsending
+      - satsDetaljer
+      - status
+      - tilsagn
+      - tilsagnHeader
+      - tiltakstypeNavn
+      - utbetaling
     ArrangforflateUtbetalingLinje:
       type: object
       properties:
@@ -1867,10 +1907,8 @@ components:
           $ref: "#/components/schemas/Periode"
         type:
           $ref: "#/components/schemas/UtbetalingTypeDto"
-        innsendingsDetaljer:
-          type: array
-          items:
-            $ref: "#/components/schemas/LabeledDataElement"
+        detaljer:
+          $ref: "#/components/schemas/UtbetalingsdetaljerDto"
         linjer:
           type: array
           items:
@@ -1896,9 +1934,9 @@ components:
       - betalingsinformasjon
       - blokkeringer
       - createdAt
+      - detaljer
       - gjennomforing
       - id
-      - innsendingsDetaljer
       - innsendtAvArrangorDato
       - linjer
       - periode
