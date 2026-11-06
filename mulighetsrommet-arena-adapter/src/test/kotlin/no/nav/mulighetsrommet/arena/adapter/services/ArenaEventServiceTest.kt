@@ -18,6 +18,7 @@ import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping.Status.Handled
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping.Status.Ignored
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping.Status.Unhandled
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ProcessingStatus
 import no.nav.mulighetsrommet.arena.adapter.repositories.ArenaEntityMappingRepository
@@ -82,6 +83,11 @@ class ArenaEventServiceTest : FunSpec({
         )
     }
 
+    fun persistEvent(event: ArenaEvent, mappingStatus: ArenaEntityMapping.Status) {
+        events.upsert(event)
+        entities.upsertMapping(entities.getOrCreateMapping(event).copy(status = mappingStatus))
+    }
+
     context("process event") {
         test("should process and save the event") {
             val processor = ArenaEventTestProcessor()
@@ -115,155 +121,6 @@ class ArenaEventServiceTest : FunSpec({
                 it?.status shouldBe ProcessingStatus.Processed
                 it?.message shouldBe null
             }
-        }
-
-        test("should not replay dependent events when event gets processed successfully") {
-            val dependentEvent = ArenaEvent(
-                status = ProcessingStatus.Processed,
-                arenaTable = table,
-                operation = ArenaEvent.Operation.Insert,
-                arenaId = "5",
-                payload = JsonObject(mapOf("after" to JsonObject(mapOf("name" to JsonPrimitive("Dependent Bar"))))),
-            )
-
-            val dependentEventMapping = entities.getOrCreateMapping(dependentEvent)
-            val processedEventMapping = entities.getOrCreateMapping(processedEvent)
-
-            val processor = spyk(
-                ArenaEventTestProcessor(
-                    eventIsRelevant = { it == processedEvent },
-                    getDependentEntities = { listOf(dependentEventMapping) },
-                ) {
-                    ProcessingResult(Handled).right()
-                },
-            )
-
-            val dependentEventProcessor = spyk(
-                ArenaEventTestProcessor({ it == dependentEvent }) {
-                    ProcessingResult(Handled).right()
-                },
-            )
-
-            val service = ArenaEventService(
-                events = events,
-                processors = listOf(processor, dependentEventProcessor),
-                entities = entities,
-            )
-
-            // Prosesser [dependentEvent] først
-            service.processEvent(dependentEvent)
-
-            // Deretter [processedEvent]
-            service.processEvent(processedEvent)
-
-            // Verifiser at [processedEVent] blitt prosessert én gang
-            coVerify(exactly = 1) {
-                processor.handleEvent(processedEvent)
-            }
-            coVerify(exactly = 0) {
-                processor.handleEvent(dependentEvent)
-            }
-
-            // Verifiser at [dependentEvent] har blitt prosessert én gang
-            coVerify(exactly = 0) {
-                dependentEventProcessor.handleEvent(processedEvent)
-            }
-            coVerify(exactly = 1) {
-                dependentEventProcessor.handleEvent(dependentEvent)
-            }
-
-            // Verifiser tilstand i underliggende tabeller
-            events.get(table, processedEvent.arenaId).let {
-                it?.status shouldBe ProcessingStatus.Processed
-                it?.message shouldBe null
-            }
-            events.get(table, dependentEvent.arenaId).let {
-                it?.status shouldBe ProcessingStatus.Processed
-                it?.message shouldBe null
-            }
-
-            entitiesRepository.get(table, processedEvent.arenaId).let {
-                it?.entityId shouldBe processedEventMapping.entityId
-                it?.status shouldBe Handled
-                it?.message shouldBe null
-            }
-            entitiesRepository.get(table, dependentEvent.arenaId).let {
-                it?.entityId shouldBe dependentEventMapping.entityId
-                it?.status shouldBe Handled
-                it?.message shouldBe null
-            }
-        }
-
-        test("should replay dependent events when entity transitions from Ignored to Handled") {
-            val gjennomforingEvent = ArenaEvent(
-                status = ProcessingStatus.Pending,
-                arenaTable = table,
-                operation = ArenaEvent.Operation.Insert,
-                arenaId = "10",
-                payload = JsonObject(mapOf("after" to JsonObject(mapOf("name" to JsonPrimitive("Gjennomforing"))))),
-            )
-            val deltakerEvent = ArenaEvent(
-                status = ProcessingStatus.Pending,
-                arenaTable = ArenaTable.AvtaleInfo,
-                operation = ArenaEvent.Operation.Insert,
-                arenaId = "11",
-                payload = JsonObject(mapOf("after" to JsonObject(mapOf("name" to JsonPrimitive("Deltaker"))))),
-            )
-
-            val ignoredDeltakerMapping = entities.getOrCreateMapping(deltakerEvent)
-
-            // Simulerer at gjennomføring først er Ignored, deretter Handled
-            var gjennomforingHandleCount = 0
-            val gjennomforingProcessor = spyk(
-                ArenaEventTestProcessor(
-                    eventIsRelevant = { it.arenaId == gjennomforingEvent.arenaId && it.arenaTable == gjennomforingEvent.arenaTable },
-                    getDependentEntities = { listOf(ignoredDeltakerMapping) },
-                ) {
-                    gjennomforingHandleCount++
-                    if (gjennomforingHandleCount == 1) {
-                        ProcessingResult(Ignored, "Gjennomforing ignorert").right()
-                    } else {
-                        ProcessingResult(Handled).right()
-                    }
-                },
-            )
-
-            // Simulerer at deltaker er Ignored fordi gjennomføring er Ignored, og Handled ved replay
-            var deltakerHandleCount = 0
-            val deltakerProcessor = spyk(
-                ArenaEventTestProcessor(eventIsRelevant = { it.arenaId == deltakerEvent.arenaId && it.arenaTable == deltakerEvent.arenaTable }) {
-                    deltakerHandleCount++
-                    if (deltakerHandleCount == 1) {
-                        ProcessingResult(
-                            Ignored,
-                            "Deltaker ignorert fordi tilhørende tiltaksgjennomføring også er ignorert",
-                        ).right()
-                    } else {
-                        ProcessingResult(Handled).right()
-                    }
-                },
-            )
-
-            val service = ArenaEventService(
-                events = events,
-                processors = listOf(gjennomforingProcessor, deltakerProcessor),
-                entities = entities,
-            )
-
-            // Prosesser gjennomforing første gang => Ignored
-            service.processEvent(gjennomforingEvent)
-            entitiesRepository.get(gjennomforingEvent.arenaTable, gjennomforingEvent.arenaId)?.status shouldBe Ignored
-
-            // Prosesser deltaker => Ignored fordi gjennomforing er Ignored
-            service.processEvent(deltakerEvent)
-            entitiesRepository.get(deltakerEvent.arenaTable, deltakerEvent.arenaId)?.status shouldBe Ignored
-            coVerify(exactly = 1) { deltakerProcessor.handleEvent(any()) }
-
-            // Prosesser gjennomforing andre gang => Handled (status endres fra Ignored til Handled) og at deltaker ble gjenspilt og er nå Handled
-            service.processEvent(gjennomforingEvent)
-            entitiesRepository.get(gjennomforingEvent.arenaTable, gjennomforingEvent.arenaId)?.status shouldBe Handled
-            entitiesRepository.get(deltakerEvent.arenaTable, deltakerEvent.arenaId)?.status shouldBe Handled
-            coVerify(exactly = 2) { deltakerProcessor.handleEvent(any()) }
         }
 
         test("should save the event with an error status when the processor fails to handle the event") {
@@ -526,6 +383,149 @@ class ArenaEventServiceTest : FunSpec({
         }
     }
 
+    context("dependent event reconciliation") {
+        val parentEvent = processedEvent.copy(arenaId = "10")
+        val childEvent = processedEvent.copy(arenaTable = ArenaTable.AvtaleInfo, arenaId = "11")
+        val otherChildEvent = childEvent.copy(arenaId = "12")
+
+        fun createChildProcessor() = spyk(
+            ArenaEventTestProcessor(eventIsRelevant = { it.arenaTable == childEvent.arenaTable }) {
+                entities.isIgnored(parentEvent.arenaTable, parentEvent.arenaId).map { isIgnored ->
+                    ProcessingResult(if (isIgnored) Ignored else Handled)
+                }
+            },
+        )
+
+        fun createParentProcessor(
+            getDependents: () -> List<ArenaEntityMapping> = {
+                listOfNotNull(
+                    entitiesRepository.get(childEvent.arenaTable, childEvent.arenaId),
+                    entitiesRepository.get(otherChildEvent.arenaTable, otherChildEvent.arenaId),
+                )
+            },
+        ) = ArenaEventTestProcessor(
+            eventIsRelevant = { it.arenaTable == parentEvent.arenaTable },
+            getDependentEntities = getDependents,
+        )
+
+        fun createService(processors: List<ArenaEventProcessor>) = ArenaEventService(
+            config = ArenaEventService.Config(maxRetries = 10),
+            events = events,
+            processors = processors,
+            entities = entities,
+        )
+
+        test("should save the parent status before replaying ignored dependent events") {
+            persistEvent(parentEvent, mappingStatus = Ignored)
+            persistEvent(childEvent, mappingStatus = Ignored)
+            val service = createService(listOf(createParentProcessor(), createChildProcessor()))
+
+            service.processEvent(parentEvent)
+
+            entitiesRepository.get(parentEvent.arenaTable, parentEvent.arenaId)?.status shouldBe Handled
+            entitiesRepository.get(childEvent.arenaTable, childEvent.arenaId)?.status shouldBe Handled
+            events.get(childEvent.arenaTable, childEvent.arenaId)?.status shouldBe ProcessingStatus.Processed
+        }
+
+        test("should resume partially completed reconciliation when the parent is already Handled") {
+            persistEvent(parentEvent.copy(status = ProcessingStatus.Failed), mappingStatus = Handled)
+            persistEvent(childEvent, mappingStatus = Handled)
+            persistEvent(otherChildEvent, mappingStatus = Ignored)
+            val childProcessor = createChildProcessor()
+            val service = createService(listOf(createParentProcessor(), childProcessor))
+
+            service.retryEvents(table = parentEvent.arenaTable, status = ProcessingStatus.Failed)
+
+            coVerify(exactly = 0) { childProcessor.handleEvent(childEvent) }
+            coVerify(exactly = 1) { childProcessor.handleEvent(otherChildEvent) }
+            entitiesRepository.get(childEvent.arenaTable, childEvent.arenaId)?.status shouldBe Handled
+            entitiesRepository.get(otherChildEvent.arenaTable, otherChildEvent.arenaId)?.status shouldBe Handled
+            events.get(parentEvent.arenaTable, parentEvent.arenaId)?.status shouldBe ProcessingStatus.Processed
+        }
+
+        test("should allow retry when dependency lookup fails after saving the parent") {
+            persistEvent(parentEvent, mappingStatus = Ignored)
+            persistEvent(childEvent, mappingStatus = Ignored)
+            val parentProcessor = createParentProcessor(getDependents = { error("Avbrutt avhengighetsoppslag") })
+            val childProcessor = createChildProcessor()
+            val failingService = createService(listOf(parentProcessor, childProcessor))
+
+            failingService.processEvent(parentEvent)
+
+            entitiesRepository.get(parentEvent.arenaTable, parentEvent.arenaId)?.status shouldBe Handled
+            entitiesRepository.get(childEvent.arenaTable, childEvent.arenaId)?.status shouldBe Ignored
+            events.get(parentEvent.arenaTable, parentEvent.arenaId)?.status shouldBe ProcessingStatus.Failed
+            coVerify(exactly = 0) { childProcessor.handleEvent(any()) }
+
+            createService(listOf(createParentProcessor(), childProcessor)).retryEvents(
+                table = parentEvent.arenaTable,
+                status = ProcessingStatus.Failed
+            )
+
+            entitiesRepository.get(childEvent.arenaTable, childEvent.arenaId)?.status shouldBe Handled
+            events.get(parentEvent.arenaTable, parentEvent.arenaId)?.status shouldBe ProcessingStatus.Processed
+        }
+
+        test("should reconsider ignored dependent events on the next parent event") {
+            persistEvent(parentEvent, mappingStatus = Handled)
+            persistEvent(childEvent, mappingStatus = Ignored)
+            val ignoredChildProcessor = spyk(
+                ArenaEventTestProcessor(eventIsRelevant = { it.arenaTable == childEvent.arenaTable }) {
+                    ProcessingResult(Ignored).right()
+                },
+            )
+
+            createService(listOf(createParentProcessor(), ignoredChildProcessor)).processEvent(parentEvent)
+
+            coVerify(exactly = 1) { ignoredChildProcessor.handleEvent(childEvent) }
+            entitiesRepository.get(childEvent.arenaTable, childEvent.arenaId)?.status shouldBe Ignored
+            events.get(childEvent.arenaTable, childEvent.arenaId)?.status shouldBe ProcessingStatus.Processed
+            events.get(parentEvent.arenaTable, parentEvent.arenaId)?.status shouldBe ProcessingStatus.Processed
+
+            createService(listOf(createParentProcessor(), createChildProcessor())).processEvent(parentEvent)
+
+            entitiesRepository.get(childEvent.arenaTable, childEvent.arenaId)?.status shouldBe Handled
+        }
+
+        test("should retry a failed dependent event independently") {
+            persistEvent(parentEvent, mappingStatus = Handled)
+            persistEvent(childEvent, mappingStatus = Ignored)
+            val failingChildProcessor = ArenaEventTestProcessor(
+                eventIsRelevant = { it.arenaTable == childEvent.arenaTable },
+            ) {
+                ProcessingError.ProcessingFailed("Levering feilet").left()
+            }
+
+            createService(listOf(createParentProcessor(), failingChildProcessor)).processEvent(parentEvent)
+
+            events.get(parentEvent.arenaTable, parentEvent.arenaId)?.status shouldBe ProcessingStatus.Processed
+            events.get(childEvent.arenaTable, childEvent.arenaId)?.status shouldBe ProcessingStatus.Failed
+            entitiesRepository.get(childEvent.arenaTable, childEvent.arenaId)?.status shouldBe Ignored
+
+            createService(listOf(createParentProcessor(), createChildProcessor())).retryEvents(
+                table = childEvent.arenaTable,
+                status = ProcessingStatus.Failed
+            )
+
+            events.get(childEvent.arenaTable, childEvent.arenaId)?.status shouldBe ProcessingStatus.Processed
+            entitiesRepository.get(childEvent.arenaTable, childEvent.arenaId)?.status shouldBe Handled
+        }
+
+        test("should not replay ignored dependent events when deleting the parent") {
+            persistEvent(parentEvent, mappingStatus = Handled)
+            persistEvent(childEvent, mappingStatus = Ignored)
+            val childProcessor = createChildProcessor()
+
+            createService(listOf(createParentProcessor(), childProcessor)).processEvent(
+                parentEvent.copy(operation = ArenaEvent.Operation.Delete)
+            )
+
+            coVerify(exactly = 0) { childProcessor.handleEvent(any()) }
+            entitiesRepository.get(childEvent.arenaTable, childEvent.arenaId)?.status shouldBe Ignored
+            events.get(parentEvent.arenaTable, parentEvent.arenaId)?.status shouldBe ProcessingStatus.Processed
+        }
+    }
+
     context("replay event") {
         test("should run gracefully when specified event does not exist") {
             val processor = spyk(ArenaEventTestProcessor())
@@ -553,12 +553,9 @@ class ArenaEventServiceTest : FunSpec({
 
     context("replay events") {
         test("should set processing status to Replay for specified table and status") {
-            events.upsert(pendingEvent)
-            entities.getOrCreateMapping(pendingEvent)
-            events.upsert(processedEvent)
-            entities.getOrCreateMapping(processedEvent)
-            events.upsert(failedEvent)
-            entities.getOrCreateMapping(failedEvent)
+            persistEvent(pendingEvent, mappingStatus = Unhandled)
+            persistEvent(processedEvent, mappingStatus = Handled)
+            persistEvent(failedEvent, mappingStatus = Unhandled)
 
             val service = ArenaEventService(events = events, processors = listOf(), entities = entities)
             service.setReplayStatusForEvents(table, Handled)
