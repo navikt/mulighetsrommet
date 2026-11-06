@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.api.utbetaling.model
 
+import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsreferanse
 import no.nav.mulighetsrommet.model.JournalpostId
-import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Periode
 import java.time.LocalDate
 import java.util.UUID
@@ -15,7 +15,7 @@ sealed class UpsertUtbetaling {
         val gjennomforingId: UUID,
         val beregning: UtbetalingBeregning,
         val tilskuddstype: Tilskuddstype,
-        val kid: Kid?,
+        val referanse: Betalingsreferanse?,
         val blokkeringer: Set<Utbetaling.Blokkering>,
     ) : UpsertUtbetaling()
 
@@ -25,7 +25,7 @@ sealed class UpsertUtbetaling {
         val gjennomforingId: UUID,
         val beregning: UtbetalingBeregning,
         val tilskuddstype: Tilskuddstype,
-        val kid: Kid?,
+        val referanse: Betalingsreferanse?,
     ) : UpsertUtbetaling()
 
     data class Anskaffelse(
@@ -35,7 +35,7 @@ sealed class UpsertUtbetaling {
         val beregning: UtbetalingBeregning,
         val tilskuddstype: Tilskuddstype,
         val kommentar: String?,
-        val kid: Kid?,
+        val referanse: Betalingsreferanse?,
         val journalpostId: JournalpostId?,
         val utbetalingsDato: LocalDate?,
     ) : UpsertUtbetaling()
@@ -48,6 +48,6 @@ sealed class UpsertUtbetaling {
         val korreksjonGjelderUtbetalingId: UUID,
         val korreksjonBegrunnelse: String,
         val kommentar: String?,
-        val kid: Kid?,
+        val referanse: Betalingsreferanse?,
     ) : UpsertUtbetaling()
 }

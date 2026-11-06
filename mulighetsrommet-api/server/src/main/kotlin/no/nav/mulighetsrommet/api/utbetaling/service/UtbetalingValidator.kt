@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.utbetaling.service
 
 import arrow.core.Either
+import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsreferanse
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingRequest
 import no.nav.mulighetsrommet.api.utbetaling.api.ValutaBelopRequest
 import no.nav.mulighetsrommet.api.utbetaling.model.Tilskuddstype
@@ -107,13 +108,15 @@ object UtbetalingValidator {
             UtbetalingBeregningFri.from(ValutaBelop(requireNotNull(belop), requireNotNull(valuta)))
         }
 
+        val referanse = kid?.let { Betalingsreferanse.KidNummer(it) }
+
         if (request.korrigererUtbetaling != null) {
             UpsertUtbetaling.Korreksjon(
                 tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
                 id = request.id,
                 periode = periode,
                 beregning = beregning,
-                kid = kid,
+                referanse = referanse,
                 korreksjonGjelderUtbetalingId = request.korrigererUtbetaling,
                 korreksjonBegrunnelse = requireNotNull(korreksjonBegrunnelse),
                 kommentar = kommentar,
@@ -125,7 +128,7 @@ object UtbetalingValidator {
                 periode = periode,
                 journalpostId = journalpostId,
                 beregning = beregning,
-                kid = kid,
+                referanse = referanse,
                 kommentar = kommentar,
                 utbetalingsDato = utbetalingsDato,
                 tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,

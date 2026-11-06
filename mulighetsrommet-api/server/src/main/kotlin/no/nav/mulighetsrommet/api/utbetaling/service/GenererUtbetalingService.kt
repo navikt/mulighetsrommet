@@ -218,8 +218,8 @@ class GenererUtbetalingService(
         beregning: UtbetalingBeregning,
     ): Utbetaling {
         val forrigeKrav = db.session { queries.utbetaling.getSisteGodkjenteUtbetaling(gjennomforingId) }
-        val forrigeKid = when (forrigeKrav?.betalingsinformasjon) {
-            is Betalingsinformasjon.BBan -> forrigeKrav.betalingsinformasjon.kid
+        val forrigeReferanse = when (forrigeKrav?.betalingsinformasjon) {
+            is Betalingsinformasjon.BBan -> forrigeKrav.betalingsinformasjon.referanse
             else -> null
         }
         val blokkeringer = db.session {
@@ -236,7 +236,7 @@ class GenererUtbetalingService(
             periode = periode,
             beregning = beregning,
             tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
-            kid = forrigeKid,
+            referanse = forrigeReferanse,
             blokkeringer = blokkeringer,
         )
         return db.transaction {

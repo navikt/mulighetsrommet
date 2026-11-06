@@ -43,7 +43,7 @@ class UtbetalingValidatorTest : FunSpec({
                 journalpostId = JournalpostId("123"),
                 kommentar = null,
                 beregning = UtbetalingBeregningFri.from(ValutaBelop(150, Valuta.NOK)),
-                kid = null,
+                referanse = null,
                 utbetalingsDato = utbetalingsDato,
                 tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
             )
@@ -70,7 +70,7 @@ class UtbetalingValidatorTest : FunSpec({
                 korreksjonGjelderUtbetalingId = korrigererUtbetaling,
                 korreksjonBegrunnelse = "Begrunnelse som kun gjelder for korreksjoner",
                 beregning = UtbetalingBeregningFri.from(ValutaBelop(150, Valuta.NOK)),
-                kid = null,
+                referanse = null,
                 tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
             )
         }

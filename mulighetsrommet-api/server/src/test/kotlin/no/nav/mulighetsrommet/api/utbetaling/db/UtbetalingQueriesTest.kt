@@ -8,6 +8,7 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
 import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsinformasjon
+import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsreferanse
 import no.nav.mulighetsrommet.api.domain.testing.fixture.ArrangorFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.AvtaleFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavEnhetFixtures
@@ -75,7 +76,7 @@ class UtbetalingQueriesTest : FunSpec({
         status = UtbetalingStatusType.GENERERT,
         valuta = Valuta.NOK,
         beregning = friBeregning,
-        betalingsinformasjon = Betalingsinformasjon.BBan(Kontonummer("11111111111"), Kid.parseOrThrow("006402710013")),
+        betalingsinformasjon = Betalingsinformasjon.BBan(Kontonummer("11111111111"), Betalingsreferanse.KidNummer(Kid.parseOrThrow("006402710013"))),
         periode = periode,
         kommentar = "En kommentar",
         korreksjonGjelderUtbetalingId = null,
@@ -110,7 +111,7 @@ class UtbetalingQueriesTest : FunSpec({
                 utbetaling.beregning shouldBe friBeregning
                 utbetaling.betalingsinformasjon.shouldBeTypeOf<Betalingsinformasjon.BBan>() should {
                     it.kontonummer shouldBe Kontonummer("11111111111")
-                    it.kid shouldBe Kid.parseOrThrow("006402710013")
+                    it.referanse shouldBe Betalingsreferanse.KidNummer(Kid.parseOrThrow("006402710013"))
                 }
                 utbetaling.journalpostId shouldBe JournalpostId("12345")
                 utbetaling.periode shouldBe periode
