@@ -60,7 +60,10 @@ export const mockUtbetalinger: UtbetalingDto[] = [
     betalingsinformasjon: {
       type: "BBan",
       kontonummer: "1234.56.78900",
-      kid: "12345678901",
+      referanse: {
+        type: "KidNummer",
+        kid: "12345678901",
+      },
     },
     kommentar: null,
     korreksjon: null,
@@ -93,7 +96,10 @@ export const mockUtbetalinger: UtbetalingDto[] = [
     betalingsinformasjon: {
       type: "BBan",
       kontonummer: "1234.56.78900",
-      kid: "98765432109",
+      referanse: {
+        type: "KidNummer",
+        kid: "98765432109",
+      },
     },
     kommentar: null,
     korreksjon: null,
@@ -124,7 +130,10 @@ export const mockUtbetalinger: UtbetalingDto[] = [
     betalingsinformasjon: {
       type: "BBan",
       kontonummer: "1111.22.33333",
-      kid: "11122233344",
+      referanse: {
+        type: "KidNummer",
+        kid: "11122233344",
+      },
     },
     kommentar: null,
     korreksjon: null,
@@ -158,7 +167,10 @@ export const mockUtbetalinger: UtbetalingDto[] = [
     betalingsinformasjon: {
       type: "BBan",
       kontonummer: "1234.56.78900",
-      kid: "98765432109",
+      referanse: {
+        type: "KidNummer",
+        kid: "98765432109",
+      },
     },
     kommentar: null,
     korreksjon: null,

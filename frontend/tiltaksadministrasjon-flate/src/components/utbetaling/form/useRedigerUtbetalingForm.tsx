@@ -24,7 +24,10 @@ export function useRedigerUtbetalingForm(
     journalpostId: utbetaling.journalpostId,
     kommentar: utbetaling.kommentar,
     kidNummer:
-      utbetaling.betalingsinformasjon?.type === "BBan" ? utbetaling.betalingsinformasjon.kid : null,
+      utbetaling.betalingsinformasjon?.type === "BBan" &&
+      utbetaling.betalingsinformasjon.referanse?.type === "KidNummer"
+        ? utbetaling.betalingsinformasjon.referanse.kid
+        : null,
     pris: utbetaling.beregning,
     utbetalingsDato: utbetaling.utbetalesTidligstDato ?? null,
     korrigererUtbetaling: utbetaling.korreksjon?.opprinneligUtbetaling,
