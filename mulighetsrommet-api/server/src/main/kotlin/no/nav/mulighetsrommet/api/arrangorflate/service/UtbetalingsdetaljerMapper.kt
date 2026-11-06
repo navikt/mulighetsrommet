@@ -6,6 +6,7 @@ import no.nav.mulighetsrommet.api.arrangorflate.dto.Avbrytelse
 import no.nav.mulighetsrommet.api.arrangorflate.dto.UtbetalingsdetaljerDto
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetaling
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetalingStatus
+import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsreferanse
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingType
 import no.nav.mulighetsrommet.api.utbetaling.api.toDto
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningType
@@ -29,6 +30,12 @@ fun mapUtbetalingsdetaljer(
     val visTilsagn = status in setOf(ArrangorflateUtbetalingStatus.OVERFORT_TIL_UTBETALING, ArrangorflateUtbetalingStatus.UTBETALT) &&
         linjer.isNotEmpty()
     val satsDetaljer = beregningSatsDetaljer(utbetaling.beregning)
+    val referanse =
+        when (utbetaling.betalingsinformasjon?.referanse) {
+            is Betalingsreferanse.KidNummer -> LabeledDataElement.text("KID-nummer", (utbetaling.betalingsinformasjon.referanse as Betalingsreferanse.KidNummer).kid.value)
+            is Betalingsreferanse.MeldingTilMottaker -> LabeledDataElement.text("Referanse", (utbetaling.betalingsinformasjon.referanse as Betalingsreferanse.MeldingTilMottaker).melding)
+            null -> LabeledDataElement.text("KID-nummer", "-")
+        }
 
     return UtbetalingsdetaljerDto(
         arrangorNavn = utbetaling.arrangor.navn,
@@ -62,12 +69,12 @@ fun mapUtbetalingsdetaljer(
         satsDetaljer = satsDetaljer.map { it.copy(header = it.header.takeIf { satsDetaljer.size > 1 }) },
         betalingsinformasjon = DataDetails(
             header = "Betalingsinformasjon",
-            entries = listOf(
+            entries = listOfNotNull(
                 LabeledDataElement.text(
                     "Kontonummer",
                     utbetaling.betalingsinformasjon?.kontonummer?.value?.let { "${it.take(4)} ${it.substring(4, 6)} ${it.takeLast(5)}" },
                 ),
-                LabeledDataElement.text("KID-nummer", utbetaling.betalingsinformasjon?.kid?.value),
+                referanse,
             ),
         ),
         status = DataDetails(

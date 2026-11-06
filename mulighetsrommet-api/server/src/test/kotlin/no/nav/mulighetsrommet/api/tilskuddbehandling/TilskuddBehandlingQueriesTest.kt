@@ -128,7 +128,6 @@ class TilskuddBehandlingQueriesTest : FunSpec({
 
                     resultat.id shouldBe vedtak.id
                     resultat.utbetalingMottaker shouldBe mottaker
-                    resultat.kid shouldBe (referanse as? ArrangorReferanse.Kid)?.kid
                 }
             }
         }
@@ -156,7 +155,6 @@ class TilskuddBehandlingQueriesTest : FunSpec({
                         v.vedtakResultat.type shouldBe VedtakResultat.INNVILGELSE
                         v.kommentarVedtaksbrev shouldBe "k1"
                         v.utbetalingMottaker shouldBe TilskuddMottaker.Bruker(utbetalingType = BrukerUtbetalingType.REFUSJON)
-                        v.kid shouldBe null
                         v.utbetalingBelop?.valuta shouldBe Valuta.NOK
                         v.utbetalingBelop?.belop shouldBe 100
                         v.soknadJournalpostId shouldBe behandling.tilskudd[0].soknadJournalpostId
@@ -175,7 +173,6 @@ class TilskuddBehandlingQueriesTest : FunSpec({
                         v.vedtakResultat.type shouldBe VedtakResultat.INNVILGELSE
                         v.kommentarVedtaksbrev shouldBe "k2"
                         v.utbetalingMottaker shouldBe TilskuddMottaker.Arrangor(referanse = ArrangorReferanse.Kid(Kid.parseOrThrow("116")))
-                        v.kid shouldBe Kid.parseOrThrow("116")
                         v.utbetalingBelop?.belop shouldBe 200
                         v.utbetalingBelop?.valuta shouldBe Valuta.NOK
                         v.soknadJournalpostId shouldBe behandling.tilskudd[1].soknadJournalpostId

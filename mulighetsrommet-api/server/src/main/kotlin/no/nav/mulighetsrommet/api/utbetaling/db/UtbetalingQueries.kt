@@ -6,6 +6,7 @@ import kotliquery.Session
 import kotliquery.TransactionalSession
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsinformasjon
+import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsreferanse
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingType
 import no.nav.mulighetsrommet.api.persistence.totrinnskontroll.TotrinnskontrollQueries
 import no.nav.mulighetsrommet.api.tilsagn.api.KostnadsstedDto
@@ -63,7 +64,8 @@ class UtbetalingQueries(private val session: Session) {
                 id,
                 gjennomforing_id,
                 kontonummer,
-                kid,
+                betalingsreferanse_kid,
+                betalingsreferanse_melding,
                 bic,
                 iban,
                 bank_land_kode,
@@ -86,7 +88,8 @@ class UtbetalingQueries(private val session: Session) {
                 :id::uuid,
                 :gjennomforing_id::uuid,
                 :kontonummer,
-                :kid,
+                :betalingsreferanse_kid,
+                :betalingsreferanse_melding,
                 :bic,
                 :iban,
                 :bank_land_kode,
@@ -108,7 +111,8 @@ class UtbetalingQueries(private val session: Session) {
             ) on conflict (id) do update set
                 gjennomforing_id = excluded.gjennomforing_id,
                 kontonummer = excluded.kontonummer,
-                kid = excluded.kid,
+                betalingsreferanse_kid = excluded.betalingsreferanse_kid,
+                betalingsreferanse_melding = excluded.betalingsreferanse_melding,
                 bic = excluded.bic,
                 iban = excluded.iban,
                 bank_land_kode = excluded.bank_land_kode,
@@ -493,15 +497,34 @@ class UtbetalingQueries(private val session: Session) {
         session.execute(queryOf(query, kontonummer.value, id))
     }
 
-    fun setKid(id: UUID, kid: Kid?) {
+    fun setBetalingsreferanse(id: UUID, referanse: Betalingsreferanse?) {
         @Language("PostgreSQL")
         val query = """
             update utbetaling
-            set kid = ?
-            where id = ?::uuid
+            set betalingsreferanse_kid = :betalingsreferanse_kid,
+                betalingsreferanse_melding = :betalingsreferanse_melding
+            where id = :id::uuid
         """.trimIndent()
+        val params = when (referanse) {
+            is Betalingsreferanse.KidNummer ->
+                mapOf(
+                    "betalingsreferanse_kid" to referanse.kid.value,
+                    "betalingsreferanse_melding" to null,
+                )
 
-        session.execute(queryOf(query, kid?.value, id))
+            is Betalingsreferanse.MeldingTilMottaker ->
+                mapOf(
+                    "betalingsreferanse_kid" to null,
+                    "betalingsreferanse_melding" to referanse.melding,
+                )
+
+            null ->
+                mapOf(
+                    "betalingsreferanse_kid" to null,
+                    "betalingsreferanse_melding" to null,
+                )
+        }
+        session.execute(queryOf(query, params + mapOf("id" to id)))
     }
 
     fun setJournalpostId(id: UUID, journalpostId: JournalpostId) {
@@ -769,9 +792,14 @@ class UtbetalingQueries(private val session: Session) {
 
     private fun Row.toBankKonto(): Betalingsinformasjon? = when (val iban = stringOrNull("iban")) {
         null -> stringOrNull("kontonummer")?.let {
+            val kid = stringOrNull("betalingsreferanse_kid")?.let { kid -> Kid.parseOrThrow(kid) }
+
             Betalingsinformasjon.BBan(
                 kontonummer = Kontonummer(it),
-                kid = stringOrNull("kid")?.let { Kid.parseOrThrow(it) },
+                referanse = when (kid) {
+                    is Kid -> Betalingsreferanse.KidNummer(kid)
+                    else -> stringOrNull("betalingsreferanse_melding")?.let { melding -> Betalingsreferanse.MeldingTilMottaker(melding) }
+                },
             )
         }
 
@@ -1111,7 +1139,8 @@ private fun getBeregningParams(id: UUID, beregning: UtbetalingBeregning) = mapOf
 private fun bankKontoParams(betalingsinformasjon: Betalingsinformasjon?) = when (betalingsinformasjon) {
     is Betalingsinformasjon.BBan -> mapOf(
         "kontonummer" to betalingsinformasjon.kontonummer.value,
-        "kid" to betalingsinformasjon.kid?.value,
+        "betalingsreferanse_kid" to (betalingsinformasjon.referanse as? Betalingsreferanse.KidNummer)?.kid?.value,
+        "betalingsreferanse_melding" to (betalingsinformasjon.referanse as? Betalingsreferanse.MeldingTilMottaker)?.melding,
         "bic" to null,
         "iban" to null,
         "bank_land_kode" to null,
@@ -1120,7 +1149,8 @@ private fun bankKontoParams(betalingsinformasjon: Betalingsinformasjon?) = when 
 
     is Betalingsinformasjon.IBan -> mapOf(
         "kontonummer" to null,
-        "kid" to null,
+        "betalingsreferanse_kid" to null,
+        "betalingsreferanse_melding" to null,
         "bic" to betalingsinformasjon.bic,
         "iban" to betalingsinformasjon.iban,
         "bank_land_kode" to betalingsinformasjon.bankLandKode,
@@ -1129,6 +1159,8 @@ private fun bankKontoParams(betalingsinformasjon: Betalingsinformasjon?) = when 
 
     null -> mapOf(
         "kontonummer" to null,
+        "betalingsreferanse_kid" to null,
+        "betalingsreferanse_melding" to null,
         "bic" to null,
         "iban" to null,
         "bank_land_kode" to null,

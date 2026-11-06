@@ -9,6 +9,7 @@ import no.nav.mulighetsrommet.admin.journalpost.ForventetBruker
 import no.nav.mulighetsrommet.admin.journalpost.JournalpostValidator
 import no.nav.mulighetsrommet.admin.journalpost.JournalpostValidator.JournalpostValideringError
 import no.nav.mulighetsrommet.api.domain.arrangor.Arrangor
+import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsreferanse
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingRequest
@@ -148,13 +149,15 @@ object UtbetalingValidator {
             UtbetalingBeregningFri.from(ValutaBelop(requireNotNull(belop), requireNotNull(valuta)))
         }
 
+        val referanse = kid?.let { Betalingsreferanse.KidNummer(it) }
+
         if (request.korrigererUtbetaling != null) {
             UpsertUtbetaling.Korreksjon(
                 tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
                 id = request.id,
                 periode = periode,
                 beregning = beregning,
-                kid = kid,
+                referanse = referanse,
                 korreksjonGjelderUtbetalingId = request.korrigererUtbetaling,
                 korreksjonBegrunnelse = requireNotNull(korreksjonBegrunnelse),
                 kommentar = kommentar,
@@ -166,7 +169,7 @@ object UtbetalingValidator {
                 periode = periode,
                 journalpostId = jId,
                 beregning = beregning,
-                kid = kid,
+                referanse = referanse,
                 kommentar = kommentar,
                 utbetalingsDato = utbetalingsDato,
                 tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,

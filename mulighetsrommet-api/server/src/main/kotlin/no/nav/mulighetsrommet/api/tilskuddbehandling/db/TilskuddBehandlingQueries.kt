@@ -462,8 +462,6 @@ private fun Row.toTilskuddVedtakDto(): TilskuddVedtakDto {
         vedtakResultat = VedtakResultatDto(VedtakResultat.valueOf(string("vedtak_resultat"))),
         kommentarVedtaksbrev = stringOrNull("kommentar_vedtaksbrev"),
         utbetalingMottaker = mottaker,
-        kid = stringOrNull("betalingsreferanse_kid")?.let(Kid::parse),
-        brukerUtbetalingType = stringOrNull("bruker_utbetaling_type")?.let(BrukerUtbetalingType::valueOf),
         utbetalingBelop = utbetalingBelop,
         kommentarIntern = stringOrNull("kommentar_intern"),
         vedtakJournalpostId = stringOrNull("vedtak_journalpost_id"),

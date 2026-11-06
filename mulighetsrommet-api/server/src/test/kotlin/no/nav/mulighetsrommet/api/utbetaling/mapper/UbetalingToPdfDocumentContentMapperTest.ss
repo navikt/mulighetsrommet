@@ -1061,4 +1061,414 @@
     }
   ]
 }
+╔═ fast sats per tiltaksplass per maned, med kid/utbetalingsdetaljerFastSats ═╗
+{
+  "title": "Utbetalingsdetaljer",
+  "subject": "Utbetaling til Nav",
+  "description": "Detaljer om utbetaling for gjennomføring av Oppfølging",
+  "author": "Nav",
+  "sections": [
+    {
+      "title": {
+        "text": "Detaljer om utbetaling",
+        "level": 1
+      }
+    },
+    {
+      "title": {
+        "text": "Innsending",
+        "level": 2
+      },
+      "blocks": [
+        {
+          "type": "description-list",
+          "entries": [
+            {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
+              "label": "Arrangør",
+              "value": "Nav (123456789)"
+            },
+            {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
+              "label": "Dato innsendt",
+              "value": "2025-01-02",
+              "format": "DATE"
+            },
+            {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
+              "label": "Tiltaksnavn",
+              "value": "OPPFOLGING (2025/10000)"
+            },
+            {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
+              "label": "Tiltakstype",
+              "value": "Oppfølging"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": {
+        "text": "Utbetaling",
+        "level": 2
+      },
+      "blocks": [
+        {
+          "type": "description-list",
+          "entries": [
+            {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
+              "label": "Stengt periode",
+              "value": "07.01.2025 - 13.01.2025"
+            },
+            {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.MoneyAmount",
+              "label": "Sats",
+              "value": "1000",
+              "currency": "NOK"
+            },
+            {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
+              "label": "Antall månedsverk",
+              "value": "4.25"
+            }
+          ]
+        },
+        {
+          "type": "description-list",
+          "entries": [
+            {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
+              "label": "Utbetalingsperiode",
+              "value": "01.01.2025 - 31.01.2025"
+            },
+            {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.MoneyAmount",
+              "label": "Beløp",
+              "value": "100",
+              "currency": "NOK"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": {
+        "text": "Betalingsinformasjon",
+        "level": 2
+      },
+      "blocks": [
+        {
+          "type": "description-list",
+          "entries": [
+            {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
+              "label": "Kontonummer",
+              "value": "1234 56 78901"
+            },
+            {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
+              "label": "KID-nummer",
+              "value": "116"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": {
+        "text": "Utbetalingsstatus",
+        "level": 2
+      },
+      "blocks": [
+        {
+          "type": "description-list",
+          "entries": [
+            {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
+              "label": "Status",
+              "value": "Overført til utbetaling"
+            },
+            {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.MoneyAmount",
+              "label": "Godkjent beløp til utbetaling",
+              "value": "100",
+              "currency": "NOK"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": {
+        "text": "Tilsagn som er brukt til utbetaling",
+        "level": 2
+      },
+      "blocks": [
+        {
+          "type": "description-list",
+          "description": "Tilsagn A-1-1",
+          "entries": [
+            {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
+              "label": "Tilsagn",
+              "value": "A-1-1"
+            },
+            {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.MoneyAmount",
+              "label": "Beløp til utbetaling",
+              "value": "99",
+              "currency": "NOK"
+            },
+            {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
+              "label": "Status",
+              "value": "Overført til utbetaling"
+            },
+            {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
+              "label": "Status endret",
+              "value": "2025-01-03",
+              "format": "DATE"
+            }
+          ]
+        },
+        {
+          "type": "description-list",
+          "description": "Tilsagn A-1-2",
+          "entries": [
+            {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
+              "label": "Tilsagn",
+              "value": "A-1-2"
+            },
+            {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.MoneyAmount",
+              "label": "Beløp til utbetaling",
+              "value": "1",
+              "currency": "NOK"
+            },
+            {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
+              "label": "Status",
+              "value": "Overført til utbetaling"
+            },
+            {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
+              "label": "Status endret",
+              "value": "2025-01-03",
+              "format": "DATE"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+╔═ fast sats per tiltaksplass per maned, med melding til mottaker/utbetalingsdetaljerFastSats ═╗
+{
+  "title": "Utbetalingsdetaljer",
+  "subject": "Utbetaling til Nav",
+  "description": "Detaljer om utbetaling for gjennomføring av Oppfølging",
+  "author": "Nav",
+  "sections": [
+    {
+      "title": {
+        "text": "Detaljer om utbetaling",
+        "level": 1
+      }
+    },
+    {
+      "title": {
+        "text": "Innsending",
+        "level": 2
+      },
+      "blocks": [
+        {
+          "type": "description-list",
+          "entries": [
+            {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
+              "label": "Arrangør",
+              "value": "Nav (123456789)"
+            },
+            {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
+              "label": "Dato innsendt",
+              "value": "2025-01-02",
+              "format": "DATE"
+            },
+            {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
+              "label": "Tiltaksnavn",
+              "value": "OPPFOLGING (2025/10000)"
+            },
+            {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
+              "label": "Tiltakstype",
+              "value": "Oppfølging"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": {
+        "text": "Utbetaling",
+        "level": 2
+      },
+      "blocks": [
+        {
+          "type": "description-list",
+          "entries": [
+            {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
+              "label": "Stengt periode",
+              "value": "07.01.2025 - 13.01.2025"
+            },
+            {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.MoneyAmount",
+              "label": "Sats",
+              "value": "1000",
+              "currency": "NOK"
+            },
+            {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
+              "label": "Antall månedsverk",
+              "value": "4.25"
+            }
+          ]
+        },
+        {
+          "type": "description-list",
+          "entries": [
+            {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
+              "label": "Utbetalingsperiode",
+              "value": "01.01.2025 - 31.01.2025"
+            },
+            {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.MoneyAmount",
+              "label": "Beløp",
+              "value": "100",
+              "currency": "NOK"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": {
+        "text": "Betalingsinformasjon",
+        "level": 2
+      },
+      "blocks": [
+        {
+          "type": "description-list",
+          "entries": [
+            {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
+              "label": "Kontonummer",
+              "value": "1234 56 78901"
+            },
+            {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
+              "label": "Referanse",
+              "value": "FAKTURA-ABC-123"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": {
+        "text": "Utbetalingsstatus",
+        "level": 2
+      },
+      "blocks": [
+        {
+          "type": "description-list",
+          "entries": [
+            {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
+              "label": "Status",
+              "value": "Overført til utbetaling"
+            },
+            {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.MoneyAmount",
+              "label": "Godkjent beløp til utbetaling",
+              "value": "100",
+              "currency": "NOK"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": {
+        "text": "Tilsagn som er brukt til utbetaling",
+        "level": 2
+      },
+      "blocks": [
+        {
+          "type": "description-list",
+          "description": "Tilsagn A-1-1",
+          "entries": [
+            {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
+              "label": "Tilsagn",
+              "value": "A-1-1"
+            },
+            {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.MoneyAmount",
+              "label": "Beløp til utbetaling",
+              "value": "99",
+              "currency": "NOK"
+            },
+            {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
+              "label": "Status",
+              "value": "Overført til utbetaling"
+            },
+            {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
+              "label": "Status endret",
+              "value": "2025-01-03",
+              "format": "DATE"
+            }
+          ]
+        },
+        {
+          "type": "description-list",
+          "description": "Tilsagn A-1-2",
+          "entries": [
+            {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
+              "label": "Tilsagn",
+              "value": "A-1-2"
+            },
+            {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.MoneyAmount",
+              "label": "Beløp til utbetaling",
+              "value": "1",
+              "currency": "NOK"
+            },
+            {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
+              "label": "Status",
+              "value": "Overført til utbetaling"
+            },
+            {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
+              "label": "Status endret",
+              "value": "2025-01-03",
+              "format": "DATE"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
 ╔═ [end of file] ═╗

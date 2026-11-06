@@ -11,6 +11,7 @@ import no.nav.mulighetsrommet.api.TransactionalQueryContext
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateOpprettUtbetaling
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetaling
 import no.nav.mulighetsrommet.api.arrangorflate.model.AvtaltPrisPerTimeOppfolgingData
+import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsreferanse
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
 import no.nav.mulighetsrommet.api.utbetaling.model.AutomatisertUtbetalingResult
@@ -79,7 +80,7 @@ class ArrangorflateUtbetalingService(
                 gjennomforingId = opprett.gjennomforingId,
                 periode = opprett.periode,
                 beregning = beregning,
-                kid = opprett.kidNummer,
+                referanse = opprett.kidNummer?.let { Betalingsreferanse.KidNummer(it) },
                 tilskuddstype = tilskuddstype,
             )
             scheduleJournalforUtbetaling(utbetaling.id, opprett.vedlegg)
@@ -126,7 +127,7 @@ class ArrangorflateUtbetalingService(
                 return FieldError.of("Utbetalingen kan ikke godkjennes fordi det finnes blokkeringer.").nel().left()
             }
             scheduleJournalforUtbetaling(utbetalingId, listOf())
-            utbetalingService.godkjentAvArrangor(utbetaling.id, kid)
+            utbetalingService.godkjentAvArrangor(utbetaling.id, kid?.let { kid -> Betalingsreferanse.KidNummer(kid) })
         }
 
         return result.map { tryAutomatisertUtbetaling(utbetalingId) }
