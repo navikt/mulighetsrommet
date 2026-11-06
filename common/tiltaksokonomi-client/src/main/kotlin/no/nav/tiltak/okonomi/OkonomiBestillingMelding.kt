@@ -151,15 +151,15 @@ data class OpprettFaktura(
 
     @Serializable
     sealed interface Betalingsreferanse {
-        @JvmInline
+        @Serializable
         @SerialName("KidNummer")
-        value class KidNummer(
+        data class KidNummer(
             val kid: Kid,
         ) : Betalingsreferanse
 
-        @JvmInline
+        @Serializable
         @SerialName("MeldingTilMottaker")
-        value class MeldingTilMottaker(
+        data class MeldingTilMottaker(
             val melding: String,
         ) : Betalingsreferanse
     }

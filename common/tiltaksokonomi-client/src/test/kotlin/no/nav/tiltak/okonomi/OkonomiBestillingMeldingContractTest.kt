@@ -83,28 +83,53 @@ class OkonomiBestillingMeldingContractTest : FunSpec({
         )
     }
 
-    test("FAKTURA med BBan-betalingsinformasjon") {
-        assertContract<OkonomiBestillingMelding>(
-            OkonomiBestillingMelding.Faktura(
-                payload = OpprettFaktura(
-                    fakturanummer = Fakturanummer("A-1-1-1"),
-                    bestillingsnummer = Bestillingsnummer("A-1-1"),
-                    betalingsinformasjon = OpprettFaktura.Betalingsinformasjon.BBan(
-                        kontonummer = Kontonummer("12345678901"),
-                        kid = Kid.parseOrThrow("0004614992"),
+    context("FAKTURA med BBan-betalingsinformasjon") {
+        test("med KID") {
+            assertContract<OkonomiBestillingMelding>(
+                OkonomiBestillingMelding.Faktura(
+                    payload = OpprettFaktura(
+                        fakturanummer = Fakturanummer("A-1-1-1"),
+                        bestillingsnummer = Bestillingsnummer("A-1-1"),
+                        betalingsinformasjon = OpprettFaktura.Betalingsinformasjon.BBan(
+                            kontonummer = Kontonummer("12345678901"),
+                            referanse = OpprettFaktura.Betalingsreferanse.KidNummer(Kid.parseOrThrow("0004614992")),
+                        ),
+                        belop = 1000,
+                        periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 2, 1)),
+                        behandletAv = OkonomiPart.Fagsystem(OkonomiFagsystem.TILTAKSADMINISTRASJON),
+                        behandletTidspunkt = Instant.parse("2025-01-01T00:00:00Z"),
+                        besluttetAv = OkonomiPart.NavAnsatt(NavIdent("Z123456")),
+                        besluttetTidspunkt = Instant.parse("2025-01-02T00:00:00Z"),
+                        gjorOppBestilling = false,
+                        beskrivelse = "En beskrivelse",
+                        valuta = Valuta.NOK,
                     ),
-                    belop = 1000,
-                    periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 2, 1)),
-                    behandletAv = OkonomiPart.Fagsystem(OkonomiFagsystem.TILTAKSADMINISTRASJON),
-                    behandletTidspunkt = Instant.parse("2025-01-01T00:00:00Z"),
-                    besluttetAv = OkonomiPart.NavAnsatt(NavIdent("Z123456")),
-                    besluttetTidspunkt = Instant.parse("2025-01-02T00:00:00Z"),
-                    gjorOppBestilling = false,
-                    beskrivelse = "En beskrivelse",
-                    valuta = Valuta.NOK,
                 ),
-            ),
-        )
+            )
+        }
+        test("med melding") {
+            assertContract<OkonomiBestillingMelding>(
+                OkonomiBestillingMelding.Faktura(
+                    payload = OpprettFaktura(
+                        fakturanummer = Fakturanummer("A-1-1-1"),
+                        bestillingsnummer = Bestillingsnummer("A-1-1"),
+                        betalingsinformasjon = OpprettFaktura.Betalingsinformasjon.BBan(
+                            kontonummer = Kontonummer("12345678901"),
+                            referanse = OpprettFaktura.Betalingsreferanse.MeldingTilMottaker("En melding til mottaker"),
+                        ),
+                        belop = 1000,
+                        periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 2, 1)),
+                        behandletAv = OkonomiPart.Fagsystem(OkonomiFagsystem.TILTAKSADMINISTRASJON),
+                        behandletTidspunkt = Instant.parse("2025-01-01T00:00:00Z"),
+                        besluttetAv = OkonomiPart.NavAnsatt(NavIdent("Z123456")),
+                        besluttetTidspunkt = Instant.parse("2025-01-02T00:00:00Z"),
+                        gjorOppBestilling = false,
+                        beskrivelse = "En beskrivelse",
+                        valuta = Valuta.NOK,
+                    ),
+                ),
+            )
+        }
     }
 
     test("FAKTURA med IBan-betalingsinformasjon") {
@@ -314,7 +339,7 @@ class OkonomiBestillingMeldingContractTest : FunSpec({
             )
         }
 
-        test("FAKTURA med BBan-betalingsinformasjon og gammel diskriminator") {
+        test("FAKTURA med BBan-betalingsinformasjon, gammel diskriminator, gammel kid") {
             assertLegacyDecodesTo(
                 """
                 {
@@ -356,7 +381,65 @@ class OkonomiBestillingMeldingContractTest : FunSpec({
                         bestillingsnummer = Bestillingsnummer("A-1-1"),
                         betalingsinformasjon = OpprettFaktura.Betalingsinformasjon.BBan(
                             kontonummer = Kontonummer("12345678901"),
-                            kid = Kid.parseOrThrow("0004614992"),
+                            referanse = OpprettFaktura.Betalingsreferanse.KidNummer(Kid.parseOrThrow("0004614992")),
+                        ),
+                        belop = 1000,
+                        periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 2, 1)),
+                        behandletAv = OkonomiPart.Fagsystem(OkonomiFagsystem.TILTAKSADMINISTRASJON),
+                        behandletTidspunkt = Instant.parse("2025-01-01T00:00:00Z"),
+                        besluttetAv = OkonomiPart.NavAnsatt(NavIdent("Z123456")),
+                        besluttetTidspunkt = Instant.parse("2025-01-02T00:00:00Z"),
+                        gjorOppBestilling = false,
+                        beskrivelse = "En beskrivelse",
+                        valuta = Valuta.NOK,
+                    ),
+                ),
+            )
+        }
+
+        test("FAKTURA med BBan-betalingsinformasjon, gammel diskriminator, gammel kid som null") {
+            assertLegacyDecodesTo(
+                """
+                {
+                  "type": "FAKTURA",
+                  "payload": {
+                    "fakturanummer": "A-1-1-1",
+                    "bestillingsnummer": "A-1-1",
+                    "betalingsinformasjon": {
+                      "type": "no.nav.tiltak.okonomi.OpprettFaktura.Betalingsinformasjon.BBan",
+                      "kontonummer": "12345678901",
+                      "kid": null
+                    },
+                    "belop": 1000,
+                    "periode": {
+                      "start": "2025-01-01",
+                      "slutt": "2025-02-01"
+                    },
+                    "behandletAv": {
+                      "type": "no.nav.tiltak.okonomi.OkonomiPart.System",
+                      "part": "TILTAKSADMINISTRASJON",
+                      "kilde": "TILTAKSADMINISTRASJON"
+                    },
+                    "behandletTidspunkt": "2025-01-01T00:00:00Z",
+                    "besluttetAv": {
+                      "type": "no.nav.tiltak.okonomi.OkonomiPart.NavAnsatt",
+                      "part": "Z123456",
+                      "navIdent": "Z123456"
+                    },
+                    "besluttetTidspunkt": "2025-01-02T00:00:00Z",
+                    "gjorOppBestilling": false,
+                    "beskrivelse": "En beskrivelse",
+                    "valuta": "NOK"
+                  }
+                }
+                """.trimIndent(),
+                OkonomiBestillingMelding.Faktura(
+                    payload = OpprettFaktura(
+                        fakturanummer = Fakturanummer("A-1-1-1"),
+                        bestillingsnummer = Bestillingsnummer("A-1-1"),
+                        betalingsinformasjon = OpprettFaktura.Betalingsinformasjon.BBan(
+                            kontonummer = Kontonummer("12345678901"),
+                            referanse = OpprettFaktura.Betalingsreferanse.MeldingTilMottaker(melding = "En beskrivelse"),
                         ),
                         belop = 1000,
                         periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 2, 1)),
