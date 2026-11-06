@@ -9,17 +9,20 @@ import no.nav.mulighetsrommet.admin.journalpost.JournalpostValidator
 import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.domain.gjennomforing.Gjennomforing
 import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd
-import no.nav.mulighetsrommet.api.tilskuddbehandling.db.BrukerUtbetalingType
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandlingStatus
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandlingType
-import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
+import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottakerType
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddVedtak
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.ArrangorReferanse
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.ArrangorReferanseType
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandling
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingRequest
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddMottaker
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddVedtakRequest
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.api.utils.DatoUtils.parseOrNull
+import no.nav.mulighetsrommet.model.Fakturanummer
 import no.nav.mulighetsrommet.model.JournalpostId
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.NavEnhetNummer
@@ -40,8 +43,6 @@ data class TilskuddSaksopplysninger(
     val tilskuddOpplaeringType: Opplaeringtilskudd.Kode,
     val soknadBelop: Int,
     val utbetalingMottaker: TilskuddMottaker,
-    val kid: Kid?,
-    val brukerUtbetalingType: BrukerUtbetalingType?,
 )
 
 object TilskuddBehandlingValidator {
@@ -104,6 +105,7 @@ object TilskuddBehandlingValidator {
         }
         requireNotNull(req.vedtakResultat)
         val saksopplysninger = validateSaksopplysningTilskuddVedtak(req, index, ctx).bind()
+
         TilskuddVedtak(
             id = req.id,
             tilskuddId = req.tilskuddId,
@@ -114,8 +116,6 @@ object TilskuddBehandlingValidator {
             periode = saksopplysninger.periode,
             kostnadssted = saksopplysninger.kostnadssted,
             utbetalingMottaker = saksopplysninger.utbetalingMottaker,
-            kid = saksopplysninger.kid,
-            brukerUtbetalingType = saksopplysninger.brukerUtbetalingType,
             vedtakResultat = req.vedtakResultat,
             utbetalingBelop = if (req.vedtakResultat == VedtakResultat.INNVILGELSE) {
                 ValutaBelop(
@@ -191,7 +191,7 @@ object TilskuddBehandlingValidator {
                     "Periodeslutt kan ikke være etter gjennomføringsperioden",
                 )
             }
-            if (req.vedtakResultat == VedtakResultat.INNVILGELSE && req.utbetalingMottaker == TilskuddMottaker.ARRANGOR) {
+            if (req.vedtakResultat == VedtakResultat.INNVILGELSE && req.utbetalingMottaker == TilskuddMottakerType.ARRANGOR) {
                 requireNotNull(ctx.gyldigTilsagnPeriode) {
                     FieldError(
                         pointer = "/tilskudd/$index/periodeStart",
@@ -243,29 +243,29 @@ object TilskuddBehandlingValidator {
                 "Du må velge en mottaker",
             )
         }
-        if (req.utbetalingMottaker == TilskuddMottaker.ARRANGOR) {
-            validateNotNull(ctx.betalingsinformasjonArrangor) {
-                FieldError(
-                    "/tilskuddVedtak/$index/utbetalingMottaker",
-                    "Betalingsinformasjon for arrangøren må være registrert",
-                )
-            }
-            req.kidNummer?.let { value ->
-                validateNotNull(Kid.parse(value)) {
+        val mottaker: TilskuddMottaker? = when (req.utbetalingMottaker) {
+            TilskuddMottakerType.ARRANGOR -> {
+                validateNotNull(ctx.betalingsinformasjonArrangor) {
                     FieldError(
-                        "/tilskuddVedtak/$index/kidNummer",
-                        "Ugyldig kid",
+                        "/tilskuddVedtak/$index/utbetalingMottaker",
+                        "Betalingsinformasjon for arrangøren må være registrert",
                     )
                 }
+                val arrangorReferanse = validateArrangorMottaker(req, index).bind()
+                TilskuddMottaker.Arrangor(arrangorReferanse)
             }
-        }
-        if (req.utbetalingMottaker == TilskuddMottaker.BRUKER) {
-            validateNotNull(req.brukerUtbetalingType) {
-                FieldError(
-                    "/tilskuddVedtak/$index/brukerUtbetalingType",
-                    "Du må velge forskudd eller refusjon",
-                )
+
+            TilskuddMottakerType.BRUKER -> {
+                validateNotNull(req.brukerUtbetalingType) {
+                    FieldError(
+                        "/tilskuddVedtak/$index/brukerUtbetalingType",
+                        "Du må velge forskudd eller refusjon",
+                    )
+                }
+                req.brukerUtbetalingType?.let(TilskuddMottaker::Bruker)
             }
+
+            null -> null
         }
 
         validate(req.soknadBelop?.belop != null && req.soknadBelop.belop > 0) {
@@ -297,10 +297,66 @@ object TilskuddBehandlingValidator {
             kostnadssted = req.kostnadssted,
             tilskuddOpplaeringType = req.tilskuddOpplaeringType,
             soknadBelop = req.soknadBelop.belop,
-            utbetalingMottaker = req.utbetalingMottaker,
-            kid = req.kidNummer?.let { Kid.parse(it) }.takeIf { req.utbetalingMottaker == TilskuddMottaker.ARRANGOR },
-            brukerUtbetalingType = req.brukerUtbetalingType.takeIf { req.utbetalingMottaker == TilskuddMottaker.BRUKER },
+            utbetalingMottaker = requireNotNull(mottaker),
         )
+    }
+
+    private fun validateArrangorMottaker(req: TilskuddVedtakRequest, index: Int): Validated<ArrangorReferanse> = validation {
+        val referanse = when (req.arrangorReferanse) {
+            ArrangorReferanseType.KID -> {
+                validateNotNull(req.kidNummer) {
+                    FieldError(
+                        "/tilskuddVedtak/$index/kidNummer",
+                        "Du må oppgi et kid-nummer",
+                    )
+                }
+                val parsedKid = req.kidNummer?.let(Kid::parse)
+                validateNotNull(parsedKid) {
+                    FieldError(
+                        "/tilskuddVedtak/$index/kidNummer",
+                        "Ugyldig kid",
+                    )
+                }
+                if (errors.isEmpty()) {
+                    ArrangorReferanse.Kid(requireNotNull(parsedKid))
+                } else {
+                    null
+                }
+            }
+
+            ArrangorReferanseType.FAKTURANUMMER -> {
+                validateNotNull(req.fakturanummer) {
+                    FieldError(
+                        "/tilskuddVedtak/$index/fakturanummer",
+                        "Du må oppgi et fakturanummer",
+                    )
+                }
+                val parsedFakturanummer = req.fakturanummer?.let(Fakturanummer::parse)
+                validateNotNull(parsedFakturanummer) {
+                    FieldError(
+                        "/tilskuddVedtak/$index/fakturanummer",
+                        "Ugyldig fakturanummer",
+                    )
+                }
+                if (errors.isEmpty()) {
+                    ArrangorReferanse.Fakturanummer(requireNotNull(parsedFakturanummer))
+                } else {
+                    null
+                }
+            }
+
+            null -> {
+                error {
+                    FieldError(
+                        "/tilskuddVedtak/$index/arrangorReferanse",
+                        "Du må velge kid eller fakturanummer",
+                    )
+                }
+                null
+            }
+        }
+
+        requireNotNull(referanse)
     }
 
     fun createJournalpostValidator(
@@ -318,72 +374,73 @@ object TilskuddBehandlingValidator {
                     ).nel().left()
             }
         }
-        val journalpostValidatorFunc: (String, Int) -> Validated<JournalpostId> = { journalpostId: String, index: Int ->
-            runBlocking {
-                journalpostValidator.validerJournalpost(
-                    journalpostId = journalpostId,
-                    forventetBruker = forventetBruker,
-                    accessType = AccessType.M2M,
-                )
-                    .mapLeft {
-                        when (it) {
-                            JournalpostValidator.JournalpostValideringError.NotFound ->
-                                FieldError(
-                                    pointer = "/tilskuddVedtak/$index/soknadJournalpostId",
-                                    detail = "Fant ingen journalpost med id $journalpostId",
-                                ).nel()
+        val journalpostValidatorFunc: (String, Int) -> Validated<JournalpostId> =
+            { journalpostId: String, index: Int ->
+                runBlocking {
+                    journalpostValidator.validerJournalpost(
+                        journalpostId = journalpostId,
+                        forventetBruker = forventetBruker,
+                        accessType = AccessType.M2M,
+                    )
+                        .mapLeft {
+                            when (it) {
+                                JournalpostValidator.JournalpostValideringError.NotFound ->
+                                    FieldError(
+                                        pointer = "/tilskuddVedtak/$index/soknadJournalpostId",
+                                        detail = "Fant ingen journalpost med id $journalpostId",
+                                    ).nel()
 
-                            JournalpostValidator.JournalpostValideringError.SafError ->
-                                FieldError(
-                                    pointer = "/tilskuddVedtak/$index/soknadJournalpostId",
-                                    detail = "Klarte ikke å slå opp journalpost",
-                                ).nel()
+                                JournalpostValidator.JournalpostValideringError.SafError ->
+                                    FieldError(
+                                        pointer = "/tilskuddVedtak/$index/soknadJournalpostId",
+                                        detail = "Klarte ikke å slå opp journalpost",
+                                    ).nel()
 
-                            JournalpostValidator.JournalpostValideringError.FeilFormat ->
-                                FieldError(
-                                    pointer = "/tilskuddVedtak/$index/soknadJournalpostId",
-                                    detail = "Feil format på Journalpost-ID: $journalpostId",
-                                ).nel()
+                                JournalpostValidator.JournalpostValideringError.FeilFormat ->
+                                    FieldError(
+                                        pointer = "/tilskuddVedtak/$index/soknadJournalpostId",
+                                        detail = "Feil format på Journalpost-ID: $journalpostId",
+                                    ).nel()
 
-                            JournalpostValidator.JournalpostValideringError.TilhorerVirksomhet ->
-                                FieldError(
-                                    pointer = "/tilskuddVedtak/$index/soknadJournalpostId",
-                                    detail = "Journalposten tilhører en virksomhet",
-                                ).nel()
+                                JournalpostValidator.JournalpostValideringError.TilhorerVirksomhet ->
+                                    FieldError(
+                                        pointer = "/tilskuddVedtak/$index/soknadJournalpostId",
+                                        detail = "Journalposten tilhører en virksomhet",
+                                    ).nel()
 
-                            JournalpostValidator.JournalpostValideringError.TilhorerPerson ->
-                                FieldError(
-                                    pointer = "/tilskuddVedtak/$index/soknadJournalpostId",
-                                    detail = "Journalposten tilhører en person",
-                                ).nel()
+                                JournalpostValidator.JournalpostValideringError.TilhorerPerson ->
+                                    FieldError(
+                                        pointer = "/tilskuddVedtak/$index/soknadJournalpostId",
+                                        detail = "Journalposten tilhører en person",
+                                    ).nel()
 
-                            JournalpostValidator.JournalpostValideringError.TilhorerAnnenPerson ->
-                                FieldError(
-                                    pointer = "/tilskuddVedtak/$index/soknadJournalpostId",
-                                    detail = "Journalposten tilhører en annen person enn deltakeren",
-                                ).nel()
+                                JournalpostValidator.JournalpostValideringError.TilhorerAnnenPerson ->
+                                    FieldError(
+                                        pointer = "/tilskuddVedtak/$index/soknadJournalpostId",
+                                        detail = "Journalposten tilhører en annen person enn deltakeren",
+                                    ).nel()
 
-                            JournalpostValidator.JournalpostValideringError.TilhorerAnnenVirksomhet ->
-                                FieldError(
-                                    pointer = "/tilskuddVedtak/$index/soknadJournalpostId",
-                                    detail = "Journalposten tilhører en annen virksomhet",
-                                ).nel()
+                                JournalpostValidator.JournalpostValideringError.TilhorerAnnenVirksomhet ->
+                                    FieldError(
+                                        pointer = "/tilskuddVedtak/$index/soknadJournalpostId",
+                                        detail = "Journalposten tilhører en annen virksomhet",
+                                    ).nel()
 
-                            JournalpostValidator.JournalpostValideringError.KunneIkkeVeksleAktoerId ->
-                                FieldError(
-                                    pointer = "/tilskuddVedtak/$index/soknadJournalpostId",
-                                    detail = "Kunne ikke slå opp person i PDL for å verifisere journalposten",
-                                ).nel()
+                                JournalpostValidator.JournalpostValideringError.KunneIkkeVeksleAktoerId ->
+                                    FieldError(
+                                        pointer = "/tilskuddVedtak/$index/soknadJournalpostId",
+                                        detail = "Kunne ikke slå opp person i PDL for å verifisere journalposten",
+                                    ).nel()
 
-                            JournalpostValidator.JournalpostValideringError.IngenTilknytning ->
-                                FieldError(
-                                    pointer = "/tilskuddVedtak/$index/soknadJournalpostId",
-                                    detail = "Journalposten var ikke tilknyttet en bruker eller virksomhet",
-                                ).nel()
+                                JournalpostValidator.JournalpostValideringError.IngenTilknytning ->
+                                    FieldError(
+                                        pointer = "/tilskuddVedtak/$index/soknadJournalpostId",
+                                        detail = "Journalposten var ikke tilknyttet en bruker eller virksomhet",
+                                    ).nel()
+                            }
                         }
-                    }
+                }
             }
-        }
         return journalpostValidatorFunc
     }
 }

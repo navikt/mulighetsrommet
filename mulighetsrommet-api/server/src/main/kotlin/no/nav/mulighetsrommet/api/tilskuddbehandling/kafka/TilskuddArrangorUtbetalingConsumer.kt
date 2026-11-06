@@ -14,8 +14,8 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningType
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.tilsagn.model.ValutaBelopRequest
-import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingDto
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddMottaker
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
 import no.nav.mulighetsrommet.api.totrinnskontroll.kafka.TotrinnskontrollHendelseDeserializer
 import no.nav.mulighetsrommet.api.utbetaling.model.AutomatisertUtbetalingResult
@@ -60,7 +60,7 @@ class TilskuddArrangorUtbetalingConsumer(
     private suspend fun utbetalTilskuddTilArrangor(behandling: TilskuddBehandlingDto) {
         behandling.tilskuddVedtak
             .filter { it.vedtakResultat.type == VedtakResultat.INNVILGELSE }
-            .filter { it.utbetalingMottaker == TilskuddMottaker.ARRANGOR }
+            .filter { it.utbetalingMottaker is TilskuddMottaker.Arrangor }
             .forEach { tilskuddVedtak ->
                 db.transaction {
                     // Idempotency check

@@ -3,7 +3,11 @@ import { useFormContext } from "react-hook-form";
 import { FormTextarea } from "@/components/skjema/FormTextarea";
 import { ControlledRadioGroup } from "@/components/skjema/ControlledRadioGroup";
 import {
+  ArrangorReferanseType,
   TilskuddBehandlingRequest,
+  TilskuddMottaker,
+  TilskuddMottakerType,
+  TilskuddVedtakRequest,
   Valuta,
   VedtakResultat,
 } from "@tiltaksadministrasjon/api-client";
@@ -29,7 +33,6 @@ export function VedtakForm({ arrangorId }: { arrangorId: string }) {
   const { data: betalingsinformasjon } = useArrangorBetalingsinformasjon(arrangorId);
 
   const { data: kostnadssteder } = useKostnadssteder();
-
   const tilskuddVedtak = watch("tilskuddVedtak");
 
   // FIXME: Småhacky konvertering fra separate dato-felter til Periode
@@ -45,6 +48,45 @@ export function VedtakForm({ arrangorId }: { arrangorId: string }) {
     kostnadssteder
       .flatMap((region) => region.kostnadssteder)
       .find((k) => k.enhetsnummer === kostnadsted) || null;
+
+  // FIXME: Utifra steg-valideringen av Saksopplysninger
+  // kunne vi gjerne brukt validert respons til visning her, istedetfor å vedlike holde dette.
+  function tilskuddMottaker(data: TilskuddVedtakRequest): TilskuddMottaker | null {
+    if (!data.utbetalingMottaker) {
+      return null;
+    }
+    switch (data.utbetalingMottaker) {
+      case TilskuddMottakerType.BRUKER:
+        if (data.brukerUtbetalingType) {
+          return {
+            type: "BRUKER",
+            utbetalingType: data.brukerUtbetalingType,
+          };
+        } else {
+          return null;
+        }
+      case TilskuddMottakerType.ARRANGOR:
+        if (data.arrangorReferanse === ArrangorReferanseType.FAKTURANUMMER && data.fakturanummer) {
+          return {
+            type: "ARRANGOR",
+            referanse: {
+              type: "FAKTURANUMMER",
+              fakturanummer: data.fakturanummer,
+            },
+          };
+        } else if (data.arrangorReferanse === ArrangorReferanseType.KID && data.kidNummer) {
+          return {
+            type: "ARRANGOR",
+            referanse: {
+              type: "KID",
+              kid: data.kidNummer,
+            },
+          };
+        }
+    }
+
+    return null;
+  }
 
   return (
     <>
@@ -70,10 +112,8 @@ export function VedtakForm({ arrangorId }: { arrangorId: string }) {
                   periode={periode}
                   kostnadssted={valgtKostnadsted(t.kostnadssted)}
                   belop={t.soknadBelop?.belop ?? 0}
-                  utbetalingMottaker={t.utbetalingMottaker}
+                  utbetalingMottaker={tilskuddMottaker(t)}
                   tilskuddOpplaeringType={t.tilskuddOpplaeringType}
-                  kid={t.kidNummer}
-                  brukerUtbetalingType={t.brukerUtbetalingType}
                   betalingsinformasjon={betalingsinformasjon ?? null}
                 />
                 <Separator />

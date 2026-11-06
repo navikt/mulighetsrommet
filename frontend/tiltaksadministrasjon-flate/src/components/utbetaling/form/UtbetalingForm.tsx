@@ -95,7 +95,9 @@ export function BetalingsinformasjonFormGroup({ arrangorId }: { arrangorId: stri
       </Heading>
       <BetalingsinformasjonFields<UtbetalingRequest>
         arrangorId={arrangorId}
+        referanseName="referanse"
         kidNummerName="kidNummer"
+        fakturanummerName="fakturanummer"
       />
     </FormGroup>
   );

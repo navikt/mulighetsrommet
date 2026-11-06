@@ -6,7 +6,7 @@ import no.nav.mulighetsrommet.api.pdfgen.PdfDocumentContentBuilder
 import no.nav.mulighetsrommet.api.pdfgen.Signature
 import no.nav.mulighetsrommet.api.pdfgen.TopSection
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.BrukerUtbetalingType
-import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddMottaker
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
 import no.nav.mulighetsrommet.api.tilskuddbehandling.task.TilskuddBrevVedtak
 import no.nav.mulighetsrommet.api.tilskuddbehandling.task.VedtaksbrevInnhold
@@ -101,9 +101,9 @@ object TilskuddVedtakToPdfDocumentContentMapper {
             paragraph { regular(HJEMMEL) }
         }
         when (tilskudd.utbetalingMottaker) {
-            TilskuddMottaker.BRUKER -> utbetalingBrukerSection(tilskudd, arrangorNavn)
+            is TilskuddMottaker.Bruker -> utbetalingBrukerSection(tilskudd, arrangorNavn)
 
-            TilskuddMottaker.ARRANGOR -> utbetalingArrangorSection(
+            is TilskuddMottaker.Arrangor -> utbetalingArrangorSection(
                 arrangorNavn,
             )
         }
@@ -158,7 +158,7 @@ private fun PdfDocumentContentBuilder.utbetalingArrangorSection(arrangorNavn: St
 
 private fun PdfDocumentContentBuilder.dinePlikterSection(tilskudd: TilskuddBrevVedtak, arrangorNavn: String) {
     section("Dine plikter", level = 3) {
-        if (tilskudd.brukerUtbetalingType == BrukerUtbetalingType.FORSKUDD) {
+        if (tilskudd.utbetalingMottaker is TilskuddMottaker.Bruker && tilskudd.utbetalingMottaker.utbetalingType == BrukerUtbetalingType.FORSKUDD) {
             paragraph {
                 regular(
                     "Pengene skal kun brukes til å betale ${tilskudd.tilskuddType} til $arrangorNavn. " +

@@ -16,8 +16,8 @@ import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd
 import no.nav.mulighetsrommet.api.domain.personalia.Personalia
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandlingType
-import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingDto
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddMottaker
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddVedtakDto
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
 import no.nav.mulighetsrommet.api.totrinnskontroll.kafka.TotrinnskontrollHendelseDeserializer
@@ -98,7 +98,7 @@ class TilskuddBrukerUtbetalingConsumer(
 
         behandling.tilskuddVedtak
             .filter { it.vedtakResultat.type == VedtakResultat.INNVILGELSE }
-            .filter { it.utbetalingMottaker == TilskuddMottaker.BRUKER }
+            .filter { it.utbetalingMottaker is TilskuddMottaker.Bruker }
             .forEach { tilskuddVedtak ->
                 if (totrinnskontroll.type != TotrinnskontrollType.TILSKUDD_OPPHOR) {
                     throw IllegalStateException("Revurdering av tilskudd med type ${totrinnskontroll.type} støttes ikke for utbetaling til bruker")
@@ -133,7 +133,7 @@ class TilskuddBrukerUtbetalingConsumer(
 
         behandling.tilskuddVedtak
             .filter { it.vedtakResultat.type == VedtakResultat.INNVILGELSE }
-            .filter { it.utbetalingMottaker == TilskuddMottaker.BRUKER }
+            .filter { it.utbetalingMottaker is TilskuddMottaker.Bruker }
             .forEach { tilskuddVedtak ->
                 db.transaction {
                     // Idempotency check
