@@ -27,19 +27,19 @@
             },
             {
               "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
-              "label": "Dato innsendt av arrangør",
+              "label": "Dato innsendt",
               "value": "2025-01-02",
               "format": "DATE"
             },
             {
               "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
-              "label": "Tiltakstype",
-              "value": "Oppfolging"
+              "label": "Tiltaksnavn",
+              "value": "OPPFOLGING (2025/10000)"
             },
             {
               "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
-              "label": "Løpenummer",
-              "value": "2025/10000"
+              "label": "Tiltakstype",
+              "value": "Oppfolging"
             }
           ]
         }
@@ -51,22 +51,6 @@
         "level": 2
       },
       "blocks": [
-        {
-          "type": "description-list",
-          "entries": [
-            {
-              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
-              "label": "Utbetalingsperiode",
-              "value": "01.01.2025 - 31.01.2025"
-            },
-            {
-              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
-              "label": "Utbetales tidligst",
-              "value": null,
-              "format": "DATE"
-            }
-          ]
-        },
         {
           "type": "description-list",
           "entries": [
@@ -86,6 +70,11 @@
         {
           "type": "description-list",
           "entries": [
+            {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
+              "label": "Utbetalingsperiode",
+              "value": "01.01.2025 - 31.01.2025"
+            },
             {
               "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.MoneyAmount",
               "label": "Beløp",
@@ -108,12 +97,12 @@
             {
               "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
               "label": "Kontonummer",
-              "value": "12345678901"
+              "value": "1234 56 78901"
             },
             {
               "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
               "label": "KID-nummer",
-              "value": null
+              "value": "-"
             }
           ]
         }
@@ -276,19 +265,19 @@
             },
             {
               "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
-              "label": "Dato innsendt av arrangør",
+              "label": "Dato innsendt",
               "value": "2025-01-02",
               "format": "DATE"
             },
             {
               "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
-              "label": "Tiltakstype",
-              "value": "Oppfolging"
+              "label": "Tiltaksnavn",
+              "value": "OPPFOLGING (2025/10000)"
             },
             {
               "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
-              "label": "Løpenummer",
-              "value": "2025/10000"
+              "label": "Tiltakstype",
+              "value": "Oppfolging"
             }
           ]
         }
@@ -300,22 +289,6 @@
         "level": 2
       },
       "blocks": [
-        {
-          "type": "description-list",
-          "entries": [
-            {
-              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
-              "label": "Utbetalingsperiode",
-              "value": "01.01.2025 - 31.01.2025"
-            },
-            {
-              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
-              "label": "Utbetales tidligst",
-              "value": null,
-              "format": "DATE"
-            }
-          ]
-        },
         {
           "type": "description-list",
           "entries": [
@@ -335,6 +308,11 @@
         {
           "type": "description-list",
           "entries": [
+            {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
+              "label": "Utbetalingsperiode",
+              "value": "01.01.2025 - 31.01.2025"
+            },
             {
               "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.MoneyAmount",
               "label": "Beløp",
@@ -357,12 +335,12 @@
             {
               "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
               "label": "Kontonummer",
-              "value": "12345678901"
+              "value": "1234 56 78901"
             },
             {
               "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
               "label": "KID-nummer",
-              "value": null
+              "value": "-"
             }
           ]
         }
@@ -380,8 +358,7 @@
             {
               "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
               "label": "Status",
-              "value": "Overført til utbetaling",
-              "format": "STATUS_SUCCESS"
+              "value": "Overført til utbetaling"
             },
             {
               "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.MoneyAmount",
@@ -401,6 +378,7 @@
       "blocks": [
         {
           "type": "description-list",
+          "description": "Tilsagn A-1-1",
           "entries": [
             {
               "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
@@ -416,19 +394,19 @@
             {
               "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
               "label": "Status",
-              "value": "Overført til utbetaling",
-              "format": "STATUS_SUCCESS"
+              "value": "Overført til utbetaling"
             },
             {
               "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
               "label": "Status endret",
-              "value": "2025-01-03T00:00",
+              "value": "2025-01-03",
               "format": "DATE"
             }
           ]
         },
         {
           "type": "description-list",
+          "description": "Tilsagn A-1-2",
           "entries": [
             {
               "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
@@ -444,13 +422,12 @@
             {
               "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
               "label": "Status",
-              "value": "Overført til utbetaling",
-              "format": "STATUS_SUCCESS"
+              "value": "Overført til utbetaling"
             },
             {
               "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
               "label": "Status endret",
-              "value": "2025-01-03T00:00",
+              "value": "2025-01-03",
               "format": "DATE"
             }
           ]
@@ -488,19 +465,19 @@
             },
             {
               "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
-              "label": "Dato innsendt av arrangør",
+              "label": "Dato innsendt",
               "value": "2025-01-02",
               "format": "DATE"
             },
             {
               "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
-              "label": "Tiltakstype",
-              "value": "Oppfølging"
+              "label": "Tiltaksnavn",
+              "value": "OPPFOLGING (2025/10000)"
             },
             {
               "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
-              "label": "Løpenummer",
-              "value": "2025/10000"
+              "label": "Tiltakstype",
+              "value": "Oppfølging"
             }
           ]
         }
@@ -512,22 +489,6 @@
         "level": 2
       },
       "blocks": [
-        {
-          "type": "description-list",
-          "entries": [
-            {
-              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
-              "label": "Utbetalingsperiode",
-              "value": "01.01.2025 - 31.01.2025"
-            },
-            {
-              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
-              "label": "Utbetales tidligst",
-              "value": null,
-              "format": "DATE"
-            }
-          ]
-        },
         {
           "type": "description-list",
           "entries": [
@@ -553,6 +514,11 @@
           "type": "description-list",
           "entries": [
             {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
+              "label": "Utbetalingsperiode",
+              "value": "01.01.2025 - 31.01.2025"
+            },
+            {
               "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.MoneyAmount",
               "label": "Beløp",
               "value": "100",
@@ -574,12 +540,12 @@
             {
               "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
               "label": "Kontonummer",
-              "value": "12345678901"
+              "value": "1234 56 78901"
             },
             {
               "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
               "label": "KID-nummer",
-              "value": null
+              "value": "-"
             }
           ]
         }
@@ -919,19 +885,19 @@
             },
             {
               "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
-              "label": "Dato innsendt av arrangør",
+              "label": "Dato innsendt",
               "value": "2025-01-02",
               "format": "DATE"
             },
             {
               "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
-              "label": "Tiltakstype",
-              "value": "Oppfølging"
+              "label": "Tiltaksnavn",
+              "value": "OPPFOLGING (2025/10000)"
             },
             {
               "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
-              "label": "Løpenummer",
-              "value": "2025/10000"
+              "label": "Tiltakstype",
+              "value": "Oppfølging"
             }
           ]
         }
@@ -943,22 +909,6 @@
         "level": 2
       },
       "blocks": [
-        {
-          "type": "description-list",
-          "entries": [
-            {
-              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
-              "label": "Utbetalingsperiode",
-              "value": "01.01.2025 - 31.01.2025"
-            },
-            {
-              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
-              "label": "Utbetales tidligst",
-              "value": null,
-              "format": "DATE"
-            }
-          ]
-        },
         {
           "type": "description-list",
           "entries": [
@@ -984,6 +934,11 @@
           "type": "description-list",
           "entries": [
             {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
+              "label": "Utbetalingsperiode",
+              "value": "01.01.2025 - 31.01.2025"
+            },
+            {
               "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.MoneyAmount",
               "label": "Beløp",
               "value": "100",
@@ -1005,12 +960,12 @@
             {
               "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
               "label": "Kontonummer",
-              "value": "12345678901"
+              "value": "1234 56 78901"
             },
             {
               "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
               "label": "KID-nummer",
-              "value": null
+              "value": "-"
             }
           ]
         }
@@ -1028,8 +983,7 @@
             {
               "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
               "label": "Status",
-              "value": "Overført til utbetaling",
-              "format": "STATUS_SUCCESS"
+              "value": "Overført til utbetaling"
             },
             {
               "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.MoneyAmount",
@@ -1049,6 +1003,7 @@
       "blocks": [
         {
           "type": "description-list",
+          "description": "Tilsagn A-1-1",
           "entries": [
             {
               "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
@@ -1064,19 +1019,19 @@
             {
               "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
               "label": "Status",
-              "value": "Overført til utbetaling",
-              "format": "STATUS_SUCCESS"
+              "value": "Overført til utbetaling"
             },
             {
               "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
               "label": "Status endret",
-              "value": "2025-01-03T00:00",
+              "value": "2025-01-03",
               "format": "DATE"
             }
           ]
         },
         {
           "type": "description-list",
+          "description": "Tilsagn A-1-2",
           "entries": [
             {
               "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
@@ -1092,13 +1047,12 @@
             {
               "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
               "label": "Status",
-              "value": "Overført til utbetaling",
-              "format": "STATUS_SUCCESS"
+              "value": "Overført til utbetaling"
             },
             {
               "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
               "label": "Status endret",
-              "value": "2025-01-03T00:00",
+              "value": "2025-01-03",
               "format": "DATE"
             }
           ]

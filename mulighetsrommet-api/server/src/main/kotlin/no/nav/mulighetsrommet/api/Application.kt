@@ -91,7 +91,7 @@ fun Application.configure(config: AppConfig) {
         .register(Metrics.micrometerRegistry)
 
     routing {
-        apiRoutes(config)
+        apiRoutes()
     }
 
     val kafka: KafkaConsumerOrchestrator by inject()
