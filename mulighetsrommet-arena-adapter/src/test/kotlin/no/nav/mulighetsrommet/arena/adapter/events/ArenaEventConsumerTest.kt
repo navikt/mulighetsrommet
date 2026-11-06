@@ -4,6 +4,10 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.data.blocking.forAll
 import io.kotest.data.row
 import io.kotest.matchers.shouldBe
+import io.mockk.coJustRun
+import io.mockk.coVerify
+import io.mockk.confirmVerified
+import io.mockk.mockk
 import no.nav.mulighetsrommet.arena.adapter.fixtures.createArenaSakEvent
 import no.nav.mulighetsrommet.arena.adapter.fixtures.createArenaTiltakEvent
 import no.nav.mulighetsrommet.arena.adapter.fixtures.createArenaTiltakdeltakerEvent
@@ -14,8 +18,21 @@ import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable.Tiltaksgjenn
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable.Tiltakstype
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.Operation.Delete
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.Operation.Insert
+import no.nav.mulighetsrommet.arena.adapter.services.ArenaEventService
 
 class ArenaEventConsumerTest : FunSpec({
+    test("prosesserer hver Kafka-hendelse kun en gang") {
+        val service = mockk<ArenaEventService>()
+        coJustRun { service.processEvent(any()) }
+        val consumer = ArenaEventConsumer(service)
+        val event = createArenaTiltakdeltakerEvent(Insert)
+
+        consumer.consume(event.arenaId, event.payload)
+
+        coVerify(exactly = 1) { service.processEvent(event) }
+        confirmVerified(service)
+    }
+
     test("decode ArenaEvent") {
         forAll(
             row(
