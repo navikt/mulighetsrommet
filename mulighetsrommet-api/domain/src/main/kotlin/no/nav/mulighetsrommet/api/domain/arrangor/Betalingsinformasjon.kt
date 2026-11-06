@@ -4,7 +4,6 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonClassDiscriminator
-import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Kontonummer
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -15,7 +14,7 @@ sealed class Betalingsinformasjon {
     @SerialName("BBan")
     data class BBan(
         val kontonummer: Kontonummer,
-        val kid: Kid?,
+        val referanse: Betalingsreferanse?,
     ) : Betalingsinformasjon()
 
     @Serializable

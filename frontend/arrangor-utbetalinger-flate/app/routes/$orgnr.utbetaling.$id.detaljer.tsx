@@ -127,7 +127,10 @@ function UtbetalingDetaljerContent({ id }: { id: string }) {
             },
             {
               key: "KID-nummer",
-              value: utbetaling.betalingsinformasjon?.kid || "-",
+              value:
+                (utbetaling.betalingsinformasjon?.referanse?.type === "KidNummer" &&
+                  utbetaling.betalingsinformasjon.referanse.kid) ||
+                "-",
             },
           ]}
         />

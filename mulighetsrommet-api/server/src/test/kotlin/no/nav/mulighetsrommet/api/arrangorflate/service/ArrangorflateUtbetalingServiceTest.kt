@@ -127,7 +127,7 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
         beforeEach {
             coEvery { betalingsinformasjon.execute(any()) } returns Betalingsinformasjon.BBan(
                 kontonummer = Kontonummer("12345678901"),
-                kid = null,
+                referanse = null,
             )
         }
 

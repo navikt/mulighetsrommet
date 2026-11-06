@@ -6,6 +6,7 @@ import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangforflateUtbetalingLinje
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateTilsagnSummary
 import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsinformasjon
+import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsreferanse
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingType
 import no.nav.mulighetsrommet.api.domain.personalia.Gradering
 import no.nav.mulighetsrommet.api.domain.personalia.Personalia
@@ -24,6 +25,7 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningOutputDelt
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningOutputDeltakelse.BeregnetPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
+import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.NOK
 import no.nav.mulighetsrommet.model.NorskIdent
@@ -365,6 +367,33 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
         test("fast sats per tiltaksplass per maned") {
             val pdfContent = UbetalingToPdfDocumentContentMapper.toUtbetalingsdetaljerPdfContent(
                 utbetalingFastSats,
+                linjer,
+                gjennomforing,
+            )
+
+            expectSelfie(jsonPrettyPrint.encodeToString<PdfDocumentContent>(pdfContent)).toMatchDisk("utbetalingsdetaljerFastSats")
+        }
+
+        test("fast sats per tiltaksplass per maned, med kid") {
+            val pdfContent = UbetalingToPdfDocumentContentMapper.toUtbetalingsdetaljerPdfContent(
+                utbetalingFastSats.copy(betalingsinformasjon = Betalingsinformasjon.BBan(kontonummer = Kontonummer("12345678901"), referanse = Betalingsreferanse.KidNummer(Kid.parseOrThrow("116")))),
+                linjer,
+                gjennomforing,
+            )
+
+            expectSelfie(jsonPrettyPrint.encodeToString<PdfDocumentContent>(pdfContent)).toMatchDisk("utbetalingsdetaljerFastSats")
+        }
+
+        test("fast sats per tiltaksplass per maned, med melding til mottaker") {
+            val pdfContent = UbetalingToPdfDocumentContentMapper.toUtbetalingsdetaljerPdfContent(
+                utbetalingFastSats.copy(
+                    betalingsinformasjon = Betalingsinformasjon.BBan(
+                        kontonummer = Kontonummer("12345678901"),
+                        referanse = Betalingsreferanse.MeldingTilMottaker(
+                            "Faktura ABC-123",
+                        ),
+                    ),
+                ),
                 linjer,
                 gjennomforing,
             )

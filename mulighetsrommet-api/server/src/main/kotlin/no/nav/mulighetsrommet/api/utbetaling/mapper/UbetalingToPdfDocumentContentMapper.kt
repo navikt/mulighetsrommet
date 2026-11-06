@@ -4,6 +4,7 @@ import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangforflateUtbetalingLinj
 import no.nav.mulighetsrommet.api.arrangorflate.service.beregningSatsDetaljer
 import no.nav.mulighetsrommet.api.arrangorflate.service.beregningStengt
 import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsinformasjon
+import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsreferanse
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.domain.personalia.Gradering
 import no.nav.mulighetsrommet.api.domain.personalia.Personalia
@@ -189,7 +190,12 @@ private fun PdfDocumentContentBuilder.addBetalingsinformasjonSection(
             when (betalingsinformasjon) {
                 is Betalingsinformasjon.BBan -> {
                     text("Kontonummer", betalingsinformasjon.kontonummer.value)
-                    text("KID-nummer", betalingsinformasjon.kid?.value)
+                    (betalingsinformasjon.referanse as? Betalingsreferanse.KidNummer)?.kid?.let { kid ->
+                        text("KID-nummer", kid.value)
+                    }
+                    (betalingsinformasjon.referanse as? Betalingsreferanse.MeldingTilMottaker)?.let { melding ->
+                        text("Melding til mottaker", melding)
+                    }
                 }
 
                 is Betalingsinformasjon.IBan -> {

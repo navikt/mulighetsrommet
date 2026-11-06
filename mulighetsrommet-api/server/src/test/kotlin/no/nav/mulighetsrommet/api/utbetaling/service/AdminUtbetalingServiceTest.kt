@@ -91,7 +91,7 @@ class AdminUtbetalingServiceTest : FunSpec({
 
     coEvery { betalingsinformasjon.execute(any()) } returns Betalingsinformasjon.BBan(
         kontonummer = Kontonummer("12345678901"),
-        kid = null,
+        referanse = null,
     )
 
     fun createTilsagnService(): TilsagnService = TilsagnService(
@@ -154,7 +154,7 @@ class AdminUtbetalingServiceTest : FunSpec({
             gjennomforingId = AFT1.id,
             periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
             journalpostId = JournalpostId("123123123"),
-            kid = null,
+            referanse = null,
             beregning = UtbetalingBeregningFri.from(10.NOK),
             utbetalingsDato = utbetalingsDato,
             kommentar = "Arrangør trenger penger",
@@ -339,7 +339,7 @@ class AdminUtbetalingServiceTest : FunSpec({
                 periode = upsert.periode,
                 beregning = upsert.beregning,
                 tilskuddstype = upsert.tilskuddstype,
-                kid = null,
+                referanse = null,
             )
             service.opprettUtbetaling(
                 innsending,
@@ -441,7 +441,7 @@ class AdminUtbetalingServiceTest : FunSpec({
             periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
             korreksjonGjelderUtbetalingId = utbetaling1.id,
             korreksjonBegrunnelse = "Feilutbetaling",
-            kid = null,
+            referanse = null,
             beregning = UtbetalingBeregningFri.from(10.NOK),
             kommentar = null,
             tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
@@ -1845,7 +1845,7 @@ class AdminUtbetalingServiceTest : FunSpec({
                     periode = Periode.forMonthOf(utbetaling1.periode.start),
                     korreksjonGjelderUtbetalingId = utbetaling1.id,
                     korreksjonBegrunnelse = "Feilutbetaling",
-                    kid = null,
+                    referanse = null,
                     beregning = UtbetalingBeregningFri.from(10.NOK),
                     kommentar = null,
                     tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,

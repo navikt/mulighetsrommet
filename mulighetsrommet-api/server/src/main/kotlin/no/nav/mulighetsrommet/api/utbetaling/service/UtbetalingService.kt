@@ -15,6 +15,7 @@ import no.nav.mulighetsrommet.admin.totrinnskontroll.toFieldErrors
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.TransactionalQueryContext
 import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsinformasjon
+import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsreferanse
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingTiltaksadministrasjon
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.Totrinnskontroll
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollStatus
@@ -39,7 +40,6 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskLocalDateTime
 import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.Arrangor
-import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
@@ -69,7 +69,7 @@ class UtbetalingService(
     context(tx: TransactionalQueryContext)
     fun godkjentAvArrangor(
         utbetalingId: UUID,
-        kid: Kid?,
+        referanse: Betalingsreferanse?,
     ): Either<List<FieldError>, Unit> = with(tx) {
         val utbetaling = queries.utbetaling.getAndAcquireLock(utbetalingId)
         if (utbetaling.status != UtbetalingStatusType.GENERERT) {
@@ -77,7 +77,7 @@ class UtbetalingService(
         }
 
         queries.utbetaling.setInnsendtAvArrangor(utbetalingId, LocalDateTime.now())
-        queries.utbetaling.setKid(utbetalingId, kid)
+        queries.utbetaling.setBetalingsreferanse(utbetalingId, referanse)
         queries.utbetaling.setStatus(utbetalingId, UtbetalingStatusType.TIL_BEHANDLING)
 
         logEndring("Utbetaling sendt inn", utbetalingId, Arrangor)
@@ -425,7 +425,7 @@ class UtbetalingService(
             korreksjonBegrunnelse = null,
             journalpostId = null,
             innsendtAvArrangorTidspunkt = null,
-            betalingsinformasjon = getUtbetalingsinformasjon(gjennomforing.arrangor.id, upsert.kid),
+            betalingsinformasjon = getUtbetalingsinformasjon(gjennomforing.arrangor.id, upsert.referanse),
             utbetalesTidligstTidspunkt = getUtbetalesTidligstTidspunkt(gjennomforing, upsert.periode),
             avbrytelse = null,
         )
@@ -454,7 +454,7 @@ class UtbetalingService(
             korreksjonBegrunnelse = null,
             journalpostId = null,
             innsendtAvArrangorTidspunkt = LocalDateTime.now(),
-            betalingsinformasjon = getUtbetalingsinformasjon(gjennomforing.arrangor.id, upsert.kid),
+            betalingsinformasjon = getUtbetalingsinformasjon(gjennomforing.arrangor.id, upsert.referanse),
             utbetalesTidligstTidspunkt = getUtbetalesTidligstTidspunkt(gjennomforing, upsert.periode),
             avbrytelse = null,
         )
@@ -484,7 +484,7 @@ class UtbetalingService(
             korreksjonBegrunnelse = null,
             journalpostId = upsert.journalpostId,
             innsendtAvArrangorTidspunkt = null,
-            betalingsinformasjon = getUtbetalingsinformasjon(gjennomforing.arrangor.id, upsert.kid),
+            betalingsinformasjon = getUtbetalingsinformasjon(gjennomforing.arrangor.id, upsert.referanse),
             utbetalesTidligstTidspunkt = valgtUtbetalingsTidspunkt ?: getUtbetalesTidligstTidspunkt(
                 gjennomforing,
                 upsert.periode,
@@ -522,7 +522,7 @@ class UtbetalingService(
             korreksjonBegrunnelse = upsert.korreksjonBegrunnelse,
             journalpostId = null,
             innsendtAvArrangorTidspunkt = null,
-            betalingsinformasjon = getUtbetalingsinformasjon(gjennomforing.arrangor.id, upsert.kid),
+            betalingsinformasjon = getUtbetalingsinformasjon(gjennomforing.arrangor.id, upsert.referanse),
             utbetalesTidligstTidspunkt = getUtbetalesTidligstTidspunkt(gjennomforing, upsert.periode),
             avbrytelse = null,
         )
@@ -532,10 +532,10 @@ class UtbetalingService(
         return dbo.right()
     }
 
-    private suspend fun getUtbetalingsinformasjon(arrangorId: UUID, kid: Kid?): Betalingsinformasjon? {
+    private suspend fun getUtbetalingsinformasjon(arrangorId: UUID, referanse: Betalingsreferanse?): Betalingsinformasjon? {
         return betalingsinformasjon.execute(HentBetalingsinformasjon(arrangorId))?.let { betalingsinformasjon ->
             when (betalingsinformasjon) {
-                is Betalingsinformasjon.BBan -> Betalingsinformasjon.BBan(betalingsinformasjon.kontonummer, kid)
+                is Betalingsinformasjon.BBan -> Betalingsinformasjon.BBan(betalingsinformasjon.kontonummer, referanse)
                 is Betalingsinformasjon.IBan -> betalingsinformasjon
             }
         }
@@ -788,25 +788,11 @@ class UtbetalingService(
             Tilsagnsnummer: ${tilsagn.bestilling.bestillingsnummer}
         """.trimIndent()
 
-        val betalingsinformasjon = when (utbetaling.betalingsinformasjon) {
-            is Betalingsinformasjon.BBan -> OpprettFaktura.Betalingsinformasjon.BBan(
-                kontonummer = utbetaling.betalingsinformasjon.kontonummer,
-                referanse = utbetaling.betalingsinformasjon.kid?.let {
-                    OpprettFaktura.Betalingsreferanse.KidNummer(it)
-                } ?: OpprettFaktura.Betalingsreferanse.MeldingTilMottaker(beskrivelse),
-            )
-
-            is Betalingsinformasjon.IBan -> OpprettFaktura.Betalingsinformasjon.IBan(
-                iban = utbetaling.betalingsinformasjon.iban,
-                bic = utbetaling.betalingsinformasjon.bic,
-                bankLandKode = utbetaling.betalingsinformasjon.bankLandKode,
-                bankNavn = utbetaling.betalingsinformasjon.bankNavn,
-            )
-
-            null -> throw IllegalStateException(
-                "Betalingsinformasjon mangler for utbetaling med id=${linje.utbetalingId}",
-            )
-        }
+        val betalingsinformasjon = utbetaling.betalingsinformasjon?.let { betalingsinformasjon ->
+            tilTiltaksokonomiBetalingsinformasjon(betalingsinformasjon, beskrivelse)
+        } ?: throw IllegalStateException(
+            "Betalingsinformasjon mangler for utbetaling med id=${linje.utbetalingId}",
+        )
 
         queries.utbetalingLinje.setFakturaSendtTidspunk(linje.id, Instant.now())
 
@@ -829,6 +815,30 @@ class UtbetalingService(
             ?: config.tidligstTidspunktForUtbetaling.calculate(tilsagn.tiltakstype.tiltakskode, faktura.periode)
         val message = OkonomiBestillingMelding.Faktura(faktura)
         outbox.publish(message, tidspunktForUtbetaling)
+    }
+
+    private fun tilTiltaksokonomiBetalingsinformasjon(betalingsinformasjon: Betalingsinformasjon, beskrivelse: String): OpprettFaktura.Betalingsinformasjon = when (betalingsinformasjon) {
+        is Betalingsinformasjon.IBan -> OpprettFaktura.Betalingsinformasjon.IBan(
+            iban = betalingsinformasjon.iban,
+            bic = betalingsinformasjon.bic,
+            bankLandKode = betalingsinformasjon.bankLandKode,
+            bankNavn = betalingsinformasjon.bankNavn,
+        )
+
+        is Betalingsinformasjon.BBan -> {
+            val kid = (betalingsinformasjon.referanse as? Betalingsreferanse.KidNummer)?.kid?.let { kid ->
+                OpprettFaktura.Betalingsreferanse.KidNummer(kid)
+            }
+            val meldingTilMottaker =
+                (betalingsinformasjon.referanse as? Betalingsreferanse.MeldingTilMottaker)?.melding?.let { melding ->
+                    OpprettFaktura.Betalingsreferanse.MeldingTilMottaker(melding)
+                } ?: OpprettFaktura.Betalingsreferanse.MeldingTilMottaker(beskrivelse)
+
+            OpprettFaktura.Betalingsinformasjon.BBan(
+                kontonummer = betalingsinformasjon.kontonummer,
+                referanse = kid ?: meldingTilMottaker,
+            )
+        }
     }
 
     private fun QueryContext.getTotrinnskontroll(utbetalingLinjeId: UUID): Totrinnskontroll {

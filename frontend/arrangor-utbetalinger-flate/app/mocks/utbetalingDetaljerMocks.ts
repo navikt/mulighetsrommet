@@ -116,7 +116,13 @@ export const aftUtbetalt: ArrangorflateUtbetalingDto = {
     stengt: [],
   },
   advarsler: [],
-  betalingsinformasjon: { kontonummer: "63728787114", kid: "2851777587" },
+  betalingsinformasjon: {
+    kontonummer: "63728787114",
+    referanse: {
+      type: "KidNummer",
+      kid: "2851777587",
+    },
+  },
   periode: { start: "2025-01-01", slutt: "2025-02-01" },
   type: utbetalingType.INNSENDING,
   blokkeringer: [],
@@ -185,7 +191,13 @@ export const avklaringManedKlarTilGodkjenning: ArrangorflateUtbetalingDto = {
     lopenummer: "2025/10001",
   },
   arrangor: arrangorMock,
-  betalingsinformasjon: { kontonummer: "63728787114", kid: "2851777587" },
+  betalingsinformasjon: {
+    kontonummer: "63728787114",
+    referanse: {
+      type: "KidNummer",
+      kid: "2851777587",
+    },
+  },
   valuta: Valuta.NOK,
   beregning: {
     pris: { type: "BEREGNET", pris: { belop: 20000, valuta: Valuta.NOK } },
@@ -250,7 +262,13 @@ export const aftKreverEndring: ArrangorflateUtbetalingDto = {
     deltakelser: toSatserUkesverkDeltakelse,
     stengt: [],
   },
-  betalingsinformasjon: { kontonummer: "63728787114", kid: "2851777587" },
+  betalingsinformasjon: {
+    kontonummer: "63728787114",
+    referanse: {
+      type: "KidNummer",
+      kid: "2851777587",
+    },
+  },
   periode: { start: "2025-01-01", slutt: "2025-02-01" },
   type: utbetalingType.INNSENDING,
   linjer: [],
@@ -307,7 +325,13 @@ export const aftBehandlesAvNav: ArrangorflateUtbetalingDto = {
     satsDetaljer: [],
     pris: { type: "BEREGNET", pris: { belop: 234, valuta: Valuta.NOK } },
   },
-  betalingsinformasjon: { kontonummer: "63728787114", kid: "2851777587" },
+  betalingsinformasjon: {
+    kontonummer: "63728787114",
+    referanse: {
+      type: "KidNummer",
+      kid: "2851777587",
+    },
+  },
   periode: { start: "2025-05-01", slutt: "2025-08-02" },
   type: utbetalingType.INVESTERING,
   linjer: [],
@@ -371,7 +395,13 @@ export const avklaringOverfortTilUtbetaling: ArrangorflateUtbetalingDto = {
     pris: { type: "BEREGNET", pris: { belop: 500, valuta: Valuta.NOK } },
   },
   blokkeringer: [],
-  betalingsinformasjon: { kontonummer: "63728787114", kid: "2851777587" },
+  betalingsinformasjon: {
+    kontonummer: "63728787114",
+    referanse: {
+      type: "KidNummer",
+      kid: "2851777587",
+    },
+  },
   periode: { start: "2025-01-01", slutt: "2025-02-01" },
   type: utbetalingType.KORRIGERING,
   linjer: [
@@ -447,7 +477,13 @@ export const vtaKlarForGodkjenning: ArrangorflateUtbetalingDto = {
     stengt: [],
   },
   blokkeringer: [],
-  betalingsinformasjon: { kontonummer: "63728787114", kid: "2851777587" },
+  betalingsinformasjon: {
+    kontonummer: "63728787114",
+    referanse: {
+      type: "KidNummer",
+      kid: "2851777587",
+    },
+  },
   periode: { start: "2025-06-01", slutt: "2025-07-01" },
   type: utbetalingType.INNSENDING,
   linjer: [],
@@ -498,7 +534,13 @@ export const arrUkesprisKlarTilGodkjenning: ArrangorflateUtbetalingDto = {
     lopenummer: "2025/10006",
   },
   arrangor: arrangorMock,
-  betalingsinformasjon: { kontonummer: "63728787114", kid: "2851777587" },
+  betalingsinformasjon: {
+    kontonummer: "63728787114",
+    referanse: {
+      type: "KidNummer",
+      kid: "2851777587",
+    },
+  },
   valuta: Valuta.NOK,
   beregning: {
     pris: { type: "BEREGNET", pris: { belop: 53100, valuta: Valuta.NOK } },

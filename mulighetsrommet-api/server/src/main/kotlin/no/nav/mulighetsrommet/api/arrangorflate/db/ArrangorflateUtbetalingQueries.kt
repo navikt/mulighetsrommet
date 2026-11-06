@@ -13,6 +13,7 @@ import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetaling
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetalingKompakt
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetalingStatus
 import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsinformasjon
+import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsreferanse
 import no.nav.mulighetsrommet.api.persistence.totrinnskontroll.TotrinnskontrollQueries
 import no.nav.mulighetsrommet.api.shared.PaginatedResult
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingType
@@ -168,10 +169,14 @@ class ArrangorflateUtbetalingQueries(private val session: Session) {
     }
 
     private fun Row.toBankKonto(arrangorId: UUID): Betalingsinformasjon.BBan? = when (val iban = stringOrNull("iban")) {
-        null -> stringOrNull("kontonummer")?.let {
+        null -> stringOrNull("kontonummer")?.let { kontonummer ->
+            val kid = stringOrNull("betalingsreferanse_kid")?.let { kid -> Kid.parseOrThrow(kid) }
             Betalingsinformasjon.BBan(
-                kontonummer = Kontonummer(it),
-                kid = stringOrNull("kid")?.let { Kid.parseOrThrow(it) },
+                kontonummer = Kontonummer(kontonummer),
+                referanse = when (kid) {
+                    is Kid -> Betalingsreferanse.KidNummer(kid)
+                    else -> stringOrNull("betalingsreferanse_melding")?.let { melding -> Betalingsreferanse.MeldingTilMottaker(melding) }
+                },
             )
         }
 
