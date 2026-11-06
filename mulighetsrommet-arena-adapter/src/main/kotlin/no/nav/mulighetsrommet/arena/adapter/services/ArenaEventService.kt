@@ -88,15 +88,20 @@ class ArenaEventService(
         try {
             logger.info("Processing event: table=${event.arenaTable}, id=${event.arenaId}")
             val mapping = entities.getOrCreateMapping(event)
+            val matchingProcessors = processors.filter { it.shouldHandleEvent(event) }
 
-            processors
-                .filter { it.shouldHandleEvent(event) }
+            matchingProcessors
                 .fold<ArenaEventProcessor, Either<ProcessingError, ProcessingResult>>(ProcessingResult(Unhandled).right()) { result, processor ->
                     handleEventWithProcessor(result, processor, event, mapping)
                 }
-                .onRight {
-                    entities.upsertMapping(mapping.copy(status = it.status, message = it.message))
-                    val status = when (it.status) {
+                .onRight { result ->
+                    entities.upsertMapping(mapping.copy(status = result.status, message = result.message))
+                    if (result.status == Handled && event.operation != ArenaEvent.Operation.Delete) {
+                        matchingProcessors.forEach { processor ->
+                            replayDependentEntities(processor, event, status = Ignored)
+                        }
+                    }
+                    val status = when (result.status) {
                         Unhandled -> ArenaEvent.ProcessingStatus.Pending
                         else -> ArenaEvent.ProcessingStatus.Processed
                     }
@@ -139,15 +144,6 @@ class ArenaEventService(
                 result.right()
             }
         }
-        .flatMap { result ->
-            if (mapping.status == Ignored && result.status == Handled) {
-                logger.info("Gjenspiller avhengigheter til event som ikke lenger er ignorert: table=${event.arenaTable}, id=${event.arenaId}")
-                replayDependentEntities(processor, event)
-                result.right()
-            } else {
-                result.right()
-            }
-        }
 
     private suspend fun handleDeleteEntityForEvent(event: ArenaEvent) {
         processors
@@ -175,8 +171,11 @@ class ArenaEventService(
     private suspend fun replayDependentEntities(
         processor: ArenaEventProcessor,
         event: ArenaEvent,
+        status: ArenaEntityMapping.Status? = null,
     ) {
-        val dependentEntities = processor.getDependentEntities(event)
+        val dependentEntities = processor
+            .getDependentEntities(event)
+            .filter { status == null || it.status == status }
 
         logger.info("Gjenspiller ${dependentEntities.size} avhengigheter til event: table=${event.arenaTable}, id=${event.arenaId}")
 

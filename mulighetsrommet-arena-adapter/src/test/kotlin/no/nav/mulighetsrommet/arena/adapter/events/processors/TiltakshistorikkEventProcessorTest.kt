@@ -7,8 +7,10 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.ktor.client.engine.HttpClientEngine
+import io.ktor.client.engine.mock.respondError
 import io.ktor.client.engine.mock.respondOk
 import io.ktor.http.HttpMethod
+import io.ktor.http.HttpStatusCode
 import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClientImpl
 import no.nav.mulighetsrommet.arena.adapter.databaseConfig
 import no.nav.mulighetsrommet.arena.adapter.fixtures.TiltakstypeFixtures
@@ -141,6 +143,29 @@ class TiltakshistorikkEventProcessorTest : FunSpec({
                             Handled,
                         ),
                     )
+                }
+            }
+
+            context("oppslag av fødselsnummer") {
+                test("ignorerer deltakere når Arena ORDS returnerer 404") {
+                    val engine = createMockEngine {
+                        get("/ords/fnr") { respondError(HttpStatusCode.NotFound) }
+                    }
+                    val processor = createProcessor(engine)
+
+                    listOf(
+                        createArenaTiltakdeltakerEvent(Insert),
+                        createArenaHistTiltakdeltakerEvent(Insert),
+                    ).forEach { participantEvent ->
+                        val (event) = prepareEvent(participantEvent)
+
+                        processor.handleEvent(event).shouldBeRight().should {
+                            it.status shouldBe Ignored
+                            it.message shouldBe "Historikk ikke relevant fordi fødselsnummer mangler i Arena"
+                        }
+                    }
+
+                    engine.requestHistory.map { it.method } shouldBe listOf(HttpMethod.Get, HttpMethod.Get)
                 }
             }
 
