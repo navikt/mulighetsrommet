@@ -69,7 +69,7 @@ object Fixtures {
         bestillingsnummer = Bestillingsnummer("A-1-1"),
         betalingsinformasjon = Faktura.Betalingsinformasjon(
             kontonummer = Kontonummer("12345678901"),
-            kid = Kid.parseOrThrow("0004614992"),
+            referanse = Faktura.Betalingsreferanse.KidNummer(Kid.parseOrThrow("0004614992")),
             betalingsKanal = OebsBetalingskanal.BBAN,
             bankNavn = null,
             bankLandKode = null,

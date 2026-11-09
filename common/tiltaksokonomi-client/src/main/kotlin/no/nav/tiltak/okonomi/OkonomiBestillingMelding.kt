@@ -148,13 +148,29 @@ data class OpprettFaktura(
     val beskrivelse: String?,
     val valuta: Valuta,
 ) {
+
+    @Serializable
+    sealed interface Betalingsreferanse {
+        @Serializable
+        @SerialName("KidNummer")
+        data class KidNummer(
+            val kid: Kid,
+        ) : Betalingsreferanse
+
+        @Serializable
+        @SerialName("MeldingTilMottaker")
+        data class MeldingTilMottaker(
+            val melding: String,
+        ) : Betalingsreferanse
+    }
+
     @Serializable
     sealed interface Betalingsinformasjon {
         @Serializable
         @SerialName("BBAN")
         data class BBan(
             val kontonummer: Kontonummer,
-            val kid: Kid?,
+            val referanse: Betalingsreferanse,
         ) : Betalingsinformasjon
 
         @Serializable

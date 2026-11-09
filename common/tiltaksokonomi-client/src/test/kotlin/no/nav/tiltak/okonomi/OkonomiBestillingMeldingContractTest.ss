@@ -82,37 +82,6 @@
     "valuta": "NOK"
   }
 }
-╔═ FAKTURA med BBan-betalingsinformasjon ═╗
-{
-  "type": "FAKTURA",
-  "payload": {
-    "fakturanummer": "A-1-1-1",
-    "bestillingsnummer": "A-1-1",
-    "betalingsinformasjon": {
-      "type": "BBAN",
-      "kontonummer": "12345678901",
-      "kid": "0004614992"
-    },
-    "belop": 1000,
-    "periode": {
-      "start": "2025-01-01",
-      "slutt": "2025-02-01"
-    },
-    "behandletAv": {
-      "type": "FAGSYSTEM",
-      "kilde": "TILTAKSADMINISTRASJON"
-    },
-    "behandletTidspunkt": "2025-01-01T00:00:00Z",
-    "besluttetAv": {
-      "type": "NAV_ANSATT",
-      "navIdent": "Z123456"
-    },
-    "besluttetTidspunkt": "2025-01-02T00:00:00Z",
-    "gjorOppBestilling": false,
-    "beskrivelse": "En beskrivelse",
-    "valuta": "NOK"
-  }
-}
 ╔═ FAKTURA med IBan-betalingsinformasjon ═╗
 {
   "type": "FAKTURA",
@@ -161,6 +130,74 @@
       "navIdent": "Z123456"
     },
     "besluttetTidspunkt": "2025-01-02T00:00:00Z"
+  }
+}
+╔═ med KID ═╗
+{
+  "type": "FAKTURA",
+  "payload": {
+    "fakturanummer": "A-1-1-1",
+    "bestillingsnummer": "A-1-1",
+    "betalingsinformasjon": {
+      "type": "BBAN",
+      "kontonummer": "12345678901",
+      "referanse": {
+        "type": "KidNummer",
+        "kid": "0004614992"
+      }
+    },
+    "belop": 1000,
+    "periode": {
+      "start": "2025-01-01",
+      "slutt": "2025-02-01"
+    },
+    "behandletAv": {
+      "type": "FAGSYSTEM",
+      "kilde": "TILTAKSADMINISTRASJON"
+    },
+    "behandletTidspunkt": "2025-01-01T00:00:00Z",
+    "besluttetAv": {
+      "type": "NAV_ANSATT",
+      "navIdent": "Z123456"
+    },
+    "besluttetTidspunkt": "2025-01-02T00:00:00Z",
+    "gjorOppBestilling": false,
+    "beskrivelse": "En beskrivelse",
+    "valuta": "NOK"
+  }
+}
+╔═ med melding ═╗
+{
+  "type": "FAKTURA",
+  "payload": {
+    "fakturanummer": "A-1-1-1",
+    "bestillingsnummer": "A-1-1",
+    "betalingsinformasjon": {
+      "type": "BBAN",
+      "kontonummer": "12345678901",
+      "referanse": {
+        "type": "MeldingTilMottaker",
+        "melding": "En melding til mottaker"
+      }
+    },
+    "belop": 1000,
+    "periode": {
+      "start": "2025-01-01",
+      "slutt": "2025-02-01"
+    },
+    "behandletAv": {
+      "type": "FAGSYSTEM",
+      "kilde": "TILTAKSADMINISTRASJON"
+    },
+    "behandletTidspunkt": "2025-01-01T00:00:00Z",
+    "besluttetAv": {
+      "type": "NAV_ANSATT",
+      "navIdent": "Z123456"
+    },
+    "besluttetTidspunkt": "2025-01-02T00:00:00Z",
+    "gjorOppBestilling": false,
+    "beskrivelse": "En beskrivelse",
+    "valuta": "NOK"
   }
 }
 ╔═ [end of file] ═╗

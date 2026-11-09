@@ -51,11 +51,42 @@ private fun JsonElement.migrateLegacyBestillingFields(): JsonElement {
     return JsonObject(message + ("payload" to JsonObject(payload)))
 }
 
+private fun JsonElement.migrateBetalingReferanseFields(): JsonElement {
+    val message = jsonObject
+    if (message["type"]?.jsonPrimitive?.content != "FAKTURA") return this
+
+    val payload = message.getValue("payload").jsonObject.toMutableMap()
+    val betalingsinformasjon = payload["betalingsinformasjon"]?.jsonObject?.toMutableMap() ?: return this
+    if (betalingsinformasjon["type"]?.jsonPrimitive?.content != "BBAN") return this
+    if ("referanse" in betalingsinformasjon) return this
+
+    val kid = betalingsinformasjon.remove("kid") ?: return this
+    val referanse = if (kid == kotlinx.serialization.json.JsonNull) {
+        JsonObject(
+            mapOf(
+                "type" to JsonPrimitive("MeldingTilMottaker"),
+                "melding" to payload.getValue("beskrivelse"),
+            ),
+        )
+    } else {
+        JsonObject(
+            mapOf(
+                "type" to JsonPrimitive("KidNummer"),
+                "kid" to kid,
+            ),
+        )
+    }
+
+    betalingsinformasjon["referanse"] = referanse
+    payload["betalingsinformasjon"] = JsonObject(betalingsinformasjon)
+    return JsonObject(message + ("payload" to JsonObject(payload)))
+}
+
 /**
  * Dekoder en [OkonomiBestillingMelding] fra "bestillinger"-topicet. Oversetter gammelt format til nytt.
  *
  * TODO: fjern denne oversettelsen når det ikke lenger finnes meldinger i det gamle formatet på "bestillinger"-topicet.
  */
 fun decodeOkonomiBestillingMelding(message: JsonElement): OkonomiBestillingMelding = bestillingMeldingJson.decodeFromJsonElement(
-    message.migrateLegacyTypeDiscriminators().migrateLegacyBestillingFields(),
+    message.migrateLegacyTypeDiscriminators().migrateLegacyBestillingFields().migrateBetalingReferanseFields(),
 )
