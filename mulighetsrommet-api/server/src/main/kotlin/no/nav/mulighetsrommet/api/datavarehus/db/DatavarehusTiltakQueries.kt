@@ -9,6 +9,7 @@ import no.nav.mulighetsrommet.api.contracts.datavarehus.DatavarehusTiltakV1Dto
 import no.nav.mulighetsrommet.api.contracts.datavarehus.DatavarehusTiltakV1YrkesfagDto
 import no.nav.mulighetsrommet.api.contracts.datavarehus.DvhUtdanningslop
 import no.nav.mulighetsrommet.api.datavarehus.mapper.toDvhAmoKategorisering
+import no.nav.mulighetsrommet.api.domain.gjennomforing.utledArtskontokode
 import no.nav.mulighetsrommet.api.domain.opplaring.UtdanningslopDetaljer
 import no.nav.mulighetsrommet.api.persistence.opplaring.OpplaringKategoriseringQueries
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
@@ -39,10 +40,11 @@ class DatavarehusTiltakQueries(private val session: Session) {
             -> {
                 val kategorisering = OpplaringKategoriseringQueries(session).get(id)
                 DatavarehusTiltakV1YrkesfagDto(
-                    dto.tiltakskode,
-                    dto.avtale,
-                    dto.gjennomforing,
-                    kategorisering?.utdanningslop?.toDvhUtdanningslop(),
+                    tiltakskode = dto.tiltakskode,
+                    artskontokode = dto.artskontokode,
+                    avtale = dto.avtale,
+                    gjennomforing = dto.gjennomforing,
+                    utdanningslop = kategorisering?.utdanningslop?.toDvhUtdanningslop(),
                 )
             }
 
@@ -54,10 +56,11 @@ class DatavarehusTiltakQueries(private val session: Session) {
             -> {
                 val kategorisering = OpplaringKategoriseringQueries(session).get(id)
                 DatavarehusTiltakV1AmoDto(
-                    dto.tiltakskode,
-                    dto.avtale,
-                    dto.gjennomforing,
-                    kategorisering?.toDvhAmoKategorisering(dto.tiltakskode),
+                    tiltakskode = dto.tiltakskode,
+                    artskontokode = dto.artskontokode,
+                    avtale = dto.avtale,
+                    gjennomforing = dto.gjennomforing,
+                    amoKategorisering = kategorisering?.toDvhAmoKategorisering(dto.tiltakskode),
                 )
             }
 
@@ -76,6 +79,7 @@ private fun Row.toDatavarehusTiltakDto(): DatavarehusTiltakV1Dto {
     val oppstartstype = GjennomforingOppstartstype.valueOf(string("oppstart_type"))
     return DatavarehusTiltakV1Dto(
         tiltakskode = tiltakskode,
+        artskontokode = utledArtskontokode(tiltakskode, oppstartstype),
         avtale = uuidOrNull("avtale_id")?.let {
             DatavarehusTiltakV1.Avtale(
                 id = it,
