@@ -131,7 +131,9 @@ function RedigerForm({ tiltakBeskrivelse }: { tiltakBeskrivelse: TiltakBeskrivel
     <FormProvider {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <VStack gap="space-16">
-          <TiltakBeskrivelseForm />
+          <TiltakBeskrivelseForm
+            lagredeKontaktpersoner={tiltakBeskrivelse.veilederinfo.kontaktpersoner}
+          />
           <div className="flex gap-4">
             <Button type="submit" size="small" disabled={upsert.isPending}>
               {upsert.isPending ? "Lagrer..." : "Lagre"}

@@ -17,6 +17,10 @@ import { FormCombobox } from "@/components/skjema/FormCombobox";
 import { FormComboboxMulti } from "@/components/skjema/FormComboboxMulti";
 import { GjennomforingFormValues } from "@/pages/gjennomforing/form/validation";
 import { LabelWithHelpText } from "@mr/frontend-common/components/label/LabelWithHelpText";
+import {
+  formaterNavn,
+  getNavKontaktpersonOptions,
+} from "@/components/kontaktperson/navKontaktpersonOptions";
 
 interface Props {
   tiltakId: string;
@@ -153,41 +157,19 @@ function SokEtterKontaktperson({
   lagredeKontaktpersoner: GjennomforingKontaktpersonDto[];
 }) {
   const [kontaktpersonerQuery, setKontaktpersonerQuery] = useState<string>("");
+  const [kjenteNavn, setKjenteNavn] = useState<Record<string, string>>(() =>
+    Object.fromEntries(lagredeKontaktpersoner.map((k) => [k.navIdent, k.navn])),
+  );
   const { data: kontaktpersoner } = useSokNavAnsatt(kontaktpersonerQuery, id);
   const { watch } = useFormContext<GjennomforingFormValues>();
-
-  const kontaktpersonerOption = (selectedIndex: number) => {
-    const excludedKontaktpersoner = watch("veilederinformasjon.kontaktpersoner").map(
-      (k) => k.navIdent,
-    );
-
-    const alleredeValgt = watch("veilederinformasjon.kontaktpersoner")
-      .filter((_, i) => i === selectedIndex)
-      .map((kontaktperson) => {
-        const personFraSok = kontaktpersoner?.find((k) => k.navIdent === kontaktperson.navIdent);
-        const personFraDb = lagredeKontaktpersoner.find(
-          (k) => k.navIdent === kontaktperson.navIdent,
-        );
-        const navn = personFraSok
-          ? `${personFraSok.fornavn} ${personFraSok.etternavn}`
-          : personFraDb?.navn;
-
-        return {
-          label: navn ? `${navn} - ${kontaktperson.navIdent}` : kontaktperson.navIdent,
-          value: kontaktperson.navIdent,
-        };
-      });
-
-    const options =
-      kontaktpersoner
-        ?.filter((kontaktperson) => !excludedKontaktpersoner.includes(kontaktperson.navIdent))
-        .map((kontaktperson) => ({
-          label: `${kontaktperson.fornavn} ${kontaktperson.etternavn} - ${kontaktperson.navIdent}`,
-          value: kontaktperson.navIdent,
-        })) ?? [];
-
-    return [...alleredeValgt, ...options];
-  };
+  const valgteKontaktpersoner = watch("veilederinformasjon.kontaktpersoner");
+  const valgtNavIdent = valgteKontaktpersoner[index]?.navIdent;
+  const kontaktpersonerOptions = getNavKontaktpersonOptions({
+    valgtNavIdent,
+    alleValgteNavIdenter: valgteKontaktpersoner.map((k) => k.navIdent),
+    sokeresultat: kontaktpersoner,
+    kjenteNavn,
+  });
 
   return (
     <>
@@ -196,8 +178,13 @@ function SokEtterKontaktperson({
         label={gjennomforingTekster.kontaktpersonNav.navnLabel}
         name={`veilederinformasjon.kontaktpersoner.${index}.navIdent`}
         onChange={(value) => setKontaktpersonerQuery(value)}
-        options={kontaktpersonerOption(index)}
-        filteredOptions={kontaktpersonerOption(index)}
+        onToggleSelected={(navIdent, isSelected) => {
+          if (!isSelected) return;
+          const treff = kontaktpersoner?.find((k) => k.navIdent === navIdent);
+          if (treff) setKjenteNavn((prev) => ({ ...prev, [navIdent]: formaterNavn(treff) }));
+        }}
+        options={kontaktpersonerOptions}
+        filteredOptions={kontaktpersonerOptions}
       />
       <FormTextField<GjennomforingFormValues>
         name={`veilederinformasjon.kontaktpersoner.${index}.beskrivelse`}
