@@ -30,6 +30,7 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.hentDeltakerAdvarslerForUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.model.Agent
+import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.ValutaBelop
 import java.util.UUID
@@ -40,6 +41,7 @@ class UtbetalingDtoQuery(
 ) {
     fun getDetaljer(id: UUID, navIdent: NavIdent): Either<UtbetalingDtoQueryError, UtbetalingDetaljerDto> = db.session {
         val utbetaling = queries.utbetaling.getOrError(id)
+        val gjennomforing = queries.gjennomforing.getGjennomforingTiltaksadministrasjon(utbetaling.gjennomforing.id)
         val ansatt = queries.ansatt.getOrError(navIdent)
         if (!harLesetilgang(utbetaling, ansatt)) {
             return manglerLesetilgang()
@@ -55,7 +57,7 @@ class UtbetalingDtoQuery(
             avbrytelse = avbrytelse,
         )
 
-        val handlinger = utbetalingHandlinger(utbetaling, ansatt, avbrytelse)
+        val handlinger = utbetalingHandlinger(utbetaling, ansatt, avbrytelse, gjennomforing.ansvarligEnhet.enhetsnummer)
 
         return UtbetalingDetaljerDto(utbetaling = dto, handlinger = handlinger).right()
     }
@@ -184,24 +186,31 @@ class UtbetalingDtoQuery(
         utbetaling: Utbetaling,
         ansatt: NavAnsatt,
         avbrytelse: TotrinnskontrollDto?,
+        ansvarligEnhet: NavEnhetNummer,
     ): Set<UtbetalingHandling> {
-        if (!OkonomiAuthorization.erSaksbehandler(ansatt, utbetaling.gjennomforing.type)) {
-            return emptySet()
-        }
-
+        val erSaksbehandler = OkonomiAuthorization.erSaksbehandler(ansatt, utbetaling.gjennomforing.type)
+        val erAttestant = OkonomiAuthorization.erAttestantUtbetaling(
+            ansatt,
+            OkonomiBeslutningContext(
+                gjennomforingType = utbetaling.gjennomforing.type,
+                kostnadssteder = nonEmptySetOf(ansvarligEnhet),
+            ),
+        )
         val tilAvbrytelse = avbrytelse is TotrinnskontrollDto.TilBeslutning
         return setOfNotNull(
-            UtbetalingHandling.SEND_TIL_GODKJENNING.takeIf { utbetaling.erTilBehandling() },
-            UtbetalingHandling.SLETT.takeIf { utbetaling.kanSlettes() },
-            UtbetalingHandling.OPPRETT_KORREKSJON.takeIf { utbetaling.erFerdigBehandlet() && !utbetaling.erKorreksjon() },
-            UtbetalingHandling.REDIGER.takeIf { utbetaling.kanRedigeres() },
-            UtbetalingHandling.HENT_GODKJENTE_TILSAGN.takeIf { utbetaling.erTilBehandling() },
-            UtbetalingHandling.OPPRETT_TILSAGN.takeIf { utbetaling.erTilBehandling() },
-            UtbetalingHandling.SEND_TIL_AVBRYTELSE.takeIf { utbetaling.kanSettesTilAvbrytelse() },
-            UtbetalingHandling.GODKJENN_AVBRYTELSE.takeIf {
-                tilAvbrytelse && avbrytelse.behandling.utfortAv.agent != ansatt.navIdent
+            UtbetalingHandling.SEND_TIL_GODKJENNING.takeIf { erSaksbehandler && utbetaling.erTilBehandling() },
+            UtbetalingHandling.SLETT.takeIf { erSaksbehandler && utbetaling.kanSlettes() },
+            UtbetalingHandling.OPPRETT_KORREKSJON.takeIf {
+                erSaksbehandler && utbetaling.erFerdigBehandlet() && !utbetaling.erKorreksjon()
             },
-            UtbetalingHandling.AVSLA_AVBRYTELSE.takeIf { tilAvbrytelse },
+            UtbetalingHandling.REDIGER.takeIf { erSaksbehandler && utbetaling.kanRedigeres() },
+            UtbetalingHandling.HENT_GODKJENTE_TILSAGN.takeIf { erSaksbehandler && utbetaling.erTilBehandling() },
+            UtbetalingHandling.OPPRETT_TILSAGN.takeIf { erSaksbehandler && utbetaling.erTilBehandling() },
+            UtbetalingHandling.SEND_TIL_AVBRYTELSE.takeIf { erSaksbehandler && utbetaling.kanSettesTilAvbrytelse() },
+            UtbetalingHandling.GODKJENN_AVBRYTELSE.takeIf {
+                tilAvbrytelse && erAttestant && avbrytelse.behandling.utfortAv.agent != ansatt.navIdent
+            },
+            UtbetalingHandling.AVSLA_AVBRYTELSE.takeIf { erSaksbehandler && tilAvbrytelse },
         )
     }
 

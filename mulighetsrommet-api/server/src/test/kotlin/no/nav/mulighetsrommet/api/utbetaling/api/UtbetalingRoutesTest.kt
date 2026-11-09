@@ -610,7 +610,7 @@ class UtbetalingRoutesTest : FunSpec({
         context("godkjenn avbrytelse") {
             val godkjennAbrytelseUrl = { id: UUID -> "/api/tiltaksadministrasjon/utbetaling/$id/avbryt/godkjenn" }
 
-            test("krever saksbehandlerrolle for gruppetiltak") {
+            test("krever attestantrolle") {
                 withTestApplication(appConfig()) {
                     val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle))
                     client.put(godkjennAbrytelseUrl(UUID.randomUUID())) {

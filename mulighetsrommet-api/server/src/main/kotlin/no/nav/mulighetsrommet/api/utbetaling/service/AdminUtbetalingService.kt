@@ -176,8 +176,18 @@ class AdminUtbetalingService(
 
     fun godkjennAvbrytelse(id: UUID, navIdent: NavIdent): Either<UtbetalingError, Utbetaling> = db.transaction {
         val utbetaling = queries.utbetaling.getAndAcquireLock(id)
-        if (!erSaksbehandler(navIdent, utbetaling)) {
-            return UtbetalingError.ManglerTilgang("Du mangler tilgang til å godkjenne avbrytelsen").left()
+        val ansatt = queries.ansatt.getOrError(navIdent)
+        val gjennomforing = queries.gjennomforing.getGjennomforingTiltaksadministrasjon(utbetaling.gjennomforing.id)
+        val erAttestant = OkonomiAuthorization.erAttestantUtbetaling(
+            ansatt,
+            OkonomiBeslutningContext(
+                gjennomforingType = utbetaling.gjennomforing.type,
+                kostnadssteder = nonEmptySetOf(gjennomforing.ansvarligEnhet.enhetsnummer),
+            ),
+        )
+        if (!erAttestant) {
+            return UtbetalingError.ManglerTilgang("Du mangler attestantrollen som kreves for å godkjenne avbrytelsen")
+                .left()
         }
 
         return utbetalingService.godkjennAvbrytelse(id, navIdent).mapLeft(UtbetalingError::Valideringsfeil)
