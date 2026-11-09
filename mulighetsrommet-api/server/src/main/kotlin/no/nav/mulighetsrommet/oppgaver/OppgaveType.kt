@@ -44,7 +44,7 @@ enum class OppgaveType(
     ),
     UTBETALING_TIL_AVBRYTELSE(
         navn = "Utbetaling til avbrytelse",
-        roller = setOf(Rolle.OKONOMI_SAKSBEHANDLER_GRUPPETILTAK, Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS),
+        roller = setOf(Rolle.OKONOMI_BESLUTTER_GRUPPETILTAK),
         kategori = Kategori.UTBETALING,
     ),
     UTBETALING_MANGLER_TILSAGN(
