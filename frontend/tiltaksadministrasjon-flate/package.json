@@ -22,7 +22,7 @@
   "dependencies": {
     "@grafana/faro-web-sdk": "2.13.0",
     "@highcharts/react": "5.4.0",
-    "@hookform/resolvers": "6.0.0",
+    "@hookform/resolvers": "7.0.1",
     "@mr/frontend-common": "workspace:*",
     "@navikt/aksel-icons": "8.21.0",
     "@navikt/ds-css": "8.21.0",
