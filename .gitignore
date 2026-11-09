@@ -19,6 +19,7 @@ build
 **/.DS_Store
 **/bin
 tmp
+**/.attach_pid*
 
 # Gradle
 !gradle-wrapper.jar
