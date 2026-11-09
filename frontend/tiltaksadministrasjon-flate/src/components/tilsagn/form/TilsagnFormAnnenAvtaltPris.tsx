@@ -3,7 +3,6 @@ import { TilsagnForm } from "@/components/tilsagn/form/TilsagnForm";
 import { useFieldArray, useFormContext } from "react-hook-form";
 import { Alert, Button, HStack, Label, Spacer, VStack } from "@navikt/ds-react";
 import { PlusIcon, TrashIcon } from "@navikt/aksel-icons";
-import { KostnadsstedOption } from "@/components/tilsagn/form/VelgKostnadssted";
 import { FormTextarea } from "@/components/skjema/FormTextarea";
 import { NumberInput } from "@/components/skjema/NumberInput";
 import { GjennomforingDto } from "@/api/gjennomforing/utils";
@@ -14,7 +13,6 @@ interface Props {
   onSuccess: () => void;
   onAvbryt: () => void;
   defaultValues: TilsagnRequest;
-  kostnadssteder: KostnadsstedOption[];
 }
 
 export function TilsagnFormAnnenAvtaltPris(props: Props) {

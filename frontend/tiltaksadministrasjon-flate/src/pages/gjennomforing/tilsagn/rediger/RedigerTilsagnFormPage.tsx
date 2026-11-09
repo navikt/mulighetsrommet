@@ -3,18 +3,14 @@ import { useGjennomforing } from "@/api/gjennomforing/useGjennomforing";
 import { useTilsagn, useTilsagnRequest } from "../detaljer/tilsagnDetaljerLoader";
 import { TotrinnskontrollReturnert } from "@/components/totrinnskontroll/TotrinnskontrollReturnert";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
-import { useKostnadssteder } from "@/api/enhet/useKostnadssteder";
-import { RegionKostnadssteder } from "@tiltaksadministrasjon/api-client";
 
 function useRedigerTilsagnFormData(gjennomforingId: string, tilsagnId: string) {
   const detaljer = useGjennomforing(gjennomforingId);
   const { data: tilsagnDetaljer } = useTilsagn(tilsagnId);
   const { data: defaults } = useTilsagnRequest(tilsagnId);
-  const { data: kostnadssteder } = useKostnadssteder();
   return {
     gjennomforing: detaljer.gjennomforing,
     prismodell: detaljer.prismodell,
-    kostnadssteder: kostnadssteder.flatMap((r: RegionKostnadssteder) => r.kostnadssteder),
     defaults,
     opprettelse: tilsagnDetaljer.opprettelse,
   };
@@ -23,8 +19,10 @@ function useRedigerTilsagnFormData(gjennomforingId: string, tilsagnId: string) {
 export function RedigerTilsagnFormPage() {
   const { gjennomforingId, tilsagnId } = useRequiredParams(["gjennomforingId", "tilsagnId"]);
 
-  const { gjennomforing, prismodell, kostnadssteder, defaults, opprettelse } =
-    useRedigerTilsagnFormData(gjennomforingId, tilsagnId);
+  const { gjennomforing, prismodell, defaults, opprettelse } = useRedigerTilsagnFormData(
+    gjennomforingId,
+    tilsagnId,
+  );
 
   return (
     <>
@@ -32,7 +30,6 @@ export function RedigerTilsagnFormPage() {
       <TilsagnFormContainer
         gjennomforing={gjennomforing}
         prismodell={prismodell}
-        kostnadssteder={kostnadssteder}
         defaults={defaults}
       />
     </>

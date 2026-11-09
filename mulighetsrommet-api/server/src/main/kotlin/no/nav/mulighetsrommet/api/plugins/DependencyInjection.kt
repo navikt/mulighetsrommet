@@ -604,7 +604,7 @@ private fun services(appConfig: AppConfig) = module {
             get(),
         )
     }
-    single { AdminUtbetalingService(get(), get()) }
+    single { AdminUtbetalingService(get(), get(), get(), get()) }
     single { UtbetalingDtoQuery(get(), get()) }
     single {
         BrukerUtbetalingService(

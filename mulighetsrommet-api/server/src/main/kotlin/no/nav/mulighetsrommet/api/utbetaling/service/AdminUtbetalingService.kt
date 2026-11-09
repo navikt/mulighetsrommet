@@ -2,15 +2,15 @@ package no.nav.mulighetsrommet.api.utbetaling.service
 
 import arrow.core.Either
 import arrow.core.flatMap
+import arrow.core.getOrElse
 import arrow.core.left
 import arrow.core.nel
 import arrow.core.nonEmptySetOf
-import arrow.core.right
 import no.nav.mulighetsrommet.admin.aarsakerbegrunnelse.AarsakerOgBegrunnelseRequest
+import no.nav.mulighetsrommet.admin.journalpost.ForventetBruker
+import no.nav.mulighetsrommet.admin.journalpost.JournalpostValidator
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
-import no.nav.mulighetsrommet.api.TransactionalQueryContext
-import no.nav.mulighetsrommet.api.domain.arrangor.Arrangor
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingTiltaksadministrasjon
@@ -18,104 +18,119 @@ import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingType
 import no.nav.mulighetsrommet.api.domain.navansatt.OkonomiAuthorization
 import no.nav.mulighetsrommet.api.domain.navansatt.OkonomiBeslutningContext
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
+import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingRequest
 import no.nav.mulighetsrommet.api.utbetaling.model.OpprettUtbetalingLinjer
 import no.nav.mulighetsrommet.api.utbetaling.model.UpsertUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeReturnertAarsak
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusAarsak
+import no.nav.mulighetsrommet.featuretoggle.model.FeatureToggle
+import no.nav.mulighetsrommet.featuretoggle.service.FeatureToggleService
 import no.nav.mulighetsrommet.model.NavIdent
-import no.nav.mulighetsrommet.model.withValuta
 import no.nav.mulighetsrommet.validation.FieldError
-import no.nav.mulighetsrommet.validation.validation
 import no.nav.tiltak.okonomi.FakturaStatusType
 import java.time.Instant
+import java.time.LocalDate
 import java.util.UUID
 
 class AdminUtbetalingService(
     private val db: ApiDatabase,
     private val utbetalingService: UtbetalingService,
+    private val journalpostValidator: JournalpostValidator,
+    private val featureToggleService: FeatureToggleService,
+    private val today: () -> LocalDate = { LocalDate.now() },
 ) {
     suspend fun opprettUtbetaling(
-        opprett: UpsertUtbetaling,
+        request: UtbetalingRequest,
         agent: NavIdent,
-    ): Either<UtbetalingError, Utbetaling> = db.transaction {
-        val gjennomforingId = getGjennomforingId(opprett)
-            ?: return UtbetalingError.Valideringsfeil(
+    ): Either<UtbetalingError, Utbetaling> {
+        val ctx = db.session {
+            val gjennomforingId = when (val korrigerer = request.korrigererUtbetaling) {
+                null -> request.gjennomforingId
+                else -> queries.utbetaling.get(korrigerer)?.gjennomforing?.id
+            } ?: return UtbetalingError.Valideringsfeil(
                 FieldError.of("Utbetaling som skal korrigeres eksisterer ikke").nel(),
             ).left()
 
-        val gjennomforing = queries.gjennomforing.getGjennomforingTiltaksadministrasjon(gjennomforingId)
-        if (!kanOppretteUtbetaling(agent, gjennomforing)) {
-            return UtbetalingError.ManglerTilgang("Du mangler saksbehandlertilgang til utbetalingen").left()
-        }
-
-        upsertValidation(opprett).onLeft { return UtbetalingError.Valideringsfeil(it).left() }
-        when (opprett) {
-            is UpsertUtbetaling.Anskaffelse if opprett.journalpostId == null -> {
-                val arrangor = repository.arrangor.get(gjennomforing.arrangor.id)
-                if (arrangor is Arrangor.Norsk) {
-                    return UtbetalingError.Valideringsfeil(
-                        FieldError.of("Journalpost-ID er påkrevd", UpsertUtbetaling.Anskaffelse::journalpostId).nel(),
-                    ).left()
-                }
+            val gjennomforing = queries.gjennomforing.getGjennomforingTiltaksadministrasjon(gjennomforingId)
+            if (!kanOppretteUtbetaling(agent, gjennomforing)) {
+                return UtbetalingError.ManglerTilgang("Du mangler saksbehandlertilgang til utbetalingen").left()
             }
-
-            else -> Unit
+            hentValideringsContext(arrangorId = gjennomforing.arrangor.id, korrigertUtbetalingFinnes = true)
         }
 
-        utbetalingService.opprettUtbetaling(opprett, agent).mapLeft(UtbetalingError::Valideringsfeil)
+        val opprett = UtbetalingValidator.validateUpsertUtbetaling(request, ctx)
+            .getOrElse { return UtbetalingError.Valideringsfeil(it).left() }
+
+        return db.transaction {
+            utbetalingService.opprettUtbetaling(opprett, agent).mapLeft(UtbetalingError::Valideringsfeil)
+        }
     }
 
+    /**
+     * Arrangøren hentes fra den lagrede utbetalingen, ikke fra gjennomføringen i requesten, slik at
+     * journalposten bare valideres mot en arrangør saksbehandler har tilgang til.
+     */
     suspend fun redigerUtbetaling(
-        rediger: UpsertUtbetaling,
+        request: UtbetalingRequest,
         agent: NavIdent,
-    ): Either<UtbetalingError, Utbetaling> = db.transaction {
-        val utbetaling = queries.utbetaling.getAndAcquireLock(rediger.id)
-        if (!erSaksbehandler(agent, utbetaling)) {
-            return UtbetalingError.ManglerTilgang("Du mangler saksbehandlertilgang til utbetalingen").left()
-        }
-        upsertValidation(rediger).onLeft { return UtbetalingError.Valideringsfeil(it).left() }
-
-        if (!utbetaling.kanRedigeres()) {
-            return UtbetalingError.Valideringsfeil(FieldError.of("Utbetalingen kan ikke redigeres").nel()).left()
-        }
-
-        val gjennomforingId = getGjennomforingId(rediger)
-        if (gjennomforingId != utbetaling.gjennomforing.id) {
-            return UtbetalingError.Valideringsfeil(
-                FieldError.of("Utbetalingen kan ikke flyttes til en annen gjennomføring").nel(),
-            ).left()
+    ): Either<UtbetalingError, Utbetaling> {
+        val ctx = db.session {
+            val utbetaling = queries.utbetaling.getOrError(request.id)
+            if (!erSaksbehandler(agent, utbetaling)) {
+                return UtbetalingError.ManglerTilgang("Du mangler saksbehandlertilgang til utbetalingen").left()
+            }
+            hentValideringsContext(
+                arrangorId = utbetaling.arrangor.id,
+                korrigertUtbetalingFinnes = request.korrigererUtbetaling
+                    ?.let { queries.utbetaling.get(it) != null }
+                    ?: true,
+            )
         }
 
-        utbetalingService.redigerUtbetaling(rediger, agent).mapLeft(UtbetalingError::Valideringsfeil)
+        val rediger = UtbetalingValidator.validateUpsertUtbetaling(request, ctx)
+            .getOrElse { return UtbetalingError.Valideringsfeil(it).left() }
+
+        return db.transaction {
+            val utbetaling = queries.utbetaling.getAndAcquireLock(rediger.id)
+            if (!erSaksbehandler(agent, utbetaling)) {
+                return UtbetalingError.ManglerTilgang("Du mangler saksbehandlertilgang til utbetalingen").left()
+            }
+
+            if (!utbetaling.kanRedigeres()) {
+                return UtbetalingError.Valideringsfeil(FieldError.of("Utbetalingen kan ikke redigeres").nel()).left()
+            }
+
+            val gjennomforingId = getGjennomforingId(rediger)
+            if (gjennomforingId != utbetaling.gjennomforing.id) {
+                return UtbetalingError.Valideringsfeil(
+                    FieldError.of("Utbetalingen kan ikke flyttes til en annen gjennomføring").nel(),
+                ).left()
+            }
+
+            utbetalingService.redigerUtbetaling(rediger, agent).mapLeft(UtbetalingError::Valideringsfeil)
+        }
     }
 
-    fun TransactionalQueryContext.upsertValidation(utbetaling: UpsertUtbetaling): Either<List<FieldError>, Unit> = when (utbetaling) {
-        is UpsertUtbetaling.Anskaffelse if (utbetaling.journalpostId == null || utbetaling.utbetalingsDato == null) -> {
-            val gjennomforing = queries.gjennomforing.getGjennomforingTiltaksadministrasjon(utbetaling.gjennomforingId)
-            val arrangor = repository.arrangor.get(gjennomforing.arrangor.id)
-            if (arrangor is Arrangor.Norsk) {
-                listOfNotNull(
-                    FieldError.of("Journalpost-ID er påkrevd", UpsertUtbetaling.Anskaffelse::journalpostId)
-                        .takeIf { utbetaling.journalpostId == null },
-                    FieldError.of("Utbetalingsdato er påkrevd", UpsertUtbetaling.Anskaffelse::utbetalingsDato)
-                        .takeIf { utbetaling.utbetalingsDato == null },
-                )
-                    .left()
-            } else {
-                Unit.right()
-            }
-        }
+    private fun QueryContext.hentValideringsContext(
+        arrangorId: UUID,
+        korrigertUtbetalingFinnes: Boolean,
+    ): UtbetalingValidator.Ctx {
+        val arrangor = db.session { repository.arrangor.get(arrangorId) }
+        val forventetBruker = ForventetBruker.Bedrift(organisasjonsnummer = arrangor.organisasjonsnummer)
 
-        is UpsertUtbetaling.Korreksjon ->
-            if (queries.utbetaling.get(utbetaling.korreksjonGjelderUtbetalingId) == null) {
-                FieldError.of("Utbetaling som skal korrigeres eksisterer ikke").nel().left()
-            } else {
-                Unit.right()
-            }
+        val journalpostValidatorFunc = UtbetalingValidator.createJournalpostValidator(
+            forventetBruker = forventetBruker,
+            journalpostValidator = journalpostValidator,
+            valideringEnabled = featureToggleService.isEnabled(FeatureToggle.TILTAKSADMINISTRASJON_JOURNALPOST_VALIDERING),
+        )
 
-        else -> Unit.right()
+        return UtbetalingValidator.Ctx(
+            arrangor = repository.arrangor.get(arrangorId),
+            korrigertUtbetalingFinnes = korrigertUtbetalingFinnes,
+            journalpostValidator = journalpostValidatorFunc,
+            today = today(),
+        )
     }
 
     fun sendTilGodkjenning(
@@ -127,47 +142,15 @@ class AdminUtbetalingService(
             return UtbetalingError.ManglerTilgang("Du mangler saksbehandlertilgang til utbetalingen").left()
         }
 
-        val tilsagnByLinjeId = opprett.linjer.associate { it.id to queries.tilsagn.getAndAcquireLock(it.tilsagnId) }
+        val ctx = UtbetalingValidator.SendTilGodkjenningCtx(
+            utbetaling = utbetaling,
+            tilsagnByLinjeId = opprett.linjer.associate { it.id to queries.tilsagn.getAndAcquireLock(it.tilsagnId) },
+            eksisterendeUtbetalingIdByLinjeId = opprett.linjer
+                .mapNotNull { linje -> queries.utbetalingLinje.get(linje.id)?.let { linje.id to it.utbetalingId } }
+                .toMap(),
+        )
 
-        validation {
-            validate(utbetaling.erTilBehandling()) {
-                FieldError.of("Utbetaling kan bare endres når den er til behandling")
-            }
-
-            val totalBelopUtbetales = opprett.linjer.sumOf { it.pris.belop }.withValuta(utbetaling.valuta)
-            validate(totalBelopUtbetales.belop > 0) {
-                FieldError.of("Totalt beløp må være større enn 0")
-            }
-            validate(totalBelopUtbetales <= utbetaling.beregning.output.pris) {
-                FieldError.of("Kan ikke utbetale mer enn innsendt beløp")
-            }
-            if (totalBelopUtbetales < utbetaling.beregning.output.pris && opprett.begrunnelseMindreBetalt.isNullOrBlank()) {
-                error { FieldError.of("Begrunnelse er påkrevd ved utbetaling av mindre enn innsendt beløp") }
-            }
-
-            opprett.linjer.forEachIndexed { index, linje ->
-                val tilsagn = tilsagnByLinjeId.getValue(linje.id)
-                validate(tilsagn.gjennomforing.id == utbetaling.gjennomforing.id) {
-                    FieldError("/utbetalingLinjer/$index/tilsagnId", "Tilsagnet tilhører en annen gjennomføring")
-                }
-                val previous = queries.utbetalingLinje.get(linje.id)
-                validate(previous == null || previous.utbetalingId == utbetaling.id) {
-                    FieldError("/utbetalingLinjer/$index/id", "Utbetalingslinjen tilhører en annen utbetaling")
-                }
-                validate(linje.pris <= tilsagn.gjenstaendeBelop()) {
-                    FieldError(
-                        "/utbetalingLinjer/$index/tilsagnId",
-                        "Beløp overstiger gjenstående beløp på tilsagn. For å utbetale hele beløpet må dere først opprette og godkjenne et ekstratilsagn",
-                    )
-                }
-                validate(tilsagn.status == TilsagnStatus.GODKJENT) {
-                    FieldError(
-                        "/utbetalingLinjer/$index/tilsagnId",
-                        "Tilsagnet har status ${tilsagn.status.beskrivelse} og kan ikke benyttes, linjen må fjernes",
-                    )
-                }
-            }
-        }.flatMap {
+        UtbetalingValidator.validerSendTilGodkjenning(opprett, ctx).flatMap {
             queries.utbetaling.setBegrunnelseMindreBetalt(utbetaling.id, opprett.begrunnelseMindreBetalt)
             utbetalingService.sendTilGodkjenning(utbetaling.id, opprett.linjer, navIdent)
         }.mapLeft(UtbetalingError::Valideringsfeil)

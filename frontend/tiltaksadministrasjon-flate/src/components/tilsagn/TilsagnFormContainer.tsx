@@ -9,22 +9,15 @@ import {
 import { useNavigate } from "react-router";
 import { TilsagnFormFastSatsPerTiltaksplassPerManed } from "./form/TilsagnFormFastSatsPerTiltaksplassPerManed";
 import { TilsagnFormPrisPerTimeOppfolging } from "@/components/tilsagn/form/TilsagnFormPrisPerTimeOppfolging";
-import { KostnadsstedOption } from "@/components/tilsagn/form/VelgKostnadssted";
 import { GjennomforingDto } from "@/api/gjennomforing/utils";
 
 interface Props {
   gjennomforing: GjennomforingDto;
   prismodell: PrismodellDto;
-  kostnadssteder: KostnadsstedOption[];
   defaults: TilsagnRequest;
 }
 
-export function TilsagnFormContainer({
-  gjennomforing,
-  prismodell,
-  kostnadssteder,
-  defaults,
-}: Props) {
+export function TilsagnFormContainer({ gjennomforing, prismodell, defaults }: Props) {
   const navigate = useNavigate();
 
   function navigerTilTilsagn() {
@@ -32,7 +25,6 @@ export function TilsagnFormContainer({
   }
 
   const props = {
-    kostnadssteder,
     gjennomforing,
     prismodell,
     onSuccess: navigerTilTilsagn,
