@@ -20,8 +20,16 @@ import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { useTiltakstype } from "@/api/tiltakstyper/useTiltakstype";
 import { InlineErrorBoundary } from "@/ErrorBoundary";
 import { Laster } from "@/components/laster/Laster";
+import {
+  formaterNavn,
+  getNavKontaktpersonOptions,
+} from "@/components/kontaktperson/navKontaktpersonOptions";
 
-export function TiltakBeskrivelseVeilederinformasjonForm() {
+interface Props {
+  lagredeKontaktpersoner?: { navIdent: string; navn: string }[];
+}
+
+export function TiltakBeskrivelseVeilederinformasjonForm({ lagredeKontaktpersoner = [] }: Props) {
   const { watch } = useFormContext<TiltakBeskrivelseFormValues>();
 
   const { data: kontorstruktur } = useKontorstruktur();
@@ -79,7 +87,13 @@ export function TiltakBeskrivelseVeilederinformasjonForm() {
           name="veilederinformasjon.kontaktpersoner"
           addButtonLabel="Legg til ny kontaktperson"
           emptyItem={{ navIdent: "", beskrivelse: "" }}
-          renderItem={(index, id) => <NavKontaktpersonFields index={index} id={id} />}
+          renderItem={(index, id) => (
+            <NavKontaktpersonFields
+              index={index}
+              id={id}
+              lagredeKontaktpersoner={lagredeKontaktpersoner}
+            />
+          )}
         />
       </VStack>
     </TwoColumnGrid>
@@ -113,29 +127,31 @@ function RedaksjoneltInnholdFormInner({ tiltakstypeId }: { tiltakstypeId: string
   );
 }
 
-function NavKontaktpersonFields({ index, id }: { index: number; id: string }) {
+function NavKontaktpersonFields({
+  index,
+  id,
+  lagredeKontaktpersoner,
+}: {
+  index: number;
+  id: string;
+  lagredeKontaktpersoner: { navIdent: string; navn: string }[];
+}) {
   const [query, setQuery] = useState("");
+  const [kjenteNavn, setKjenteNavn] = useState<Record<string, string>>(() =>
+    Object.fromEntries(lagredeKontaktpersoner.map((k) => [k.navIdent, k.navn])),
+  );
   const { data: ansatte } = useSokNavAnsatt(query, id);
   const { watch } = useFormContext<TiltakBeskrivelseFormValues>();
 
   const kontaktpersoner = watch("veilederinformasjon.kontaktpersoner");
-  const excludedIdenter = kontaktpersoner.map((k) => k.navIdent);
-
-  const alleredeValgt = kontaktpersoner
-    .filter((_, i) => i === index)
-    .map((k) => {
-      const fraSok = ansatte?.find((a) => a.navIdent === k.navIdent);
-      const navn = fraSok ? `${fraSok.fornavn} ${fraSok.etternavn}` : k.navIdent;
-      return { label: navn ? `${navn} - ${k.navIdent}` : k.navIdent, value: k.navIdent };
-    });
-
-  const options =
-    ansatte
-      ?.filter((a) => !excludedIdenter.includes(a.navIdent))
-      .map((a) => ({
-        label: `${a.fornavn} ${a.etternavn} - ${a.navIdent}`,
-        value: a.navIdent,
-      })) ?? [];
+  const valgtNavIdent = kontaktpersoner[index]?.navIdent;
+  const alleValgteNavIdenter = kontaktpersoner.map((k) => k.navIdent);
+  const kontaktpersonerOptions = getNavKontaktpersonOptions({
+    valgtNavIdent,
+    alleValgteNavIdenter,
+    sokeresultat: ansatte,
+    kjenteNavn,
+  });
 
   return (
     <>
@@ -144,8 +160,13 @@ function NavKontaktpersonFields({ index, id }: { index: number; id: string }) {
         label={gjennomforingTekster.kontaktpersonNav.navnLabel}
         name={`veilederinformasjon.kontaktpersoner.${index}.navIdent`}
         onChange={setQuery}
-        options={[...alleredeValgt, ...options]}
-        filteredOptions={[...alleredeValgt, ...options]}
+        onToggleSelected={(navIdent, isSelected) => {
+          if (!isSelected) return;
+          const treff = ansatte?.find((k) => k.navIdent === navIdent);
+          if (treff) setKjenteNavn((prev) => ({ ...prev, [navIdent]: formaterNavn(treff) }));
+        }}
+        options={kontaktpersonerOptions}
+        filteredOptions={kontaktpersonerOptions}
       />
       <FormTextField<TiltakBeskrivelseFormValues>
         name={`veilederinformasjon.kontaktpersoner.${index}.beskrivelse`}

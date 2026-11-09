@@ -2,7 +2,11 @@ import { Tabs, VStack } from "@navikt/ds-react";
 import { TiltakBeskrivelseDetaljerForm } from "./TiltakBeskrivelseDetaljerForm";
 import { TiltakBeskrivelseVeilederinformasjonForm } from "./TiltakBeskrivelseVeilederinformasjonForm";
 
-export function TiltakBeskrivelseForm() {
+interface Props {
+  lagredeKontaktpersoner?: { navIdent: string; navn: string }[];
+}
+
+export function TiltakBeskrivelseForm({ lagredeKontaktpersoner }: Props) {
   return (
     <Tabs defaultValue="detaljer">
       <Tabs.List>
@@ -18,7 +22,9 @@ export function TiltakBeskrivelseForm() {
 
       <Tabs.Panel value="veilederinformasjon">
         <VStack paddingBlock="space-16 space-0">
-          <TiltakBeskrivelseVeilederinformasjonForm />
+          <TiltakBeskrivelseVeilederinformasjonForm
+            lagredeKontaktpersoner={lagredeKontaktpersoner}
+          />
         </VStack>
       </Tabs.Panel>
     </Tabs>
