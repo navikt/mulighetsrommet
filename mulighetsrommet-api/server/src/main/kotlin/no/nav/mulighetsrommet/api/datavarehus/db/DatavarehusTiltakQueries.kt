@@ -9,7 +9,7 @@ import no.nav.mulighetsrommet.api.contracts.datavarehus.DatavarehusTiltakV1Dto
 import no.nav.mulighetsrommet.api.contracts.datavarehus.DatavarehusTiltakV1YrkesfagDto
 import no.nav.mulighetsrommet.api.contracts.datavarehus.DvhUtdanningslop
 import no.nav.mulighetsrommet.api.datavarehus.mapper.toDvhAmoKategorisering
-import no.nav.mulighetsrommet.api.domain.gjennomforing.utledArtskontokode
+import no.nav.mulighetsrommet.api.domain.gjennomforing.Artskontokode
 import no.nav.mulighetsrommet.api.domain.opplaring.UtdanningslopDetaljer
 import no.nav.mulighetsrommet.api.persistence.opplaring.OpplaringKategoriseringQueries
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
@@ -79,7 +79,7 @@ private fun Row.toDatavarehusTiltakDto(): DatavarehusTiltakV1Dto {
     val oppstartstype = GjennomforingOppstartstype.valueOf(string("oppstart_type"))
     return DatavarehusTiltakV1Dto(
         tiltakskode = tiltakskode,
-        artskontokode = utledArtskontokode(tiltakskode, oppstartstype),
+        artskontokode = stringOrNull("artskontokode")?.let { Artskontokode.valueOf(it) },
         avtale = uuidOrNull("avtale_id")?.let {
             DatavarehusTiltakV1.Avtale(
                 id = it,

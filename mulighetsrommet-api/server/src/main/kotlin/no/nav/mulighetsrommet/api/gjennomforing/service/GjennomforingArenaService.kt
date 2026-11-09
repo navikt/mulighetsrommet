@@ -6,6 +6,7 @@ import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.domain.gjennomforing.Gjennomforing
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingArena
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingType
+import no.nav.mulighetsrommet.api.domain.gjennomforing.utledArtskontokode
 import no.nav.mulighetsrommet.api.persistence.gjennomforing.GjennomforingArenaDataDbo
 import no.nav.mulighetsrommet.api.persistence.gjennomforing.GjennomforingDbo
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
@@ -45,6 +46,7 @@ class GjennomforingArenaService(
             type = GjennomforingType.ARENA,
             id = opprett.id,
             tiltakskode = opprett.tiltakskode,
+            artskontokode = utledArtskontokode(opprett.tiltakskode, opprett.oppstart),
             arrangorId = opprett.arrangorId,
             navn = opprett.navn,
             startDato = opprett.startDato,

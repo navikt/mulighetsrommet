@@ -11,6 +11,7 @@ import no.nav.mulighetsrommet.api.contracts.datavarehus.DatavarehusTiltakV1AmoDt
 import no.nav.mulighetsrommet.api.contracts.datavarehus.DatavarehusTiltakV1Dto
 import no.nav.mulighetsrommet.api.contracts.datavarehus.DatavarehusTiltakV1YrkesfagDto
 import no.nav.mulighetsrommet.api.contracts.datavarehus.DvhAmoKategorisering
+import no.nav.mulighetsrommet.api.domain.gjennomforing.Artskontokode
 import no.nav.mulighetsrommet.api.domain.opplaring.Bransje
 import no.nav.mulighetsrommet.api.domain.opplaring.ForerkortKlasse
 import no.nav.mulighetsrommet.api.domain.opplaring.InnholdElement
@@ -59,6 +60,7 @@ class DatavarehusTiltakQueriesTest : FunSpec({
 
             tiltak.shouldBeTypeOf<DatavarehusTiltakV1Dto>().should {
                 it.tiltakskode shouldBe Tiltakskode.ARBEIDSFORBEREDENDE_TRENING
+                it.artskontokode.shouldBeNull()
                 it.gjennomforing.id shouldBe AFT1.id
                 it.gjennomforing.navn shouldBe AFT1.navn
                 it.gjennomforing.startDato shouldBe AFT1.startDato
@@ -79,6 +81,24 @@ class DatavarehusTiltakQueriesTest : FunSpec({
                     avtale.oppdatertTidspunkt.shouldNotBeNull()
                 }
             }
+        }
+
+        test("henter lagret artskontokode for gruppetiltak") {
+            val gjennomforing = GruppeAmo1.copy(artskontokode = Artskontokode.GRUPPE_ARBEIDSMARKEDSOPPLAERING)
+            val domain = MulighetsrommetTestDomain(
+                tiltakstyper = listOf(TiltakstypeFixtures.GruppeAmo),
+                avtaler = listOf(AvtaleFixtures.gruppeAmo),
+                gjennomforinger = listOf(gjennomforing),
+            )
+
+            val tiltak = database.runAndRollback {
+                domain.initialize()
+
+                queries.dvh.getDatavarehusTiltak(gjennomforing.id)
+            }
+
+            tiltak.shouldBeTypeOf<DatavarehusTiltakV1AmoDto>()
+                .artskontokode shouldBe Artskontokode.GRUPPE_ARBEIDSMARKEDSOPPLAERING
         }
 
         test("returnerer null når gjennomføringen ikke finnes") {
@@ -106,7 +126,10 @@ class DatavarehusTiltakQueriesTest : FunSpec({
                 queries.dvh.getDatavarehusTiltak(AFT1.id)
             }
 
-            tiltak.shouldNotBeNull().gjennomforing.arena shouldBe DatavarehusTiltakV1.ArenaData(aar = 2020, lopenummer = 1234)
+            tiltak.shouldNotBeNull().gjennomforing.arena shouldBe DatavarehusTiltakV1.ArenaData(
+                aar = 2020,
+                lopenummer = 1234,
+            )
         }
 
         context("henter Gruppe AMO med amo-kategorisering") {
@@ -284,9 +307,12 @@ class DatavarehusTiltakQueriesTest : FunSpec({
 
     context("enkeltplasser") {
         test("henter relevant data om tiltakstype og gjennomføring") {
+            val gjennomforing = GjennomforingFixtures.EnkelAmo.copy(
+                artskontokode = Artskontokode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
+            )
             val domain = MulighetsrommetTestDomain(
                 tiltakstyper = listOf(TiltakstypeFixtures.EnkelAmo),
-                gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
+                gjennomforinger = listOf(gjennomforing),
             )
 
             database.runAndRollback {
@@ -296,6 +322,7 @@ class DatavarehusTiltakQueriesTest : FunSpec({
 
                 tiltak.shouldBeTypeOf<DatavarehusTiltakV1AmoDto>().should {
                     it.tiltakskode shouldBe Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING
+                    it.artskontokode shouldBe Artskontokode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING
                     it.gjennomforing.id shouldBe GjennomforingFixtures.EnkelAmo.id
                     it.gjennomforing.opprettetTidspunkt.shouldNotBeNull()
                     it.gjennomforing.oppdatertTidspunkt.shouldNotBeNull()

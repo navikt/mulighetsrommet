@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.persistence.gjennomforing
 
+import no.nav.mulighetsrommet.api.domain.gjennomforing.Artskontokode
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingType
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingPameldingType
@@ -15,6 +16,7 @@ data class GjennomforingDbo(
     val id: UUID,
     val type: GjennomforingType,
     val tiltakskode: Tiltakskode,
+    val artskontokode: Artskontokode?,
     val arrangorId: UUID,
     val navn: String,
     val startDato: LocalDate?,

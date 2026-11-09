@@ -16,17 +16,22 @@ import io.kotest.matchers.types.shouldBeTypeOf
 import io.mockk.mockk
 import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.admin.aarsakerbegrunnelse.AarsakerOgBegrunnelseRequest
+import no.nav.mulighetsrommet.admin.avtale.AmoKategoriseringRequest
 import no.nav.mulighetsrommet.admin.endringshistorikk.EndringshistorikkType
 import no.nav.mulighetsrommet.api.contracts.gjennomforing.TiltaksgjennomforingV2Dto
 import no.nav.mulighetsrommet.api.domain.arrangor.ArrangorKontaktperson
+import no.nav.mulighetsrommet.api.domain.gjennomforing.Artskontokode
 import no.nav.mulighetsrommet.api.domain.gjennomforing.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.domain.gjennomforing.Gjennomforing
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingAvtaleDetaljer
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingAvtaleStatus
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsattRolle
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
+import no.nav.mulighetsrommet.api.domain.opplaring.Kurstype
+import no.nav.mulighetsrommet.api.domain.opplaring.OpplaringKategorisering
 import no.nav.mulighetsrommet.api.domain.testing.fixture.ArrangorFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.AvtaleFixtures
+import no.nav.mulighetsrommet.api.domain.testing.fixture.KurstypeFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavAnsattFixture
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavEnhetFixtures.Gjovik
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavEnhetFixtures.Innlandet
@@ -40,6 +45,7 @@ import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Tiltaksnummer
 import no.nav.mulighetsrommet.validation.FieldError
 import java.time.LocalDate
@@ -101,6 +107,26 @@ class GjennomforingAvtaleServiceTest : FunSpec({
         val service = createService()
 
         val request = GjennomforingRequestFixtures.createGjennomforingRequest(AvtaleFixtures.oppfolging)
+
+        test("setter artskontokode ved opprettelse") {
+            val avtale = AvtaleFixtures.oppfolging.copy(
+                id = UUID.randomUUID(),
+                tiltakskode = Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV,
+                opplaring = OpplaringKategorisering(kurstype = KurstypeFixtures.norskopplaering.id),
+            )
+            database.run {
+                repository.avtale.save(avtale)
+            }
+            val request = GjennomforingRequestFixtures.createGjennomforingRequest(avtale)
+            val gjennomforingRequest = request.copy(
+                detaljer = request.detaljer.copy(
+                    amoKategorisering = AmoKategoriseringRequest(kurstype = Kurstype.Kode.NORSKOPPLAERING),
+                ),
+            )
+
+            service.create(gjennomforingRequest, bertilNavIdent).shouldBeRight()
+                .artskontokode shouldBe Artskontokode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV
+        }
 
         test("oppretting av gjennomføring blir lagret som et utgående kafka-record") {
             service.create(request, bertilNavIdent).shouldBeRight()

@@ -6,6 +6,7 @@ import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.admin.gjennomforing.GjennomforingQueryHandler
 import no.nav.mulighetsrommet.api.domain.gjennomforing.AnsvarligEnhet
+import no.nav.mulighetsrommet.api.domain.gjennomforing.Artskontokode
 import no.nav.mulighetsrommet.api.domain.gjennomforing.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.domain.gjennomforing.Gjennomforing
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingArena
@@ -57,6 +58,7 @@ class GjennomforingQueries(private val session: Session) : GjennomforingReposito
         val query = """
             insert into gjennomforing (id,
                                        tiltakstype_id,
+                                       artskontokode,
                                        arrangor_id,
                                        gjennomforing_type,
                                        oppstart,
@@ -74,6 +76,7 @@ class GjennomforingQueries(private val session: Session) : GjennomforingReposito
                                        arena_ansvarlig_enhet)
             values (:id::uuid,
                     (select id from tiltakstype where tiltakskode = :tiltakskode),
+                    :artskontokode,
                     :arrangor_id::uuid,
                     :gjennomforing_type::gjennomforing_type,
                     :oppstart::gjennomforing_oppstartstype,
@@ -110,6 +113,7 @@ class GjennomforingQueries(private val session: Session) : GjennomforingReposito
         val params = mapOf(
             "id" to gjennomforing.id,
             "tiltakskode" to gjennomforing.tiltakskode.name,
+            "artskontokode" to gjennomforing.artskontokode?.name,
             "arrangor_id" to gjennomforing.arrangorId,
             "gjennomforing_type" to gjennomforing.type.name,
             "oppstart" to gjennomforing.oppstart.name,
@@ -772,6 +776,7 @@ private fun Row.toGjennomforingKompakt(): GjennomforingKompakt {
 private fun Row.toGjennomforingAvtale(): GjennomforingAvtale {
     return GjennomforingAvtale(
         id = uuid("id"),
+        artskontokode = stringOrNull("artskontokode")?.let { Artskontokode.valueOf(it) },
         tiltakstype = Gjennomforing.Tiltakstype(
             id = uuid("tiltakstype_id"),
             navn = string("tiltakstype_navn"),
@@ -882,6 +887,7 @@ private fun Row.toAdministratorer(): List<GjennomforingAvtaleDetaljer.Administra
 private fun Row.toGjennomforingEnkeltplass(): GjennomforingEnkeltplass {
     return GjennomforingEnkeltplass(
         id = uuid("id"),
+        artskontokode = stringOrNull("artskontokode")?.let { Artskontokode.valueOf(it) },
         lopenummer = Tiltaksnummer(string("lopenummer")),
         opprettetTidspunkt = instant("opprettet_tidspunkt"),
         oppdatertTidspunkt = instant("oppdatert_tidspunkt"),
@@ -923,6 +929,7 @@ private fun Row.toAnsvarligEnhet(): AnsvarligEnhet = AnsvarligEnhet(
 private fun Row.toGjennomforingArena(): GjennomforingArena {
     return GjennomforingArena(
         id = uuid("id"),
+        artskontokode = stringOrNull("artskontokode")?.let { Artskontokode.valueOf(it) },
         lopenummer = Tiltaksnummer(string("lopenummer")),
         opprettetTidspunkt = instant("opprettet_tidspunkt"),
         oppdatertTidspunkt = instant("oppdatert_tidspunkt"),
