@@ -1,5 +1,4 @@
 import { UtbetalingTypeTag } from "@mr/frontend-common/components/utbetaling/UtbetalingTypeTag";
-import { formaterKontoNummer } from "@mr/frontend-common/utils/utils";
 import { FilePdfIcon } from "@navikt/aksel-icons";
 import {
   Box,
@@ -18,17 +17,18 @@ import {
   ArrangorflateUtbetalingDto,
   ArrangorflateUtbetalingStatus,
   FieldError,
-  UtbetalingTypeDto,
 } from "@arrangor-utbetalinger/api-client";
 import { Suspense, useState } from "react";
 import { MetaFunction } from "react-router";
-import { Definisjonsliste } from "~/components/common/Definisjonsliste";
 import { PageHeading } from "~/components/common/PageHeading";
 import UtbetalingStatusList from "~/components/utbetaling/UtbetalingStatusList";
 import { getEnvironment } from "~/services/environment";
 import { tekster } from "~/tekster";
 import { deltakerOversiktLenke, pathTo, useIdFromUrl } from "~/utils/navigation";
-import { SatsPerioderOgBelop } from "~/components/utbetaling/SatsPerioderOgBelop";
+import {
+  UtbetalingsdetaljerBeregning,
+  UtbetalingsdetaljerSection,
+} from "~/components/utbetaling/Utbetalingsdetaljer";
 import { FeilmeldingMedVarselTrekant } from "@mr/frontend-common/components/varsel/FeilmeldingMedVarseltrekant";
 import { DataDetails, DataDrivenTable } from "@mr/frontend-common";
 import { Laster } from "~/components/common/Laster";
@@ -103,12 +103,9 @@ function UtbetalingDetaljerContent({ id }: { id: string }) {
             </Button>
           )}
         </HStack>
-        <UtbetalingHeader utbetalingType={utbetaling.type} />
-        <DataDetails entries={utbetaling.innsendingsDetaljer} />
-        <SatsPerioderOgBelop
-          pris={utbetaling.beregning.pris}
-          satsDetaljer={utbetaling.beregning.satsDetaljer}
-        />
+        <UtbetalingHeader utbetaling={utbetaling} />
+        <DataDetails entries={utbetaling.detaljer.innsending.entries} />
+        <UtbetalingsdetaljerBeregning detaljer={utbetaling.detaljer} />
         {utbetaling.beregning.deltakelser && (
           <HStack gap="space-8">
             <Button variant="secondary" size="small" onClick={() => setDeltakerModalOpen(true)}>
@@ -116,21 +113,7 @@ function UtbetalingDetaljerContent({ id }: { id: string }) {
             </Button>
           </HStack>
         )}
-        <Definisjonsliste
-          title="Betalingsinformasjon"
-          definitions={[
-            {
-              key: "Kontonummer",
-              value: utbetaling.betalingsinformasjon?.kontonummer
-                ? formaterKontoNummer(utbetaling.betalingsinformasjon.kontonummer)
-                : "-",
-            },
-            {
-              key: "KID-nummer",
-              value: utbetaling.betalingsinformasjon?.kid || "-",
-            },
-          ]}
-        />
+        <UtbetalingsdetaljerSection detaljer={utbetaling.detaljer.betalingsinformasjon} />
         <Box
           background="default"
           padding="space-24"
@@ -138,7 +121,7 @@ function UtbetalingDetaljerContent({ id }: { id: string }) {
           borderColor="neutral-subtle"
           borderWidth="1"
         >
-          <UtbetalingStatusList utbetaling={utbetaling} />
+          <UtbetalingStatusList detaljer={utbetaling.detaljer} />
         </Box>
         {(utbetaling.avbrytelse.type === "KAN_AVBRYTES" ||
           utbetaling.avbrytelse.type === "KAN_IKKE_AVBRYTES") && (
@@ -191,14 +174,13 @@ function UtbetalingDetaljerContent({ id }: { id: string }) {
   );
 }
 
-function UtbetalingHeader({ utbetalingType }: { utbetalingType: UtbetalingTypeDto }) {
-  const tekst = utbetalingType.displayNameLong ?? utbetalingType.displayName;
+function UtbetalingHeader({ utbetaling }: { utbetaling: ArrangorflateUtbetalingDto }) {
   return (
     <HStack gap="space-8">
       <Heading level="3" size="medium">
-        {tekst}
+        {utbetaling.detaljer.innsending.header}
       </Heading>
-      <UtbetalingTypeTag type={utbetalingType.displayName} />
+      <UtbetalingTypeTag type={utbetaling.type.displayName} />
     </HStack>
   );
 }
@@ -228,10 +210,7 @@ function DeltakerModal({ utbetaling, open, setOpen }: DeltakerModalProps) {
           {utbetaling.beregning.deltakelser && (
             <DataDrivenTable data={utbetaling.beregning.deltakelser} />
           )}
-          <SatsPerioderOgBelop
-            pris={utbetaling.beregning.pris}
-            satsDetaljer={utbetaling.beregning.satsDetaljer}
-          />
+          <UtbetalingsdetaljerBeregning detaljer={utbetaling.detaljer} />
         </VStack>
       </Modal.Body>
     </Modal>

@@ -1,18 +1,14 @@
 package no.nav.mulighetsrommet.api.utbetaling.mapper
 
-import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangforflateUtbetalingLinje
-import no.nav.mulighetsrommet.api.arrangorflate.service.beregningSatsDetaljer
+import no.nav.mulighetsrommet.api.arrangorflate.dto.UtbetalingsdetaljerDto
 import no.nav.mulighetsrommet.api.arrangorflate.service.beregningStengt
-import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsinformasjon
-import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.domain.personalia.Gradering
 import no.nav.mulighetsrommet.api.domain.personalia.Personalia
+import no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlockBuilder
 import no.nav.mulighetsrommet.api.pdfgen.Format
 import no.nav.mulighetsrommet.api.pdfgen.PdfDocumentContent
 import no.nav.mulighetsrommet.api.pdfgen.PdfDocumentContentBuilder
 import no.nav.mulighetsrommet.api.pdfgen.TableBlock
-import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingType
-import no.nav.mulighetsrommet.api.utbetaling.api.toDto
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsePeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregning
@@ -24,40 +20,41 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPe
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerBenyttetPlassPerManed
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningOutputDeltakelse
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
-import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskDato
+import no.nav.mulighetsrommet.model.DataDetails
 import no.nav.mulighetsrommet.model.DataElement
-import no.nav.mulighetsrommet.model.Periode
-import no.nav.mulighetsrommet.model.Valuta
-import no.nav.mulighetsrommet.model.withValuta
+import no.nav.mulighetsrommet.model.LabeledDataElement
 
 object UbetalingToPdfDocumentContentMapper {
     fun toUtbetalingsdetaljerPdfContent(
-        utbetaling: Utbetaling,
-        linjer: List<ArrangforflateUtbetalingLinje>,
-        gjennomforing: GjennomforingAvtale,
+        detaljer: UtbetalingsdetaljerDto,
     ): PdfDocumentContent = PdfDocumentContent.create(
         title = "Utbetalingsdetaljer",
-        subject = "Utbetaling til ${utbetaling.arrangor.navn}",
-        description = "Detaljer om utbetaling for gjennomføring av ${utbetaling.tiltakstype.navn}",
+        subject = "Utbetaling til ${detaljer.arrangorNavn}",
+        description = "Detaljer om utbetaling for gjennomføring av ${detaljer.tiltakstypeNavn}",
         author = "Nav",
     ) {
         mainSection("Detaljer om utbetaling")
 
-        addInnsendingSection(utbetaling, gjennomforing)
-        addUtbetalingSection(utbetaling)
-        addBetalingsinformasjonSection(utbetaling.betalingsinformasjon)
-
-        if (utbetaling.erFerdigBehandlet()) {
-            addUtbetalingsstatusSection(utbetaling.valuta, linjer)
+        addCommonSections(detaljer)
+        addDetailsSection(detaljer.status)
+        detaljer.avbrytelse?.let { addDetailsSection(it) }
+        if (detaljer.tilsagn.isNotEmpty()) {
+            section(detaljer.tilsagnHeader) {
+                detaljer.tilsagn.forEach { linje ->
+                    descriptionList {
+                        description = linje.header
+                        addEntries(linje.entries)
+                    }
+                }
+            }
         }
     }
 
     fun toJournalpostPdfContent(
+        detaljer: UtbetalingsdetaljerDto,
         utbetaling: Utbetaling,
         personalia: List<Personalia>,
-        gjennomforing: GjennomforingAvtale,
     ): PdfDocumentContent = PdfDocumentContent.create(
         title = "Utbetaling",
         subject = "Krav om utbetaling fra ${utbetaling.arrangor.navn}",
@@ -66,9 +63,7 @@ object UbetalingToPdfDocumentContentMapper {
     ) {
         mainSection("Innsendt krav om utbetaling")
 
-        addInnsendingSection(utbetaling, gjennomforing)
-        addUtbetalingSection(utbetaling)
-        addBetalingsinformasjonSection(utbetaling.betalingsinformasjon)
+        addCommonSections(detaljer)
         addStengtHosArrangorSection(utbetaling.beregning)
 
         when (utbetaling.beregning) {
@@ -116,127 +111,32 @@ object UbetalingToPdfDocumentContentMapper {
     }
 }
 
-private fun PdfDocumentContentBuilder.addInnsendingSection(
-    utbetaling: Utbetaling,
-    gjennomforing: GjennomforingAvtale,
-) {
-    val type = UtbetalingType.from(utbetaling).toDto()
-    val utbetalingHeader = type.displayNameLong ?: type.displayName
-    section(utbetalingHeader) {
-        descriptionList {
-            text(
-                "Arrangør",
-                "${utbetaling.arrangor.navn} (${utbetaling.arrangor.organisasjonsnummer.value})",
-            )
-            utbetaling.innsending
-                ?.let { text("Dato innsendt av arrangør", it.tidspunkt.toLocalDate(), Format.DATE) }
-                ?: text("Dato opprettet hos Nav", utbetaling.createdAt.toLocalDate(), Format.DATE)
-            text("Tiltakstype", utbetaling.tiltakstype.navn)
-            if (utbetaling.arrangorInnsendtAnnenAvtaltPris()) {
-                text(
-                    "Tiltaksperiode",
-                    Periode.formatPeriode(gjennomforing.startDato, gjennomforing.sluttDato),
-                )
-            }
-
-            text("Løpenummer", gjennomforing.lopenummer.value)
-        }
-    }
-}
-
-private fun PdfDocumentContentBuilder.addUtbetalingSection(utbetaling: Utbetaling) {
-    section("Utbetaling") {
-        descriptionList {
-            text("Utbetalingsperiode", utbetaling.periode.formatPeriode())
-            text("Utbetales tidligst", utbetaling.utbetalesTidligstTidspunkt?.tilNorskDato(), Format.DATE)
-        }
-
-        val satsDetaljer = beregningSatsDetaljer(utbetaling.beregning)
-        satsDetaljer.forEach { satsPeriode ->
+private fun PdfDocumentContentBuilder.addCommonSections(detaljer: UtbetalingsdetaljerDto) {
+    addDetailsSection(detaljer.innsending)
+    section(requireNotNull(detaljer.utbetaling.header)) {
+        detaljer.satsDetaljer.forEach { sats ->
             descriptionList {
-                if (satsDetaljer.size > 1 && satsPeriode.header != null) {
-                    description = satsPeriode.header
-                }
-                satsPeriode.entries.forEach { entry ->
-                    when (val dataElement = entry.value) {
-                        is DataElement.Text ->
-                            text(
-                                entry.label,
-                                dataElement.toPdfDocumentValue(),
-                                dataElement.format?.toPdfDocumentContentFormat(),
-                            )
-
-                        is DataElement.MoneyAmount ->
-                            money(entry.label, dataElement)
-
-                        else ->
-                            text(entry.label, entry.value?.toPdfDocumentValue())
-                    }
-                }
+                description = sats.header
+                addEntries(sats.entries)
             }
         }
-        descriptionList {
-            money("Beløp", utbetaling.beregning.output.pris)
-        }
+        descriptionList { addEntries(detaljer.utbetaling.entries) }
+    }
+    addDetailsSection(detaljer.betalingsinformasjon)
+}
+
+private fun PdfDocumentContentBuilder.addDetailsSection(details: DataDetails) {
+    section(requireNotNull(details.header)) {
+        descriptionList { addEntries(details.entries) }
     }
 }
 
-private fun PdfDocumentContentBuilder.addBetalingsinformasjonSection(
-    betalingsinformasjon: Betalingsinformasjon?,
-) {
-    section("Betalingsinformasjon") {
-        descriptionList {
-            when (betalingsinformasjon) {
-                is Betalingsinformasjon.BBan -> {
-                    text("Kontonummer", betalingsinformasjon.kontonummer.value)
-                    text("KID-nummer", betalingsinformasjon.kid?.value)
-                }
-
-                is Betalingsinformasjon.IBan -> {
-                    text("IBAN", betalingsinformasjon.iban)
-                    text("BIC/SWIFT", betalingsinformasjon.bic)
-                    text("Bank landkode", betalingsinformasjon.bankLandKode)
-                    text("Banknavn", betalingsinformasjon.bankNavn)
-                }
-
-                null -> Unit
-            }
-        }
-    }
-}
-
-private fun PdfDocumentContentBuilder.addUtbetalingsstatusSection(
-    valuta: Valuta,
-    linjer: List<ArrangforflateUtbetalingLinje>,
-) {
-    section("Utbetalingsstatus") {
-        descriptionList {
-            val status = if (linjer.all { it.status == UtbetalingLinjeStatus.UTBETALT }) {
-                "Utbetalt"
-            } else {
-                "Overført til utbetaling"
-            }
-            text("Status", status, Format.STATUS_SUCCESS)
-
-            val totaltUtbetalt = linjer.fold(0.withValuta(valuta)) { acc, linje -> acc + linje.pris }
-            money("Godkjent beløp til utbetaling", totaltUtbetalt)
-        }
-    }
-
-    section("Tilsagn som er brukt til utbetaling") {
-        linjer.forEach {
-            descriptionList {
-                text("Tilsagn", it.tilsagn.bestillingsnummer)
-                money("Beløp til utbetaling", it.pris)
-                text("Status", it.status.beskrivelse, Format.STATUS_SUCCESS)
-                it.statusSistOppdatert?.let { sistEndret ->
-                    text(
-                        "Status endret",
-                        sistEndret.toString(),
-                        Format.DATE,
-                    )
-                }
-            }
+private fun DescriptionListBlockBuilder.addEntries(entries: List<LabeledDataElement>) {
+    entries.forEach { entry ->
+        when (val value = entry.value) {
+            is DataElement.MoneyAmount -> money(entry.label, value)
+            is DataElement.Text -> text(entry.label, value.value ?: "-", value.format?.toPdfDocumentContentFormat())
+            else -> text(entry.label, value?.toPdfDocumentValue() ?: "-")
         }
     }
 }

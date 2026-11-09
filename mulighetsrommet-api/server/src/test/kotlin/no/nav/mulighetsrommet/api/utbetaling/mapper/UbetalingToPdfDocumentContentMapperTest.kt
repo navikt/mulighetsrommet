@@ -2,14 +2,19 @@ package no.nav.mulighetsrommet.api.utbetaling.mapper
 
 import com.diffplug.selfie.coroutines.expectSelfie
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.types.shouldBeInstanceOf
 import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangforflateUtbetalingLinje
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateTilsagnSummary
+import no.nav.mulighetsrommet.api.arrangorflate.dto.UtbetalingsdetaljerDto
+import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetaling
+import no.nav.mulighetsrommet.api.arrangorflate.service.mapUtbetalingsdetaljer
 import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingType
 import no.nav.mulighetsrommet.api.domain.personalia.Gradering
 import no.nav.mulighetsrommet.api.domain.personalia.Personalia
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
+import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures
 import no.nav.mulighetsrommet.api.pdfgen.PdfDocumentContent
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelseDeltakelsesprosentPerioder
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsePeriode
@@ -361,12 +366,37 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
         ),
     )
 
+    fun utbetalingsdetaljer(utbetaling: Utbetaling): UtbetalingsdetaljerDto {
+        val arrangorflateUtbetaling = UtbetalingFixtures.arrangorflateUtbetalingDto1.copy(
+            status = utbetaling.status,
+            createdAt = utbetaling.createdAt,
+            innsending = utbetaling.innsending?.let { ArrangorflateUtbetaling.Innsending(it.tidspunkt) },
+            beregning = utbetaling.beregning,
+            betalingsinformasjon = utbetaling.betalingsinformasjon.shouldBeInstanceOf<Betalingsinformasjon.BBan>(),
+            arrangor = ArrangorflateUtbetaling.Arrangor(
+                utbetaling.arrangor.id,
+                utbetaling.arrangor.organisasjonsnummer,
+                utbetaling.arrangor.navn,
+            ),
+            tiltakstype = ArrangorflateUtbetaling.Tiltakstype(utbetaling.tiltakstype.navn, utbetaling.tiltakstype.tiltakskode),
+            gjennomforing = ArrangorflateUtbetaling.Gjennomforing(
+                gjennomforing.id,
+                gjennomforing.navn,
+                gjennomforing.lopenummer,
+                gjennomforing.startDato,
+                gjennomforing.sluttDato,
+            ),
+            tilskuddstype = utbetaling.tilskuddstype,
+            periode = utbetaling.periode,
+            utbetalesTidligstTidspunkt = utbetaling.utbetalesTidligstTidspunkt,
+        )
+        return mapUtbetalingsdetaljer(arrangorflateUtbetaling, linjer)
+    }
+
     context("pdf-content for utbetalingsdetaljer til arrangør") {
         test("fast sats per tiltaksplass per maned") {
             val pdfContent = UbetalingToPdfDocumentContentMapper.toUtbetalingsdetaljerPdfContent(
-                utbetalingFastSats,
-                linjer,
-                gjennomforing,
+                utbetalingsdetaljer(utbetalingFastSats),
             )
 
             expectSelfie(jsonPrettyPrint.encodeToString<PdfDocumentContent>(pdfContent)).toMatchDisk("utbetalingsdetaljerFastSats")
@@ -374,9 +404,7 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
 
         test("avtalt pris per time oppfølging per deltaker") {
             val pdfContent = UbetalingToPdfDocumentContentMapper.toUtbetalingsdetaljerPdfContent(
-                utbetalingPrisPerTimeOppfolging,
-                linjer,
-                gjennomforing,
+                utbetalingsdetaljer(utbetalingPrisPerTimeOppfolging),
             )
 
             expectSelfie(jsonPrettyPrint.encodeToString<PdfDocumentContent>(pdfContent)).toMatchDisk("utbetalingsdetaljerTimesPris")
@@ -386,18 +414,18 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
     context("pdf-content for journalpost av innsending fra arrangør") {
         test("fast sats per tiltaksplass per maned") {
             val pdfContent = UbetalingToPdfDocumentContentMapper.toJournalpostPdfContent(
-                utbetalingFastSats,
-                personalia,
-                gjennomforing,
+                detaljer = utbetalingsdetaljer(utbetalingFastSats),
+                utbetaling = utbetalingFastSats,
+                personalia = personalia,
             )
 
             expectSelfie(jsonPrettyPrint.encodeToString<PdfDocumentContent>(pdfContent)).toMatchDisk("journalpostFastSats")
         }
         test("avtalt pris per time oppfølging per deltaker") {
             val pdfContent = UbetalingToPdfDocumentContentMapper.toJournalpostPdfContent(
-                utbetalingPrisPerTimeOppfolging,
-                personalia,
-                gjennomforing,
+                detaljer = utbetalingsdetaljer(utbetalingPrisPerTimeOppfolging),
+                utbetaling = utbetalingPrisPerTimeOppfolging,
+                personalia = personalia,
             )
 
             expectSelfie(jsonPrettyPrint.encodeToString<PdfDocumentContent>(pdfContent)).toMatchDisk("journalpostTimesPris")

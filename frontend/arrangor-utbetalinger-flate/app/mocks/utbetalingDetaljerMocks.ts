@@ -3,6 +3,8 @@ import {
   ArrangorflateUtbetalingStatus,
   DataDetails,
   DataElementTextFormat,
+  DataElementStatusVariant,
+  LabeledDataElement,
   LabeledDataElementType,
   Tiltakskode,
   UtbetalingBlokkering,
@@ -17,6 +19,10 @@ import {
   toSatserUkesverkDeltakelse,
   vtaManedDeltakelse,
 } from "./deltakelserMocks";
+
+type UtbetalingMock = Omit<ArrangorflateUtbetalingDto, "detaljer"> & {
+  innsendingsDetaljer: LabeledDataElement[];
+};
 
 const satsDetaljerForhondsgodkjent: DataDetails[] = [
   {
@@ -88,7 +94,7 @@ const satsDetaljerUkespris: DataDetails[] = [
   },
 ];
 
-export const aftUtbetalt: ArrangorflateUtbetalingDto = {
+export const aftUtbetalt: UtbetalingMock = {
   regenerering: { type: "IKKE_TILGJENGELIG" },
   avbrytelse: { type: "KAN_IKKE_AVBRYTES" },
   id: "e48f9b35-855f-43aa-8b4d-a669013df34b",
@@ -169,7 +175,7 @@ export const aftUtbetalt: ArrangorflateUtbetalingDto = {
   ],
 };
 
-export const avklaringManedKlarTilGodkjenning: ArrangorflateUtbetalingDto = {
+export const avklaringManedKlarTilGodkjenning: UtbetalingMock = {
   regenerering: { type: "IKKE_TILGJENGELIG" },
   avbrytelse: { type: "KAN_IKKE_AVBRYTES" },
   id: "a134c0bf-40eb-4124-8f2e-df7b7c51fd44",
@@ -222,7 +228,7 @@ export const avklaringManedKlarTilGodkjenning: ArrangorflateUtbetalingDto = {
   ],
 };
 
-export const aftKreverEndring: ArrangorflateUtbetalingDto = {
+export const aftKreverEndring: UtbetalingMock = {
   regenerering: { type: "IKKE_TILGJENGELIG" },
   avbrytelse: { type: "KAN_IKKE_AVBRYTES" },
   id: "a5499e34-9fb4-49d1-a37d-11810f6df19b",
@@ -278,7 +284,7 @@ export const aftKreverEndring: ArrangorflateUtbetalingDto = {
   ],
 };
 
-export const aftBehandlesAvNav: ArrangorflateUtbetalingDto = {
+export const aftBehandlesAvNav: UtbetalingMock = {
   regenerering: { type: "IKKE_TILGJENGELIG" },
   avbrytelse: { type: "KAN_IKKE_AVBRYTES" },
   id: "585a2834-338a-4ac7-82e0-e1b08bfe1408",
@@ -343,7 +349,7 @@ export const aftBehandlesAvNav: ArrangorflateUtbetalingDto = {
   ],
 };
 
-export const avklaringOverfortTilUtbetaling: ArrangorflateUtbetalingDto = {
+export const avklaringOverfortTilUtbetaling: UtbetalingMock = {
   regenerering: { type: "IKKE_TILGJENGELIG" },
   avbrytelse: { type: "KAN_IKKE_AVBRYTES" },
   id: "153bc6f0-0c5f-4555-9447-b88ea0cc60f2",
@@ -419,7 +425,7 @@ export const avklaringOverfortTilUtbetaling: ArrangorflateUtbetalingDto = {
   ],
 };
 
-export const vtaKlarForGodkjenning: ArrangorflateUtbetalingDto = {
+export const vtaKlarForGodkjenning: UtbetalingMock = {
   regenerering: { type: "IKKE_TILGJENGELIG" },
   avbrytelse: { type: "KAN_IKKE_AVBRYTES" },
   id: "fdbb7433-b42e-4cd6-b995-74a8e487329f",
@@ -479,7 +485,7 @@ export const vtaKlarForGodkjenning: ArrangorflateUtbetalingDto = {
   ],
 };
 
-export const arrUkesprisKlarTilGodkjenning: ArrangorflateUtbetalingDto = {
+export const arrUkesprisKlarTilGodkjenning: UtbetalingMock = {
   regenerering: { type: "IKKE_TILGJENGELIG" },
   avbrytelse: { type: "KAN_IKKE_AVBRYTES" },
   id: "ba046f93-cb0c-4acf-a724-99a36481f183",
@@ -535,7 +541,7 @@ export const arrUkesprisKlarTilGodkjenning: ArrangorflateUtbetalingDto = {
   ],
 };
 
-export const arrFlateUtbetaling: ArrangorflateUtbetalingDto[] = [
+export const arrFlateUtbetaling: UtbetalingMock[] = [
   aftUtbetalt,
   aftKreverEndring,
   aftBehandlesAvNav,
@@ -548,3 +554,122 @@ export const arrFlateUtbetaling: ArrangorflateUtbetalingDto[] = [
 export const klarForGodkjenningIds: string[] = arrFlateUtbetaling
   .filter((utb) => utb.status == ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING)
   .map((utb) => utb.id);
+
+export function medUtbetalingsdetaljer({
+  innsendingsDetaljer,
+  ...utbetaling
+}: UtbetalingMock): ArrangorflateUtbetalingDto {
+  const text = (
+    label: string,
+    value: string | null | undefined,
+    format: DataElementTextFormat | null = null,
+  ): LabeledDataElement => ({
+    type: LabeledDataElementType.INLINE,
+    label,
+    value: { type: "DATA_ELEMENT_TEXT", value: value ?? null, format },
+  });
+  const money = (label: string, belop: number): LabeledDataElement => ({
+    type: LabeledDataElementType.INLINE,
+    label,
+    value: { type: "DATA_ELEMENT_MONEY_AMOUNT", value: String(belop), currency: utbetaling.valuta },
+  });
+  const status = (value: string): LabeledDataElement => ({
+    type: LabeledDataElementType.INLINE,
+    label: "Status",
+    value: {
+      type: "DATA_ELEMENT_STATUS",
+      value,
+      variant:
+        value === "Klar for innsending"
+          ? DataElementStatusVariant.ALT_1
+          : value === "Behandles av Nav" || value === "Blokkert for innsending"
+            ? DataElementStatusVariant.WARNING
+            : DataElementStatusVariant.SUCCESS,
+      description: null,
+    },
+  });
+  const statusTekster: Record<ArrangorflateUtbetalingStatus, string> = {
+    KLAR_FOR_GODKJENNING: "Klar for innsending",
+    BEHANDLES_AV_NAV: "Behandles av Nav",
+    UTBETALT: "Utbetalt",
+    BLOKKERT_FOR_INNSENDING: "Blokkert for innsending",
+    OVERFORT_TIL_UTBETALING: "Overført til utbetaling",
+    DELVIS_UTBETALT: "Delvis utbetalt",
+    AVBRUTT_AV_NAV: "Avbrutt av Nav",
+    AVBRUTT_AV_ARRANGOR: "Avbrutt av arrangør",
+  };
+  const linjer = [
+    ArrangorflateUtbetalingStatus.UTBETALT,
+    ArrangorflateUtbetalingStatus.OVERFORT_TIL_UTBETALING,
+  ].includes(utbetaling.status)
+    ? utbetaling.linjer
+    : [];
+  return {
+    ...utbetaling,
+    detaljer: {
+      arrangorNavn: utbetaling.arrangor.navn,
+      tiltakstypeNavn: utbetaling.tiltakstype.navn,
+      innsending: {
+        header: utbetaling.type.displayNameLong ?? utbetaling.type.displayName,
+        entries: innsendingsDetaljer,
+      },
+      utbetaling: {
+        header: "Utbetaling",
+        entries: [
+          utbetaling.beregning.pris.type === "BEREGNET"
+            ? money("Beløp", utbetaling.beregning.pris.pris.belop)
+            : text("Beløp", "Ikke registrert"),
+        ],
+      },
+      satsDetaljer: utbetaling.beregning.satsDetaljer.map((sats) => ({
+        ...sats,
+        header: utbetaling.beregning.satsDetaljer.length > 1 ? sats.header : null,
+      })),
+      betalingsinformasjon: {
+        header: "Betalingsinformasjon",
+        entries: [
+          text("Kontonummer", utbetaling.betalingsinformasjon?.kontonummer),
+          text("KID-nummer", utbetaling.betalingsinformasjon?.kid),
+        ],
+      },
+      status: {
+        header: "Utbetalingsstatus",
+        entries: [
+          status(statusTekster[utbetaling.status]),
+          ...(linjer.length
+            ? [
+                money(
+                  "Godkjent beløp til utbetaling",
+                  linjer.reduce((sum, linje) => sum + linje.pris.belop, 0),
+                ),
+              ]
+            : []),
+        ],
+      },
+      avbrytelse: null,
+      tilsagnHeader: "Tilsagn som er brukt til utbetaling",
+      tilsagn: linjer.map((linje) => ({
+        header: `Tilsagn ${linje.tilsagn.bestillingsnummer}`,
+        entries: [
+          {
+            type: LabeledDataElementType.INLINE,
+            label: "Tilsagn",
+            value: {
+              type: "DATA_ELEMENT_LINK",
+              text: linje.tilsagn.bestillingsnummer,
+              href: `/${utbetaling.arrangor.organisasjonsnummer}/tilsagn/${linje.tilsagn.id}`,
+              digest: linje.tilsagn.id,
+            },
+          },
+          money("Beløp til utbetaling", linje.pris.belop),
+          status(
+            linje.status === UtbetalingLinjeStatus.UTBETALT
+              ? "Utbetalt"
+              : "Overført til utbetaling",
+          ),
+          text("Status endret", linje.statusSistOppdatert, DataElementTextFormat.DATE),
+        ],
+      })),
+    },
+  };
+}

@@ -22,7 +22,6 @@ import no.nav.mulighetsrommet.altinn.AltinnError
 import no.nav.mulighetsrommet.altinn.AltinnRettigheterService
 import no.nav.mulighetsrommet.altinn.model.AltinnRessurs
 import no.nav.mulighetsrommet.api.ApiDatabase
-import no.nav.mulighetsrommet.api.AppConfig
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateFilterDirection
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateFilterType
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateTilsagnDto
@@ -37,6 +36,7 @@ import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateTilsagnKompak
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetaling
 import no.nav.mulighetsrommet.api.arrangorflate.service.ArrangorflateService
 import no.nav.mulighetsrommet.api.arrangorflate.service.ArrangorflateUtbetalingService
+import no.nav.mulighetsrommet.api.arrangorflate.service.mapUtbetalingsdetaljer
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerRegisterOrganisasjonError
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.plugins.ArrangorflatePrincipal
@@ -108,7 +108,7 @@ suspend fun RoutingContext.requireTilgangHosArrangor(
         )
 }
 
-fun Route.arrangorflateRoutes(config: AppConfig) {
+fun Route.arrangorflateRoutes() {
     val db: ApiDatabase by inject()
     val utbetalingService: ArrangorflateUtbetalingService by inject()
     val pdfClient: PdfGenClient by inject()
@@ -443,18 +443,13 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
         }) {
             val id: UUID by call.parameters
 
-            val utbetaling = db.session { queries.utbetaling.get(id) }
+            val utbetaling = arrangorflateService.getUtbetaling(id)
                 ?: throw NotFoundException("Fant ikke utbetaling med id=$id")
             requireTilgangHosArrangor(altinnRettigheterService, utbetaling.arrangor.organisasjonsnummer)
 
             val linjer = arrangorflateService.getLinjer(utbetaling.id)
-            val gjennomforing = db.session {
-                queries.gjennomforing.getGjennomforingAvtaleOrError(utbetaling.gjennomforing.id)
-            }
             val content = UbetalingToPdfDocumentContentMapper.toUtbetalingsdetaljerPdfContent(
-                utbetaling,
-                linjer,
-                gjennomforing,
+                detaljer = mapUtbetalingsdetaljer(utbetaling, linjer),
             )
             pdfClient.getPdfDocument(content)
                 .onRight { pdfContent ->

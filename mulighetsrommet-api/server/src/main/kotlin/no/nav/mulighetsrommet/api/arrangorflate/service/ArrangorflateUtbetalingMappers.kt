@@ -104,40 +104,13 @@ fun mapUtbetalingToArrangorflateUtbetalingDto(
         betalingsinformasjon = utbetaling.betalingsinformasjon,
         type = UtbetalingType.from(utbetaling.korreksjon?.gjelderUtbetalingId, utbetaling.tilskuddstype).toDto(),
         linjer = linjer,
-        innsendingsDetaljer = getInnsendingsDetaljer(utbetaling, innsendtAvArrangorDato),
+        detaljer = mapUtbetalingsdetaljer(utbetaling, linjer),
         advarsler = advarsler.map { advarsel ->
             DeltakerAdvarselDto.from(advarsel, personaliaById[advarsel.deltakerId]?.navn(), personaliaById[advarsel.deltakerId]?.norskIdent())
         },
         regenerering = regenerering,
         avbrytelse = avbrytStatus(utbetaling, status),
         blokkeringer = utbetaling.blokkeringer,
-    )
-}
-
-private fun getInnsendingsDetaljer(
-    utbetaling: ArrangorflateUtbetaling,
-    innsendtAvArrangorDato: LocalDate?,
-): List<LabeledDataElement> {
-    return listOfNotNull(
-        if (innsendtAvArrangorDato != null) {
-            LabeledDataElement.date("Dato innsendt", innsendtAvArrangorDato)
-        } else {
-            LabeledDataElement.date("Dato opprettet hos Nav", utbetaling.createdAt.toLocalDate())
-        },
-        LabeledDataElement.text(
-            "Tiltaksnavn",
-            "${utbetaling.gjennomforing.navn} (${utbetaling.gjennomforing.lopenummer})",
-        ),
-        LabeledDataElement.text("Tiltakstype", utbetaling.tiltakstype.navn),
-        LabeledDataElement.text(
-            "Utbetalingsperiode",
-            Periode.formatPeriode(utbetaling.periode.start, utbetaling.periode.slutt),
-        ),
-        if (utbetaling.utbetalesTidligstTidspunkt != null) {
-            LabeledDataElement.date("Utbetales tidligst", utbetaling.utbetalesTidligstTidspunkt.tilNorskDato())
-        } else {
-            null
-        },
     )
 }
 
