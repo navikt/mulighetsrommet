@@ -60,7 +60,7 @@ class DatavarehusTiltakQueriesTest : FunSpec({
 
             tiltak.shouldBeTypeOf<DatavarehusTiltakV1Dto>().should {
                 it.tiltakskode shouldBe Tiltakskode.ARBEIDSFORBEREDENDE_TRENING
-                it.artskontokode.shouldBeNull()
+                it.artskontokode shouldBe Artskontokode.ARBEIDSFORBEREDENDE_TRENING
                 it.gjennomforing.id shouldBe AFT1.id
                 it.gjennomforing.navn shouldBe AFT1.navn
                 it.gjennomforing.startDato shouldBe AFT1.startDato

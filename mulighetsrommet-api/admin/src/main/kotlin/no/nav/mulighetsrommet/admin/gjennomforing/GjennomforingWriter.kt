@@ -74,7 +74,7 @@ data class UpsertGjennomforing(
     val id: UUID,
     val type: GjennomforingType,
     val tiltakskode: Tiltakskode,
-    val artskontokode: Artskontokode?,
+    val artskontokode: Artskontokode,
     val arrangorId: UUID,
     val navn: String,
     val startDato: LocalDate?,

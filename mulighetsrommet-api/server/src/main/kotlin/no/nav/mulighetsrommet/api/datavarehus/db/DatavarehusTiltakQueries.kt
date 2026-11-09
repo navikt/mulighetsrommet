@@ -79,7 +79,7 @@ private fun Row.toDatavarehusTiltakDto(): DatavarehusTiltakV1Dto {
     val oppstartstype = GjennomforingOppstartstype.valueOf(string("oppstart_type"))
     return DatavarehusTiltakV1Dto(
         tiltakskode = tiltakskode,
-        artskontokode = stringOrNull("artskontokode")?.let { Artskontokode.valueOf(it) },
+        artskontokode = Artskontokode.valueOf(string("artskontokode")),
         avtale = uuidOrNull("avtale_id")?.let {
             DatavarehusTiltakV1.Avtale(
                 id = it,

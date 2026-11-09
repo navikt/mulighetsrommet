@@ -14,6 +14,7 @@ import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingEnkeltplassKompakt
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingEnkeltplassStatus
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingKompakt
+import no.nav.mulighetsrommet.api.domain.gjennomforing.utledArtskontokode
 import no.nav.mulighetsrommet.api.domain.testing.fixture.ArrangorFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.PrismodellFixtures
@@ -41,7 +42,7 @@ object GjennomforingFixtures {
     ) = GjennomforingAvtale(
         id = id,
         tiltakstype = Gjennomforing.Tiltakstype(UUID.randomUUID(), "Oppfølging", tiltakskode),
-        artskontokode = null,
+        artskontokode = utledArtskontokode(tiltakskode, GjennomforingOppstartstype.LOPENDE),
         lopenummer = Tiltaksnummer("2025/10000"),
         arrangor = Gjennomforing.ArrangorUnderenhet(
             id = UUID.randomUUID(),
@@ -79,7 +80,7 @@ object GjennomforingFixtures {
         id = id,
         lopenummer = Tiltaksnummer("2025/10001"),
         tiltakstype = Gjennomforing.Tiltakstype(UUID.randomUUID(), "Enkel AMO", tiltakskode),
-        artskontokode = null,
+        artskontokode = utledArtskontokode(tiltakskode, GjennomforingOppstartstype.ENKELTPLASS),
         arrangor = Gjennomforing.ArrangorUnderenhet(
             id = UUID.randomUUID(),
             organisasjonsnummer = Organisasjonsnummer("123456789"),

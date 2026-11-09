@@ -113,7 +113,7 @@ class GjennomforingQueries(private val session: Session) : GjennomforingReposito
         val params = mapOf(
             "id" to gjennomforing.id,
             "tiltakskode" to gjennomforing.tiltakskode.name,
-            "artskontokode" to gjennomforing.artskontokode?.name,
+            "artskontokode" to gjennomforing.artskontokode.name,
             "arrangor_id" to gjennomforing.arrangorId,
             "gjennomforing_type" to gjennomforing.type.name,
             "oppstart" to gjennomforing.oppstart.name,
@@ -776,7 +776,7 @@ private fun Row.toGjennomforingKompakt(): GjennomforingKompakt {
 private fun Row.toGjennomforingAvtale(): GjennomforingAvtale {
     return GjennomforingAvtale(
         id = uuid("id"),
-        artskontokode = stringOrNull("artskontokode")?.let { Artskontokode.valueOf(it) },
+        artskontokode = Artskontokode.valueOf(string("artskontokode")),
         tiltakstype = Gjennomforing.Tiltakstype(
             id = uuid("tiltakstype_id"),
             navn = string("tiltakstype_navn"),
@@ -887,7 +887,7 @@ private fun Row.toAdministratorer(): List<GjennomforingAvtaleDetaljer.Administra
 private fun Row.toGjennomforingEnkeltplass(): GjennomforingEnkeltplass {
     return GjennomforingEnkeltplass(
         id = uuid("id"),
-        artskontokode = stringOrNull("artskontokode")?.let { Artskontokode.valueOf(it) },
+        artskontokode = Artskontokode.valueOf(string("artskontokode")),
         lopenummer = Tiltaksnummer(string("lopenummer")),
         opprettetTidspunkt = instant("opprettet_tidspunkt"),
         oppdatertTidspunkt = instant("oppdatert_tidspunkt"),
@@ -929,7 +929,7 @@ private fun Row.toAnsvarligEnhet(): AnsvarligEnhet = AnsvarligEnhet(
 private fun Row.toGjennomforingArena(): GjennomforingArena {
     return GjennomforingArena(
         id = uuid("id"),
-        artskontokode = stringOrNull("artskontokode")?.let { Artskontokode.valueOf(it) },
+        artskontokode = Artskontokode.valueOf(string("artskontokode")),
         lopenummer = Tiltaksnummer(string("lopenummer")),
         opprettetTidspunkt = instant("opprettet_tidspunkt"),
         oppdatertTidspunkt = instant("oppdatert_tidspunkt"),
