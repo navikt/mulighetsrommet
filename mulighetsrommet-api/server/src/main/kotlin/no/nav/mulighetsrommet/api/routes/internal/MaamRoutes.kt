@@ -5,6 +5,7 @@ import io.ktor.server.plugins.BadRequestException
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
+import io.ktor.server.routing.delete
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.put
@@ -27,6 +28,7 @@ import no.nav.mulighetsrommet.api.utbetaling.task.BeregnUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.task.GenerateUtbetaling
 import no.nav.mulighetsrommet.database.queries.KafkaConsumerRecordDbo
 import no.nav.mulighetsrommet.database.queries.ScheduledTaskDbo
+import no.nav.mulighetsrommet.env.NaisEnv
 import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.kafka.Topic
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
@@ -81,6 +83,21 @@ fun Route.maamRoutes() {
                         )
                     }
                     call.respond(HttpStatusCode.OK)
+                }
+
+                delete {
+                    if (NaisEnv.current().isProdGCP()) {
+                        return@delete call.respond(HttpStatusCode.Forbidden)
+                    }
+                    val request = call.receive<DeleteScheduledTaskRequest>()
+                    val deleted = db.transaction {
+                        queries.scheduledTask.deleteFailedTask(request.taskName, request.taskInstance)
+                    }
+                    if (deleted == 0) {
+                        call.respond(HttpStatusCode.Conflict, "Task is no longer failed, is running, or does not exist")
+                    } else {
+                        call.respond(HttpStatusCode.NoContent)
+                    }
                 }
             }
 
@@ -247,6 +264,20 @@ fun Route.maamRoutes() {
                 }
                 call.respond(HttpStatusCode.OK)
             }
+            delete("/failed-records") {
+                if (NaisEnv.current().isProdGCP()) {
+                    return@delete call.respond(HttpStatusCode.Forbidden)
+                }
+                val request = call.receive<DeleteKafkaRecordRequest>()
+                val deleted = db.transaction {
+                    queries.kafkaConsumerRecords.deleteFailedRecord(request.id, request.topic)
+                }
+                if (deleted == 0) {
+                    call.respond(HttpStatusCode.Conflict, "Record is no longer failed or does not exist")
+                } else {
+                    call.respond(HttpStatusCode.NoContent)
+                }
+            }
         }
     }
 }
@@ -347,6 +378,12 @@ fun ScheduledTaskDbo.toDto(): ScheduledTaskDto {
 }
 
 @Serializable
+data class DeleteScheduledTaskRequest(
+    val taskName: String,
+    val taskInstance: String,
+)
+
+@Serializable
 data class RetryScheduledTaskRequest(
     val taskName: String,
     val taskInstance: String,
@@ -384,6 +421,12 @@ fun KafkaConsumerRecordDbo.toDto(): KafkaConsumerRecordDto {
         createdAt = createdAt.toString(),
     )
 }
+
+@Serializable
+data class DeleteKafkaRecordRequest(
+    val id: Long,
+    val topic: String,
+)
 
 @Serializable
 data class RetryKafkaRecordRequest(

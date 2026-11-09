@@ -21,6 +21,21 @@ class ScheduledTaskDbo(
 )
 
 class ScheduledTaskQueries(private val session: Session) {
+    fun deleteFailedTask(taskName: String, taskInstance: String): Int {
+        @Language("PostgreSQL")
+        val query = """
+            delete from scheduled_tasks
+            where task_name = :task_name and task_instance = :task_instance
+                and consecutive_failures > 0 and picked = false
+        """.trimIndent()
+
+        val params = mapOf(
+            "task_name" to taskName,
+            "task_instance" to taskInstance,
+        )
+        return session.update(queryOf(query, params))
+    }
+
     fun getFailedTasks(): List<ScheduledTaskDbo> {
         @Language("PostgreSQL")
         val query = """

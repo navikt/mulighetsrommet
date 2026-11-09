@@ -4,6 +4,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.resources.Resource
 import io.ktor.server.auth.authenticate
 import io.ktor.server.request.receive
+import io.ktor.server.resources.delete
 import io.ktor.server.resources.get
 import io.ktor.server.resources.put
 import io.ktor.server.response.respond
@@ -13,6 +14,7 @@ import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.queries.KafkaConsumerRecordDbo
 import no.nav.mulighetsrommet.database.queries.KafkaConsumerRecordQueries
 import no.nav.mulighetsrommet.database.queries.ScheduledTaskDbo
+import no.nav.mulighetsrommet.env.NaisEnv
 import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.kafka.Topic
 import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
@@ -53,6 +55,21 @@ fun Routing.maamRoutes(
                 topic = request.topic,
                 executionTime = request.executionTime.toInstant(UTC),
             )
+        }
+    }
+
+    delete<Maam.Topics.FailedConsumerRecords> {
+        if (NaisEnv.current().isProdGCP()) {
+            return@delete call.respond(HttpStatusCode.Forbidden)
+        }
+        val request = call.receive<DeleteKafkaRecordRequest>()
+        val deleted = db.transaction { tx ->
+            KafkaConsumerRecordQueries(tx).deleteFailedRecord(request.id, request.topic)
+        }
+        if (deleted == 0) {
+            call.respond(HttpStatusCode.Conflict, "Record is no longer failed or does not exist")
+        } else {
+            call.respond(HttpStatusCode.NoContent)
         }
     }
 
@@ -126,6 +143,12 @@ fun KafkaConsumerRecordDbo.toDto(): KafkaConsumerRecordDto {
         createdAt = createdAt.toString(),
     )
 }
+
+@Serializable
+data class DeleteKafkaRecordRequest(
+    val id: Long,
+    val topic: String,
+)
 
 @Serializable
 data class RetryKafkaRecordRequest(

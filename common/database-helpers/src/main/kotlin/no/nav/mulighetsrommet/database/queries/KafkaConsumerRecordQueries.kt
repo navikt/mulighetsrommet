@@ -20,6 +20,16 @@ data class KafkaConsumerRecordDbo(
 )
 
 class KafkaConsumerRecordQueries(private val session: Session) {
+    fun deleteFailedRecord(id: Long, topic: String): Int {
+        @Language("PostgreSQL")
+        val query = """
+            delete from kafka_consumer_record
+            where id = :id and topic = :topic and retries > 0
+        """.trimIndent()
+
+        return session.update(queryOf(query, mapOf("id" to id, "topic" to topic)))
+    }
+
     fun getFailedRecords(): List<KafkaConsumerRecordDbo> {
         @Language("PostgreSQL")
         val query = """

@@ -42,6 +42,29 @@ export interface RetryFailedKafkaRecord {
   topic: string;
   executionTime: Date;
 }
+
+export const deleteFailedKafkaRecord = (
+  base: ApiBase,
+  record: Pick<KafkaConsumerRecord, "id" | "topic">,
+) =>
+  fetch(`${base}/topics/failed-records`, {
+    method: "DELETE",
+    headers: {
+      ...getDefaultHeaders(),
+      "content-type": "application/json",
+    },
+    body: JSON.stringify({ id: record.id, topic: record.topic }),
+  })
+    .then(checkOk)
+    .then(() => {
+      toast.success("Kafka record deleted");
+      return true;
+    })
+    .catch((error) => {
+      toastError("Failed to delete Kafka record", error);
+      return false;
+    });
+
 export const putRetryFailedKafkaRecord = (base: ApiBase, payload: RetryFailedKafkaRecord) =>
   fetch(`${base}/topics/failed-records`, {
     method: "PUT",
@@ -92,6 +115,28 @@ export interface RetryScheduledTask {
   taskInstance: string;
   executionTime: Date;
 }
+
+export const deleteFailedScheduledTask = (
+  base: ApiBase,
+  task: Pick<ScheduledTask, "taskName" | "taskInstance">,
+) =>
+  fetch(`${base}/tasks/scheduled`, {
+    method: "DELETE",
+    headers: {
+      ...getDefaultHeaders(),
+      "content-type": "application/json",
+    },
+    body: JSON.stringify({ taskName: task.taskName, taskInstance: task.taskInstance }),
+  })
+    .then(checkOk)
+    .then(() => {
+      toast.success("Scheduled task deleted");
+      return true;
+    })
+    .catch((error) => {
+      toastError("Failed to delete scheduled task", error);
+      return false;
+    });
 
 export const putRetryScheduledTask = (base: ApiBase, payload: RetryScheduledTask) =>
   fetch(`${base}/tasks/scheduled/retry`, {
