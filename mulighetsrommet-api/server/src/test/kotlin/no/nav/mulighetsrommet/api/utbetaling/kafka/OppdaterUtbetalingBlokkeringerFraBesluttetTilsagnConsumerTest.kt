@@ -11,9 +11,9 @@ import no.nav.mulighetsrommet.api.contracts.totrinnskontroll.TotrinnskontrollHen
 import no.nav.mulighetsrommet.api.domain.testing.fixture.AvtaleFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavAnsattFixture
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
-import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures
+import no.nav.mulighetsrommet.api.persistence.testing.fixture.GjennomforingDboFixtures
 import no.nav.mulighetsrommet.api.utbetaling.service.GenererUtbetalingService
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import java.time.Instant
@@ -22,7 +22,7 @@ import java.util.UUID
 class OppdaterUtbetalingBlokkeringerFraBesluttetTilsagnConsumerTest : FunSpec({
     val database = extension(ApiDatabaseTestListener())
 
-    val gjennomforing = GjennomforingFixtures.ArbeidsrettetRehabilitering
+    val gjennomforing = GjennomforingDboFixtures.ArbeidsrettetRehabilitering
     val tilsagn = TilsagnFixtures.Tilsagn1.copy(gjennomforingId = gjennomforing.id)
 
     fun createConsumer(genererUtbetalingService: GenererUtbetalingService = mockk<GenererUtbetalingService>()): OppdaterUtbetalingBlokkeringerFraBesluttetTilsagnConsumer {

@@ -19,11 +19,11 @@ import no.nav.mulighetsrommet.api.domain.testing.fixture.AvtaleFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavAnsattFixture
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.TiltakstypeFixtures
-import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.setTilsagnStatus
 import no.nav.mulighetsrommet.api.mockKontoregisterOrganisasjon
 import no.nav.mulighetsrommet.api.mockPdlEmptyResult
+import no.nav.mulighetsrommet.api.persistence.testing.fixture.GjennomforingDboFixtures
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAnnenAvtaltPris
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
@@ -62,9 +62,9 @@ object ArrangorflateTestUtils {
 
     fun createTestDeltaker(): Deltaker = Deltaker.opprett(
         id = UUID.randomUUID(),
-        gjennomforingId = GjennomforingFixtures.AFT1.id,
-        startDato = GjennomforingFixtures.AFT1.startDato,
-        sluttDato = GjennomforingFixtures.AFT1.sluttDato,
+        gjennomforingId = GjennomforingDboFixtures.AFT1.id,
+        startDato = GjennomforingDboFixtures.AFT1.startDato,
+        sluttDato = GjennomforingDboFixtures.AFT1.sluttDato,
         registrertTidspunkt = Instant.now(),
         endretTidspunkt = Instant.now(),
         deltakelsesmengder = listOf(),
@@ -79,7 +79,7 @@ object ArrangorflateTestUtils {
 
     fun createTestTilsagn(): TilsagnDbo = TilsagnDbo(
         id = UUID.randomUUID(),
-        gjennomforingId = GjennomforingFixtures.AFT1.id,
+        gjennomforingId = GjennomforingDboFixtures.AFT1.id,
         periode = Periode(LocalDate.of(2024, 6, 1), LocalDate.of(2025, 1, 1)),
         lopenummer = 1,
         bestillingsnummer = "A-2025/1-1",
@@ -112,7 +112,7 @@ object ArrangorflateTestUtils {
         val periode = Periode.forMonthOf(LocalDate.of(2024, 8, 1))
         return UtbetalingDbo(
             id = UUID.randomUUID(),
-            gjennomforingId = GjennomforingFixtures.AFT1.id,
+            gjennomforingId = GjennomforingDboFixtures.AFT1.id,
             status = UtbetalingStatusType.GENERERT,
             valuta = Valuta.NOK,
             beregning = UtbetalingBeregningFastSatsPerBenyttetPlassPerManed(
@@ -164,7 +164,7 @@ object ArrangorflateTestUtils {
 
     fun createTestUtbetalingFri(): UtbetalingDbo = UtbetalingDbo(
         id = UUID.randomUUID(),
-        gjennomforingId = GjennomforingFixtures.AFT1.id,
+        gjennomforingId = GjennomforingDboFixtures.AFT1.id,
         status = UtbetalingStatusType.GENERERT,
         valuta = Valuta.NOK,
         beregning = UtbetalingBeregningFri(
@@ -194,7 +194,7 @@ object ArrangorflateTestUtils {
         avtaler = listOf(
             AvtaleFixtures.AFT,
         ),
-        gjennomforinger = listOf(GjennomforingFixtures.AFT1.copy(arrangorId = underenhet.id)),
+        gjennomforinger = listOf(GjennomforingDboFixtures.AFT1.copy(arrangorId = underenhet.id)),
         deltakere = listOf(deltaker),
         arrangorer = listOf(hovedenhet, underenhet),
         tilsagn = listOf(tilsagn),

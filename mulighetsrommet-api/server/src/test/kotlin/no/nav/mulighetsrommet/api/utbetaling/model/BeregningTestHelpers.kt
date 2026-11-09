@@ -1,11 +1,9 @@
 package no.nav.mulighetsrommet.api.utbetaling.model
 
+import no.nav.mulighetsrommet.admin.testing.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.domain.deltaker.Deltakelsesmengde
 import no.nav.mulighetsrommet.api.domain.deltaker.Deltaker
-import no.nav.mulighetsrommet.api.domain.gjennomforing.AnsvarligEnhet
-import no.nav.mulighetsrommet.api.domain.gjennomforing.Gjennomforing
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingAvtale
-import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingAvtaleStatus
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingType
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhet
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetStatus
@@ -18,10 +16,7 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.model.DeltakerStatus
 import no.nav.mulighetsrommet.model.DeltakerStatusType
-import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
-import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 import no.nav.mulighetsrommet.model.NavEnhetNummer
-import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Tiltaksnummer
@@ -185,39 +180,19 @@ object BeregningTestHelpers {
         tiltakskode: Tiltakskode = Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
         stengt: List<GjennomforingAvtale.StengtPeriode>,
     ): GjennomforingAvtale {
-        val now = Instant.now()
-        return GjennomforingAvtale(
+        val gjennomforing = GjennomforingFixtures.createGjennomforingAvtale(
             id = id,
-            artskontokode = null,
-            tiltakstype = Gjennomforing.Tiltakstype(
-                id = UUID.randomUUID(),
-                navn = "Test tiltakstype",
-                tiltakskode = tiltakskode,
-            ),
-            lopenummer = Tiltaksnummer("2025/1"),
-            arrangor = Gjennomforing.ArrangorUnderenhet(
-                id = UUID.randomUUID(),
-                organisasjonsnummer = Organisasjonsnummer("123456789"),
-                navn = "Test arrangør",
-                slettet = false,
-            ),
-            arena = null,
             navn = "Test gjennomføring",
+            tiltakskode = tiltakskode,
             startDato = periode.start,
             sluttDato = periode.getLastInclusiveDate(),
-            deltidsprosent = 100.0,
-            antallPlasser = 10,
-            status = GjennomforingAvtaleStatus.Gjennomfores,
-            apentForPamelding = true,
-            avtaleId = UUID.randomUUID(),
-            ansvarligEnhet = AnsvarligEnhet(NavEnhetNummer("0400"), "Nav Innlandet"),
-            kontorstruktur = emptyList(),
-            oppstart = GjennomforingOppstartstype.LOPENDE,
-            pameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,
-            opprettetTidspunkt = now,
-            oppdatertTidspunkt = now,
-            stengt = stengt,
             prismodell = prismodell,
+            opprettetTidspunkt = Instant.now(),
+        )
+        return gjennomforing.copy(
+            tiltakstype = gjennomforing.tiltakstype.copy(navn = "Test tiltakstype"),
+            lopenummer = Tiltaksnummer("2025/1"),
+            stengt = stengt,
         )
     }
 

@@ -14,9 +14,9 @@ import no.nav.mulighetsrommet.api.domain.testing.fixture.ArrangorFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.AvtaleFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavAnsattFixture
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavEnhetFixtures
-import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.persistence.gjennomforing.GjennomforingArenaDataDbo
+import no.nav.mulighetsrommet.api.persistence.testing.fixture.GjennomforingDboFixtures
 import no.nav.mulighetsrommet.api.plugins.AppRoles
 import no.nav.mulighetsrommet.api.withTestApplication
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
@@ -36,10 +36,10 @@ class GjennomforingPublicRoutesTest : FunSpec({
         arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
         avtaler = listOf(AvtaleFixtures.oppfolging),
         gjennomforinger = listOf(
-            GjennomforingFixtures.Oppfolging1,
-            GjennomforingFixtures.EnkelAmo,
-            GjennomforingFixtures.ArenaArbeidsrettetRehabilitering,
-            GjennomforingFixtures.ArenaEnkelAmo,
+            GjennomforingDboFixtures.Oppfolging1,
+            GjennomforingDboFixtures.EnkelAmo,
+            GjennomforingDboFixtures.ArenaArbeidsrettetRehabilitering,
+            GjennomforingDboFixtures.ArenaEnkelAmo,
         ),
     )
 
@@ -58,10 +58,10 @@ class GjennomforingPublicRoutesTest : FunSpec({
     )
 
     context("getTiltaksgjennomforingV2") {
-        val tiltakGruppeId = GjennomforingFixtures.Oppfolging1.id
-        val tiltakGruppeArenaId = GjennomforingFixtures.ArenaArbeidsrettetRehabilitering.id
-        val tiltakEnkeltplassId = GjennomforingFixtures.EnkelAmo.id
-        val tiltakEnkeltplassArenaId = GjennomforingFixtures.ArenaEnkelAmo.id
+        val tiltakGruppeId = GjennomforingDboFixtures.Oppfolging1.id
+        val tiltakGruppeArenaId = GjennomforingDboFixtures.ArenaArbeidsrettetRehabilitering.id
+        val tiltakEnkeltplassId = GjennomforingDboFixtures.EnkelAmo.id
+        val tiltakEnkeltplassArenaId = GjennomforingDboFixtures.ArenaEnkelAmo.id
 
         test("401 når påkrevde claims mangler fra token") {
             withTestApplication(appConfig()) {
@@ -153,8 +153,8 @@ class GjennomforingPublicRoutesTest : FunSpec({
     }
 
     context("getTiltaksgjennomforingArenadata") {
-        val tiltakGruppeId = GjennomforingFixtures.Oppfolging1.id
-        val tiltakEnkeltplassId = GjennomforingFixtures.EnkelAmo.id
+        val tiltakGruppeId = GjennomforingDboFixtures.Oppfolging1.id
+        val tiltakEnkeltplassId = GjennomforingDboFixtures.EnkelAmo.id
 
         test("401 når påkrevde claims mangler fra token") {
             withTestApplication(appConfig()) {

@@ -27,12 +27,12 @@ import no.nav.mulighetsrommet.api.domain.testing.fixture.InnholdElementFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.KurstypeFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.UtdanningFixtures
-import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
-import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
-import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.GruppeAmo1
-import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.GruppeFagYrke1
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.persistence.gjennomforing.GjennomforingArenaDataDbo
+import no.nav.mulighetsrommet.api.persistence.testing.fixture.GjennomforingDboFixtures
+import no.nav.mulighetsrommet.api.persistence.testing.fixture.GjennomforingDboFixtures.AFT1
+import no.nav.mulighetsrommet.api.persistence.testing.fixture.GjennomforingDboFixtures.GruppeAmo1
+import no.nav.mulighetsrommet.api.persistence.testing.fixture.GjennomforingDboFixtures.GruppeFagYrke1
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingPameldingType
@@ -307,7 +307,7 @@ class DatavarehusTiltakQueriesTest : FunSpec({
 
     context("enkeltplasser") {
         test("henter relevant data om tiltakstype og gjennomføring") {
-            val gjennomforing = GjennomforingFixtures.EnkelAmo.copy(
+            val gjennomforing = GjennomforingDboFixtures.EnkelAmo.copy(
                 artskontokode = Artskontokode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
             )
             val domain = MulighetsrommetTestDomain(
@@ -318,12 +318,12 @@ class DatavarehusTiltakQueriesTest : FunSpec({
             database.runAndRollback {
                 domain.initialize()
 
-                val tiltak = queries.dvh.getDatavarehusTiltak(GjennomforingFixtures.EnkelAmo.id)
+                val tiltak = queries.dvh.getDatavarehusTiltak(GjennomforingDboFixtures.EnkelAmo.id)
 
                 tiltak.shouldBeTypeOf<DatavarehusTiltakV1AmoDto>().should {
                     it.tiltakskode shouldBe Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING
                     it.artskontokode shouldBe Artskontokode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING
-                    it.gjennomforing.id shouldBe GjennomforingFixtures.EnkelAmo.id
+                    it.gjennomforing.id shouldBe GjennomforingDboFixtures.EnkelAmo.id
                     it.gjennomforing.opprettetTidspunkt.shouldNotBeNull()
                     it.gjennomforing.oppdatertTidspunkt.shouldNotBeNull()
                     it.gjennomforing.arrangor shouldBe DatavarehusTiltakV1.Arrangor(
@@ -344,7 +344,7 @@ class DatavarehusTiltakQueriesTest : FunSpec({
         test("henter bare tiltaksnummer fra Arena-data") {
             val domain = MulighetsrommetTestDomain(
                 tiltakstyper = listOf(TiltakstypeFixtures.EnkelFagOgYrke),
-                gjennomforinger = listOf(GjennomforingFixtures.EnkelFagOgYrke),
+                gjennomforinger = listOf(GjennomforingDboFixtures.EnkelFagOgYrke),
             )
 
             database.runAndRollback {
@@ -352,16 +352,16 @@ class DatavarehusTiltakQueriesTest : FunSpec({
 
                 queries.gjennomforing.setArenaData(
                     GjennomforingArenaDataDbo(
-                        id = GjennomforingFixtures.EnkelFagOgYrke.id,
+                        id = GjennomforingDboFixtures.EnkelFagOgYrke.id,
                         tiltaksnummer = Tiltaksnummer("2024#456"),
                         arenaAnsvarligEnhet = "0400",
                     ),
                 )
 
-                val tiltak = queries.dvh.getDatavarehusTiltak(GjennomforingFixtures.EnkelFagOgYrke.id)
+                val tiltak = queries.dvh.getDatavarehusTiltak(GjennomforingDboFixtures.EnkelFagOgYrke.id)
 
                 tiltak.shouldBeTypeOf<DatavarehusTiltakV1YrkesfagDto>().should {
-                    it.gjennomforing.id shouldBe GjennomforingFixtures.EnkelFagOgYrke.id
+                    it.gjennomforing.id shouldBe GjennomforingDboFixtures.EnkelFagOgYrke.id
                     it.gjennomforing.opprettetTidspunkt.shouldNotBeNull()
                     it.gjennomforing.oppdatertTidspunkt.shouldNotBeNull()
                     it.gjennomforing.arena shouldBe DatavarehusTiltakV1.ArenaData(

@@ -28,8 +28,8 @@ import no.nav.mulighetsrommet.api.domain.testing.fixture.NavEnhetFixtures.Lilleh
 import no.nav.mulighetsrommet.api.domain.testing.fixture.PrismodellFixtures
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollStatus
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
-import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
+import no.nav.mulighetsrommet.api.persistence.testing.fixture.GjennomforingDboFixtures
 import no.nav.mulighetsrommet.api.tilsagn.model.BeregnTilsagnRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.GyldigTilsagnPeriode
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAnnenAvtaltPris
@@ -92,7 +92,7 @@ class TilsagnServiceTest : FunSpec({
     val requestId = UUID.randomUUID()
     val request = TilsagnRequest(
         id = requestId,
-        gjennomforingId = GjennomforingFixtures.AFT1.id,
+        gjennomforingId = GjennomforingDboFixtures.AFT1.id,
         type = TilsagnType.TILSAGN,
         periodeStart = "2025-01-01",
         periodeSlutt = "2025-01-31",
@@ -108,9 +108,9 @@ class TilsagnServiceTest : FunSpec({
             arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
             avtaler = listOf(AvtaleFixtures.AFT, AvtaleFixtures.ARR),
             gjennomforinger = listOf(
-                GjennomforingFixtures.AFT1,
-                GjennomforingFixtures.ArbeidsrettetRehabilitering,
-                GjennomforingFixtures.EnkelAmo,
+                GjennomforingDboFixtures.AFT1,
+                GjennomforingDboFixtures.ArbeidsrettetRehabilitering,
+                GjennomforingDboFixtures.EnkelAmo,
             ),
         ) {
             setRoller(
@@ -189,7 +189,7 @@ class TilsagnServiceTest : FunSpec({
                 ),
                 prisbetingelser = nyePrisbetingelser,
             )
-            val gjennomforing = GjennomforingFixtures.ArbeidsrettetRehabilitering
+            val gjennomforing = GjennomforingDboFixtures.ArbeidsrettetRehabilitering
             service.upsert(
                 request.copy(
                     gjennomforingId = gjennomforing.id,
@@ -207,8 +207,8 @@ class TilsagnServiceTest : FunSpec({
         test("genererer løpenummer og bestillingsnummer") {
             val domain2 = MulighetsrommetTestDomain(
                 gjennomforinger = listOf(
-                    GjennomforingFixtures.AFT1,
-                    GjennomforingFixtures.AFT1.copy(id = UUID.randomUUID()),
+                    GjennomforingDboFixtures.AFT1,
+                    GjennomforingDboFixtures.AFT1.copy(id = UUID.randomUUID()),
                 ),
             ) {
                 setRoller(ansatt1, setOf(NavAnsattRolle.generell(Rolle.OKONOMI_SAKSBEHANDLER_GRUPPETILTAK)))
@@ -269,7 +269,7 @@ class TilsagnServiceTest : FunSpec({
             }
 
             service.upsert(
-                request.copy(gjennomforingId = GjennomforingFixtures.EnkelAmo.id),
+                request.copy(gjennomforingId = GjennomforingDboFixtures.EnkelAmo.id),
                 ansatt2,
             ) shouldBeLeft TilsagnError.Valideringsfeil(
                 listOf(
@@ -483,7 +483,7 @@ class TilsagnServiceTest : FunSpec({
         }
 
         test("enkeltplass-gjennomføringer benytter artskonto for enkeltplasser i melding til økonomi") {
-            val gjennomforing = GjennomforingFixtures.EnkelAmo.copy(
+            val gjennomforing = GjennomforingDboFixtures.EnkelAmo.copy(
                 id = UUID.randomUUID(),
                 tiltakskode = Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV,
                 prismodellId = PrismodellFixtures.TilskuddTilOpplaering.id,
@@ -572,7 +572,7 @@ class TilsagnServiceTest : FunSpec({
         }
 
         test("løpenummer beholdes når tilsagn blir returnert") {
-            val aft1 = database.run { queries.gjennomforing.getGjennomforingOrError(GjennomforingFixtures.AFT1.id) }
+            val aft1 = database.run { queries.gjennomforing.getGjennomforingOrError(GjennomforingDboFixtures.AFT1.id) }
 
             service.upsert(request, ansatt1).shouldBeRight().should {
                 it.status shouldBe TilsagnStatus.TIL_GODKJENNING
@@ -595,7 +595,7 @@ class TilsagnServiceTest : FunSpec({
         }
 
         test("returnere eget tilsagn") {
-            val aft1 = database.run { queries.gjennomforing.getGjennomforingOrError(GjennomforingFixtures.AFT1.id) }
+            val aft1 = database.run { queries.gjennomforing.getGjennomforingOrError(GjennomforingDboFixtures.AFT1.id) }
 
             service.upsert(request, ansatt1).shouldBeRight().should {
                 it.status shouldBe TilsagnStatus.TIL_GODKJENNING
@@ -1063,7 +1063,7 @@ class TilsagnServiceTest : FunSpec({
 
             database.run {
                 queries.gjennomforing.setStengtHosArrangor(
-                    GjennomforingFixtures.AFT1.id,
+                    GjennomforingDboFixtures.AFT1.id,
                     Periode.fromInclusiveDates(LocalDate.of(2024, 12, 15), LocalDate.of(2025, 1, 14)),
                     "Juleferie som strekker seg inn i januar",
                 )
@@ -1071,7 +1071,7 @@ class TilsagnServiceTest : FunSpec({
 
             val beregning = service.beregnTilsagnUnvalidated(
                 BeregnTilsagnRequest(
-                    gjennomforingId = GjennomforingFixtures.AFT1.id,
+                    gjennomforingId = GjennomforingDboFixtures.AFT1.id,
                     periodeStart = LocalDate.of(2025, 1, 1),
                     periodeSlutt = LocalDate.of(2025, 1, 31),
                     beregning = TilsagnBeregningRequest(

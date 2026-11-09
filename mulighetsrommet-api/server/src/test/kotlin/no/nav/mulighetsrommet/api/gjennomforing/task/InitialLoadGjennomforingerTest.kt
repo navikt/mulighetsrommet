@@ -10,8 +10,8 @@ import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
 import no.nav.mulighetsrommet.api.contracts.gjennomforing.TiltaksgjennomforingV2Dto
 import no.nav.mulighetsrommet.api.domain.testing.fixture.ArrangorFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.AvtaleFixtures
-import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
+import no.nav.mulighetsrommet.api.persistence.testing.fixture.GjennomforingDboFixtures
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.Tiltakskode
 import org.apache.kafka.clients.producer.ProducerRecord
@@ -24,10 +24,10 @@ class InitialLoadGjennomforingerTest : FunSpec({
         arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
         avtaler = listOf(AvtaleFixtures.oppfolging),
         gjennomforinger = listOf(
-            GjennomforingFixtures.Oppfolging1,
-            GjennomforingFixtures.ArenaEnkelAmo,
-            GjennomforingFixtures.EnkelAmo,
-            GjennomforingFixtures.ArenaArbeidsrettetRehabilitering,
+            GjennomforingDboFixtures.Oppfolging1,
+            GjennomforingDboFixtures.ArenaEnkelAmo,
+            GjennomforingDboFixtures.EnkelAmo,
+            GjennomforingDboFixtures.ArenaArbeidsrettetRehabilitering,
         ),
     )
 
@@ -65,14 +65,14 @@ class InitialLoadGjennomforingerTest : FunSpec({
         verify(exactly = 1) {
             producerClient.sendSync(
                 match { record ->
-                    record.shouldBeTiltaksgjennomforingV2Enkeltplass(GjennomforingFixtures.ArenaEnkelAmo.id)
+                    record.shouldBeTiltaksgjennomforingV2Enkeltplass(GjennomforingDboFixtures.ArenaEnkelAmo.id)
                 },
             )
         }
         verify(exactly = 1) {
             producerClient.sendSync(
                 match { record ->
-                    record.shouldBeTiltaksgjennomforingV2Enkeltplass(GjennomforingFixtures.EnkelAmo.id)
+                    record.shouldBeTiltaksgjennomforingV2Enkeltplass(GjennomforingDboFixtures.EnkelAmo.id)
                 },
             )
         }
@@ -83,7 +83,7 @@ class InitialLoadGjennomforingerTest : FunSpec({
         verify(exactly = 1) {
             producerClient.sendSync(
                 match { record ->
-                    record.shouldBeTiltaksgjennomforingV2Gruppetiltak(GjennomforingFixtures.Oppfolging1.id)
+                    record.shouldBeTiltaksgjennomforingV2Gruppetiltak(GjennomforingDboFixtures.Oppfolging1.id)
                 },
             )
         }
@@ -99,41 +99,41 @@ class InitialLoadGjennomforingerTest : FunSpec({
         verify(exactly = 0) { producerClient.sendSync(any()) }
 
         task.initialLoadGjennomforingerById(
-            listOf(GjennomforingFixtures.EnkelAmo.id, GjennomforingFixtures.ArenaEnkelAmo.id),
+            listOf(GjennomforingDboFixtures.EnkelAmo.id, GjennomforingDboFixtures.ArenaEnkelAmo.id),
         )
 
         verify(exactly = 2) { producerClient.sendSync(any()) }
         verify(exactly = 1) {
             producerClient.sendSync(
                 match { record ->
-                    record.shouldBeTiltaksgjennomforingV2Enkeltplass(GjennomforingFixtures.ArenaEnkelAmo.id)
+                    record.shouldBeTiltaksgjennomforingV2Enkeltplass(GjennomforingDboFixtures.ArenaEnkelAmo.id)
                 },
             )
         }
         verify(exactly = 1) {
             producerClient.sendSync(
                 match { record ->
-                    record.shouldBeTiltaksgjennomforingV2Enkeltplass(GjennomforingFixtures.EnkelAmo.id)
+                    record.shouldBeTiltaksgjennomforingV2Enkeltplass(GjennomforingDboFixtures.EnkelAmo.id)
                 },
             )
         }
 
         task.initialLoadGjennomforingerById(
-            listOf(GjennomforingFixtures.Oppfolging1.id, GjennomforingFixtures.ArenaArbeidsrettetRehabilitering.id),
+            listOf(GjennomforingDboFixtures.Oppfolging1.id, GjennomforingDboFixtures.ArenaArbeidsrettetRehabilitering.id),
         )
 
         verify(exactly = 4) { producerClient.sendSync(any()) }
         verify(exactly = 1) {
             producerClient.sendSync(
                 match { record ->
-                    record.shouldBeTiltaksgjennomforingV2Gruppetiltak(GjennomforingFixtures.Oppfolging1.id)
+                    record.shouldBeTiltaksgjennomforingV2Gruppetiltak(GjennomforingDboFixtures.Oppfolging1.id)
                 },
             )
         }
         verify(exactly = 1) {
             producerClient.sendSync(
                 match { record ->
-                    record.shouldBeTiltaksgjennomforingV2Gruppetiltak(GjennomforingFixtures.ArenaArbeidsrettetRehabilitering.id)
+                    record.shouldBeTiltaksgjennomforingV2Gruppetiltak(GjennomforingDboFixtures.ArenaArbeidsrettetRehabilitering.id)
                 },
             )
         }

@@ -4,6 +4,7 @@ import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavAnsattFixture
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
+import no.nav.mulighetsrommet.api.persistence.testing.fixture.GjennomforingDboFixtures
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAnnenAvtaltPris
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningRequest
@@ -23,7 +24,7 @@ import java.util.UUID
 
 object TilsagnFixtures {
     fun createTilsagn(
-        gjennomforingId: UUID = GjennomforingFixtures.AFT1.id,
+        gjennomforingId: UUID = GjennomforingDboFixtures.AFT1.id,
         lopenummer: Int,
         type: TilsagnType = TilsagnType.TILSAGN,
         periode: Periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
@@ -72,7 +73,7 @@ object TilsagnFixtures {
 
     val TilsagnRequest1 = TilsagnRequest(
         id = UUID.randomUUID(),
-        gjennomforingId = GjennomforingFixtures.AFT1.id,
+        gjennomforingId = GjennomforingDboFixtures.AFT1.id,
         type = TilsagnType.TILSAGN,
         periodeStart = "2025-01-01",
         periodeSlutt = "2025-01-31",

@@ -17,8 +17,8 @@ import no.nav.mulighetsrommet.api.domain.testing.fixture.ArrangorFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.AvtaleFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeFeature
-import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
+import no.nav.mulighetsrommet.api.persistence.testing.fixture.GjennomforingDboFixtures
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.ArenaTiltaksgjennomforingDto
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
@@ -40,13 +40,13 @@ class ArenaMigreringGjennomforingKafkaProducerTest : FunSpec({
         MulighetsrommetTestDomain(
             tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging, TiltakstypeFixtures.EnkelAmo),
             avtaler = listOf(AvtaleFixtures.oppfolging),
-            gjennomforinger = listOf(GjennomforingFixtures.Oppfolging1, GjennomforingFixtures.EnkelAmo),
+            gjennomforinger = listOf(GjennomforingDboFixtures.Oppfolging1, GjennomforingDboFixtures.EnkelAmo),
         ) {
-            queries.gjennomforing.setNavEnheter(GjennomforingFixtures.Oppfolging1.id, setOf(NavEnhetNummer("0400")))
+            queries.gjennomforing.setNavEnheter(GjennomforingDboFixtures.Oppfolging1.id, setOf(NavEnhetNummer("0400")))
         }.initialize(database.api)
 
         val gruppetiltak = Gruppe(
-            id = GjennomforingFixtures.Oppfolging1.id,
+            id = GjennomforingDboFixtures.Oppfolging1.id,
             lopenummer = Tiltaksnummer("2025/1"),
             opprettetTidspunkt = Instant.now(),
             oppdatertTidspunkt = Instant.now(),
@@ -65,7 +65,7 @@ class ArenaMigreringGjennomforingKafkaProducerTest : FunSpec({
             oppmoteSted = null,
         )
         val enkeltplass = TiltaksgjennomforingV2Dto.Enkeltplass(
-            id = GjennomforingFixtures.EnkelAmo.id,
+            id = GjennomforingDboFixtures.EnkelAmo.id,
             lopenummer = Tiltaksnummer("2025/2"),
             opprettetTidspunkt = Instant.now(),
             oppdatertTidspunkt = Instant.now(),

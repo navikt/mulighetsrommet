@@ -40,8 +40,6 @@ import no.nav.mulighetsrommet.api.domain.testing.fixture.NavEnhetFixtures.Gjovik
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavEnhetFixtures.Innlandet
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollStatus
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
-import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
-import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures.Tilsagn1
 import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures.Tilsagn2
@@ -52,6 +50,8 @@ import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures.utbetalingLinje1
 import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures.utbetalingLinje2
 import no.nav.mulighetsrommet.api.fixtures.setTilsagnStatus
 import no.nav.mulighetsrommet.api.fixtures.setUtbetalingLinjeStatus
+import no.nav.mulighetsrommet.api.persistence.testing.fixture.GjennomforingDboFixtures
+import no.nav.mulighetsrommet.api.persistence.testing.fixture.GjennomforingDboFixtures.AFT1
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.model.GyldigTilsagnPeriode
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAnnenAvtaltPris
@@ -159,13 +159,13 @@ class AdminUtbetalingServiceTest : FunSpec({
         setOf(NavAnsattRolle.kontorspesifikk(Rolle.OKONOMI_BESLUTTER_ENKELTPLASS, setOf(Innlandet.enhetsnummer))),
     )
     val enkeltplassUtbetaling = utbetaling2.copy(
-        gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
+        gjennomforingId = GjennomforingDboFixtures.EnkelAmo.id,
         status = UtbetalingStatusType.TIL_BEHANDLING,
         beregning = utbetaling1.beregning,
         periode = utbetaling1.periode,
     )
     val enkeltplassTilsagn = createTilsagn(
-        gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
+        gjennomforingId = GjennomforingDboFixtures.EnkelAmo.id,
         lopenummer = 5,
     )
     val enkeltplassLinje = utbetalingLinje1.copy(
@@ -447,10 +447,10 @@ class AdminUtbetalingServiceTest : FunSpec({
         test("opprettelse for enkeltplass krever enkeltplass-saksbehandler") {
             MulighetsrommetTestDomain(
                 ansatte = listOf(saksbehandler, enkeltplassSaksbehandler),
-                gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
+                gjennomforinger = listOf(GjennomforingDboFixtures.EnkelAmo),
             ).initialize(database.api)
 
-            val enkeltplassUpsert = upsert.copy(gjennomforingId = GjennomforingFixtures.EnkelAmo.id)
+            val enkeltplassUpsert = upsert.copy(gjennomforingId = GjennomforingDboFixtures.EnkelAmo.id)
             val service = createUtbetalingService()
 
             service.opprettUtbetaling(enkeltplassUpsert, saksbehandler.navIdent).shouldBeLeft()
@@ -473,7 +473,7 @@ class AdminUtbetalingServiceTest : FunSpec({
         test("redigering autoriseres mot lagret gjennomføring selv om forespørselen har en annen") {
             MulighetsrommetTestDomain(
                 ansatte = listOf(saksbehandler),
-                gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
+                gjennomforinger = listOf(GjennomforingDboFixtures.EnkelAmo),
                 utbetalinger = listOf(enkeltplassUtbetaling),
             ).initialize(database.api)
 
@@ -502,7 +502,7 @@ class AdminUtbetalingServiceTest : FunSpec({
 
             val redigerMedAnnenGjennomforing = upsert.copy(
                 id = utbetaling1.id,
-                gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
+                gjennomforingId = GjennomforingDboFixtures.EnkelAmo.id,
             )
 
             service.redigerUtbetaling(
@@ -540,7 +540,7 @@ class AdminUtbetalingServiceTest : FunSpec({
         test("korreksjon autoriseres mot gjennomføringen til originalutbetalingen") {
             MulighetsrommetTestDomain(
                 ansatte = listOf(saksbehandler, enkeltplassSaksbehandler),
-                gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
+                gjennomforinger = listOf(GjennomforingDboFixtures.EnkelAmo),
                 utbetalinger = listOf(enkeltplassUtbetaling.copy(status = UtbetalingStatusType.FERDIG_BEHANDLET)),
             ).initialize(database.api)
 
@@ -601,7 +601,7 @@ class AdminUtbetalingServiceTest : FunSpec({
         test("gruppetiltak-saksbehandler kan ikke sende enkeltplassutbetaling til godkjenning") {
             MulighetsrommetTestDomain(
                 ansatte = listOf(saksbehandler),
-                gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
+                gjennomforinger = listOf(GjennomforingDboFixtures.EnkelAmo),
                 utbetalinger = listOf(enkeltplassUtbetaling),
             ).initialize(database.api)
 
@@ -615,7 +615,7 @@ class AdminUtbetalingServiceTest : FunSpec({
         test("gruppetiltak-attestant kan ikke godkjenne enkeltplassutbetaling") {
             MulighetsrommetTestDomain(
                 ansatte = listOf(attestant),
-                gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
+                gjennomforinger = listOf(GjennomforingDboFixtures.EnkelAmo),
                 tilsagn = listOf(enkeltplassTilsagn),
                 utbetalinger = listOf(enkeltplassUtbetaling.copy(status = UtbetalingStatusType.TIL_GODKJENNING)),
                 utbetalingLinjer = listOf(enkeltplassLinje),
@@ -632,7 +632,7 @@ class AdminUtbetalingServiceTest : FunSpec({
         test("enkeltplass-beslutter kan godkjenne enkeltplassutbetaling") {
             MulighetsrommetTestDomain(
                 ansatte = listOf(saksbehandler, enkeltplassBeslutter),
-                gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
+                gjennomforinger = listOf(GjennomforingDboFixtures.EnkelAmo),
                 tilsagn = listOf(enkeltplassTilsagn),
                 utbetalinger = listOf(enkeltplassUtbetaling.copy(status = UtbetalingStatusType.TIL_GODKJENNING)),
                 utbetalingLinjer = listOf(enkeltplassLinje),
@@ -671,7 +671,7 @@ class AdminUtbetalingServiceTest : FunSpec({
             )
             MulighetsrommetTestDomain(
                 ansatte = listOf(enkeltplassBeslutterVedAnnetKostnadssted),
-                gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
+                gjennomforinger = listOf(GjennomforingDboFixtures.EnkelAmo),
                 tilsagn = listOf(enkeltplassTilsagn),
                 utbetalinger = listOf(enkeltplassUtbetaling.copy(status = UtbetalingStatusType.TIL_GODKJENNING)),
                 utbetalingLinjer = listOf(enkeltplassLinje),
@@ -687,7 +687,7 @@ class AdminUtbetalingServiceTest : FunSpec({
         test("gruppetiltak-saksbehandler kan ikke returnere enkeltplassutbetaling") {
             MulighetsrommetTestDomain(
                 ansatte = listOf(saksbehandler),
-                gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
+                gjennomforinger = listOf(GjennomforingDboFixtures.EnkelAmo),
                 tilsagn = listOf(enkeltplassTilsagn),
                 utbetalinger = listOf(enkeltplassUtbetaling.copy(status = UtbetalingStatusType.TIL_GODKJENNING)),
                 utbetalingLinjer = listOf(enkeltplassLinje),
@@ -713,7 +713,7 @@ class AdminUtbetalingServiceTest : FunSpec({
             )
             MulighetsrommetTestDomain(
                 ansatte = listOf(enkeltplassBeslutterVedAnnetKostnadssted),
-                gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
+                gjennomforinger = listOf(GjennomforingDboFixtures.EnkelAmo),
                 tilsagn = listOf(enkeltplassTilsagn),
                 utbetalinger = listOf(enkeltplassUtbetaling.copy(status = UtbetalingStatusType.TIL_GODKJENNING)),
                 utbetalingLinjer = listOf(enkeltplassLinje),
@@ -734,7 +734,7 @@ class AdminUtbetalingServiceTest : FunSpec({
         test("enkeltplass-beslutter kan returnere enkeltplassutbetaling") {
             MulighetsrommetTestDomain(
                 ansatte = listOf(enkeltplassBeslutter),
-                gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
+                gjennomforinger = listOf(GjennomforingDboFixtures.EnkelAmo),
                 tilsagn = listOf(enkeltplassTilsagn),
                 utbetalinger = listOf(enkeltplassUtbetaling.copy(status = UtbetalingStatusType.TIL_GODKJENNING)),
                 utbetalingLinjer = listOf(enkeltplassLinje),
@@ -1699,7 +1699,7 @@ class AdminUtbetalingServiceTest : FunSpec({
         test("sletting av enkeltplassutbetaling til behandling krever enkeltplass-saksbehandler") {
             MulighetsrommetTestDomain(
                 ansatte = listOf(saksbehandler, enkeltplassSaksbehandler),
-                gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
+                gjennomforinger = listOf(GjennomforingDboFixtures.EnkelAmo),
                 utbetalinger = listOf(enkeltplassUtbetaling),
             ).initialize(database.api)
 
@@ -1768,7 +1768,7 @@ class AdminUtbetalingServiceTest : FunSpec({
             test("kan ikke sende utbetaling for enkeltplass til avbrytelse") {
                 val enkeltplassUtbetaling = utbetaling1.copy(
                     id = UUID.randomUUID(),
-                    gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
+                    gjennomforingId = GjennomforingDboFixtures.EnkelAmo.id,
                     status = UtbetalingStatusType.TIL_BEHANDLING,
                 )
 
@@ -1776,7 +1776,7 @@ class AdminUtbetalingServiceTest : FunSpec({
                     ansatte = listOf(
                         saksbehandler.medRoller(setOf(NavAnsattRolle.generell(Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS))),
                     ),
-                    gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
+                    gjennomforinger = listOf(GjennomforingDboFixtures.EnkelAmo),
                     utbetalinger = listOf(enkeltplassUtbetaling),
                 ).initialize(database.api)
 

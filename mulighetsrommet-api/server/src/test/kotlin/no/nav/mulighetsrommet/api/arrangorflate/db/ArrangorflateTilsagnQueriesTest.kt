@@ -9,10 +9,10 @@ import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateFilterDirection
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateTilsagnFilter
 import no.nav.mulighetsrommet.api.domain.testing.fixture.ArrangorFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.AvtaleFixtures
-import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures
 import no.nav.mulighetsrommet.api.fixtures.setTilsagnStatus
+import no.nav.mulighetsrommet.api.persistence.testing.fixture.GjennomforingDboFixtures
 import no.nav.mulighetsrommet.api.shared.Pagination
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
@@ -23,11 +23,11 @@ import java.util.UUID
 class ArrangorflateTilsagnQueriesTest : FunSpec({
     val database = extension(ApiDatabaseTestListener())
 
-    val aft1 = GjennomforingFixtures.AFT1.copy(arrangorId = ArrangorFixtures.underenhet1.id)
+    val aft1 = GjennomforingDboFixtures.AFT1.copy(arrangorId = ArrangorFixtures.underenhet1.id)
 
-    val vta1 = GjennomforingFixtures.VTA1.copy(arrangorId = ArrangorFixtures.underenhet1.id)
+    val vta1 = GjennomforingDboFixtures.VTA1.copy(arrangorId = ArrangorFixtures.underenhet1.id)
 
-    val aftHosAnnenArrangor = GjennomforingFixtures.AFT1.copy(
+    val aftHosAnnenArrangor = GjennomforingDboFixtures.AFT1.copy(
         id = UUID.randomUUID(),
         arrangorId = ArrangorFixtures.underenhet2.id,
     )

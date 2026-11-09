@@ -16,6 +16,7 @@ import io.ktor.http.contentType
 import no.nav.mulighetsrommet.admin.aarsakerbegrunnelse.AarsakerOgBegrunnelseRequest
 import no.nav.mulighetsrommet.admin.gjennomforing.GjennomforingDetaljerRequest
 import no.nav.mulighetsrommet.admin.navansatt.EntraGroupNavAnsattRolleMapping
+import no.nav.mulighetsrommet.admin.testing.GjennomforingFixtures.createGjennomforingRequest
 import no.nav.mulighetsrommet.api.ApplicationConfigTest
 import no.nav.mulighetsrommet.api.createAuthConfig
 import no.nav.mulighetsrommet.api.domain.gjennomforing.AvbrytGjennomforingAarsak
@@ -25,10 +26,10 @@ import no.nav.mulighetsrommet.api.domain.testing.fixture.ArrangorFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.AvtaleFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavAnsattFixture
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavEnhetFixtures
-import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.getAnsattClaims
 import no.nav.mulighetsrommet.api.navansatt.ktor.NavAnsattManglerTilgang
+import no.nav.mulighetsrommet.api.persistence.testing.fixture.GjennomforingDboFixtures
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.withTestApplication
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
@@ -198,7 +199,7 @@ class GjennomforingRoutesTest : FunSpec({
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                     contentType(ContentType.Application.Json)
                     setBody(
-                        GjennomforingFixtures.createGjennomforingRequest(
+                        createGjennomforingRequest(
                             avtale,
                             administratorer = setOf(),
                             navRegioner = setOf(NavEnhetFixtures.Oslo.enhetsnummer),
@@ -225,7 +226,7 @@ class GjennomforingRoutesTest : FunSpec({
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                     contentType(ContentType.Application.Json)
                     setBody(
-                        GjennomforingFixtures.createGjennomforingRequest(
+                        createGjennomforingRequest(
                             avtale,
                             navRegioner = setOf(NavEnhetFixtures.Oslo.enhetsnummer),
                             navKontorer = setOf(NavEnhetFixtures.Sagene.enhetsnummer),
@@ -246,13 +247,13 @@ class GjennomforingRoutesTest : FunSpec({
             ansatte = listOf(ansatt),
             avtaler = listOf(AvtaleFixtures.oppfolging),
             gjennomforinger = listOf(
-                GjennomforingFixtures.Oppfolging1.copy(
+                GjennomforingDboFixtures.Oppfolging1.copy(
                     id = aktivGjennomforingId,
                     startDato = LocalDate.now(),
                     sluttDato = LocalDate.now().plusDays(10),
                     status = GjennomforingStatusType.GJENNOMFORES,
                 ),
-                GjennomforingFixtures.Oppfolging1.copy(
+                GjennomforingDboFixtures.Oppfolging1.copy(
                     id = avbruttGjennomforingId,
                 ),
             ),

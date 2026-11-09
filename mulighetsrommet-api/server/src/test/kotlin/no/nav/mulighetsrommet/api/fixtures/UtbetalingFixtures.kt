@@ -8,7 +8,8 @@ import no.nav.mulighetsrommet.api.domain.testing.fixture.ArrangorFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavAnsattFixture
 import no.nav.mulighetsrommet.api.domain.testing.fixture.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
-import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
+import no.nav.mulighetsrommet.api.persistence.testing.fixture.GjennomforingDboFixtures
+import no.nav.mulighetsrommet.api.persistence.testing.fixture.GjennomforingDboFixtures.AFT1
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingLinjeDbo
 import no.nav.mulighetsrommet.api.utbetaling.model.Tilskuddstype
@@ -152,7 +153,7 @@ object UtbetalingFixtures {
 
     val utbetaling3 = UtbetalingDbo(
         id = UUID.randomUUID(),
-        gjennomforingId = GjennomforingFixtures.VTA1.id,
+        gjennomforingId = GjennomforingDboFixtures.VTA1.id,
         status = UtbetalingStatusType.GENERERT,
         periode = Periode.forMonthOf(LocalDate.of(2024, 2, 1)),
         valuta = Valuta.NOK,

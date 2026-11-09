@@ -26,12 +26,12 @@ import no.nav.mulighetsrommet.api.domain.testing.fixture.PrismodellFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.domain.tiltak.AvtaltSats
 import no.nav.mulighetsrommet.api.domain.tiltak.PrismodellType
-import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
-import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures
 import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures.utbetaling1
 import no.nav.mulighetsrommet.api.fixtures.setTilsagnStatus
+import no.nav.mulighetsrommet.api.persistence.testing.fixture.GjennomforingDboFixtures
+import no.nav.mulighetsrommet.api.persistence.testing.fixture.GjennomforingDboFixtures.AFT1
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.model.GyldigTilsagnPeriode
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFastSatsPerBenyttetPlassPerManed
@@ -175,7 +175,7 @@ class GenererUtbetalingServiceTest : FunSpec({
         )
         val avtaleOppfolging =
             AvtaleFixtures.oppfolging.copy(prisinfo = Avtale.Prisinfo.Egendefinert(listOf(prismodellOppfolging)))
-        val oppfolging = GjennomforingFixtures.Oppfolging1.copy(prismodellId = prismodellOppfolging.id)
+        val oppfolging = GjennomforingDboFixtures.Oppfolging1.copy(prismodellId = prismodellOppfolging.id)
 
         beforeEach {
             MulighetsrommetTestDomain(
@@ -638,7 +638,7 @@ class GenererUtbetalingServiceTest : FunSpec({
 
         val avtale = AvtaleFixtures.oppfolging.copy(prisinfo = Avtale.Prisinfo.Egendefinert(listOf(prismodell)))
 
-        val gjennomforing = GjennomforingFixtures.Oppfolging1.copy(prismodellId = prismodell.id)
+        val gjennomforing = GjennomforingDboFixtures.Oppfolging1.copy(prismodellId = prismodell.id)
 
         val deltaker = DeltakerFixtures.createDeltakerMedDeltakelsesmengder(
             gjennomforingId = gjennomforing.id,
@@ -738,7 +738,7 @@ class GenererUtbetalingServiceTest : FunSpec({
 
         val avtale = AvtaleFixtures.oppfolging.copy(prisinfo = Avtale.Prisinfo.Egendefinert(listOf(prismodell)))
 
-        val gjennomforing = GjennomforingFixtures.Oppfolging1.copy(
+        val gjennomforing = GjennomforingDboFixtures.Oppfolging1.copy(
             startDato = LocalDate.of(2024, 1, 1),
             sluttDato = LocalDate.of(2027, 1, 1),
             prismodellId = prismodell.id,
@@ -833,7 +833,7 @@ class GenererUtbetalingServiceTest : FunSpec({
 
         val avtale = AvtaleFixtures.oppfolging.copy(prisinfo = Avtale.Prisinfo.Egendefinert(listOf(prismodell)))
 
-        val oppfolging = GjennomforingFixtures.Oppfolging1.copy(prismodellId = prismodell.id)
+        val oppfolging = GjennomforingDboFixtures.Oppfolging1.copy(prismodellId = prismodell.id)
 
         beforeEach {
             MulighetsrommetTestDomain(
@@ -902,14 +902,14 @@ class GenererUtbetalingServiceTest : FunSpec({
                 tiltakstyper = listOf(TiltakstypeFixtures.TAO),
                 arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
                 avtaler = listOf(AvtaleFixtures.TAO),
-                gjennomforinger = listOf(GjennomforingFixtures.TAO),
+                gjennomforinger = listOf(GjennomforingDboFixtures.TAO),
                 prismodeller = listOf(PrismodellFixtures.ForhandsgodkjentTao),
             ).initialize(database.api)
         }
 
         val tilsagn = TilsagnFixtures.Tilsagn1.copy(
             id = UUID.randomUUID(),
-            gjennomforingId = GjennomforingFixtures.TAO.id,
+            gjennomforingId = GjennomforingDboFixtures.TAO.id,
             periode = januar,
             belopBrukt = 0.NOK,
             beregning = TilsagnBeregningFastSatsPerBenyttetPlassPerManed(

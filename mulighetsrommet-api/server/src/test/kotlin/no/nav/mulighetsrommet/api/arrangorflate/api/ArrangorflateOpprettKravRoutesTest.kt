@@ -23,9 +23,9 @@ import no.nav.mulighetsrommet.api.domain.testing.fixture.AvtaleFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavAnsattFixture
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.TiltakstypeFixtures
-import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.setTilsagnStatus
+import no.nav.mulighetsrommet.api.persistence.testing.fixture.GjennomforingDboFixtures
 import no.nav.mulighetsrommet.api.responses.PaginatedResponse
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.Tilskuddstype
@@ -46,10 +46,10 @@ class ArrangorflateOpprettKravRoutesTest : FunSpec({
 
     val deltaker = ArrangorflateTestUtils.createTestDeltaker()
     val tilsagn = ArrangorflateTestUtils.createTestTilsagn()
-    val aftGjennomforing = GjennomforingFixtures.AFT1
+    val aftGjennomforing = GjennomforingDboFixtures.AFT1
     // TODO: gjør det tydligere i testene hvilke prismodeller som gjelder per gjennomføring
-    val oppfolgingGjennomforing = GjennomforingFixtures.Oppfolging1
-    val arrGjennomforing = GjennomforingFixtures.ArbeidsrettetRehabilitering
+    val oppfolgingGjennomforing = GjennomforingDboFixtures.Oppfolging1
+    val arrGjennomforing = GjennomforingDboFixtures.ArbeidsrettetRehabilitering
 
     val domain = MulighetsrommetTestDomain(
         navEnheter = listOf(NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik),
@@ -170,7 +170,7 @@ class ArrangorflateOpprettKravRoutesTest : FunSpec({
 
     test("opprett krav om utbetaling (med vedlegg)") {
         withTestApplication(ArrangorflateTestUtils.appConfig(oauth)) {
-            val gjennomforingId = GjennomforingFixtures.AFT1.id
+            val gjennomforingId = GjennomforingDboFixtures.AFT1.id
             val response = client.submitFormWithBinaryData(
                 url = "/api/arrangorflate/arrangor/$orgnr/gjennomforing/$gjennomforingId/opprett-krav",
                 formData = formData {

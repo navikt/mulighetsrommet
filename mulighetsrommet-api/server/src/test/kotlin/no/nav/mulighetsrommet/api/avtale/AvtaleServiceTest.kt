@@ -47,10 +47,10 @@ import no.nav.mulighetsrommet.api.domain.testing.fixture.PrismodellFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.domain.tiltak.PrismodellType
 import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeFeature
-import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.createAvtaleRequest
 import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadGjennomforinger
+import no.nav.mulighetsrommet.api.persistence.testing.fixture.GjennomforingDboFixtures
 import no.nav.mulighetsrommet.api.tilsagn.model.GyldigTilsagnPeriode
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.AvtaleStatusType
@@ -550,7 +550,7 @@ class AvtaleServiceTest : FunSpec({
         test("skedulerer publisering av gjennomføringer tilhørende avtalen ved endring av prismodell") {
             val prismodell = PrismodellFixtures.AvtaltPrisPerTimeOppfolging
             val avtale = AvtaleFixtures.oppfolging
-            val gjennomforing = GjennomforingFixtures.Oppfolging1.copy(
+            val gjennomforing = GjennomforingDboFixtures.Oppfolging1.copy(
                 avtaleId = avtale.id,
                 status = GjennomforingStatusType.GJENNOMFORES,
             )
@@ -632,11 +632,11 @@ class AvtaleServiceTest : FunSpec({
 
         test("Man skal ikke få avbryte, men få en melding dersom det finnes aktive gjennomføringer koblet til avtalen") {
             val avtale = AvtaleFixtures.oppfolging
-            val gjennomforing1 = GjennomforingFixtures.Oppfolging1.copy(
+            val gjennomforing1 = GjennomforingDboFixtures.Oppfolging1.copy(
                 avtaleId = avtale.id,
                 status = GjennomforingStatusType.GJENNOMFORES,
             )
-            val gjennomforing2 = GjennomforingFixtures.Oppfolging1.copy(
+            val gjennomforing2 = GjennomforingDboFixtures.Oppfolging1.copy(
                 id = UUID.randomUUID(),
                 avtaleId = avtale.id,
                 status = GjennomforingStatusType.GJENNOMFORES,
@@ -662,7 +662,7 @@ class AvtaleServiceTest : FunSpec({
 
         test("Man skal få avbryte dersom det ikke finnes aktive gjennomføringer koblet til avtalen") {
             val avtale = AvtaleFixtures.oppfolging
-            val gjennomforing = GjennomforingFixtures.Oppfolging1.copy(avtaleId = avtale.id)
+            val gjennomforing = GjennomforingDboFixtures.Oppfolging1.copy(avtaleId = avtale.id)
 
             MulighetsrommetTestDomain(
                 avtaler = listOf(avtale),
