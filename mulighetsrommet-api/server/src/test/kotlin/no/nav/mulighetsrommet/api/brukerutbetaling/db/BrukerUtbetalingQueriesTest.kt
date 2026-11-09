@@ -10,9 +10,9 @@ import no.nav.mulighetsrommet.api.clients.helved.HelVedStatus
 import no.nav.mulighetsrommet.api.contracts.helved.HelVedUtbetaling
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavAnsattFixture
 import no.nav.mulighetsrommet.api.domain.testing.fixture.TiltakstypeFixtures
-import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TilskuddFixtures
+import no.nav.mulighetsrommet.api.persistence.testing.fixture.GjennomforingDboFixtures
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import java.time.Instant
 import java.time.LocalDate
@@ -25,7 +25,7 @@ class BrukerUtbetalingQueriesTest : FunSpec({
 
     val domain = MulighetsrommetTestDomain(
         tiltakstyper = listOf(TiltakstypeFixtures.EnkelAmo),
-        gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
+        gjennomforinger = listOf(GjennomforingDboFixtures.EnkelAmo),
     )
         { queries.tilskuddBehandling.upsert(behandling) }
 

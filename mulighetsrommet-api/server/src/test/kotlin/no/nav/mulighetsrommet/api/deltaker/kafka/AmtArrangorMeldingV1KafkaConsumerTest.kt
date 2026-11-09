@@ -9,8 +9,8 @@ import no.nav.mulighetsrommet.admin.deltaker.ReplikerDeltakerForslagUseCase
 import no.nav.mulighetsrommet.api.domain.deltaker.DeltakerForslag
 import no.nav.mulighetsrommet.api.domain.testing.fixture.AvtaleFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.DeltakerFixtures
-import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
+import no.nav.mulighetsrommet.api.persistence.testing.fixture.GjennomforingDboFixtures
 import no.nav.mulighetsrommet.api.utbetaling.service.GenererUtbetalingService
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.DeltakerStatusType
@@ -137,10 +137,10 @@ class AmtArrangorMeldingV1KafkaConsumerTest : FunSpec({
     test("venter på svar genererer upsert") {
         val domain = MulighetsrommetTestDomain(
             avtaler = listOf(AvtaleFixtures.AFT),
-            gjennomforinger = listOf(GjennomforingFixtures.AFT1),
+            gjennomforinger = listOf(GjennomforingDboFixtures.AFT1),
             deltakere = listOf(
                 DeltakerFixtures.createDeltaker(
-                    gjennomforingId = GjennomforingFixtures.AFT1.id,
+                    gjennomforingId = GjennomforingDboFixtures.AFT1.id,
                     startDato = LocalDate.now(),
                     sluttDato = LocalDate.now().plusMonths(1),
                     status = DeltakerStatusType.DELTAR,
@@ -184,7 +184,7 @@ class AmtArrangorMeldingV1KafkaConsumerTest : FunSpec({
         )
 
         val forslag = database.run {
-            repository.deltakerForslag.getByGjennomforing(GjennomforingFixtures.AFT1.id)
+            repository.deltakerForslag.getByGjennomforing(GjennomforingDboFixtures.AFT1.id)
         }
 
         forslag shouldBe listOf(
@@ -232,10 +232,10 @@ class AmtArrangorMeldingV1KafkaConsumerTest : FunSpec({
         test("oppdaterUtbetalingBlokkeringerForGjennomforing kalles når forslag mottas") {
             val domain = MulighetsrommetTestDomain(
                 avtaler = listOf(AvtaleFixtures.AFT),
-                gjennomforinger = listOf(GjennomforingFixtures.AFT1),
+                gjennomforinger = listOf(GjennomforingDboFixtures.AFT1),
                 deltakere = listOf(
                     DeltakerFixtures.createDeltaker(
-                        gjennomforingId = GjennomforingFixtures.AFT1.id,
+                        gjennomforingId = GjennomforingDboFixtures.AFT1.id,
                         status = DeltakerStatusType.DELTAR,
                         startDato = LocalDate.now(),
                         sluttDato = null,
@@ -253,7 +253,7 @@ class AmtArrangorMeldingV1KafkaConsumerTest : FunSpec({
             )
 
             verify(exactly = 1) {
-                genererUtbetalingService.oppdaterUtbetalingBlokkeringerForGjennomforing(GjennomforingFixtures.AFT1.id)
+                genererUtbetalingService.oppdaterUtbetalingBlokkeringerForGjennomforing(GjennomforingDboFixtures.AFT1.id)
             }
         }
 
@@ -261,10 +261,10 @@ class AmtArrangorMeldingV1KafkaConsumerTest : FunSpec({
             val forslagId = UUID.randomUUID()
             val domain = MulighetsrommetTestDomain(
                 avtaler = listOf(AvtaleFixtures.AFT),
-                gjennomforinger = listOf(GjennomforingFixtures.AFT1),
+                gjennomforinger = listOf(GjennomforingDboFixtures.AFT1),
                 deltakere = listOf(
                     DeltakerFixtures.createDeltaker(
-                        gjennomforingId = GjennomforingFixtures.AFT1.id,
+                        gjennomforingId = GjennomforingDboFixtures.AFT1.id,
                         status = DeltakerStatusType.DELTAR,
                         startDato = LocalDate.now(),
                         sluttDato = null,
@@ -283,7 +283,7 @@ class AmtArrangorMeldingV1KafkaConsumerTest : FunSpec({
             consumer.consume(forslagId, Json.parseToJsonElement(godkjentForslag(deltakerId, forslagId)))
 
             verify(exactly = 2) {
-                genererUtbetalingService.oppdaterUtbetalingBlokkeringerForGjennomforing(GjennomforingFixtures.AFT1.id)
+                genererUtbetalingService.oppdaterUtbetalingBlokkeringerForGjennomforing(GjennomforingDboFixtures.AFT1.id)
             }
         }
 

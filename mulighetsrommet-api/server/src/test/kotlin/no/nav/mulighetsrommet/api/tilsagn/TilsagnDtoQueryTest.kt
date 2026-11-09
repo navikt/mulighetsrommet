@@ -10,11 +10,11 @@ import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.domain.testing.fixture.AvtaleFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavAnsattFixture
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
-import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures
 import no.nav.mulighetsrommet.api.fixtures.setTilBehandling
 import no.nav.mulighetsrommet.api.fixtures.setTilsagnStatus
+import no.nav.mulighetsrommet.api.persistence.testing.fixture.GjennomforingDboFixtures
 import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnHandling
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
@@ -35,7 +35,7 @@ class TilsagnDtoQueryTest : FunSpec({
         MulighetsrommetTestDomain(
             ansatte = listOf(ansatt, NavAnsattFixture.DonaldDuck, NavAnsattFixture.FetterAnton),
             avtaler = listOf(AvtaleFixtures.AFT),
-            gjennomforinger = listOf(GjennomforingFixtures.AFT1),
+            gjennomforinger = listOf(GjennomforingDboFixtures.AFT1),
             tilsagn = listOf(tilsagn),
         ).initialize(database.api)
     }

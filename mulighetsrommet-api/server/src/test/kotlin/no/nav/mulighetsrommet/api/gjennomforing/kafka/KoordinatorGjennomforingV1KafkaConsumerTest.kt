@@ -7,8 +7,8 @@ import kotlinx.serialization.json.encodeToJsonElement
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.domain.testing.fixture.AvtaleFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.TiltakstypeFixtures
-import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
+import no.nav.mulighetsrommet.api.persistence.testing.fixture.GjennomforingDboFixtures
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.NavIdent
 import org.intellij.lang.annotations.Language
@@ -57,7 +57,7 @@ class KoordinatorGjennomforingV1KafkaConsumerTest : FunSpec({
     val domain = MulighetsrommetTestDomain(
         tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
         avtaler = listOf(AvtaleFixtures.oppfolging),
-        gjennomforinger = listOf(GjennomforingFixtures.Oppfolging1),
+        gjennomforinger = listOf(GjennomforingDboFixtures.Oppfolging1),
     )
 
     beforeEach {
@@ -75,7 +75,7 @@ class KoordinatorGjennomforingV1KafkaConsumerTest : FunSpec({
             val message = createMelding(
                 id = UUID.randomUUID(),
                 ident = NavIdent("Z123456"),
-                gjennomforingId = GjennomforingFixtures.Oppfolging1.id,
+                gjennomforingId = GjennomforingDboFixtures.Oppfolging1.id,
             )
 
             consumer.consume(message.gjennomforingId.toString(), Json.encodeToJsonElement(message))
@@ -88,7 +88,7 @@ class KoordinatorGjennomforingV1KafkaConsumerTest : FunSpec({
             val message = createMelding(
                 id = key,
                 ident = NavIdent("Z123456"),
-                gjennomforingId = GjennomforingFixtures.Oppfolging1.id,
+                gjennomforingId = GjennomforingDboFixtures.Oppfolging1.id,
             )
 
             consumer.consume(key.toString(), Json.encodeToJsonElement(message))

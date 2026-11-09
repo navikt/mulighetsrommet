@@ -21,8 +21,8 @@ import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd
 import no.nav.mulighetsrommet.api.domain.testing.fixture.AvtaleFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.DeltakerFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavAnsattFixture
-import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
+import no.nav.mulighetsrommet.api.persistence.testing.fixture.GjennomforingDboFixtures
 import no.nav.mulighetsrommet.api.tilsagn.model.GyldigTilsagnPeriode
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandlingStatus
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
@@ -62,11 +62,11 @@ class TilskuddBehandlingServiceTest : FunSpec({
                 ),
             ),
             avtaler = listOf(AvtaleFixtures.AFT),
-            gjennomforinger = listOf(GjennomforingFixtures.AFT1),
+            gjennomforinger = listOf(GjennomforingDboFixtures.AFT1),
             deltakere = listOf(
                 DeltakerFixtures.createDeltaker(
                     id = UUID.randomUUID(),
-                    gjennomforingId = GjennomforingFixtures.AFT1.id,
+                    gjennomforingId = GjennomforingDboFixtures.AFT1.id,
                 ),
             ),
         ).initialize(database.api)
@@ -78,7 +78,7 @@ class TilskuddBehandlingServiceTest : FunSpec({
 
     val request = TilskuddBehandlingRequest(
         id = UUID.randomUUID(),
-        gjennomforingId = GjennomforingFixtures.AFT1.id,
+        gjennomforingId = GjennomforingDboFixtures.AFT1.id,
         tilskuddVedtak = listOf(
             TilskuddVedtakRequest(
                 id = UUID.randomUUID(),

@@ -21,9 +21,6 @@ import no.nav.mulighetsrommet.api.domain.testing.fixture.NavAnsattFixture
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
-import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
-import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
-import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.VTA1
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures
 import no.nav.mulighetsrommet.api.fixtures.TilskuddFixtures
@@ -34,6 +31,9 @@ import no.nav.mulighetsrommet.api.fixtures.setReturnert
 import no.nav.mulighetsrommet.api.fixtures.setTilBehandling
 import no.nav.mulighetsrommet.api.fixtures.setTilsagnStatus
 import no.nav.mulighetsrommet.api.fixtures.setUtbetalingLinjeStatus
+import no.nav.mulighetsrommet.api.persistence.testing.fixture.GjennomforingDboFixtures
+import no.nav.mulighetsrommet.api.persistence.testing.fixture.GjennomforingDboFixtures.AFT1
+import no.nav.mulighetsrommet.api.persistence.testing.fixture.GjennomforingDboFixtures.VTA1
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandlingStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
@@ -69,9 +69,9 @@ class OppgaverServiceTest : FunSpec({
     context("tilsagn") {
         test("tilsagn for enkeltplass krever enkeltplassbeslutter") {
             val tilsagn =
-                TilsagnFixtures.createTilsagn(gjennomforingId = GjennomforingFixtures.EnkelAmo.id, lopenummer = 1)
+                TilsagnFixtures.createTilsagn(gjennomforingId = GjennomforingDboFixtures.EnkelAmo.id, lopenummer = 1)
             MulighetsrommetTestDomain(
-                gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
+                gjennomforinger = listOf(GjennomforingDboFixtures.EnkelAmo),
                 tilsagn = listOf(tilsagn),
             ) {
                 setTilsagnStatus(tilsagn, TilsagnStatus.TIL_GODKJENNING)
@@ -430,11 +430,11 @@ class OppgaverServiceTest : FunSpec({
 
     context("utbetalingslinjer") {
         val enkeltplassTilsagn = TilsagnFixtures.createTilsagn(
-            gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
+            gjennomforingId = GjennomforingDboFixtures.EnkelAmo.id,
             lopenummer = 1,
         )
         val enkeltplassUtbetaling = UtbetalingFixtures.utbetaling1.copy(
-            gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
+            gjennomforingId = GjennomforingDboFixtures.EnkelAmo.id,
             status = UtbetalingStatusType.TIL_GODKJENNING,
         )
         val enkeltplassLinje = UtbetalingFixtures.utbetalingLinje1.copy(
@@ -452,7 +452,7 @@ class OppgaverServiceTest : FunSpec({
 
         test("enkeltplass-beslutter ser enkeltplassutbetaling til godkjenning") {
             MulighetsrommetTestDomain(
-                gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
+                gjennomforinger = listOf(GjennomforingDboFixtures.EnkelAmo),
                 tilsagn = listOf(enkeltplassTilsagn),
                 utbetalinger = listOf(enkeltplassUtbetaling),
                 utbetalingLinjer = listOf(enkeltplassLinje),
@@ -476,7 +476,7 @@ class OppgaverServiceTest : FunSpec({
                 setOf(NavAnsattRolle.generell(Rolle.OKONOMI_ATTESTANT_GRUPPETILTAK)),
             )
             MulighetsrommetTestDomain(
-                gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
+                gjennomforinger = listOf(GjennomforingDboFixtures.EnkelAmo),
                 tilsagn = listOf(enkeltplassTilsagn),
                 utbetalinger = listOf(enkeltplassUtbetaling),
                 utbetalingLinjer = listOf(enkeltplassLinje),
@@ -505,7 +505,7 @@ class OppgaverServiceTest : FunSpec({
                 ),
             )
             MulighetsrommetTestDomain(
-                gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
+                gjennomforinger = listOf(GjennomforingDboFixtures.EnkelAmo),
                 tilsagn = listOf(enkeltplassTilsagn),
                 utbetalinger = listOf(enkeltplassUtbetaling),
                 utbetalingLinjer = listOf(enkeltplassLinje),
@@ -532,7 +532,7 @@ class OppgaverServiceTest : FunSpec({
                 setOf(NavAnsattRolle.generell(Rolle.OKONOMI_SAKSBEHANDLER_GRUPPETILTAK)),
             )
             MulighetsrommetTestDomain(
-                gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
+                gjennomforinger = listOf(GjennomforingDboFixtures.EnkelAmo),
                 tilsagn = listOf(enkeltplassTilsagn),
                 utbetalinger = listOf(enkeltplassUtbetaling.copy(status = UtbetalingStatusType.RETURNERT)),
                 utbetalingLinjer = listOf(enkeltplassLinje),
@@ -847,11 +847,11 @@ class OppgaverServiceTest : FunSpec({
                 setOf(NavAnsattRolle.generell(Rolle.OKONOMI_SAKSBEHANDLER_GRUPPETILTAK)),
             )
             val utbetaling = UtbetalingFixtures.utbetaling1.copy(
-                gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
+                gjennomforingId = GjennomforingDboFixtures.EnkelAmo.id,
                 status = UtbetalingStatusType.TIL_BEHANDLING,
             )
             MulighetsrommetTestDomain(
-                gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
+                gjennomforinger = listOf(GjennomforingDboFixtures.EnkelAmo),
                 utbetalinger = listOf(utbetaling),
             ).initialize(database.api)
 
@@ -1224,15 +1224,15 @@ class OppgaverServiceTest : FunSpec({
             val service = OppgaverService(database.api, features())
 
             MulighetsrommetTestDomain(
-                gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
+                gjennomforinger = listOf(GjennomforingDboFixtures.EnkelAmo),
                 deltakere = listOf(
                     DeltakerFixtures.createDeltaker(
-                        gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
+                        gjennomforingId = GjennomforingDboFixtures.EnkelAmo.id,
                     ),
                 ),
             ) {
                 setTilBehandling(
-                    GjennomforingFixtures.EnkelAmo.id,
+                    GjennomforingDboFixtures.EnkelAmo.id,
                     TotrinnskontrollType.ENKELTPLASS_OKONOMI,
                     behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
                 )
@@ -1245,7 +1245,7 @@ class OppgaverServiceTest : FunSpec({
                 arrangorer = setOf(),
                 ansatt = NavAnsattFixture.MikkeMus.medRoller(setOf(beslutterEnkeltplass)),
             ) shouldMatchAllOppgaver listOf(
-                PartialOppgave(GjennomforingFixtures.EnkelAmo.id, OppgaveType.ENKELTPLASS_TIL_GODKJENNING),
+                PartialOppgave(GjennomforingDboFixtures.EnkelAmo.id, OppgaveType.ENKELTPLASS_TIL_GODKJENNING),
             )
         }
 
@@ -1253,10 +1253,10 @@ class OppgaverServiceTest : FunSpec({
             val service = OppgaverService(database.api, features())
 
             MulighetsrommetTestDomain(
-                gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
+                gjennomforinger = listOf(GjennomforingDboFixtures.EnkelAmo),
             ) {
                 setTilBehandling(
-                    GjennomforingFixtures.EnkelAmo.id,
+                    GjennomforingDboFixtures.EnkelAmo.id,
                     TotrinnskontrollType.ENKELTPLASS_OKONOMI,
                     behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
                 )
@@ -1275,10 +1275,10 @@ class OppgaverServiceTest : FunSpec({
             val service = OppgaverService(database.api, features())
 
             MulighetsrommetTestDomain(
-                gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
+                gjennomforinger = listOf(GjennomforingDboFixtures.EnkelAmo),
             ) {
                 setTilBehandling(
-                    GjennomforingFixtures.EnkelAmo.id,
+                    GjennomforingDboFixtures.EnkelAmo.id,
                     TotrinnskontrollType.ENKELTPLASS_OKONOMI,
                     behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
                 )
@@ -1299,10 +1299,10 @@ class OppgaverServiceTest : FunSpec({
             val service = OppgaverService(database.api, features())
 
             MulighetsrommetTestDomain(
-                gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
+                gjennomforinger = listOf(GjennomforingDboFixtures.EnkelAmo),
             ) {
                 setTilBehandling(
-                    GjennomforingFixtures.EnkelAmo.id,
+                    GjennomforingDboFixtures.EnkelAmo.id,
                     TotrinnskontrollType.ENKELTPLASS_OKONOMI,
                     behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
                 )
@@ -1323,10 +1323,10 @@ class OppgaverServiceTest : FunSpec({
             val service = OppgaverService(database.api, features())
 
             MulighetsrommetTestDomain(
-                gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
+                gjennomforinger = listOf(GjennomforingDboFixtures.EnkelAmo),
             ) {
                 setTilBehandling(
-                    GjennomforingFixtures.EnkelAmo.id,
+                    GjennomforingDboFixtures.EnkelAmo.id,
                     TotrinnskontrollType.ENKELTPLASS_OKONOMI,
                     behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
                 )
@@ -1352,10 +1352,10 @@ class OppgaverServiceTest : FunSpec({
             val service = OppgaverService(database.api, features())
 
             MulighetsrommetTestDomain(
-                gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
+                gjennomforinger = listOf(GjennomforingDboFixtures.EnkelAmo),
             ) {
                 setGodkjent(
-                    GjennomforingFixtures.EnkelAmo.id,
+                    GjennomforingDboFixtures.EnkelAmo.id,
                     TotrinnskontrollType.ENKELTPLASS_OKONOMI,
                     behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
                     besluttetAv = NavAnsattFixture.MikkeMus.navIdent,
@@ -1377,10 +1377,10 @@ class OppgaverServiceTest : FunSpec({
             val service = OppgaverService(database.api, features())
 
             MulighetsrommetTestDomain(
-                gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
+                gjennomforinger = listOf(GjennomforingDboFixtures.EnkelAmo),
             ) {
                 setPaVent(
-                    GjennomforingFixtures.EnkelAmo.id,
+                    GjennomforingDboFixtures.EnkelAmo.id,
                     TotrinnskontrollType.ENKELTPLASS_OKONOMI,
                     behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
                     besluttetAv = NavAnsattFixture.MikkeMus.navIdent,
@@ -1396,7 +1396,7 @@ class OppgaverServiceTest : FunSpec({
                     roller = setOf(beslutterEnkeltplass),
                 ),
             ) shouldMatchAllOppgaver listOf(
-                PartialOppgave(GjennomforingFixtures.EnkelAmo.id, OppgaveType.ENKELTPLASS_SATT_PA_VENT),
+                PartialOppgave(GjennomforingDboFixtures.EnkelAmo.id, OppgaveType.ENKELTPLASS_SATT_PA_VENT),
             )
         }
 
@@ -1404,10 +1404,10 @@ class OppgaverServiceTest : FunSpec({
             val service = OppgaverService(database.api, features())
 
             MulighetsrommetTestDomain(
-                gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
+                gjennomforinger = listOf(GjennomforingDboFixtures.EnkelAmo),
             ) {
                 setPaVent(
-                    GjennomforingFixtures.EnkelAmo.id,
+                    GjennomforingDboFixtures.EnkelAmo.id,
                     TotrinnskontrollType.ENKELTPLASS_OKONOMI,
                     behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
                     besluttetAv = NavAnsattFixture.MikkeMus.navIdent,
@@ -1427,10 +1427,10 @@ class OppgaverServiceTest : FunSpec({
             val service = OppgaverService(database.api, features())
 
             MulighetsrommetTestDomain(
-                gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
+                gjennomforinger = listOf(GjennomforingDboFixtures.EnkelAmo),
             ) {
                 setReturnert(
-                    GjennomforingFixtures.EnkelAmo.id,
+                    GjennomforingDboFixtures.EnkelAmo.id,
                     TotrinnskontrollType.ENKELTPLASS_OKONOMI,
                     behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
                     besluttetAv = NavAnsattFixture.MikkeMus.navIdent,
@@ -1450,22 +1450,22 @@ class OppgaverServiceTest : FunSpec({
             val service = OppgaverService(database.api, features())
 
             MulighetsrommetTestDomain(
-                gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
+                gjennomforinger = listOf(GjennomforingDboFixtures.EnkelAmo),
                 deltakere = listOf(
                     DeltakerFixtures.createDeltaker(
                         id = UUID.randomUUID(),
-                        gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
+                        gjennomforingId = GjennomforingDboFixtures.EnkelAmo.id,
                     ),
                 ),
             ) {
                 setGodkjent(
-                    GjennomforingFixtures.EnkelAmo.id,
+                    GjennomforingDboFixtures.EnkelAmo.id,
                     TotrinnskontrollType.ENKELTPLASS_OKONOMI,
                     behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
                     besluttetAv = NavAnsattFixture.MikkeMus.navIdent,
                 )
                 setTilBehandling(
-                    GjennomforingFixtures.EnkelAmo.id,
+                    GjennomforingDboFixtures.EnkelAmo.id,
                     TotrinnskontrollType.ENKELTPLASS_PRISENDRING,
                     behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
                 )
@@ -1478,7 +1478,7 @@ class OppgaverServiceTest : FunSpec({
                 arrangorer = setOf(),
                 ansatt = NavAnsattFixture.MikkeMus.medRoller(setOf(beslutterEnkeltplass)),
             ) shouldMatchAllOppgaver listOf(
-                PartialOppgave(GjennomforingFixtures.EnkelAmo.id, OppgaveType.ENKELTPLASS_TIL_GODKJENNING),
+                PartialOppgave(GjennomforingDboFixtures.EnkelAmo.id, OppgaveType.ENKELTPLASS_TIL_GODKJENNING),
             )
         }
 
@@ -1486,16 +1486,16 @@ class OppgaverServiceTest : FunSpec({
             val service = OppgaverService(database.api, features())
 
             MulighetsrommetTestDomain(
-                gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
+                gjennomforinger = listOf(GjennomforingDboFixtures.EnkelAmo),
             ) {
                 setGodkjent(
-                    GjennomforingFixtures.EnkelAmo.id,
+                    GjennomforingDboFixtures.EnkelAmo.id,
                     TotrinnskontrollType.ENKELTPLASS_OKONOMI,
                     behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
                     besluttetAv = NavAnsattFixture.MikkeMus.navIdent,
                 )
                 setPaVent(
-                    GjennomforingFixtures.EnkelAmo.id,
+                    GjennomforingDboFixtures.EnkelAmo.id,
                     TotrinnskontrollType.ENKELTPLASS_PRISENDRING,
                     behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
                     besluttetAv = NavAnsattFixture.MikkeMus.navIdent,
@@ -1511,16 +1511,16 @@ class OppgaverServiceTest : FunSpec({
                     roller = setOf(beslutterEnkeltplass),
                 ),
             ) shouldMatchAllOppgaver listOf(
-                PartialOppgave(GjennomforingFixtures.EnkelAmo.id, OppgaveType.ENKELTPLASS_SATT_PA_VENT),
+                PartialOppgave(GjennomforingDboFixtures.EnkelAmo.id, OppgaveType.ENKELTPLASS_SATT_PA_VENT),
             )
         }
 
         test("enkeltplass oppgaver vises ikke når feature toggle er skrudd av") {
             MulighetsrommetTestDomain(
-                gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
+                gjennomforinger = listOf(GjennomforingDboFixtures.EnkelAmo),
             ) {
                 setTilBehandling(
-                    GjennomforingFixtures.EnkelAmo.id,
+                    GjennomforingDboFixtures.EnkelAmo.id,
                     TotrinnskontrollType.ENKELTPLASS_OKONOMI,
                     behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
                 )
@@ -1538,10 +1538,10 @@ class OppgaverServiceTest : FunSpec({
         test("region-filter begrenser enkeltplass oppgaver til riktig region") {
             val service = OppgaverService(database.api, features())
 
-            val enkeltplassInnlandet = GjennomforingFixtures.EnkelAmo.copy(
+            val enkeltplassInnlandet = GjennomforingDboFixtures.EnkelAmo.copy(
                 ansvarligEnhet = NavEnhetFixtures.Innlandet.enhetsnummer,
             )
-            val enkeltplassOslo = GjennomforingFixtures.EnkelAmo.copy(
+            val enkeltplassOslo = GjennomforingDboFixtures.EnkelAmo.copy(
                 id = UUID.randomUUID(),
                 ansvarligEnhet = NavEnhetFixtures.Oslo.enhetsnummer,
             )
@@ -1552,7 +1552,7 @@ class OppgaverServiceTest : FunSpec({
                 deltakere = listOf(
                     DeltakerFixtures.createDeltaker(
                         id = UUID.randomUUID(),
-                        gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
+                        gjennomforingId = GjennomforingDboFixtures.EnkelAmo.id,
                     ),
                 ),
             ) {
@@ -1591,7 +1591,7 @@ class OppgaverServiceTest : FunSpec({
             val service = OppgaverService(database.api, features())
 
             MulighetsrommetTestDomain(
-                gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
+                gjennomforinger = listOf(GjennomforingDboFixtures.EnkelAmo),
             ) {
                 queries.tilskuddBehandling.upsert(TilskuddFixtures.Behandling)
                 setTilBehandling(
@@ -1627,7 +1627,7 @@ class OppgaverServiceTest : FunSpec({
 
             MulighetsrommetTestDomain(
                 navEnheter = listOf(NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik, NavEnhetFixtures.Oslo),
-                gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
+                gjennomforinger = listOf(GjennomforingDboFixtures.EnkelAmo),
             ) {
                 queries.tilskuddBehandling.upsert(behandling)
                 setTilBehandling(
@@ -1672,7 +1672,7 @@ class OppgaverServiceTest : FunSpec({
             val service = OppgaverService(database.api, features())
 
             MulighetsrommetTestDomain(
-                gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
+                gjennomforinger = listOf(GjennomforingDboFixtures.EnkelAmo),
             ) {
                 queries.tilskuddBehandling.upsert(TilskuddFixtures.Behandling)
                 setTilBehandling(
@@ -1695,7 +1695,7 @@ class OppgaverServiceTest : FunSpec({
             val service = OppgaverService(database.api, features())
 
             MulighetsrommetTestDomain(
-                gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
+                gjennomforinger = listOf(GjennomforingDboFixtures.EnkelAmo),
             ) {
                 queries.tilskuddBehandling.upsert(
                     TilskuddFixtures.Behandling.copy(
@@ -1733,7 +1733,7 @@ class OppgaverServiceTest : FunSpec({
             val service = OppgaverService(database.api, features())
 
             MulighetsrommetTestDomain(
-                gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
+                gjennomforinger = listOf(GjennomforingDboFixtures.EnkelAmo),
             ) {
                 queries.tilskuddBehandling.upsert(
                     TilskuddFixtures.Behandling.copy(
@@ -1760,7 +1760,7 @@ class OppgaverServiceTest : FunSpec({
 
         test("tilskuddsbehandling oppgaver vises ikke når feature toggle er skrudd av") {
             MulighetsrommetTestDomain(
-                gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
+                gjennomforinger = listOf(GjennomforingDboFixtures.EnkelAmo),
             ) {
             }.initialize(database.api)
 
@@ -1788,7 +1788,7 @@ class OppgaverServiceTest : FunSpec({
 
             MulighetsrommetTestDomain(
                 navEnheter = listOf(NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik, NavEnhetFixtures.Oslo),
-                gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
+                gjennomforinger = listOf(GjennomforingDboFixtures.EnkelAmo),
             ) {
                 queries.tilskuddBehandling.upsert(TilskuddFixtures.Behandling)
                 setTilBehandling(
@@ -1819,14 +1819,14 @@ class OppgaverServiceTest : FunSpec({
             val service = OppgaverService(database.api, features())
 
             val behandlingOslo = TilskuddFixtures.Behandling.copy(
-                gjennomforingId = GjennomforingFixtures.EnkelFagOgYrke.id,
+                gjennomforingId = GjennomforingDboFixtures.EnkelFagOgYrke.id,
                 id = UUID.randomUUID(),
                 tilskudd = listOf(TilskuddFixtures.TilskuddVedtakInnvilgelse.copy(id = UUID.randomUUID())),
             )
 
             MulighetsrommetTestDomain(
                 navEnheter = listOf(NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik, NavEnhetFixtures.Oslo),
-                gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo, GjennomforingFixtures.EnkelFagOgYrke),
+                gjennomforinger = listOf(GjennomforingDboFixtures.EnkelAmo, GjennomforingDboFixtures.EnkelFagOgYrke),
             ) {
                 queries.tilskuddBehandling.upsert(TilskuddFixtures.Behandling)
                 setTilBehandling(

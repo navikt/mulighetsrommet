@@ -2,7 +2,7 @@ package no.nav.mulighetsrommet.api.fixtures
 
 import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavEnhetFixtures
-import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.EnkelAmo
+import no.nav.mulighetsrommet.api.persistence.testing.fixture.GjennomforingDboFixtures.EnkelAmo
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.BrukerUtbetalingType
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandlingStatus
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandlingType

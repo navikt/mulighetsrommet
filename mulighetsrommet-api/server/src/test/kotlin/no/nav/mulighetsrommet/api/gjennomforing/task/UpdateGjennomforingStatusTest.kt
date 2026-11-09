@@ -12,8 +12,8 @@ import no.nav.mulighetsrommet.api.domain.gjennomforing.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingAvtaleStatus
 import no.nav.mulighetsrommet.api.domain.testing.fixture.AvtaleFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.TiltakstypeFixtures
-import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
+import no.nav.mulighetsrommet.api.persistence.testing.fixture.GjennomforingDboFixtures
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.GjennomforingStatusType.AVBRUTT
 import no.nav.mulighetsrommet.model.GjennomforingStatusType.AVLYST
@@ -35,19 +35,19 @@ class UpdateGjennomforingStatusTest : FunSpec({
     )
 
     context("oppdater statuser på tiltaksgjennomføringer") {
-        val gjennomforing1 = GjennomforingFixtures.Oppfolging1.copy(
+        val gjennomforing1 = GjennomforingDboFixtures.Oppfolging1.copy(
             id = UUID.randomUUID(),
             startDato = LocalDate.of(2023, 1, 1),
             sluttDato = LocalDate.of(2023, 12, 31),
             status = GJENNOMFORES,
         )
-        val gjennomforing2 = GjennomforingFixtures.Oppfolging1.copy(
+        val gjennomforing2 = GjennomforingDboFixtures.Oppfolging1.copy(
             id = UUID.randomUUID(),
             startDato = LocalDate.of(2023, 1, 1),
             sluttDato = LocalDate.of(2023, 1, 31),
             status = GJENNOMFORES,
         )
-        val gjennomforing3 = GjennomforingFixtures.Oppfolging1.copy(
+        val gjennomforing3 = GjennomforingDboFixtures.Oppfolging1.copy(
             id = UUID.randomUUID(),
             startDato = LocalDate.of(2023, 1, 1),
             sluttDato = LocalDate.of(2023, 1, 31),

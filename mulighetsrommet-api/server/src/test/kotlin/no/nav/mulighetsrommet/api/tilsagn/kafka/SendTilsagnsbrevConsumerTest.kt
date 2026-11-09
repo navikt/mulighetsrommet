@@ -11,10 +11,10 @@ import no.nav.mulighetsrommet.api.domain.testing.fixture.AvtaleFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavAnsattFixture
 import no.nav.mulighetsrommet.api.domain.testing.fixture.PrismodellFixtures
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
-import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures
 import no.nav.mulighetsrommet.api.fixtures.setTilsagnStatus
+import no.nav.mulighetsrommet.api.persistence.testing.fixture.GjennomforingDboFixtures
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.task.SendTilsagnsbrevSaga
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
@@ -24,9 +24,9 @@ import java.util.UUID
 class SendTilsagnsbrevConsumerTest : FunSpec({
     val database = extension(ApiDatabaseTestListener())
 
-    val avtaleGjennomforing = GjennomforingFixtures.ArbeidsrettetRehabilitering
-    val enkeltplassAnskaffelse = GjennomforingFixtures.EnkelAmo
-    val enkeltplassTilskudd = GjennomforingFixtures.EnkelAmo.copy(
+    val avtaleGjennomforing = GjennomforingDboFixtures.ArbeidsrettetRehabilitering
+    val enkeltplassAnskaffelse = GjennomforingDboFixtures.EnkelAmo
+    val enkeltplassTilskudd = GjennomforingDboFixtures.EnkelAmo.copy(
         id = UUID.randomUUID(),
         prismodellId = PrismodellFixtures.TilskuddTilOpplaering.id,
     )

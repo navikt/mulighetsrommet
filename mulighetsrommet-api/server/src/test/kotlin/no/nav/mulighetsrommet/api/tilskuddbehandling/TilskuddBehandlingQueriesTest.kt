@@ -8,9 +8,9 @@ import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.TransactionalQueryContext
 import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd
 import no.nav.mulighetsrommet.api.domain.testing.fixture.AvtaleFixtures
-import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures
+import no.nav.mulighetsrommet.api.persistence.testing.fixture.GjennomforingDboFixtures
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.BrukerUtbetalingType
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandlingStatus
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandlingType
@@ -33,12 +33,12 @@ class TilskuddBehandlingQueriesTest : FunSpec({
 
     val domain = MulighetsrommetTestDomain(
         avtaler = listOf(AvtaleFixtures.AFT),
-        gjennomforinger = listOf(GjennomforingFixtures.AFT1),
+        gjennomforinger = listOf(GjennomforingDboFixtures.AFT1),
     )
 
     val behandling = TilskuddBehandling(
         id = UUID.randomUUID(),
-        gjennomforingId = GjennomforingFixtures.AFT1.id,
+        gjennomforingId = GjennomforingDboFixtures.AFT1.id,
         tilskudd = listOf(
             TilskuddVedtak(
                 id = UUID.randomUUID(),
@@ -122,7 +122,7 @@ class TilskuddBehandlingQueriesTest : FunSpec({
                 queries.tilskuddBehandling.get(behandling.id) should {
                     requireNotNull(it)
                     it.id shouldBe behandling.id
-                    it.gjennomforingId shouldBe GjennomforingFixtures.AFT1.id
+                    it.gjennomforingId shouldBe GjennomforingDboFixtures.AFT1.id
 
                     it.tilskuddVedtak.size shouldBe 3
                     val vedtakById = it.tilskuddVedtak.associateBy { vedtak -> vedtak.id }
@@ -195,7 +195,7 @@ class TilskuddBehandlingQueriesTest : FunSpec({
                 queries.tilskuddBehandling.upsert(behandling)
                 queries.tilskuddBehandling.upsert(otherBehandling)
 
-                val result = queries.tilskuddBehandling.getByGjennomforingId(GjennomforingFixtures.AFT1.id)
+                val result = queries.tilskuddBehandling.getByGjennomforingId(GjennomforingDboFixtures.AFT1.id)
                     .groupBy { it.id }
 
                 result.keys shouldBe setOf(behandling.id, otherBehandling.id)
@@ -225,7 +225,7 @@ class TilskuddBehandlingQueriesTest : FunSpec({
                 queries.tilskuddBehandling.upsert(noVedtakBehandling)
 
                 val result =
-                    queries.tilskuddBehandling.getByGjennomforingId(GjennomforingFixtures.AFT1.id)
+                    queries.tilskuddBehandling.getByGjennomforingId(GjennomforingDboFixtures.AFT1.id)
 
                 result.map { it.id }.toSet() shouldBe setOf(behandling.id)
 

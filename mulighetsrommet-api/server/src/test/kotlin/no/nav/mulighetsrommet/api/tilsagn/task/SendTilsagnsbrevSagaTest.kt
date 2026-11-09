@@ -23,11 +23,11 @@ import no.nav.mulighetsrommet.api.domain.personalia.Gradering
 import no.nav.mulighetsrommet.api.domain.personalia.Personalia
 import no.nav.mulighetsrommet.api.domain.testing.fixture.DeltakerFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavAnsattFixture
-import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures
 import no.nav.mulighetsrommet.api.fixtures.setTilsagnStatus
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
+import no.nav.mulighetsrommet.api.persistence.testing.fixture.GjennomforingDboFixtures
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
@@ -44,16 +44,16 @@ class SendTilsagnsbrevSagaTest : FunSpec({
     val database = extension(ApiDatabaseTestListener())
 
     val deltaker = DeltakerFixtures.createDeltaker(
-        gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
+        gjennomforingId = GjennomforingDboFixtures.EnkelAmo.id,
     )
     val tilsagn = TilsagnFixtures.createTilsagn(
-        gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
+        gjennomforingId = GjennomforingDboFixtures.EnkelAmo.id,
         lopenummer = 1,
     )
 
     val domain = MulighetsrommetTestDomain(
         ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus, NavAnsattFixture.FetterAnton),
-        gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
+        gjennomforinger = listOf(GjennomforingDboFixtures.EnkelAmo),
         deltakere = listOf(deltaker),
         tilsagn = listOf(tilsagn),
     ) {

@@ -4,6 +4,7 @@ import com.diffplug.selfie.coroutines.expectSelfie
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.types.shouldBeInstanceOf
 import kotlinx.serialization.json.Json
+import no.nav.mulighetsrommet.admin.testing.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangforflateUtbetalingLinje
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateTilsagnSummary
 import no.nav.mulighetsrommet.api.arrangorflate.dto.UtbetalingsdetaljerDto
@@ -13,7 +14,6 @@ import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingType
 import no.nav.mulighetsrommet.api.domain.personalia.Gradering
 import no.nav.mulighetsrommet.api.domain.personalia.Personalia
-import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures
 import no.nav.mulighetsrommet.api.pdfgen.PdfDocumentContent
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelseDeltakelsesprosentPerioder
@@ -47,8 +47,10 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
 
     val gjennomforing = GjennomforingFixtures.createGjennomforingAvtale(
         id = UUID.randomUUID(),
+        navn = "OPPFOLGING",
         tiltakskode = Tiltakskode.OPPFOLGING,
-        periode = Periode.forYear(2025),
+        startDato = LocalDate.of(2025, 1, 1),
+        sluttDato = LocalDate.of(2025, 12, 31),
     )
 
     val deltaker1Id = UUID.randomUUID()

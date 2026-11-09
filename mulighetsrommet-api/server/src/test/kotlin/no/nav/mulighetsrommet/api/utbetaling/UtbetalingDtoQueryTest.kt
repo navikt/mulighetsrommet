@@ -18,13 +18,13 @@ import no.nav.mulighetsrommet.api.domain.testing.fixture.NavAnsattFixture
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.Totrinnskontroll
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
-import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
-import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures
 import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures.utbetaling1
 import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures.utbetalingLinje1
 import no.nav.mulighetsrommet.api.fixtures.setUtbetalingLinjeStatus
+import no.nav.mulighetsrommet.api.persistence.testing.fixture.GjennomforingDboFixtures
+import no.nav.mulighetsrommet.api.persistence.testing.fixture.GjennomforingDboFixtures.AFT1
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingHandling
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingLinjeHandling
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingStatusDto
@@ -121,13 +121,13 @@ class UtbetalingDtoQueryTest : FunSpec({
     test("enkeltplass gir handling SLETT, men ikke SEND_TIL_AVBRYTELSE") {
         val enkeltplassUtbetaling = utbetaling1.copy(
             id = UUID.randomUUID(),
-            gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
+            gjennomforingId = GjennomforingDboFixtures.EnkelAmo.id,
             status = UtbetalingStatusType.TIL_BEHANDLING,
         )
 
         MulighetsrommetTestDomain(
             ansatte = listOf(enkeltplassSaksbehandler),
-            gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
+            gjennomforinger = listOf(GjennomforingDboFixtures.EnkelAmo),
             utbetalinger = listOf(enkeltplassUtbetaling),
         ).initialize(database.api)
 
@@ -166,10 +166,10 @@ class UtbetalingDtoQueryTest : FunSpec({
         )
         MulighetsrommetTestDomain(
             ansatte = listOf(saksbehandlerMedLesetilgang),
-            gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
+            gjennomforinger = listOf(GjennomforingDboFixtures.EnkelAmo),
             utbetalinger = listOf(
                 utbetaling1.copy(
-                    gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
+                    gjennomforingId = GjennomforingDboFixtures.EnkelAmo.id,
                     status = UtbetalingStatusType.TIL_BEHANDLING,
                 ),
             ),
@@ -278,11 +278,11 @@ class UtbetalingDtoQueryTest : FunSpec({
 
     context("utbetalingslinjer") {
         val enkeltplassTilsagn = TilsagnFixtures.createTilsagn(
-            gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
+            gjennomforingId = GjennomforingDboFixtures.EnkelAmo.id,
             lopenummer = 1,
         )
         val enkeltplassUtbetaling = utbetaling1.copy(
-            gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
+            gjennomforingId = GjennomforingDboFixtures.EnkelAmo.id,
             status = UtbetalingStatusType.TIL_GODKJENNING,
         )
         val enkeltplassLinje = utbetalingLinje1.copy(tilsagnId = enkeltplassTilsagn.id)
@@ -317,7 +317,7 @@ class UtbetalingDtoQueryTest : FunSpec({
         test("enkeltplass-beslutter ved tilsagnets kostnadssted kan godkjenne og returnere") {
             MulighetsrommetTestDomain(
                 ansatte = listOf(enkeltplassSaksbehandler, enkeltplassBeslutter),
-                gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
+                gjennomforinger = listOf(GjennomforingDboFixtures.EnkelAmo),
                 tilsagn = listOf(enkeltplassTilsagn),
                 utbetalinger = listOf(enkeltplassUtbetaling),
                 utbetalingLinjer = listOf(enkeltplassLinje),
@@ -346,7 +346,7 @@ class UtbetalingDtoQueryTest : FunSpec({
             )
             MulighetsrommetTestDomain(
                 ansatte = listOf(enkeltplassSaksbehandler, attestantMedLesetilgang),
-                gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
+                gjennomforinger = listOf(GjennomforingDboFixtures.EnkelAmo),
                 tilsagn = listOf(enkeltplassTilsagn),
                 utbetalinger = listOf(enkeltplassUtbetaling),
                 utbetalingLinjer = listOf(enkeltplassLinje),
@@ -373,7 +373,7 @@ class UtbetalingDtoQueryTest : FunSpec({
             )
             MulighetsrommetTestDomain(
                 ansatte = listOf(enkeltplassSaksbehandler, beslutterVedAnnetKostnadssted),
-                gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
+                gjennomforinger = listOf(GjennomforingDboFixtures.EnkelAmo),
                 tilsagn = listOf(enkeltplassTilsagn),
                 utbetalinger = listOf(enkeltplassUtbetaling),
                 utbetalingLinjer = listOf(enkeltplassLinje),
@@ -392,7 +392,7 @@ class UtbetalingDtoQueryTest : FunSpec({
         test("enkeltplass-saksbehandler kan returnere, men ikke godkjenne linjen") {
             MulighetsrommetTestDomain(
                 ansatte = listOf(enkeltplassSaksbehandler),
-                gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
+                gjennomforinger = listOf(GjennomforingDboFixtures.EnkelAmo),
                 tilsagn = listOf(enkeltplassTilsagn),
                 utbetalinger = listOf(enkeltplassUtbetaling),
                 utbetalingLinjer = listOf(enkeltplassLinje),

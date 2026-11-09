@@ -12,9 +12,9 @@ import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingEnkeltplassS
 import no.nav.mulighetsrommet.api.domain.testing.fixture.AvtaleFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.DeltakerFixtures
 import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeFeature
-import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
-import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.EnkelAmo
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
+import no.nav.mulighetsrommet.api.persistence.testing.fixture.GjennomforingDboFixtures.AFT1
+import no.nav.mulighetsrommet.api.persistence.testing.fixture.GjennomforingDboFixtures.EnkelAmo
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType

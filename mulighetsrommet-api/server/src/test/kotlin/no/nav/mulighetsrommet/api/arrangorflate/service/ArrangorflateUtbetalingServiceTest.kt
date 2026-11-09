@@ -36,9 +36,6 @@ import no.nav.mulighetsrommet.api.domain.testing.fixture.PrismodellFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.domain.tiltak.PrismodellType
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
-import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
-import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
-import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.Oppfolging1
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures.Tilsagn1
 import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures.Tilsagn2
@@ -48,6 +45,9 @@ import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures.utbetalingDto1
 import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures.utbetalingLinje1
 import no.nav.mulighetsrommet.api.fixtures.setTilsagnStatus
 import no.nav.mulighetsrommet.api.fixtures.setUtbetalingLinjeStatus
+import no.nav.mulighetsrommet.api.persistence.testing.fixture.GjennomforingDboFixtures
+import no.nav.mulighetsrommet.api.persistence.testing.fixture.GjennomforingDboFixtures.AFT1
+import no.nav.mulighetsrommet.api.persistence.testing.fixture.GjennomforingDboFixtures.Oppfolging1
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.model.GyldigTilsagnPeriode
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAnnenAvtaltPris
@@ -157,7 +157,7 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
         test("utbetaling for AnnenAvtaltPris blir opprettet med tilskuddstype for driftstilskudd") {
             MulighetsrommetTestDomain(
                 avtaler = listOf(AvtaleFixtures.gruppeAmo),
-                gjennomforinger = listOf(GjennomforingFixtures.GruppeAmo1),
+                gjennomforinger = listOf(GjennomforingDboFixtures.GruppeAmo1),
             ).initialize(database.api)
 
             val service = createUtbetalingService()
@@ -165,7 +165,7 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
             val utbetaling = service.opprettUtbetaling(
                 ArrangorflateOpprettUtbetaling(
                     id = UUID.randomUUID(),
-                    gjennomforingId = GjennomforingFixtures.GruppeAmo1.id,
+                    gjennomforingId = GjennomforingDboFixtures.GruppeAmo1.id,
                     periode = periode,
                     kidNummer = null,
                     pris = 500.NOK,
@@ -226,13 +226,13 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
                             prisinfo = Avtale.Prisinfo.Egendefinert(listOf(prismodell)),
                         ),
                     ),
-                    gjennomforinger = listOf(GjennomforingFixtures.GruppeAmo1.copy(prismodellId = prismodell.id)),
+                    gjennomforinger = listOf(GjennomforingDboFixtures.GruppeAmo1.copy(prismodellId = prismodell.id)),
                 ).initialize(database.api)
 
                 service.opprettUtbetaling(
                     ArrangorflateOpprettUtbetaling(
                         id = UUID.randomUUID(),
-                        gjennomforingId = GjennomforingFixtures.GruppeAmo1.id,
+                        gjennomforingId = GjennomforingDboFixtures.GruppeAmo1.id,
                         periode = periode,
                         kidNummer = null,
                         pris = 100.NOK,
@@ -784,7 +784,7 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
 
             val tilsagnForAvtaltSats = Tilsagn1.copy(
                 id = UUID.randomUUID(),
-                gjennomforingId = GjennomforingFixtures.TAO.id,
+                gjennomforingId = GjennomforingDboFixtures.TAO.id,
                 periode = januar,
                 belopBrukt = 0.NOK,
                 beregning = TilsagnBeregningFastSatsPerBenyttetPlassPerManed(
@@ -799,7 +799,7 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
             )
 
             val utbetalingForAvtaltSats = utbetaling1.copy(
-                gjennomforingId = GjennomforingFixtures.TAO.id,
+                gjennomforingId = GjennomforingDboFixtures.TAO.id,
                 periode = januar,
                 beregning = UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed(
                     input = UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed.Input(
@@ -830,7 +830,7 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
                 tiltakstyper = listOf(TiltakstypeFixtures.TAO),
                 arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
                 avtaler = listOf(AvtaleFixtures.TAO),
-                gjennomforinger = listOf(GjennomforingFixtures.TAO),
+                gjennomforinger = listOf(GjennomforingDboFixtures.TAO),
                 prismodeller = listOf(PrismodellFixtures.ForhandsgodkjentTao),
                 tilsagn = listOf(tilsagnForAvtaltSats),
                 utbetalinger = listOf(utbetalingForAvtaltSats),

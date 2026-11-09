@@ -7,8 +7,8 @@ import io.mockk.mockk
 import no.nav.mulighetsrommet.admin.gjennomforing.GjennomforingAvtaleService
 import no.nav.mulighetsrommet.api.domain.testing.fixture.AvtaleFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.TiltakstypeFixtures
-import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
+import no.nav.mulighetsrommet.api.persistence.testing.fixture.GjennomforingDboFixtures
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import java.time.LocalDate
@@ -24,20 +24,20 @@ class UpdateApentForPameldingTest : FunSpec({
             tiltakstyper = listOf(TiltakstypeFixtures.GruppeFagOgYrkesopplaering, TiltakstypeFixtures.GruppeAmo),
             avtaler = listOf(AvtaleFixtures.gruppeFagYrke, AvtaleFixtures.gruppeAmo),
             gjennomforinger = listOf(
-                GjennomforingFixtures.GruppeFagYrke1.copy(
+                GjennomforingDboFixtures.GruppeFagYrke1.copy(
                     startDato = startDato,
                     sluttDato = sluttDato,
                     oppstart = GjennomforingOppstartstype.LOPENDE,
                 ),
-                GjennomforingFixtures.GruppeAmo1.copy(
+                GjennomforingDboFixtures.GruppeAmo1.copy(
                     startDato = startDato,
                     sluttDato = sluttDato,
                     oppstart = GjennomforingOppstartstype.FELLES,
                 ),
             ),
         ) {
-            queries.gjennomforing.setApentForPamelding(GjennomforingFixtures.GruppeFagYrke1.id, true)
-            queries.gjennomforing.setApentForPamelding(GjennomforingFixtures.GruppeAmo1.id, true)
+            queries.gjennomforing.setApentForPamelding(GjennomforingDboFixtures.GruppeFagYrke1.id, true)
+            queries.gjennomforing.setApentForPamelding(GjennomforingDboFixtures.GruppeAmo1.id, true)
         }
 
         val service = GjennomforingAvtaleService(
@@ -63,10 +63,10 @@ class UpdateApentForPameldingTest : FunSpec({
             updateApentForPamelding.stengTiltakMedFellesOppstartForPamelding(startDato = startDato.minusDays(1))
 
             database.run {
-                queries.gjennomforing.getGjennomforingAvtaleOrError(GjennomforingFixtures.GruppeFagYrke1.id).should {
+                queries.gjennomforing.getGjennomforingAvtaleOrError(GjennomforingDboFixtures.GruppeFagYrke1.id).should {
                     it.apentForPamelding shouldBe true
                 }
-                queries.gjennomforing.getGjennomforingAvtaleOrError(GjennomforingFixtures.GruppeAmo1.id).should {
+                queries.gjennomforing.getGjennomforingAvtaleOrError(GjennomforingDboFixtures.GruppeAmo1.id).should {
                     it.apentForPamelding shouldBe true
                 }
             }
@@ -76,10 +76,10 @@ class UpdateApentForPameldingTest : FunSpec({
             updateApentForPamelding.stengTiltakMedFellesOppstartForPamelding(startDato = LocalDate.now())
 
             database.run {
-                queries.gjennomforing.getGjennomforingAvtaleOrError(GjennomforingFixtures.GruppeFagYrke1.id).should {
+                queries.gjennomforing.getGjennomforingAvtaleOrError(GjennomforingDboFixtures.GruppeFagYrke1.id).should {
                     it.apentForPamelding shouldBe true
                 }
-                queries.gjennomforing.getGjennomforingAvtaleOrError(GjennomforingFixtures.GruppeAmo1.id).should {
+                queries.gjennomforing.getGjennomforingAvtaleOrError(GjennomforingDboFixtures.GruppeAmo1.id).should {
                     it.apentForPamelding shouldBe false
                 }
             }
@@ -89,10 +89,10 @@ class UpdateApentForPameldingTest : FunSpec({
             updateApentForPamelding.stengTiltakMedFellesOppstartForPamelding(startDato = LocalDate.now().plusDays(1))
 
             database.run {
-                queries.gjennomforing.getGjennomforingAvtaleOrError(GjennomforingFixtures.GruppeFagYrke1.id).should {
+                queries.gjennomforing.getGjennomforingAvtaleOrError(GjennomforingDboFixtures.GruppeFagYrke1.id).should {
                     it.apentForPamelding shouldBe true
                 }
-                queries.gjennomforing.getGjennomforingAvtaleOrError(GjennomforingFixtures.GruppeAmo1.id).should {
+                queries.gjennomforing.getGjennomforingAvtaleOrError(GjennomforingDboFixtures.GruppeAmo1.id).should {
                     it.apentForPamelding shouldBe true
                 }
             }

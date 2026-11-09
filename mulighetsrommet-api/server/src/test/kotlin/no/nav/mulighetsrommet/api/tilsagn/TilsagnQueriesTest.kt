@@ -16,8 +16,8 @@ import no.nav.mulighetsrommet.api.domain.testing.fixture.DeltakerFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavEnhetFixtures.Gjovik
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavEnhetFixtures.Innlandet
 import no.nav.mulighetsrommet.api.domain.testing.fixture.TiltakstypeFixtures
-import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
+import no.nav.mulighetsrommet.api.persistence.testing.fixture.GjennomforingDboFixtures
 import no.nav.mulighetsrommet.api.shared.Pagination
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
@@ -45,8 +45,8 @@ class TilsagnQueriesTest : FunSpec({
     val database = extension(ApiDatabaseTestListener())
 
     val deltaker = DeltakerFixtures.createDeltaker(
-        gjennomforingId = GjennomforingFixtures.AFT1.id,
-        startDato = GjennomforingFixtures.AFT1.startDato,
+        gjennomforingId = GjennomforingDboFixtures.AFT1.id,
+        startDato = GjennomforingDboFixtures.AFT1.startDato,
         sluttDato = null,
         status = DeltakerStatusType.DELTAR,
         innhold = Json.encodeToString(
@@ -64,7 +64,7 @@ class TilsagnQueriesTest : FunSpec({
 
     val domain = MulighetsrommetTestDomain(
         avtaler = listOf(AvtaleFixtures.AFT, AvtaleFixtures.ARR),
-        gjennomforinger = listOf(GjennomforingFixtures.AFT1, GjennomforingFixtures.ArbeidsrettetRehabilitering),
+        gjennomforinger = listOf(GjennomforingDboFixtures.AFT1, GjennomforingDboFixtures.ArbeidsrettetRehabilitering),
         deltakere = listOf(deltaker),
     )
 
@@ -89,7 +89,7 @@ class TilsagnQueriesTest : FunSpec({
 
     val tilsagn = TilsagnDbo(
         id = UUID.randomUUID(),
-        gjennomforingId = GjennomforingFixtures.AFT1.id,
+        gjennomforingId = GjennomforingDboFixtures.AFT1.id,
         type = TilsagnType.TILSAGN,
         periode = Periode.forMonthOf(LocalDate.of(2023, 1, 1)),
         lopenummer = 1,
@@ -116,7 +116,7 @@ class TilsagnQueriesTest : FunSpec({
                         tiltakskode = TiltakstypeFixtures.AFT.tiltakskode,
                         navn = TiltakstypeFixtures.AFT.navn,
                     )
-                    it.gjennomforing.id shouldBe GjennomforingFixtures.AFT1.id
+                    it.gjennomforing.id shouldBe GjennomforingDboFixtures.AFT1.id
                     it.gjennomforing.lopenummer.shouldNotBeNull()
                     it.periode shouldBe Periode(LocalDate.of(2023, 1, 1), LocalDate.of(2023, 2, 1))
                     it.kostnadssted shouldBe Gjovik
@@ -314,12 +314,12 @@ class TilsagnQueriesTest : FunSpec({
         }
 
         test("løpenummer er unikt per gjennomføring") {
-            val aft2 = GjennomforingFixtures.AFT1.copy(id = UUID.randomUUID())
+            val aft2 = GjennomforingDboFixtures.AFT1.copy(id = UUID.randomUUID())
 
             database.runAndRollback {
                 MulighetsrommetTestDomain(
                     avtaler = listOf(AvtaleFixtures.AFT),
-                    gjennomforinger = listOf(GjennomforingFixtures.AFT1, aft2),
+                    gjennomforinger = listOf(GjennomforingDboFixtures.AFT1, aft2),
                 ).initialize()
 
                 queries.tilsagn.upsert(
@@ -327,7 +327,7 @@ class TilsagnQueriesTest : FunSpec({
                         id = UUID.randomUUID(),
                         lopenummer = 1,
                         bestillingsnummer = "1",
-                        gjennomforingId = GjennomforingFixtures.AFT1.id,
+                        gjennomforingId = GjennomforingDboFixtures.AFT1.id,
                         beregning = beregningAnnenAvtaltPris(),
                     ),
                 )
@@ -348,7 +348,7 @@ class TilsagnQueriesTest : FunSpec({
                             id = UUID.randomUUID(),
                             lopenummer = 1,
                             bestillingsnummer = "3",
-                            gjennomforingId = GjennomforingFixtures.AFT1.id,
+                            gjennomforingId = GjennomforingDboFixtures.AFT1.id,
                             beregning = beregningAnnenAvtaltPris(),
                         ),
                     )
@@ -389,7 +389,7 @@ class TilsagnQueriesTest : FunSpec({
                 queries.tilsagn.getAll(statuser = listOf(TilsagnStatus.TIL_GODKJENNING)).shouldHaveSize(1)
                 queries.tilsagn.getAll(statuser = listOf(TilsagnStatus.TIL_ANNULLERING)).shouldHaveSize(0)
 
-                queries.tilsagn.getAll(gjennomforingId = GjennomforingFixtures.AFT1.id).shouldHaveSize(1)
+                queries.tilsagn.getAll(gjennomforingId = GjennomforingDboFixtures.AFT1.id).shouldHaveSize(1)
                 queries.tilsagn.getAll(gjennomforingId = UUID.randomUUID()).shouldHaveSize(0)
 
                 queries.tilsagn.getAll(typer = listOf(TilsagnType.TILSAGN)).shouldHaveSize(1)

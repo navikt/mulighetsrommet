@@ -22,8 +22,8 @@ import no.nav.mulighetsrommet.api.domain.personalia.Personalia
 import no.nav.mulighetsrommet.api.domain.testing.fixture.DeltakerFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavAnsattFixture
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
-import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
+import no.nav.mulighetsrommet.api.persistence.testing.fixture.GjennomforingDboFixtures
 import no.nav.mulighetsrommet.api.tilsagn.model.GyldigTilsagnPeriode
 import no.nav.mulighetsrommet.api.tilskuddbehandling.TilskuddBehandlingService
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.BrukerUtbetalingType
@@ -71,9 +71,9 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
 
         MulighetsrommetTestDomain(
             ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
-            gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
+            gjennomforinger = listOf(GjennomforingDboFixtures.EnkelAmo),
             deltakere = listOf(
-                DeltakerFixtures.createDeltaker(deltakerId, GjennomforingFixtures.EnkelAmo.id),
+                DeltakerFixtures.createDeltaker(deltakerId, GjennomforingDboFixtures.EnkelAmo.id),
             ),
         ).initialize(database.api)
 
@@ -95,7 +95,7 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
 
     val request = TilskuddBehandlingRequest(
         id = behandlingId,
-        gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
+        gjennomforingId = GjennomforingDboFixtures.EnkelAmo.id,
         tilskuddVedtak = listOf(
             TilskuddVedtakRequest(
                 id = tilskuddVedtakId,

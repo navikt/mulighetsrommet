@@ -23,7 +23,6 @@ import no.nav.mulighetsrommet.api.domain.testing.fixture.AvtaleFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.DeltakerFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavAnsattFixture
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavEnhetFixtures
-import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures
 import no.nav.mulighetsrommet.api.fixtures.setTilsagnStatus
@@ -31,6 +30,7 @@ import no.nav.mulighetsrommet.api.getAnsattClaims
 import no.nav.mulighetsrommet.api.mockAmtDeltakerPersonalia
 import no.nav.mulighetsrommet.api.mockPdlEmptyResult
 import no.nav.mulighetsrommet.api.mockTilgangsmaskinenForbidden
+import no.nav.mulighetsrommet.api.persistence.testing.fixture.GjennomforingDboFixtures
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
@@ -63,7 +63,7 @@ class TilsagnRoutesTest : FunSpec({
     val ansatt = NavAnsattFixture.DonaldDuck
 
     val deltaker = DeltakerFixtures.createDeltaker(
-        gjennomforingId = GjennomforingFixtures.AFT1.id,
+        gjennomforingId = GjennomforingDboFixtures.AFT1.id,
     )
     val tilsagn = TilsagnFixtures.Tilsagn1.copy(
         deltakere = listOf(
@@ -77,7 +77,7 @@ class TilsagnRoutesTest : FunSpec({
     val domain = MulighetsrommetTestDomain(
         ansatte = listOf(ansatt, NavAnsattFixture.FetterAnton),
         avtaler = listOf(AvtaleFixtures.AFT),
-        gjennomforinger = listOf(GjennomforingFixtures.AFT1, GjennomforingFixtures.EnkelAmo),
+        gjennomforinger = listOf(GjennomforingDboFixtures.AFT1, GjennomforingDboFixtures.EnkelAmo),
         tilsagn = listOf(tilsagn),
         deltakere = listOf(deltaker),
     ) {
@@ -119,7 +119,7 @@ class TilsagnRoutesTest : FunSpec({
                 "kostnadssteder=0400&kostnadssteder=0502" to listOf("A-2025/1-1", "A-2025/1-2"),
                 "kostnadssteder=0400&kostnadssteder=0400" to listOf("A-2025/1-1"),
                 "kostnadssteder=9999" to emptyList(),
-                "kostnadssteder=0400&statuser=GODKJENT&gjennomforingId=${GjennomforingFixtures.AFT1.id}" to listOf("A-2025/1-1"),
+                "kostnadssteder=0400&statuser=GODKJENT&gjennomforingId=${GjennomforingDboFixtures.AFT1.id}" to listOf("A-2025/1-1"),
                 "kostnadssteder=0502&statuser=GODKJENT" to emptyList(),
                 "kostnadssteder=0400&gjennomforingId=${UUID.randomUUID()}" to emptyList(),
             )
@@ -145,7 +145,7 @@ class TilsagnRoutesTest : FunSpec({
         withTestApplication(appConfig("AVVIST_SKJERMING")) {
             val claims = getAnsattClaims(ansatt, setOf(generellRolle, saksbehandlerRolle))
             val request = TilsagnFixtures.TilsagnRequest1.copy(
-                gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
+                gjennomforingId = GjennomforingDboFixtures.EnkelAmo.id,
                 type = TilsagnType.TILSKUDD_TIL_OPPLAERING,
             )
             val response = client.post("/api/tiltaksadministrasjon/tilsagn/defaults") {
@@ -164,7 +164,7 @@ class TilsagnRoutesTest : FunSpec({
             val claims = getAnsattClaims(ansatt, setOf(generellRolle, saksbehandlerRolle))
             val request = TilsagnFixtures.TilsagnRequest1.copy(
                 id = UUID.randomUUID(),
-                gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
+                gjennomforingId = GjennomforingDboFixtures.EnkelAmo.id,
                 type = TilsagnType.TILSKUDD_TIL_OPPLAERING,
             )
             val response = client.put("/api/tiltaksadministrasjon/tilsagn") {

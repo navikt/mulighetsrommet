@@ -22,10 +22,10 @@ import no.nav.mulighetsrommet.api.domain.testing.fixture.AvtaleFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeFeature
-import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingArenaService
 import no.nav.mulighetsrommet.api.gjennomforing.service.PersonaliaServicePort
+import no.nav.mulighetsrommet.api.persistence.testing.fixture.GjennomforingDboFixtures
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.arena.ArenaGjennomforingDbo
 import no.nav.mulighetsrommet.arena.Avslutningsstatus
@@ -187,7 +187,7 @@ class ArenaAdapterServiceTest : FunSpec({
         }
 
         test("oppdaterer arena-felter når tiltakstype er migrert") {
-            val gjennomforing1 = GjennomforingFixtures.Oppfolging1.copy(
+            val gjennomforing1 = GjennomforingDboFixtures.Oppfolging1.copy(
                 startDato = LocalDate.now(),
                 sluttDato = LocalDate.now().plusDays(1),
             )
@@ -250,7 +250,7 @@ class ArenaAdapterServiceTest : FunSpec({
         }
 
         test("skal publisere til kafka når det er endringer fra Arena") {
-            val gjennomforing1 = GjennomforingFixtures.Oppfolging1
+            val gjennomforing1 = GjennomforingDboFixtures.Oppfolging1
 
             MulighetsrommetTestDomain(
                 navEnheter = listOf(NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik),
@@ -398,7 +398,7 @@ class ArenaAdapterServiceTest : FunSpec({
         }
 
         test("oppdaterer bare arenadata når tiltakstype er migrert") {
-            val gjennomforing = GjennomforingFixtures.EnkelAmo.copy(
+            val gjennomforing = GjennomforingDboFixtures.EnkelAmo.copy(
                 id = arenaGjennomforing.id,
                 navn = "Gammelt navn",
             )
@@ -425,8 +425,8 @@ class ArenaAdapterServiceTest : FunSpec({
     }
 
     context("removeTiltaksgjennomforing") {
-        val arenaEnkelAmo = GjennomforingFixtures.ArenaEnkelAmo
-        val arenaArbeidsrettetRehabilitering = GjennomforingFixtures.ArenaArbeidsrettetRehabilitering
+        val arenaEnkelAmo = GjennomforingDboFixtures.ArenaEnkelAmo
+        val arenaArbeidsrettetRehabilitering = GjennomforingDboFixtures.ArenaArbeidsrettetRehabilitering
 
         beforeEach {
             MulighetsrommetTestDomain(
