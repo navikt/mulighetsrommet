@@ -57,7 +57,7 @@ object TilskuddFixtures {
         vedtakResultat = VedtakResultat.AVSLAG,
         kommentarVedtaksbrev = "Vilkårene for tilskuddet er ikke oppfylt, derfor avslås søknaden.",
         utbetalingMottaker = TilskuddMottaker.Arrangor(
-            referanse = ArrangorReferanse.Kid(Kid.parse("116")!!),
+            referanse = ArrangorReferanse.Kid(Kid.parseOrThrow("116")),
         ),
         soknadJournalpostId = JournalpostId("123"),
         soknadDato = LocalDate.of(2024, 1, 15),

@@ -119,7 +119,7 @@ class TilskuddBehandlingValidatorTest : FunSpec({
                     periode = Periode.fromInclusiveDates(periodeStart, periodeSlutt),
                     kostnadssted = behandlendeEnhet,
                     vedtakResultat = VedtakResultat.INNVILGELSE,
-                    utbetalingMottaker = TilskuddMottaker.Arrangor(referanse = ArrangorReferanse.Kid(Kid.parse("116")!!)),
+                    utbetalingMottaker = TilskuddMottaker.Arrangor(referanse = ArrangorReferanse.Kid(Kid.parseOrThrow("116"))),
                     utbetalingBelop = ValutaBelop(2000, Valuta.NOK),
                     kommentarIntern = "Intern kommentar",
                     kommentarVedtaksbrev = "Vedtakskommentar",
@@ -222,69 +222,100 @@ class TilskuddBehandlingValidatorTest : FunSpec({
         )
     }
 
-    context("arrangørreferanse") {
-        ArrangorReferanseType.entries.forEach { referanseType ->
-            test("godtar $referanseType uten den andre referansen når mottaker er arrangør") {
+    context("ArrangorReferanse") {
+        test("validert KID-nummer når referansen er valgt") {
+            val request = validTilskuddVedtakRequest().copy(
+                arrangorReferanse = ArrangorReferanseType.KID,
+                kidNummer = "116",
+                fakturanummer = null,
+            )
+
+            val result = TilskuddBehandlingValidator.validateTilskuddRequest(
+                req = request,
+                index = 0,
+                ctx = createCtx(),
+            ).shouldBeRight()
+
+            result.utbetalingMottaker shouldBe TilskuddMottaker.Arrangor(ArrangorReferanse.Kid(Kid.parseOrThrow("116")))
+        }
+
+        test("validert fakturanummer når referansen er valgt") {
+            val request = validTilskuddVedtakRequest().copy(
+                arrangorReferanse = ArrangorReferanseType.FAKTURANUMMER,
+                kidNummer = null,
+                fakturanummer = "123456",
+            )
+
+            val result = TilskuddBehandlingValidator.validateTilskuddRequest(
+                req = request,
+                index = 0,
+                ctx = createCtx(),
+            ).shouldBeRight()
+
+            result.utbetalingMottaker shouldBe TilskuddMottaker.Arrangor(ArrangorReferanse.Fakturanummer(Fakturanummer.parseOrThrow("123456")))
+        }
+
+        test("krever KID hvis valgt som referanse, selvom fakturanummer er oppgitt") {
+            val request = validTilskuddVedtakRequest().copy(
+                arrangorReferanse = ArrangorReferanseType.KID,
+                kidNummer = null,
+                fakturanummer = "123456",
+            )
+
+            TilskuddBehandlingValidator.validateTilskuddRequest(
+                req = request,
+                index = 2,
+                ctx = createCtx(),
+            ).shouldBeLeft().shouldContainExactlyInAnyOrder(
+                FieldError("/tilskuddVedtak/2/kidNummer", "Du må oppgi et KID-nummer"),
+                FieldError("/tilskuddVedtak/2/kidNummer", "Ugyldig KID"),
+            )
+        }
+
+        test("krever fakturanummer hvis valgt som referanse, selvom kid er oppgitt") {
+            val request = validTilskuddVedtakRequest().copy(
+                arrangorReferanse = ArrangorReferanseType.FAKTURANUMMER,
+                kidNummer = "116",
+                fakturanummer = null,
+            )
+
+            TilskuddBehandlingValidator.validateTilskuddRequest(
+                req = request,
+                index = 2,
+                ctx = createCtx(),
+            ).shouldBeLeft().shouldContainExactlyInAnyOrder(
+                FieldError("/tilskuddVedtak/2/fakturanummer", "Du må oppgi et fakturanummer"),
+                FieldError("/tilskuddVedtak/2/fakturanummer", "Ugyldig fakturanummer"),
+            )
+        }
+
+        listOf("", " ", "ugyldig").forEach { nummer ->
+            test("avviser ugyldig KID med verdi '$nummer'") {
                 val request = validTilskuddVedtakRequest().copy(
-                    arrangorReferanse = referanseType,
-                    kidNummer = if (referanseType == ArrangorReferanseType.KID) "116" else null,
-                    fakturanummer = if (referanseType == ArrangorReferanseType.FAKTURANUMMER) "123456" else null,
+                    arrangorReferanse = ArrangorReferanseType.KID,
+                    kidNummer = nummer,
+                    fakturanummer = null,
                 )
 
-                val result = TilskuddBehandlingValidator.validateTilskuddRequest(
+                TilskuddBehandlingValidator.validateTilskuddRequest(
                     req = request,
-                    index = 0,
+                    index = 1,
                     ctx = createCtx(),
-                ).shouldBeRight()
-
-                val referanse = when (referanseType) {
-                    ArrangorReferanseType.KID -> ArrangorReferanse.Kid(requireNotNull(Kid.parse("116")))
-                    ArrangorReferanseType.FAKTURANUMMER -> ArrangorReferanse.Fakturanummer(Fakturanummer.parseOrThrow("123456"))
-                }
-                result.utbetalingMottaker shouldBe TilskuddMottaker.Arrangor(referanse)
+                ) shouldBeLeft listOf(FieldError("/tilskuddVedtak/1/kidNummer", "Ugyldig KID"))
             }
 
-            listOf(false, true).forEach { harAnnenReferanse ->
-                test("krever nummer for valgt $referanseType når annen referanse er ${if (harAnnenReferanse) "oppgitt" else "null"}") {
-                    val request = validTilskuddVedtakRequest().copy(
-                        arrangorReferanse = referanseType,
-                        kidNummer = if (harAnnenReferanse && referanseType == ArrangorReferanseType.FAKTURANUMMER) "116" else null,
-                        fakturanummer = if (harAnnenReferanse && referanseType == ArrangorReferanseType.KID) "123456" else null,
-                    )
-                    val (felt, melding, ugyldigMelding) = when (referanseType) {
-                        ArrangorReferanseType.KID -> Triple("kidNummer", "Du må oppgi et kid-nummer", "Ugyldig kid")
-                        ArrangorReferanseType.FAKTURANUMMER -> Triple("fakturanummer", "Du må oppgi et fakturanummer", "Ugyldig fakturanummer")
-                    }
+            test("avviser ugyldig fakturanummer med verdi '$nummer'") {
+                val request = validTilskuddVedtakRequest().copy(
+                    arrangorReferanse = ArrangorReferanseType.FAKTURANUMMER,
+                    kidNummer = null,
+                    fakturanummer = nummer,
+                )
 
-                    TilskuddBehandlingValidator.validateTilskuddRequest(
-                        req = request,
-                        index = 2,
-                        ctx = createCtx(),
-                    ).shouldBeLeft().shouldContainExactlyInAnyOrder(
-                        FieldError("/tilskuddVedtak/2/$felt", melding),
-                        FieldError("/tilskuddVedtak/2/$felt", ugyldigMelding),
-                    )
-                }
-            }
-
-            listOf("", " ", "ugyldig").forEach { nummer ->
-                test("avviser ugyldig $referanseType med verdi '$nummer'") {
-                    val request = validTilskuddVedtakRequest().copy(
-                        arrangorReferanse = referanseType,
-                        kidNummer = if (referanseType == ArrangorReferanseType.KID) nummer else null,
-                        fakturanummer = if (referanseType == ArrangorReferanseType.FAKTURANUMMER) nummer else null,
-                    )
-                    val (felt, melding) = when (referanseType) {
-                        ArrangorReferanseType.KID -> "kidNummer" to "Ugyldig kid"
-                        ArrangorReferanseType.FAKTURANUMMER -> "fakturanummer" to "Ugyldig fakturanummer"
-                    }
-
-                    TilskuddBehandlingValidator.validateTilskuddRequest(
-                        req = request,
-                        index = 1,
-                        ctx = createCtx(),
-                    ) shouldBeLeft listOf(FieldError("/tilskuddVedtak/1/$felt", melding))
-                }
+                TilskuddBehandlingValidator.validateTilskuddRequest(
+                    req = request,
+                    index = 1,
+                    ctx = createCtx(),
+                ) shouldBeLeft listOf(FieldError("/tilskuddVedtak/1/fakturanummer", "Ugyldig fakturanummer"))
             }
         }
 
@@ -300,7 +331,7 @@ class TilskuddBehandlingValidatorTest : FunSpec({
                 index = 0,
                 ctx = createCtx(),
             ) shouldBeLeft listOf(
-                FieldError("/tilskuddVedtak/0/arrangorReferanse", "Du må velge kid eller fakturanummer"),
+                FieldError("/tilskuddVedtak/0/arrangorReferanse", "Du må velge KID eller fakturanummer"),
             )
         }
     }

@@ -307,14 +307,14 @@ object TilskuddBehandlingValidator {
                 validateNotNull(req.kidNummer) {
                     FieldError(
                         "/tilskuddVedtak/$index/kidNummer",
-                        "Du må oppgi et kid-nummer",
+                        "Du må oppgi et KID-nummer",
                     )
                 }
                 val parsedKid = req.kidNummer?.let(Kid::parse)
                 validateNotNull(parsedKid) {
                     FieldError(
                         "/tilskuddVedtak/$index/kidNummer",
-                        "Ugyldig kid",
+                        "Ugyldig KID",
                     )
                 }
                 if (errors.isEmpty()) {
@@ -349,7 +349,7 @@ object TilskuddBehandlingValidator {
                 error {
                     FieldError(
                         "/tilskuddVedtak/$index/arrangorReferanse",
-                        "Du må velge kid eller fakturanummer",
+                        "Du må velge KID eller fakturanummer",
                     )
                 }
                 null

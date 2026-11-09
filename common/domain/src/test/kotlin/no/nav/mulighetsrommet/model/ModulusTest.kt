@@ -19,7 +19,7 @@ class ModulusTest : FunSpec({
         Modulus.hasValidControlDigit("1677036255", Modulus.Algorithm.MOD11) shouldBe false
     }
 
-    test("ekte kid nummer") {
+    test("ekte KID nummer") {
         "006402710013".let {
             Modulus.hasValidControlDigit(it, Modulus.Algorithm.MOD10) ||
                 Modulus.hasValidControlDigit(it, Modulus.Algorithm.MOD11) shouldBe true

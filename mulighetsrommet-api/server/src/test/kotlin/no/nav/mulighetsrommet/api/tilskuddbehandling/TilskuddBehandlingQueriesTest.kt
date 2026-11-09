@@ -77,7 +77,7 @@ class TilskuddBehandlingQueriesTest : FunSpec({
                 ),
                 vedtakResultat = VedtakResultat.INNVILGELSE,
                 kommentarVedtaksbrev = "k2",
-                utbetalingMottaker = TilskuddMottaker.Arrangor(referanse = ArrangorReferanse.Kid(Kid.parse("116")!!)),
+                utbetalingMottaker = TilskuddMottaker.Arrangor(referanse = ArrangorReferanse.Kid(Kid.parseOrThrow("116"))),
                 soknadJournalpostId = JournalpostId("123"),
                 soknadDato = LocalDate.of(2024, 1, 15),
                 periode = Periode(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 7, 1)),
@@ -95,7 +95,7 @@ class TilskuddBehandlingQueriesTest : FunSpec({
                 utbetalingBelop = null,
                 vedtakResultat = VedtakResultat.AVSLAG,
                 kommentarVedtaksbrev = "k2",
-                utbetalingMottaker = TilskuddMottaker.Arrangor(referanse = ArrangorReferanse.Kid(Kid.parse("116")!!)),
+                utbetalingMottaker = TilskuddMottaker.Arrangor(referanse = ArrangorReferanse.Kid(Kid.parseOrThrow("116"))),
                 soknadJournalpostId = JournalpostId("123"),
                 soknadDato = LocalDate.of(2024, 1, 15),
                 periode = Periode(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 7, 1)),
@@ -111,7 +111,7 @@ class TilskuddBehandlingQueriesTest : FunSpec({
     context("insert and get") {
         listOf(
             "fakturanummer" to ArrangorReferanse.Fakturanummer(Fakturanummer.parseOrThrow("123456")),
-            "KID" to ArrangorReferanse.Kid(requireNotNull(Kid.parse("116"))),
+            "KID" to ArrangorReferanse.Kid(Kid.parseOrThrow("116")),
             "null KID" to ArrangorReferanse.Kid(null),
         ).forEach { (navn, referanse) ->
             test("insert og get returnerer tilskuddvedtak med $navn som arrangørreferanse") {
@@ -174,8 +174,8 @@ class TilskuddBehandlingQueriesTest : FunSpec({
                         v.soknadBelop.valuta shouldBe Valuta.NOK
                         v.vedtakResultat.type shouldBe VedtakResultat.INNVILGELSE
                         v.kommentarVedtaksbrev shouldBe "k2"
-                        v.utbetalingMottaker shouldBe TilskuddMottaker.Arrangor(referanse = ArrangorReferanse.Kid(Kid.parse("116")!!))
-                        v.kid shouldBe Kid.parse("116")
+                        v.utbetalingMottaker shouldBe TilskuddMottaker.Arrangor(referanse = ArrangorReferanse.Kid(Kid.parseOrThrow("116")))
+                        v.kid shouldBe Kid.parseOrThrow("116")
                         v.utbetalingBelop?.belop shouldBe 200
                         v.utbetalingBelop?.valuta shouldBe Valuta.NOK
                         v.soknadJournalpostId shouldBe behandling.tilskudd[1].soknadJournalpostId

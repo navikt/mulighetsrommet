@@ -260,7 +260,7 @@ class GenererUtbetalingServiceTest : FunSpec({
             utbetaling.beregning.output.pris shouldBe 20975.NOK
         }
 
-        test("genererer utbetaling med kid-nummer fra forrige godkjente utbetaling fra arrangør") {
+        test("genererer utbetaling med KID-nummer fra forrige godkjente utbetaling fra arrangør") {
             MulighetsrommetTestDomain(
                 deltakere = listOf(
                     DeltakerFixtures.createDeltakerMedDeltakelsesmengder(
