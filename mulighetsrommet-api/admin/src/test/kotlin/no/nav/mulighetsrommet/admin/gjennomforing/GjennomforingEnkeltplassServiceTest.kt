@@ -19,6 +19,7 @@ import no.nav.mulighetsrommet.admin.opplaring.OpplaringKategoriseringRequest
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
 import no.nav.mulighetsrommet.api.contracts.gjennomforing.TiltaksgjennomforingV2Dto
 import no.nav.mulighetsrommet.api.domain.deltaker.Deltakelsesmengde
+import no.nav.mulighetsrommet.api.domain.gjennomforing.Artskontokode
 import no.nav.mulighetsrommet.api.domain.gjennomforing.Gjennomforing
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingEnkeltplassStatus
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsatt
@@ -145,6 +146,15 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
     context("opprettUtkast") {
         val service = createService()
+
+        test("setter artskontokode ved opprettelse av enkeltplass") {
+            val utkast = createRequest().copy(
+                tiltakskode = Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV,
+            )
+
+            service.opprettUtkast(utkast, opprettetAv).shouldBeRight()
+                .gjennomforing.artskontokode shouldBe Artskontokode.ENKELTPLASS_NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV
+        }
 
         test("oppretter enkeltplass uten å sende økonomi til godkjenning") {
             val utkast = createRequest()

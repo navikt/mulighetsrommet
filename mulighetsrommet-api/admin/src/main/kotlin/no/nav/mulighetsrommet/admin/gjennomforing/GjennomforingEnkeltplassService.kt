@@ -22,6 +22,7 @@ import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingEnkeltplassStatus
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingType
+import no.nav.mulighetsrommet.api.domain.gjennomforing.utledArtskontokode
 import no.nav.mulighetsrommet.api.domain.navansatt.OkonomiAuthorization
 import no.nav.mulighetsrommet.api.domain.navansatt.OkonomiBeslutningContext
 import no.nav.mulighetsrommet.api.domain.opplaring.Kurstype
@@ -469,6 +470,7 @@ class GjennomforingEnkeltplassService(
             type = GjennomforingType.ENKELTPLASS,
             id = upsert.id,
             tiltakskode = tiltakstype.tiltakskode,
+            artskontokode = utledArtskontokode(tiltakstype.tiltakskode, GjennomforingOppstartstype.ENKELTPLASS),
             arrangorId = upsert.arrangorId,
             navn = upsert.navn ?: tiltakstype.navn,
             startDato = upsert.startDato,

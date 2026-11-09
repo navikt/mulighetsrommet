@@ -30,6 +30,7 @@ class SqlGjennomforingWriter(private val queries: GjennomforingQueries) : Gjenno
                 id = gjennomforing.id,
                 type = gjennomforing.type,
                 tiltakskode = gjennomforing.tiltakskode,
+                artskontokode = gjennomforing.artskontokode,
                 arrangorId = gjennomforing.arrangorId,
                 navn = gjennomforing.navn,
                 startDato = gjennomforing.startDato,

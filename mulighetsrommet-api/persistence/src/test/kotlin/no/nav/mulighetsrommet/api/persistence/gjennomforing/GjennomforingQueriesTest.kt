@@ -2,6 +2,8 @@ package no.nav.mulighetsrommet.api.persistence.gjennomforing
 
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.data.blocking.forAll
+import io.kotest.data.row
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
@@ -14,6 +16,7 @@ import io.kotest.matchers.types.shouldBeTypeOf
 import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.api.domain.arrangor.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.domain.gjennomforing.AnsvarligEnhet
+import no.nav.mulighetsrommet.api.domain.gjennomforing.Artskontokode
 import no.nav.mulighetsrommet.api.domain.gjennomforing.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.domain.gjennomforing.Gjennomforing
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingAvtale
@@ -76,6 +79,25 @@ class GjennomforingQueriesTest : FunSpec({
 
     beforeSpec {
         database.run { domain.initialize() }
+    }
+
+    test("artskontokode lagres ved opprettelse og beholdes ved upsert") {
+        forAll(
+            row(GruppeAmo1, Artskontokode.GRUPPE_ARBEIDSMARKEDSOPPLAERING),
+            row(EnkelAmo, Artskontokode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING),
+            row(ArenaEnkelAmo, Artskontokode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING),
+        ) { opprinnelig, artskontokode ->
+            database.runAndRollback {
+                val dbo = opprinnelig.copy(artskontokode = artskontokode)
+                gjennomforing.upsert(dbo)
+
+                gjennomforing.getGjennomforingOrError(dbo.id).artskontokode shouldBe artskontokode
+
+                gjennomforing.upsert(dbo.copy(artskontokode = null))
+
+                gjennomforing.getGjennomforingOrError(dbo.id).artskontokode shouldBe artskontokode
+            }
+        }
     }
 
     context("avtale") {

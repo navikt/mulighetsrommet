@@ -24,6 +24,7 @@ sealed class Gjennomforing {
     abstract val id: UUID
     abstract val lopenummer: Tiltaksnummer
     abstract val tiltakstype: Tiltakstype
+    abstract val artskontokode: Artskontokode?
     abstract val arrangor: ArrangorUnderenhet
     abstract val arena: ArenaData?
     abstract val navn: String
@@ -119,6 +120,7 @@ data class GjennomforingAvtale(
     @Serializable(with = UUIDSerializer::class)
     override val id: UUID,
     override val tiltakstype: Tiltakstype,
+    override val artskontokode: Artskontokode?,
     override val lopenummer: Tiltaksnummer,
     override val arrangor: ArrangorUnderenhet,
     override val arena: ArenaData?,
@@ -161,6 +163,7 @@ data class GjennomforingEnkeltplass(
     override val id: UUID,
     override val lopenummer: Tiltaksnummer,
     override val tiltakstype: Tiltakstype,
+    override val artskontokode: Artskontokode?,
     override val arrangor: ArrangorUnderenhet,
     override val arena: ArenaData?,
     override val navn: String,
@@ -200,6 +203,7 @@ data class GjennomforingArena(
     override val id: UUID,
     override val lopenummer: Tiltaksnummer,
     override val tiltakstype: Tiltakstype,
+    override val artskontokode: Artskontokode?,
     override val arrangor: ArrangorUnderenhet,
     override val arena: ArenaData?,
     override val navn: String,

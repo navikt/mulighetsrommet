@@ -41,6 +41,7 @@ object GjennomforingFixtures {
     ) = GjennomforingAvtale(
         id = id,
         tiltakstype = Gjennomforing.Tiltakstype(UUID.randomUUID(), "Oppfølging", tiltakskode),
+        artskontokode = null,
         lopenummer = Tiltaksnummer("2025/10000"),
         arrangor = Gjennomforing.ArrangorUnderenhet(
             id = UUID.randomUUID(),
@@ -78,6 +79,7 @@ object GjennomforingFixtures {
         id = id,
         lopenummer = Tiltaksnummer("2025/10001"),
         tiltakstype = Gjennomforing.Tiltakstype(UUID.randomUUID(), "Enkel AMO", tiltakskode),
+        artskontokode = null,
         arrangor = Gjennomforing.ArrangorUnderenhet(
             id = UUID.randomUUID(),
             organisasjonsnummer = Organisasjonsnummer("123456789"),

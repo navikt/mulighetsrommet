@@ -53,6 +53,7 @@ object GjennomforingFixtures {
     ): GjennomforingAvtale {
         return GjennomforingAvtale(
             id = id,
+            artskontokode = null,
             tiltakstype = Gjennomforing.Tiltakstype(
                 id = UUID.randomUUID(),
                 navn = "Test tiltakstype",

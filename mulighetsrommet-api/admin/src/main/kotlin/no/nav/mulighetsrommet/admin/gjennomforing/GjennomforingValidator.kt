@@ -7,6 +7,7 @@ import no.nav.mulighetsrommet.admin.avtale.AmoKategoriseringRequest
 import no.nav.mulighetsrommet.api.domain.avtale.Avtale
 import no.nav.mulighetsrommet.api.domain.avtale.AvtaleStatus
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingType
+import no.nav.mulighetsrommet.api.domain.gjennomforing.utledArtskontokode
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsatt
 import no.nav.mulighetsrommet.api.domain.opplaring.Bransje
 import no.nav.mulighetsrommet.api.domain.opplaring.ForerkortKlasse
@@ -104,6 +105,7 @@ object GjennomforingValidator {
                 id = id,
                 type = GjennomforingType.AVTALE,
                 tiltakskode = ctx.avtale.tiltakskode,
+                artskontokode = utledArtskontokode(ctx.avtale.tiltakskode, result.detaljer.oppstart),
                 avtaleId = ctx.avtale.id,
                 arrangorId = result.detaljer.arrangorId,
                 navn = result.detaljer.navn,

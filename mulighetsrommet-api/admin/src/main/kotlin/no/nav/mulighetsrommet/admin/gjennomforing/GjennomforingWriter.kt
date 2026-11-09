@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.admin.gjennomforing
 
 import arrow.core.Either
+import no.nav.mulighetsrommet.api.domain.gjennomforing.Artskontokode
 import no.nav.mulighetsrommet.api.domain.gjennomforing.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingType
 import no.nav.mulighetsrommet.model.Faneinnhold
@@ -73,6 +74,7 @@ data class UpsertGjennomforing(
     val id: UUID,
     val type: GjennomforingType,
     val tiltakskode: Tiltakskode,
+    val artskontokode: Artskontokode?,
     val arrangorId: UUID,
     val navn: String,
     val startDato: LocalDate?,
