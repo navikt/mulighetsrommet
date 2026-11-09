@@ -85,15 +85,7 @@
           "type": "paragraph",
           "words": [
             {
-              "text": "Du kan se alle utbetalingene dine på nav.no/minside. Der kan du også endre kontonummer. Hvis du har reservert deg mot digital kommunikasjon fra det offentlige, får du utbetalingsmelding i posten. Du kan også melde fra om endring i kontonummer via post."
-            }
-          ]
-        },
-        {
-          "type": "paragraph",
-          "words": [
-            {
-              "text": "Kontakt oss på telefon 55 55 33 33 hvis du trenger hjelp. "
+              "text": "Du kan se alle utbetalingene dine på nav.no/minside. Der kan du også endre kontonummer. Hvis du har reservert deg mot digital kommunikasjon fra det offentlige, får du utbetalingsmelding i posten. Du kan også melde fra om endring i kontonummer via post. Kontakt oss hvis du trenger hjelp til dette."
             }
           ]
         }
@@ -181,15 +173,7 @@
           "type": "paragraph",
           "words": [
             {
-              "text": "Du kan se alle utbetalingene dine på nav.no/minside. Der kan du også endre kontonummer. Hvis du har reservert deg mot digital kommunikasjon fra det offentlige, får du utbetalingsmelding i posten. Du kan også melde fra om endring i kontonummer via post."
-            }
-          ]
-        },
-        {
-          "type": "paragraph",
-          "words": [
-            {
-              "text": "Kontakt oss på telefon 55 55 33 33 hvis du trenger hjelp. "
+              "text": "Du kan se alle utbetalingene dine på nav.no/minside. Der kan du også endre kontonummer. Hvis du har reservert deg mot digital kommunikasjon fra det offentlige, får du utbetalingsmelding i posten. Du kan også melde fra om endring i kontonummer via post. Kontakt oss hvis du trenger hjelp til dette."
             }
           ]
         }
@@ -261,7 +245,7 @@
           "type": "paragraph",
           "words": [
             {
-              "text": "Hvis du mener vedtaket er feil, kan du klage innen 6 uker fra den datoen vedtaket har kommet fram til deg. Dette følger av arbeidsmarkedsloven § 17. Du finner skjema og informasjon på nav.no/klage."
+              "text": "Hvis du mener vedtaket er feil, har du rett til å klage. Du må sende klagen innen 6 uker fra den datoen vedtaket har kommet fram til deg. Dette følger av arbeidsmarkedsloven § 17. Du finner mer informasjon om hvordan du kan klage på nav.no/klage."
             }
           ]
         },
@@ -269,7 +253,7 @@
           "type": "paragraph",
           "words": [
             {
-              "text": "Nav kan veilede deg på telefon om hvordan du sender en klage. Nav-kontoret ditt kan også hjelpe deg med å skrive en klage. Kontakt oss på telefon 55 55 33 33."
+              "text": "Nav kan veilede deg på telefon hvis du trenger hjelp til å sende en klage. Du kan også få hjelp av Nav-kontoret ditt til å skrive en klage. Hvis du velger å sende klagen på papir, må du huske å signere den."
             }
           ]
         },
@@ -277,7 +261,7 @@
           "type": "paragraph",
           "words": [
             {
-              "text": "Hvis du får medhold i klagen, kan du få dekket vesentlige utgifter som har vært nødvendige for å få endret vedtaket, for eksempel hjelp fra advokat. Du kan ha krav på fri rettshjelp etter rettshjelploven. Du kan få mer informasjon om denne ordningen hos advokater, statsforvalteren eller Nav."
+              "text": "Når du klager, vil den Nav-enheten som har skrevet vedtaket, vurdere saken din på nytt. Hvis du får medhold i klagen din, mottar du et nytt vedtak. Hvis du ikke får medhold, sender vi klagen videre til Nav klageinstans. Du får brev når saken er sendt dit. I brevet står det hva som skjer videre. Før en sak kan bringes inn for domstolene, må du ha brukt muligheten til å klage og anke. Dette følger av arbeidsmarkedsloven § 17"
             }
           ]
         },
@@ -285,7 +269,7 @@
           "type": "paragraph",
           "words": [
             {
-              "text": "Du kan lese om saksomkostninger i forvaltningsloven § 36."
+              "text": "Hvis du får medhold i klagen, kan du ha rett til å få dekket utgifter som har vært nødvendige for å få endret vedtaket, for eksempel hjelp fra advokat. Du kan lese mer om sakskostnader i forvaltningsloven § 36. Du kan ha krav på fri rettshjelp etter rettshjelploven. Du kan få mer informasjon om denne ordningen hos advokater, statsforvalteren eller Nav. "
             }
           ]
         },
@@ -293,15 +277,7 @@
           "type": "paragraph",
           "words": [
             {
-              "text": "Hvis du sender klage i posten, må du signere klagen."
-            }
-          ]
-        },
-        {
-          "type": "paragraph",
-          "words": [
-            {
-              "text": "Mer informasjon om klagerettigheter finner du på nav.no/klagerettigheter."
+              "text": "Les mer på nav.no/klagerettigheter."
             }
           ]
         }
@@ -317,7 +293,7 @@
           "type": "paragraph",
           "words": [
             {
-              "text": "Du har rett til å se dokumentene i saken din. Dette følger av forvaltningsloven § 18. Kontakt oss om du vil se dokumentene i saken din. Ta kontakt på nav.no/kontakt eller på telefon 55 55 33 33. Du kan lese mer om innsynsretten på nav.no/personvernerklaering."
+              "text": "Du har rett til å se dokumentene i saken din. Dette følger av forvaltningsloven § 18. Du har tilgang til mange av dokumentene dine digitalt på nav.no. Hvis det er dokumenter du ikke finner, kan du be oss om innsyn i disse. Du kan lese mer om retten til innsyn på nav.no/innsynskrav."
             }
           ]
         }
@@ -333,7 +309,7 @@
           "type": "paragraph",
           "words": [
             {
-              "text": "Du finner informasjon om hvordan Nav behandler personopplysningene dine, og hvilke rettigheter du har, på nav.no/personvernerklaering. Nav kan veilede deg på telefon 55 55 33 33 om hvordan Nav behandler personopplysninger."
+              "text": "Du finner informasjon om hvordan Nav behandler personopplysningene dine, og hvilke rettigheter du har, på nav.no/personvernerklaering."
             }
           ]
         }
