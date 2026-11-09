@@ -4,6 +4,7 @@ import com.diffplug.selfie.coroutines.expectSelfie
 import io.kotest.core.spec.style.FunSpec
 import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
+import no.nav.mulighetsrommet.model.Tiltaksnummer
 import java.util.UUID
 
 class TilsagnsbrevMeldingMapperTest : FunSpec({
@@ -18,6 +19,7 @@ class TilsagnsbrevMeldingMapperTest : FunSpec({
         bestillingsnummer = "A-2026/1000-1",
         arrangorOrganisasjonsnummer = Organisasjonsnummer("310438707"),
         arrangorNavn = "AKSEPTABEL EMPIRISK TIGER AS",
+        lopenummer = Tiltaksnummer("2025/11457"),
     )
 
     val pdf = "pdf-innhold".toByteArray()

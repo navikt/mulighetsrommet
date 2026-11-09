@@ -5,9 +5,14 @@ import { addOrRemove, addOrRemoveBy } from "../../utils/utils";
 
 export interface CheckboxGroupProps {
   value: string[];
-  onChange: (value: string[]) => void;
+  onChange: (value: string[], change?: CheckboxGroupChange) => void;
   items: CheckboxGroupItem[];
   legend: string;
+}
+
+export interface CheckboxGroupChange {
+  type: "item" | "group";
+  checked: boolean;
 }
 
 export interface CheckboxGroupItem {
@@ -26,7 +31,20 @@ export function CheckboxDropdownGroup({ value, onChange, items, legend }: Checkb
   const [groupOpen, setGroupOpen] = useState<string[]>([]);
 
   function itemOnChange(id: string) {
-    onChange(addOrRemoveBy(value, id, (a, b) => a === b));
+    onChange(
+      addOrRemoveBy(value, id, (a, b) => a === b),
+      {
+        type: "item",
+        checked: !value.includes(id),
+      },
+    );
+  }
+
+  function groupOnChange(items: CheckboxGroupSubItem[]) {
+    onChange(toggleSelected(value, items), {
+      type: "group",
+      checked: getSelectedItems(value, items).length === 0,
+    });
   }
 
   return (
@@ -59,7 +77,7 @@ export function CheckboxDropdownGroup({ value, onChange, items, legend }: Checkb
                 key={id}
                 checked={isChecked(value, items)}
                 indeterminate={isIndeterminate(value, items)}
-                onChange={() => onChange(toggleSelected(value, items))}
+                onChange={() => groupOnChange(items)}
                 className="text-start"
               >
                 {navn}

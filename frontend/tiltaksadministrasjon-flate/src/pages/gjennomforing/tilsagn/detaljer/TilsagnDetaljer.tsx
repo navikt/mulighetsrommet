@@ -24,7 +24,6 @@ import {
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { TilsagnRegnestykke } from "@/components/tilsagn/beregning/TilsagnRegnestykke";
 import { tilsagnTekster } from "@/components/tilsagn/TilsagnTekster";
-import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { TilsagnTag } from "@/components/tilsagn/TilsagnTag";
 import { formaterValuta } from "@mr/frontend-common/utils/utils";
 import {
@@ -174,7 +173,7 @@ export function TilsagnDetaljer() {
                 />
                 <MetadataVStack
                   label={tilsagnTekster.type.label}
-                  value={avtaletekster.tilsagn.type(type)}
+                  value={tilsagnTekster.type.beskrivelse(type)}
                 />
               </VStack>
             </HGrid>

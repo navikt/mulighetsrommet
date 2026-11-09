@@ -111,6 +111,12 @@ spec:
           permissions:
             roles:
               - tiltakshistorikk-read
+        - application: eien-backend
+          namespace: eien
+          cluster: dev-gcp
+          permissions:
+            roles:
+              - tiltakshistorikk-read
     outbound:
       external:
         - host: data.brreg.no

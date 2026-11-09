@@ -1,20 +1,51 @@
-import { CheckboxDropdownGroup, CheckboxGroupItem } from "@mr/frontend-common";
+import {
+  CheckboxDropdownGroup,
+  CheckboxGroupItem,
+  type CheckboxGroupChange,
+} from "@mr/frontend-common";
 import { RegionKostnadssteder } from "@tiltaksadministrasjon/api-client";
 import { useKostnadssteder } from "@/api/enhet/useKostnadssteder";
+import { useKostnadsstedTracking } from "@/sporing/useKostnadsstedTracking";
 
 interface Props {
   value: string[];
-  onChange: (value: string[]) => void;
+  onChange: (value: string[], change?: CheckboxGroupChange) => void;
+  tilgjengeligeKostnadssteder?: string[];
+  sporingskontekst?: string;
 }
 
-export function KostnadsstedFilter({ value, onChange }: Props) {
+export function KostnadsstedFilter({
+  value,
+  onChange,
+  tilgjengeligeKostnadssteder,
+  sporingskontekst,
+}: Props) {
   const { data: regioner } = useKostnadssteder();
-  const groups = toCheckboxGroups(regioner);
+  const filtrerteRegioner = tilgjengeligeKostnadssteder
+    ? regioner
+        .map(({ region, kostnadssteder }) => ({
+          region,
+          kostnadssteder: kostnadssteder.filter(({ enhetsnummer }) =>
+            tilgjengeligeKostnadssteder.includes(enhetsnummer),
+          ),
+        }))
+        .filter(({ kostnadssteder }) => kostnadssteder.length > 0)
+    : regioner;
+  const groups = toCheckboxGroups(filtrerteRegioner);
+  const { logKostnadsstederEndret } = useKostnadsstedTracking(sporingskontekst);
+
+  const handleChange = (nyeValg: string[], change?: CheckboxGroupChange) => {
+    const kilde =
+      change?.type === "group" ? (change.checked ? "velg_alle" : "fjern_alle") : "enkeltvalg";
+    onChange(nyeValg, change);
+    logKostnadsstederEndret(value, nyeValg, kilde);
+  };
+
   return (
     <CheckboxDropdownGroup
       legend="Kostnadssteder"
       value={value}
-      onChange={onChange}
+      onChange={handleChange}
       items={groups}
     />
   );

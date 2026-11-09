@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.tilsagn.mapper
 
 import no.nav.mulighetsrommet.admin.arrangor.TilsagnsbrevArrangorMelding
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
+import no.nav.mulighetsrommet.model.Tiltaksnummer
 import java.util.UUID
 
 data class TilsagnsbrevMeldingSnapshot(
@@ -10,6 +11,7 @@ data class TilsagnsbrevMeldingSnapshot(
     val bestillingsnummer: String,
     val arrangorOrganisasjonsnummer: Organisasjonsnummer,
     val arrangorNavn: String,
+    val lopenummer: Tiltaksnummer,
 )
 
 object TilsagnsbrevMeldingMapper {
@@ -20,19 +22,20 @@ object TilsagnsbrevMeldingMapper {
         mottakerOrganisasjonsnummer = tilsagn.arrangorOrganisasjonsnummer,
         sendersReferanse = tilsagn.bestillingsnummer,
         innhold = TilsagnsbrevArrangorMelding.Innhold(
-            tittel = "Tilsagnsbrev ${tilsagn.tiltakstypeNavn} ${tilsagn.bestillingsnummer}",
-            brevtekst = "Se vedlagt tilsagnsbrev for ${tilsagn.tiltakstypeNavn}.",
+            tittel = "Bekreftelse på bestilling ${tilsagn.tiltakstypeNavn} ${tilsagn.lopenummer.value}",
+            brevtekst = "Se vedlagt bekreftelsesbrev for ${tilsagn.tiltakstypeNavn}.",
         ),
         varsel = TilsagnsbrevArrangorMelding.Varsel(
-            emne = "Tilsagnsbrev for ${tilsagn.arrangorOrganisasjonsnummer} ${tilsagn.arrangorNavn} er tilgjengelig i Altinn",
+            emne = "Bekreftelse på bestilling for ${tilsagn.arrangorOrganisasjonsnummer} ${tilsagn.arrangorNavn} er tilgjengelig i Altinn",
             tekst = """
-                Tilsagnsbrev for ${tilsagn.arrangorOrganisasjonsnummer} ${tilsagn.arrangorNavn} er tilgjengelig. Logg inn i Altinn for å se innholdet.
+
+                Bekreftelse på bestilling for ${tilsagn.arrangorOrganisasjonsnummer} ${tilsagn.arrangorNavn} er tilgjengelig. Logg inn i Altinn for å se innholdet.
 
                 Vennlig hilsen Nav
             """.trimIndent(),
         ),
         vedlegg = TilsagnsbrevArrangorMelding.Vedlegg(
-            navn = "Tilsagnsbrev-${tilsagn.tiltakstypeNavn}.pdf",
+            navn = "Bekreftelsesbrev-${tilsagn.tiltakstypeNavn}.pdf",
             innhold = pdf,
         ),
         idempotentKey = tilsagn.tilsagnId,

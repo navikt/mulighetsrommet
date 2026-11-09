@@ -2,7 +2,6 @@ package no.nav.mulighetsrommet.api.tilsagn.mapper
 
 import no.nav.mulighetsrommet.api.domain.personalia.Gradering
 import no.nav.mulighetsrommet.api.domain.personalia.Personalia
-import no.nav.mulighetsrommet.api.pdfgen.Deltaker
 import no.nav.mulighetsrommet.api.pdfgen.PdfDocumentContent
 import no.nav.mulighetsrommet.api.pdfgen.Signature
 import no.nav.mulighetsrommet.api.pdfgen.TopSection
@@ -26,27 +25,7 @@ object TilsagnToPdfDocumentContentMapper {
                 publicExemption = true,
                 addressedTo = innhold.arrangor.navn,
                 date = innhold.besluttetTidspunkt.toLocalDate().toString(),
-                reference = innhold.tilsagn.bestilling.bestillingsnummer,
-                deltaker =
-                when {
-                    visPersonopplysningerOmAdressebeskyttetEllerSkjermetPerson -> Deltaker(
-                        navn = innhold.personalia.navn(),
-                        norskIdent = innhold.personalia.norskIdent()?.value,
-                    )
-
-                    innhold.personalia.gradering == Gradering.SKJERMING -> Deltaker("Skjermet")
-
-                    innhold.personalia.gradering in setOf(
-                        Gradering.STRENGT_FORTROLIG_UTLAND,
-                        Gradering.STRENGT_FORTROLIG_ADRESSE,
-                        Gradering.FORTROLIG_ADRESSE,
-                    ) -> Deltaker("Adressebeskyttet")
-
-                    else -> Deltaker(
-                        navn = innhold.personalia.navn(),
-                        norskIdent = innhold.personalia.norskIdent()?.value,
-                    )
-                },
+                reference = innhold.tilsagn.gjennomforing.lopenummer.value,
             ),
         )
 

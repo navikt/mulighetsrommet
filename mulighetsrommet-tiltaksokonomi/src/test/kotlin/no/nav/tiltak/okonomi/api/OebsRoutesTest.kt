@@ -21,9 +21,9 @@ import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.ProblemDetail
-import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Valuta
 import no.nav.security.mock.oauth2.MockOAuth2Server
+import no.nav.tiltak.okonomi.Artskonto
 import no.nav.tiltak.okonomi.BestillingStatusType
 import no.nav.tiltak.okonomi.Bestillingsnummer
 import no.nav.tiltak.okonomi.FakturaStatusType
@@ -32,7 +32,7 @@ import no.nav.tiltak.okonomi.OkonomiFagsystem
 import no.nav.tiltak.okonomi.OkonomiPart
 import no.nav.tiltak.okonomi.OpprettBestilling
 import no.nav.tiltak.okonomi.OpprettFaktura
-import no.nav.tiltak.okonomi.Tilskuddstype
+import no.nav.tiltak.okonomi.Regnskapskonto
 import no.nav.tiltak.okonomi.databaseConfig
 import no.nav.tiltak.okonomi.db.OkonomiDatabase
 import no.nav.tiltak.okonomi.db.QueryContext
@@ -55,8 +55,8 @@ class OebsRoutesTest : FunSpec({
         fagsystem = OkonomiFagsystem.TILTAKSADMINISTRASJON,
         bestilling = OpprettBestilling(
             bestillingsnummer = Bestillingsnummer("A-1-1"),
-            tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
-            tiltakskode = Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
+            regnskapskonto = Regnskapskonto.TILTAK_DRIFTSTILSKUDD,
+            artskonto = Artskonto.ARBEIDSFORBEREDENDE_TRENING,
             arrangor = OpprettBestilling.Arrangor.Norsk(Organisasjonsnummer("234567891")),
             avtalenummer = null,
             belop = 1000,

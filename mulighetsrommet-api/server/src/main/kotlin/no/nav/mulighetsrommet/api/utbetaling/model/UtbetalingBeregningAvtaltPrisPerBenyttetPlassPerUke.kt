@@ -4,9 +4,9 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.domain.deltaker.Deltaker
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.domain.tiltak.PrismodellType
+import no.nav.mulighetsrommet.api.utbetaling.model.Tilskuddstype
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.ValutaBelop
-import no.nav.tiltak.okonomi.Tilskuddstype
 
 @Serializable
 data class UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerUke(

@@ -1,8 +1,8 @@
 package no.nav.mulighetsrommet.api.utbetaling.api
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.utbetaling.model.Tilskuddstype
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
-import no.nav.tiltak.okonomi.Tilskuddstype
 import java.util.UUID
 
 enum class UtbetalingType(val displayName: String, val displayNameLong: String?, val tagName: String?) {

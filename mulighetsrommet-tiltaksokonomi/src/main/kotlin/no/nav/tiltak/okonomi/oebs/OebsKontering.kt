@@ -1,16 +1,16 @@
 package no.nav.tiltak.okonomi.oebs
 
 import no.nav.mulighetsrommet.model.Periode
-import no.nav.mulighetsrommet.model.Tiltakskode
-import no.nav.tiltak.okonomi.Tilskuddstype
+import no.nav.tiltak.okonomi.Artskonto
+import no.nav.tiltak.okonomi.Regnskapskonto
 
 /**
  * Informasjon om kontering av tiltak i OeBS.
- * Regnskapskonto og artskonto gjelder per [tilskuddstype] og [tiltakskode] for en gitt [periode].
+ * Kontonumrene gjelder per [regnskapskonto] og [artskonto] for en gitt [periode].
  */
 data class OebsKontering(
-    val tilskuddstype: Tilskuddstype,
-    val tiltakskode: Tiltakskode,
+    val regnskapskonto: Regnskapskonto,
+    val artskonto: Artskonto,
     val periode: Periode,
     val statligRegnskapskonto: String,
     val statligArtskonto: String,

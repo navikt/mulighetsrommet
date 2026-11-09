@@ -24,3 +24,6 @@ spec:
     - team: amt
       application: amt-deltaker
       access: read
+    - team: amt
+      application: amt-kafka-manager
+      access: read

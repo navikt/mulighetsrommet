@@ -1,9 +1,9 @@
 import {
-  UtbetalingLinjeReturnertAarsak,
   TilsagnType,
+  UtbetalingLinjeReturnertAarsak,
   UtbetalingStatusAarsak,
 } from "@tiltaksadministrasjon/api-client";
-import { avtaletekster } from "../ledetekster/avtaleLedetekster";
+import { tilsagnTekster } from "@/components/tilsagn/TilsagnTekster";
 
 export const utbetalingTekster = {
   title: "Utbetalinger",
@@ -88,8 +88,7 @@ export const utbetalingTekster = {
     },
     handlinger: {
       opprettTilsagn: (tilsagnsType: TilsagnType) => {
-        const typeTekst = avtaletekster.tilsagn.type(tilsagnsType);
-        return `Opprett ${typeTekst}`;
+        return `Opprett ${tilsagnTekster.type.beskrivelse(tilsagnsType)}`;
       },
       hentGodkjenteTilsagn: "Hent godkjente tilsagn",
       sendTilGodkjenning: "Send til godkjenning",

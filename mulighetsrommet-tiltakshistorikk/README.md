@@ -13,7 +13,14 @@ for datamodell. Det finnes tre typer deltakelser:
 - Tiltak hos arrangør fra Tiltaksadministrasjon/Modia (opphav: `TEAM_KOMET`)
 - Tiltak hos arbeidsgiver fra Avtale-løsningen til Team Tiltak (opphav: `TEAM_TILTAK`)
 
+Nye verdier for `tiltakskode` publiseres på tvers av modellene uten at dette fører til ny versjon av API'et.
+Vi varsler på forhånd etter beste evne.
+For å unngå at nye verdier bryter parsing, anbefales det at konsumenter selv håndterer ukjente tiltakskoder,
+eller parser `tiltakskode` som `String` dersom det ikke er behov for spesialtilpasninger basert på tiltakskoden.
+
 ### API
+
+OpenAPI-spesifikasjonen er tilgjengelig som JSON på `GET /openapi.json`.
 
 Tiltakshistorikk hentes via et POST-endepunkt som aksepterer ett eller flere fødselsnummer.
 Autentisering skjer via M2M-token (Entra ID).

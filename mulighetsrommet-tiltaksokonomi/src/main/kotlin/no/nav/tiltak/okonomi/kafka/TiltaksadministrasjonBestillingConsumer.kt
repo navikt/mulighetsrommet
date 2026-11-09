@@ -4,7 +4,7 @@ import kotlinx.serialization.json.JsonElement
 import no.nav.common.kafka.consumer.feilhandtering.KafkaConsumerRepository
 import no.nav.mulighetsrommet.kafka.ScheduledMessageKafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementSerde
-import no.nav.mulighetsrommet.model.TiltakstypeSystem
+import no.nav.tiltak.okonomi.Artskonto
 import no.nav.tiltak.okonomi.Bestillingsnummer
 import no.nav.tiltak.okonomi.OkonomiBestillingMelding
 import no.nav.tiltak.okonomi.OkonomiFagsystem
@@ -34,8 +34,8 @@ class TiltaksadministrasjonBestillingConsumer(
         val melding = decodeOkonomiBestillingMelding(message)
         when {
             melding is OkonomiBestillingMelding.Bestilling -> {
-                require(melding.payload.tiltakskode.system == TiltakstypeSystem.TILTAKSADMINISTRASJON) {
-                    "Ugyldig tiltakskode ${melding.payload.tiltakskode} fra Tiltaksadministrasjon"
+                require(melding.payload.artskonto != Artskonto.EKSPERTBISTAND) {
+                    "Ugyldig artskonto ${melding.payload.artskonto} fra Tiltaksadministrasjon"
                 }
             }
         }

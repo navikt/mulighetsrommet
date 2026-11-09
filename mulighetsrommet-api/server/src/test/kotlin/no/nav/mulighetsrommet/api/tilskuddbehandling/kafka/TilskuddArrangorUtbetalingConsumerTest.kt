@@ -20,6 +20,7 @@ import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.model.GyldigTilsagnPeriode
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.tilskuddbehandling.TilskuddBehandlingService
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
 import no.nav.mulighetsrommet.api.tilskuddbehandling.gyldigJournalpostValidator
@@ -28,6 +29,7 @@ import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddVedtakRequest
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
 import no.nav.mulighetsrommet.api.tilskuddbehandling.task.JournalforVedtaksbrev
 import no.nav.mulighetsrommet.api.utbetaling.api.ValutaBelopRequest
+import no.nav.mulighetsrommet.api.utbetaling.model.Tilskuddstype
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.api.utbetaling.service.UtbetalingService
@@ -37,7 +39,6 @@ import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Valuta
-import no.nav.tiltak.okonomi.Tilskuddstype
 import java.time.Instant
 import java.time.LocalDate
 import java.util.UUID
@@ -52,7 +53,12 @@ class TilskuddArrangorUtbetalingConsumerTest : FunSpec({
         MulighetsrommetTestDomain(
             ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
             gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
-            deltakere = listOf(DeltakerFixtures.createDeltaker(id = UUID.randomUUID(), gjennomforingId = GjennomforingFixtures.EnkelAmo.id)),
+            deltakere = listOf(
+                DeltakerFixtures.createDeltaker(
+                    id = UUID.randomUUID(),
+                    gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
+                ),
+            ),
         ).initialize(database.api)
 
         coEvery { betalingsinformasjon.execute(any()) } returns Betalingsinformasjon.BBan(
@@ -159,8 +165,12 @@ class TilskuddArrangorUtbetalingConsumerTest : FunSpec({
             val utbetaling = queries.utbetaling.getByGjennomforing(request.gjennomforingId).shouldHaveSize(1)[0]
             utbetaling.status shouldBe UtbetalingStatusType.FERDIG_BEHANDLET
             utbetaling.tilskuddstype shouldBe Tilskuddstype.TILTAK_OPPLAERING_TILSKUDD
+
             val linje = queries.utbetalingLinje.getByUtbetalingId(utbetaling.id).shouldHaveSize(1)[0]
             linje.status shouldBe UtbetalingLinjeStatus.OVERFORT_TIL_UTBETALING
+
+            val tilsagn = queries.tilsagn.getOrError(linje.tilsagnId)
+            tilsagn.type shouldBe TilsagnType.TILSKUDD_TIL_OPPLAERING
         }
     }
 

@@ -1,4 +1,4 @@
-import { TilsagnBeregningType } from "@tiltaksadministrasjon/api-client";
+import { TilsagnBeregningType, TilsagnType } from "@tiltaksadministrasjon/api-client";
 
 export const tilsagnTekster = {
   kommentar: {
@@ -27,6 +27,18 @@ export const tilsagnTekster = {
   },
   type: {
     label: "Tilsagnstype",
+    beskrivelse: (type: TilsagnType) => {
+      switch (type) {
+        case TilsagnType.TILSAGN:
+          return "Tilsagn";
+        case TilsagnType.EKSTRATILSAGN:
+          return "Ekstratilsagn";
+        case TilsagnType.INVESTERING:
+          return "Investering";
+        case TilsagnType.TILSKUDD_TIL_OPPLAERING:
+          return "Tilskudd til opplæring";
+      }
+    },
   },
   deltakere: {
     label: "Deltakere",

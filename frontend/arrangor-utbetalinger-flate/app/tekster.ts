@@ -16,6 +16,8 @@ export const tekster = {
             return "Ekstratilsagn";
           case TilsagnType.INVESTERING:
             return "Tilsagn for investeringer";
+          case TilsagnType.TILSKUDD_TIL_OPPLAERING:
+            return "Tilskudd til opplæring";
         }
       },
     },

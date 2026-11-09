@@ -3,17 +3,19 @@ package no.nav.tiltak.okonomi.model
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
-import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Valuta
+import no.nav.tiltak.okonomi.Artskonto
 import no.nav.tiltak.okonomi.BestillingStatusType
 import no.nav.tiltak.okonomi.Bestillingsnummer
 import no.nav.tiltak.okonomi.OkonomiFagsystem
 import no.nav.tiltak.okonomi.OkonomiPart
 import no.nav.tiltak.okonomi.OpprettBestilling
+import no.nav.tiltak.okonomi.Regnskapskonto
 import java.time.Instant
 
 data class Bestilling(
-    val tiltakskode: Tiltakskode,
+    val regnskapskonto: Regnskapskonto,
+    val artskonto: Artskonto,
     val arrangorHovedenhet: Organisasjonsnummer,
     val arrangorUnderenhet: Organisasjonsnummer,
     val kostnadssted: NavEnhetNummer,
@@ -50,7 +52,8 @@ data class Bestilling(
         ): Bestilling {
             val perioder = divideBelopByMonthsInPeriode(bestilling.periode, bestilling.belop)
             return Bestilling(
-                tiltakskode = bestilling.tiltakskode,
+                regnskapskonto = bestilling.regnskapskonto,
+                artskonto = bestilling.artskonto,
                 arrangorHovedenhet = arrangorHovedenhet,
                 arrangorUnderenhet = bestilling.arrangor.organisasjonsnummer,
                 kostnadssted = bestilling.kostnadssted,

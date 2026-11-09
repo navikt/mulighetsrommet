@@ -204,6 +204,8 @@ class TilskuddBehandlingQueries(private val session: Session) {
             "bruker_utbetaling_type" to tilskuddVedtak.brukerUtbetalingType?.name,
             "belop" to tilskuddVedtak.utbetalingBelop?.belop,
             "valuta" to tilskuddVedtak.utbetalingBelop?.valuta?.name,
+            "datastream_periode_start" to tilskuddVedtak.periode.start,
+            "datastream_periode_slutt" to tilskuddVedtak.periode.getLastInclusiveDate(),
         )
 
         execute(queryOf(vedtakQuery, vedtakParams))

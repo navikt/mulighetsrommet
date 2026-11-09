@@ -1,8 +1,4 @@
-import {
-  tilsagnTypeToString,
-  utbetalingLinjeAarsakTilTekst,
-  ValidationMessage,
-} from "@/utils/Utils";
+import { utbetalingLinjeAarsakTilTekst, ValidationMessage } from "@/utils/Utils";
 import {
   UtbetalingLinjeDto,
   UtbetalingLinjeReturnertAarsak,
@@ -16,7 +12,8 @@ import { TilsagnInformasjon } from "./TilsagnInformasjon";
 import { UtbetalingLinjeStatusTag } from "./UtbetalingLinjeStatusTag";
 import { BehandlerInformasjon } from "./BehandlerInformasjon";
 import { formaterPeriode } from "@mr/frontend-common/utils/date";
-import { erReturnert, erBesluttet } from "@/utils/totrinnskontroll";
+import { erBesluttet, erReturnert } from "@/utils/totrinnskontroll";
+import { tilsagnTekster } from "@/components/tilsagn/TilsagnTekster";
 
 interface Props {
   gjennomforingId: string;
@@ -99,7 +96,7 @@ export function UtbetalingLinjeRow({
           {linje.tilsagn.bestillingsnummer}
         </Link>
       </Table.HeaderCell>
-      <Table.DataCell>{tilsagnTypeToString(linje.tilsagn.type)}</Table.DataCell>
+      <Table.DataCell>{tilsagnTekster.type.beskrivelse(linje.tilsagn.type)}</Table.DataCell>
       <Table.DataCell>{formaterPeriode(linje.tilsagn.periode)}</Table.DataCell>
       <Table.DataCell>{linje.tilsagn.kostnadssted.navn}</Table.DataCell>
       <Table.DataCell>

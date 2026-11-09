@@ -1,16 +1,25 @@
 import { RegionKostnadssteder } from "@tiltaksadministrasjon/api-client";
 import { useKostnadssteder } from "@/api/enhet/useKostnadssteder";
 import { Chips } from "@navikt/ds-react";
+import { useKostnadsstedTracking } from "@/sporing/useKostnadsstedTracking";
 
 interface Props {
   kostnadssteder: string[];
   onClose: () => void;
+  sporingskontekst?: string;
 }
 
-export function KostnadsstedFilterTag({ kostnadssteder, onClose }: Props) {
+export function KostnadsstedFilterTag({ kostnadssteder, onClose, sporingskontekst }: Props) {
   const { data: regioner } = useKostnadssteder();
+  const { logKostnadsstederEndret } = useKostnadsstedTracking(sporingskontekst);
   const labels = getSelected(regioner, kostnadssteder);
-  return <Chips.Removable onClick={onClose}>{tagLabel(labels)}</Chips.Removable>;
+
+  const handleClose = () => {
+    onClose();
+    logKostnadsstederEndret(kostnadssteder, [], "fjern_alle");
+  };
+
+  return <Chips.Removable onClick={handleClose}>{tagLabel(labels)}</Chips.Removable>;
 }
 
 function getSelected(regioner: RegionKostnadssteder[], enheter: string[]): string[] {

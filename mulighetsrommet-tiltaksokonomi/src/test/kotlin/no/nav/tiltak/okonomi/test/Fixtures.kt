@@ -6,14 +6,15 @@ import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
-import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Valuta
+import no.nav.tiltak.okonomi.Artskonto
 import no.nav.tiltak.okonomi.BestillingStatusType
 import no.nav.tiltak.okonomi.Bestillingsnummer
 import no.nav.tiltak.okonomi.FakturaStatusType
 import no.nav.tiltak.okonomi.Fakturanummer
 import no.nav.tiltak.okonomi.OkonomiFagsystem
 import no.nav.tiltak.okonomi.OkonomiPart
+import no.nav.tiltak.okonomi.Regnskapskonto
 import no.nav.tiltak.okonomi.model.Bestilling
 import no.nav.tiltak.okonomi.model.Faktura
 import no.nav.tiltak.okonomi.oebs.OebsBetalingskanal
@@ -23,7 +24,8 @@ import java.time.LocalDate
 object Fixtures {
 
     val bestilling = Bestilling(
-        tiltakskode = Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
+        regnskapskonto = Regnskapskonto.TILTAK_DRIFTSTILSKUDD,
+        artskonto = Artskonto.ARBEIDSFORBEREDENDE_TRENING,
         arrangorHovedenhet = Organisasjonsnummer("123456789"),
         arrangorUnderenhet = Organisasjonsnummer("234567890"),
         kostnadssted = NavEnhetNummer("0400"),

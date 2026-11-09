@@ -1,4 +1,4 @@
-FROM europe-north1-docker.pkg.dev/cgr-nav/pull-through/nav.no/jre:openjdk-21@sha256:1323f5b7a9d94fa68b4545e870c20d8ed2e7a9cb8285a1dbbd6923074132b71b
+FROM europe-north1-docker.pkg.dev/cgr-nav/pull-through/nav.no/jre:openjdk-21@sha256:d9741876d262e882dc56fe354a29c85641d78e95e22cce08d77ff59cced599a7
 LABEL org.opencontainers.image.source="https://github.com/navikt/mulighetsrommet"
 
 WORKDIR /app
@@ -7,6 +7,7 @@ COPY server/build/install/*/lib /lib
 
 USER nonroot
 
+ENV XDG_CACHE_HOME="/tmp/.mulighetsrommet_api_cache"
 ENV TZ="Europe/Oslo"
 EXPOSE 8080
 ENTRYPOINT ["java", "-cp", "/lib/*", "no.nav.mulighetsrommet.api.ApplicationKt"]

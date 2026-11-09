@@ -221,6 +221,7 @@ class SendTilsagnsbrevSagaTest : FunSpec({
             bestillingsnummer = tilsagn.bestillingsnummer,
             arrangorOrganisasjonsnummer = Organisasjonsnummer("976663934"),
             arrangorNavn = "Underenhet 1 AS",
+            lopenummer = Tiltaksnummer("2025/11457"),
         )
 
         val correspondenceId = UUID.randomUUID()

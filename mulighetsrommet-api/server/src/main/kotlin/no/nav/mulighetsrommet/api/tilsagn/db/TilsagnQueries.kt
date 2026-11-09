@@ -9,6 +9,8 @@ import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingType
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhet
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetStatus
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetType
+import no.nav.mulighetsrommet.api.shared.PaginatedResult
+import no.nav.mulighetsrommet.api.shared.Pagination
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregning
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAnnenAvtaltPris
@@ -28,6 +30,8 @@ import no.nav.mulighetsrommet.database.createTextArray
 import no.nav.mulighetsrommet.database.datatypes.periode
 import no.nav.mulighetsrommet.database.datatypes.toDaterange
 import no.nav.mulighetsrommet.database.requireSingle
+import no.nav.mulighetsrommet.database.utils.mapPaginated
+import no.nav.mulighetsrommet.database.utils.parameters
 import no.nav.mulighetsrommet.database.withTransaction
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
@@ -345,11 +349,83 @@ class TilsagnQueries(private val session: Session) {
         statuser: List<TilsagnStatus>? = null,
         periodeIntersectsWith: Periode? = null,
         valuta: Valuta? = null,
+        kostnadssteder: Set<NavEnhetNummer>? = null,
     ): List<Tilsagn> {
         @Language("PostgreSQL")
         val query = """
             select *
             from view_tilsagn
+            $GET_ALL_WHERE
+            order by created_at desc, id desc
+        """.trimIndent()
+
+        val params = getAllParams(typer, gjennomforingId, arrangorer, statuser, periodeIntersectsWith, valuta, kostnadssteder)
+        return session.list(queryOf(query, params)) { it.toTilsagn() }
+    }
+
+    fun getKostnadssteder(gjennomforingId: UUID?): List<NavEnhetNummer> {
+        @Language("PostgreSQL")
+        val query = """
+            select distinct kostnadssted
+            from tilsagn
+            where (:gjennomforing_id::uuid is null or gjennomforing_id = :gjennomforing_id::uuid)
+            order by kostnadssted
+        """.trimIndent()
+
+        return session.list(queryOf(query, mapOf("gjennomforing_id" to gjennomforingId))) {
+            NavEnhetNummer(it.string("kostnadssted"))
+        }
+    }
+
+    fun getAllPaginated(
+        typer: List<TilsagnType>? = null,
+        gjennomforingId: UUID? = null,
+        arrangorer: Set<Organisasjonsnummer>? = null,
+        statuser: List<TilsagnStatus>? = null,
+        periodeIntersectsWith: Periode? = null,
+        valuta: Valuta? = null,
+        kostnadssteder: Set<NavEnhetNummer>? = null,
+        pagination: Pagination,
+    ): PaginatedResult<Tilsagn> {
+        @Language("PostgreSQL")
+        val query = """
+            select *,
+            count(*) over () as total_count
+            from view_tilsagn
+            $GET_ALL_WHERE
+            order by created_at desc, id desc
+            limit :limit
+            offset :offset
+        """.trimIndent()
+
+        return queryOf(
+            query,
+            getAllParams(typer, gjennomforingId, arrangorer, statuser, periodeIntersectsWith, valuta, kostnadssteder) + pagination.parameters,
+        )
+            .mapPaginated { it.toTilsagn() }
+            .runWithSession(session)
+    }
+
+    private fun getAllParams(
+        typer: List<TilsagnType>?,
+        gjennomforingId: UUID?,
+        arrangorer: Set<Organisasjonsnummer>?,
+        statuser: List<TilsagnStatus>?,
+        periodeIntersectsWith: Periode?,
+        valuta: Valuta?,
+        kostnadssteder: Set<NavEnhetNummer>?,
+    ) = mapOf(
+        "typer" to typer?.let { session.createTextArray(it) },
+        "gjennomforing_id" to gjennomforingId,
+        "arrangorer" to arrangorer?.let { list -> session.createArrayOfValue(list) { it.value } },
+        "statuser" to statuser?.let { session.createTextArray(it) },
+        "periode" to periodeIntersectsWith?.toDaterange(),
+        "valuta" to valuta?.name,
+        "kostnadssteder" to kostnadssteder?.let { session.createArrayOfValue(it) { it.value } },
+    )
+
+    private companion object {
+        const val GET_ALL_WHERE = """
             where
               (:typer::text[] is null or tilsagn_type = any(:typer))
               and (:gjennomforing_id::uuid is null or gjennomforing_id = :gjennomforing_id::uuid)
@@ -357,19 +433,8 @@ class TilsagnQueries(private val session: Session) {
               and (:statuser::text[] is null or status = any(:statuser))
               and (:periode::daterange is null or periode && :periode::daterange)
               and (:valuta::currency is null or valuta = :valuta::currency)
-            order by created_at desc
-        """.trimIndent()
-
-        val params = mapOf(
-            "typer" to typer?.let { session.createTextArray(it) },
-            "gjennomforing_id" to gjennomforingId,
-            "arrangorer" to arrangorer?.let { list -> session.createArrayOfValue(list) { it.value } },
-            "statuser" to statuser?.let { session.createTextArray(it) },
-            "periode" to periodeIntersectsWith?.toDaterange(),
-            "valuta" to valuta?.name,
-        )
-
-        return session.list(queryOf(query, params)) { it.toTilsagn() }
+              and (:kostnadssteder::text[] is null or kostnadssted = any(:kostnadssteder))
+        """
     }
 
     fun getByAvtaleId(avtaleId: UUID, statuser: List<TilsagnStatus>? = null): List<Tilsagn> {

@@ -10,6 +10,7 @@ import {
   Valuta,
 } from "@arrangor-utbetalinger/api-client";
 import { arrangorMock } from "./opprettKrav/gjennomforingMocks";
+import { tekster } from "~/tekster";
 
 const beregningManedspris: DataDetails = {
   header: null,
@@ -353,19 +354,6 @@ export const arrangorflateTilsagn: ArrangorflateTilsagnDto[] = [
 ];
 
 function tilsagnRadDto(tilsagn: ArrangorflateTilsagnDto): ArrangorflateTilsagnRadDto {
-  const tilsagnstype = ((type: TilsagnType) => {
-    switch (type) {
-      case TilsagnType.EKSTRATILSAGN:
-        return "Ekstratilsagn";
-      case TilsagnType.TILSAGN:
-        return "Tilsagn";
-      case TilsagnType.INVESTERING:
-        return "Tilsagn for investeringer";
-      default:
-        return "ukjent";
-    }
-  })(tilsagn.type);
-
   const arrangorNavn = `${tilsagn.arrangor.navn} (${tilsagn.arrangor.organisasjonsnummer})`;
   return {
     id: tilsagn.id,
@@ -374,7 +362,7 @@ function tilsagnRadDto(tilsagn: ArrangorflateTilsagnDto): ArrangorflateTilsagnRa
     tiltakNavn: tilsagn.gjennomforing.navn,
     arrangorNavn: arrangorNavn,
     periode: tilsagn.periode,
-    tilsagnType: tilsagnstype,
+    tilsagnType: tekster.bokmal.tilsagn.tilsagntype(tilsagn.type),
     bestillingsnummer: tilsagn.bestillingsnummer,
     status: tilsagn.status,
   };

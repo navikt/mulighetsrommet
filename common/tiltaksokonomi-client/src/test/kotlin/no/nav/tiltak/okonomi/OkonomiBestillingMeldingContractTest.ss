@@ -20,8 +20,8 @@
   "type": "BESTILLING",
   "payload": {
     "bestillingsnummer": "A-1-1",
-    "tilskuddstype": "TILTAK_DRIFTSTILSKUDD",
-    "tiltakskode": "ARBEIDSFORBEREDENDE_TRENING",
+    "regnskapskonto": "TILTAK_DRIFTSTILSKUDD",
+    "artskonto": "ARBEIDSFORBEREDENDE_TRENING",
     "arrangor": {
       "type": "NORSK",
       "organisasjonsnummer": "123456789"
@@ -51,8 +51,8 @@
   "type": "BESTILLING",
   "payload": {
     "bestillingsnummer": "E-1-1",
-    "tilskuddstype": "TILTAK_DRIFTSTILSKUDD",
-    "tiltakskode": "ARBEIDSFORBEREDENDE_TRENING",
+    "regnskapskonto": "TILTAK_DRIFTSTILSKUDD",
+    "artskonto": "ARBEIDSFORBEREDENDE_TRENING",
     "arrangor": {
       "type": "UTENLANDSK",
       "organisasjonsnummer": "123456789",

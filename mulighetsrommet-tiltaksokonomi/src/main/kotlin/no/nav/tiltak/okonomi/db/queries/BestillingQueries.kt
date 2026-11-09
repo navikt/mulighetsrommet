@@ -9,12 +9,13 @@ import no.nav.mulighetsrommet.database.datatypes.toDaterange
 import no.nav.mulighetsrommet.database.withTransaction
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
-import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Valuta
+import no.nav.tiltak.okonomi.Artskonto
 import no.nav.tiltak.okonomi.BestillingStatusType
 import no.nav.tiltak.okonomi.Bestillingsnummer
 import no.nav.tiltak.okonomi.OkonomiFagsystem
 import no.nav.tiltak.okonomi.OkonomiPart
+import no.nav.tiltak.okonomi.Regnskapskonto
 import no.nav.tiltak.okonomi.model.Bestilling
 import org.intellij.lang.annotations.Language
 import java.time.Instant
@@ -28,7 +29,8 @@ class BestillingQueries(private val session: Session) {
                 bestillingsnummer,
                 fagsystem,
                 avtalenummer,
-                tiltakskode,
+                regnskapskonto,
+                artskonto,
                 arrangor_hovedenhet,
                 arrangor_underenhet,
                 kostnadssted,
@@ -49,7 +51,8 @@ class BestillingQueries(private val session: Session) {
                 :bestillingsnummer,
                 :fagsystem,
                 :avtalenummer,
-                :tiltakskode,
+                :regnskapskonto,
+                :artskonto,
                 :arrangor_hovedenhet,
                 :arrangor_underenhet,
                 :kostnadssted,
@@ -73,7 +76,8 @@ class BestillingQueries(private val session: Session) {
             "bestillingsnummer" to bestilling.bestillingsnummer.value,
             "fagsystem" to bestilling.fagsystem.name,
             "avtalenummer" to bestilling.avtalenummer,
-            "tiltakskode" to bestilling.tiltakskode.name,
+            "regnskapskonto" to bestilling.regnskapskonto.name,
+            "artskonto" to bestilling.artskonto.name,
             "arrangor_hovedenhet" to bestilling.arrangorHovedenhet.value,
             "arrangor_underenhet" to bestilling.arrangorUnderenhet.value,
             "kostnadssted" to bestilling.kostnadssted.value,
@@ -187,7 +191,8 @@ class BestillingQueries(private val session: Session) {
                 bestillingsnummer,
                 fagsystem,
                 avtalenummer,
-                tiltakskode,
+                regnskapskonto,
+                artskonto,
                 arrangor_hovedenhet,
                 arrangor_underenhet,
                 kostnadssted,
@@ -219,7 +224,8 @@ class BestillingQueries(private val session: Session) {
                 bestillingsnummer,
                 fagsystem,
                 avtalenummer,
-                tiltakskode,
+                regnskapskonto,
+                artskonto,
                 arrangor_hovedenhet,
                 arrangor_underenhet,
                 kostnadssted,
@@ -262,7 +268,8 @@ class BestillingQueries(private val session: Session) {
 
         val status = BestillingStatusType.valueOf(string("status"))
         return Bestilling(
-            tiltakskode = Tiltakskode.valueOf(string("tiltakskode")),
+            regnskapskonto = Regnskapskonto.valueOf(string("regnskapskonto")),
+            artskonto = Artskonto.valueOf(string("artskonto")),
             arrangorHovedenhet = Organisasjonsnummer(string("arrangor_hovedenhet")),
             arrangorUnderenhet = Organisasjonsnummer(string("arrangor_underenhet")),
             kostnadssted = NavEnhetNummer(string("kostnadssted")),

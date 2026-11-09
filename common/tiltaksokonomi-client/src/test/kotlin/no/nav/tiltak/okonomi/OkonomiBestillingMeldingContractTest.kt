@@ -9,7 +9,6 @@ import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
-import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Valuta
 import no.nav.tiltak.okonomi.test.assertContract
 import java.time.Instant
@@ -22,8 +21,8 @@ class OkonomiBestillingMeldingContractTest : FunSpec({
             OkonomiBestillingMelding.Bestilling(
                 payload = OpprettBestilling(
                     bestillingsnummer = Bestillingsnummer("A-1-1"),
-                    tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
-                    tiltakskode = Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
+                    regnskapskonto = Regnskapskonto.TILTAK_DRIFTSTILSKUDD,
+                    artskonto = Artskonto.ARBEIDSFORBEREDENDE_TRENING,
                     arrangor = OpprettBestilling.Arrangor.Norsk(
                         organisasjonsnummer = Organisasjonsnummer("123456789"),
                     ),
@@ -46,8 +45,8 @@ class OkonomiBestillingMeldingContractTest : FunSpec({
             OkonomiBestillingMelding.Bestilling(
                 payload = OpprettBestilling(
                     bestillingsnummer = Bestillingsnummer("E-1-1"),
-                    tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
-                    tiltakskode = Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
+                    regnskapskonto = Regnskapskonto.TILTAK_DRIFTSTILSKUDD,
+                    artskonto = Artskonto.ARBEIDSFORBEREDENDE_TRENING,
                     arrangor = OpprettBestilling.Arrangor.Utenlandsk(
                         organisasjonsnummer = Organisasjonsnummer("123456789"),
                         navn = "Utenlandsk Arrangør AS",
@@ -193,8 +192,8 @@ class OkonomiBestillingMeldingContractTest : FunSpec({
                 OkonomiBestillingMelding.Bestilling(
                     payload = OpprettBestilling(
                         bestillingsnummer = Bestillingsnummer("A-1-1"),
-                        tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
-                        tiltakskode = Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
+                        regnskapskonto = Regnskapskonto.TILTAK_DRIFTSTILSKUDD,
+                        artskonto = Artskonto.ARBEIDSFORBEREDENDE_TRENING,
                         arrangor = OpprettBestilling.Arrangor.Norsk(
                             organisasjonsnummer = Organisasjonsnummer("123456789"),
                         ),
@@ -257,8 +256,8 @@ class OkonomiBestillingMeldingContractTest : FunSpec({
                 OkonomiBestillingMelding.Bestilling(
                     payload = OpprettBestilling(
                         bestillingsnummer = Bestillingsnummer("E-1-1"),
-                        tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
-                        tiltakskode = Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
+                        regnskapskonto = Regnskapskonto.TILTAK_DRIFTSTILSKUDD,
+                        artskonto = Artskonto.ARBEIDSFORBEREDENDE_TRENING,
                         arrangor = OpprettBestilling.Arrangor.Utenlandsk(
                             organisasjonsnummer = Organisasjonsnummer("123456789"),
                             navn = "Utenlandsk Arrangør AS",

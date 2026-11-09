@@ -2,21 +2,20 @@ import {
   AvbrytGjennomforingAarsak,
   Avtaletype,
   BransjeKode as Bransje,
+  BrukerUtbetalingType,
+  FieldError,
   ForerkortKlasseKode as ForerkortKlasse,
   GjennomforingType,
   InnholdElementKode as InnholdElement,
   KurstypeKode,
+  OpplaeringtilskuddKode,
   TilsagnStatusAarsak,
-  TilsagnType,
   TilskuddBehandlingStatusAarsak,
   TilskuddMottaker,
   Tiltakskode,
   UtbetalingLinjeReturnertAarsak,
-  FieldError,
-  ValidationError,
-  OpplaeringtilskuddKode,
   UtbetalingStatusAarsak,
-  BrukerUtbetalingType,
+  ValidationError,
 } from "@tiltaksadministrasjon/api-client";
 import { FieldErrors } from "react-hook-form";
 
@@ -309,17 +308,6 @@ export function utbetalingLinjeAarsakTilTekst(aarsak: UtbetalingLinjeReturnertAa
       return "Automatisk returnert som følge av at en annen utbetalingslinje ble returnert";
     case UtbetalingLinjeReturnertAarsak.TILSAGN_FEIL_STATUS:
       return "Tilsagnet har ikke lenger status godkjent og kan derfor ikke benyttes for utbetaling";
-  }
-}
-
-export function tilsagnTypeToString(type: TilsagnType): string {
-  switch (type) {
-    case TilsagnType.TILSAGN:
-      return "Tilsagn";
-    case TilsagnType.EKSTRATILSAGN:
-      return "Ekstratilsagn";
-    case TilsagnType.INVESTERING:
-      return "Investering";
   }
 }
 
