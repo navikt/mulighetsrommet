@@ -21,8 +21,6 @@ class ArenaEventConsumer(
         } finally {
             MDC.remove("arenaId")
         }
-        val data = decodeArenaEvent(message)
-        arenaEventService.processEvent(data)
     }
 }
 
