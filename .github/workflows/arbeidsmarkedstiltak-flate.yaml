@@ -61,6 +61,12 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.READER_TOKEN }}
       - name: Test
         run: npx turbo run lint typecheck test playwright --filter=@arbeidsmarkedstiltak/flate
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-report
+          path: frontend/arbeidsmarkedstiltak-flate/playwright-report/
+          retention-days: 30
 
   deploy-modia-dev:
     name: Deploy (modia-dev)

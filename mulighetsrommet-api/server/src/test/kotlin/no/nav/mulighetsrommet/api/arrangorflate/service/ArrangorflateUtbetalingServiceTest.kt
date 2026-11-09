@@ -49,6 +49,7 @@ import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures.utbetalingLinje1
 import no.nav.mulighetsrommet.api.fixtures.setTilsagnStatus
 import no.nav.mulighetsrommet.api.fixtures.setUtbetalingLinjeStatus
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
+import no.nav.mulighetsrommet.api.tilsagn.model.GyldigTilsagnPeriode
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAnnenAvtaltPris
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFastSatsPerBenyttetPlassPerManed
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
@@ -94,7 +95,7 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
     val betalingsinformasjon: BetalingsinformasjonQuery = mockk()
 
     fun createTilsagnService(): TilsagnService = TilsagnService(
-        TilsagnService.Config(gyldigTilsagnPeriode = mapOf()),
+        GyldigTilsagnPeriode(emptyMap()),
         db = database.api,
         navAnsattService = mockk(),
     )

@@ -18,6 +18,7 @@ import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandling
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingRequest
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddVedtakRequest
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
+import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.api.utils.DatoUtils.parseOrNull
 import no.nav.mulighetsrommet.model.JournalpostId
 import no.nav.mulighetsrommet.model.Kid
@@ -48,6 +49,7 @@ object TilskuddBehandlingValidator {
         val gjennomforing: Gjennomforing,
         val betalingsinformasjonArrangor: Betalingsinformasjon?,
         val journalpostValidator: (String, Int) -> Validated<JournalpostId>,
+        val gyldigTilsagnPeriode: Periode?,
     )
 
     fun validate(
@@ -162,9 +164,9 @@ object TilskuddBehandlingValidator {
             FieldError("/tilskuddVedtak/$index/periodeSlutt", "Periodeslutt er påkrevd")
         }
         if (periodeStart != null && periodeSlutt != null) {
-            validate(periodeSlutt.year <= LocalDate.now().year) {
+            validate(periodeStart.year <= LocalDate.now().year) {
                 FieldError(
-                    "/tilskuddVedtak/$index/periodeSlutt",
+                    "/tilskuddVedtak/$index/periodeStart",
                     "Periodestart kan ikke være etter siste dag i inneværende år",
                 )
             }
@@ -172,6 +174,12 @@ object TilskuddBehandlingValidator {
                 FieldError(
                     "/tilskuddVedtak/$index/periodeSlutt",
                     "Periodeslutt kan ikke være etter siste dag i inneværende år",
+                )
+            }
+            validate(periodeStart.year == periodeSlutt.year) {
+                FieldError(
+                    pointer = "/tilskudd/$index/periodeSlutt",
+                    detail = "Periode kan ikke strekke seg over årsskiftet",
                 )
             }
             validate(!periodeStart.isAfter(periodeSlutt)) {
@@ -183,9 +191,42 @@ object TilskuddBehandlingValidator {
                     "Periodeslutt kan ikke være etter gjennomføringsperioden",
                 )
             }
+            if (req.vedtakResultat == VedtakResultat.INNVILGELSE && req.utbetalingMottaker == TilskuddMottaker.ARRANGOR) {
+                requireNotNull(ctx.gyldigTilsagnPeriode) {
+                    FieldError(
+                        pointer = "/tilskudd/$index/periodeStart",
+                        detail = "Tilsagn for tiltakstype ${ctx.gjennomforing.tiltakstype.navn} er ikke støttet enda",
+                    )
+                }
+                validate(!periodeStart.isBefore(ctx.gyldigTilsagnPeriode.start)) {
+                    val dato = ctx.gyldigTilsagnPeriode.start.formaterDatoTilEuropeiskDatoformat()
+                    FieldError(
+                        pointer = "/tilskudd/$index/periodeStart",
+                        detail = "Minimum startdato for tilsagn til ${ctx.gjennomforing.tiltakstype.navn} er $dato",
+                    )
+                }
+                validate(!periodeSlutt.isAfter(ctx.gyldigTilsagnPeriode.getLastInclusiveDate())) {
+                    val dato = ctx.gyldigTilsagnPeriode.getLastInclusiveDate().formaterDatoTilEuropeiskDatoformat()
+                    FieldError(
+                        pointer = "/tilskudd/$index/periodeSlutt",
+                        detail = "Maksimum sluttdato for tilsagn til ${ctx.gjennomforing.tiltakstype.navn} er $dato",
+                    )
+                }
+                validate(!ctx.gjennomforing.arrangor.slettet) {
+                    FieldError(
+                        "/tilskudd/$index/utbetalingMottaker",
+                        "Tilskudd kan ikke opprettes fordi arrangøren er slettet i Brreg",
+                    )
+                }
+            }
         }
         validateNotNull(req.soknadDato) {
             FieldError("/tilskuddVedtak/$index/soknadDato", "Søknadsdato er påkrevd")
+        }
+        req.soknadDato?.let { soknadDato ->
+            validate(!soknadDato.isAfter(LocalDate.now())) {
+                FieldError("/tilskudd/$index/soknadDato", "Søknadsdato kan ikke være frem i tid")
+            }
         }
         validateNotNull(req.soknadJournalpostId) {
             FieldError("/tilskuddVedtak/$index/soknadJournalpostId", "JournalpostId er påkrevd")

@@ -57,9 +57,6 @@ object TilsagnValidator {
         validateNotNull(periodeSlutt) {
             FieldError.of("Periodeslutt må være satt", TilsagnRequest::periodeSlutt)
         }
-        validateNotNull(gyldigTilsagnPeriode) {
-            FieldError.of("Tilsagn for tiltakstype $tiltakstypeNavn er ikke støttet enda", TilsagnRequest::periodeStart)
-        }
         validate(!arrangorSlettet) {
             FieldError.of("Tilsagn kan ikke opprettes fordi arrangøren er slettet i Brreg")
         }
@@ -85,10 +82,13 @@ object TilsagnValidator {
         validateDeltakere(next.deltakere, prismodell)
         validateAntallPlasser(next.beregning.type, next.beregning.antallPlasser)
         validateAntallTimerOppfolgingPerDeltaker(next.beregning.type, next.beregning.antallTimerOppfolgingPerDeltaker)
-        requireValid(periodeStart != null && periodeSlutt != null && next.kostnadssted != null && gyldigTilsagnPeriode != null)
+        requireValid(periodeStart != null && periodeSlutt != null && next.kostnadssted != null)
 
         validate(!periodeStart.isAfter(periodeSlutt)) {
             FieldError.of("Periodestart må være før slutt", TilsagnRequest::periodeStart)
+        }
+        requireNotNull(gyldigTilsagnPeriode) {
+            FieldError.of("Tilsagn for tiltakstype $tiltakstypeNavn er ikke støttet enda", TilsagnRequest::periodeStart)
         }
         validate(!periodeStart.isBefore(gyldigTilsagnPeriode.start)) {
             val dato = gyldigTilsagnPeriode.start.formaterDatoTilEuropeiskDatoformat()

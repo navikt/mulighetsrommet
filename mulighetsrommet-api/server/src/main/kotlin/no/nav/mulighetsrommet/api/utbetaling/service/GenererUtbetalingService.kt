@@ -11,6 +11,7 @@ import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.domain.deltaker.DeltakerForslag
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.domain.tiltak.PrismodellType
+import no.nav.mulighetsrommet.api.tilsagn.model.GyldigTilsagnPeriode
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.utbetaling.mapper.UtbetalingMapper
@@ -37,16 +38,12 @@ import java.time.Instant
 import java.util.UUID
 
 class GenererUtbetalingService(
-    private val config: Config,
+    private val gyldigTilsagnPeriode: GyldigTilsagnPeriode,
     private val db: ApiDatabase,
     private val utbetalingService: UtbetalingService,
     private val prismodeller: Set<SystemgenerertPrismodell<*>>,
 ) {
     private val log: Logger = LoggerFactory.getLogger(javaClass)
-
-    class Config(
-        val gyldigTilsagnPeriode: Map<Tiltakskode, Periode>,
-    )
 
     @Serializable
     data class OppdaterUtbetalingerTaskData(
@@ -349,6 +346,6 @@ class GenererUtbetalingService(
     }
 
     private fun isValidUtbetalingPeriode(tiltakskode: Tiltakskode, periode: Periode): Boolean {
-        return config.gyldigTilsagnPeriode[tiltakskode]?.contains(periode) ?: false
+        return gyldigTilsagnPeriode.forTiltakskode(tiltakskode)?.contains(periode) ?: false
     }
 }

@@ -615,7 +615,7 @@ importers:
         version: 2.12.1
       '@highcharts/react':
         specifier: 5.2.2
-        version: 5.2.2(@types/react@19.2.14)(highcharts@13.1.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+        version: 5.2.2(@types/react@19.2.14)(highcharts@13.1.1)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       '@hookform/resolvers':
         specifier: 6.0.0
         version: 6.0.0(react-hook-form@7.89.0(@types/react@19.2.14)(react@19.2.8))(valibot@1.5.0(typescript@6.0.3))(zod@4.6.6)
@@ -665,8 +665,8 @@ importers:
         specifier: 2.0.3
         version: 2.0.3
       highcharts:
-        specifier: 13.1.0
-        version: 13.1.0
+        specifier: 13.1.1
+        version: 13.1.1
       jotai:
         specifier: 3.0.0
         version: 3.0.0(@types/react@19.2.14)(react@19.2.8)
@@ -2274,6 +2274,9 @@ packages:
       '@types/react': ^17.0.30 || ^18 || ^19
       react: ^17 || ^18 || ^19
       react-dom: ^17 || ^18 || ^19
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
 
   '@navikt/ds-tailwind@8.19.2':
     resolution: {integrity: sha512-xH55G2Pf+i3DLnqREyEt6Wrq3fGKLy1OgxIgLBxN07A5ySij5OBaHNZaT8a7IaeDxPBJgPI1QGpK6qnKTA8V0g==, tarball: https://npm.pkg.github.com/download/@navikt/ds-tailwind/8.19.2/6100d10839c138daa99a2c2705b2e4a86dbaace4}
@@ -2287,6 +2290,9 @@ packages:
     peerDependencies:
       html-react-parser: '>=5.x'
       react: '>=17.x'
+    peerDependenciesMeta:
+      react:
+        optional: true
 
   '@navikt/oasis@4.2.2':
     resolution: {integrity: sha512-EVMsF8uKbLPNRWuPfH1IKVJhqtibFzSTSyNkzj5mTCVMZV2QPS5W3uYMD4r0rXsmLx7nv0HnLovDphb3AFEjvw==, tarball: https://npm.pkg.github.com/download/@navikt/oasis/4.2.2/3c43e1e89bb2d46646a9a2aaf27972a024377a6f}
@@ -5162,8 +5168,8 @@ packages:
   hermes-parser@0.25.1:
     resolution: {integrity: sha512-6pEjquH3rqaI6cYAXYPcz9MS4rY6R4ngRgrgfDshRptUZIc3lw0MCIJIGDj9++mfySOuPTHB4nrSW99BCvOPIA==}
 
-  highcharts@13.1.0:
-    resolution: {integrity: sha512-bBIdIw4WhbwBVa+7qNpTh3ZoMDcLC1kHnPWjndFTOrKXnOA5U1V21olSL1AMeAp0Evzn+/aLLClRpeIYqU9Hpw==}
+  highcharts@13.1.1:
+    resolution: {integrity: sha512-k/smhxCgaqHDsuy9ZCWs8FJNTPrbzc8BmMA4M/8f9JMwv9HgmNZjulyWwZ9q9ly6AzHpskL9mhlW8vgsSqnstg==}
     peerDependencies:
       jspdf: ^4.1.0
       svg2pdf.js: ^2.7.0
@@ -9295,9 +9301,9 @@ snapshots:
 
   '@hey-api/types@0.1.4': {}
 
-  '@highcharts/react@5.2.2(@types/react@19.2.14)(highcharts@13.1.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)':
+  '@highcharts/react@5.2.2(@types/react@19.2.14)(highcharts@13.1.1)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)':
     dependencies:
-      highcharts: 13.1.0
+      highcharts: 13.1.1
       react: 19.2.8
       react-dom: 19.2.8(react@19.2.8)
     optionalDependencies:
@@ -9795,11 +9801,12 @@ snapshots:
       '@floating-ui/react-dom': 2.1.9(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       '@navikt/aksel-icons': 8.19.2
       '@navikt/ds-tokens': 8.19.2
-      '@types/react': 19.2.14
       date-fns: 4.4.0
       react: 19.2.8
       react-day-picker: 10.0.1(@types/react@19.2.14)(react@19.2.8)
       react-dom: 19.2.8(react@19.2.8)
+    optionalDependencies:
+      '@types/react': 19.2.14
 
   '@navikt/ds-tailwind@8.19.2': {}
 
@@ -9811,6 +9818,7 @@ snapshots:
       csp-header: 6.3.1
       html-react-parser: 6.1.8(@types/react@19.2.14)(react@19.2.8)
       js-cookie: 3.0.8
+    optionalDependencies:
       react: 19.2.8
 
   '@navikt/oasis@4.2.2':
@@ -13324,7 +13332,7 @@ snapshots:
     dependencies:
       hermes-estree: 0.25.1
 
-  highcharts@13.1.0: {}
+  highcharts@13.1.1: {}
 
   history@5.3.0:
     dependencies:

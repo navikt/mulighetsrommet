@@ -26,7 +26,6 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonClassDiscriminator
 import no.nav.mulighetsrommet.altinn.AltinnRettigheterService
 import no.nav.mulighetsrommet.api.ApiDatabase
-import no.nav.mulighetsrommet.api.OkonomiConfig
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateFilterDirection
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateFilterType
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateTilsagnDto
@@ -47,6 +46,7 @@ import no.nav.mulighetsrommet.api.domain.tiltak.PrismodellType
 import no.nav.mulighetsrommet.api.responses.PaginatedResponse
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
+import no.nav.mulighetsrommet.api.tilsagn.model.GyldigTilsagnPeriode
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsePeriode
@@ -78,8 +78,9 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.UUID
 
-fun Route.arrangorflateOpprettKravRoutes(okonomiConfig: OkonomiConfig) {
+fun Route.arrangorflateOpprettKravRoutes() {
     val db: ApiDatabase by inject()
+    val gyldigTilsagnPeriode: GyldigTilsagnPeriode by inject()
     val arrangorflateUtbetalingService: ArrangorflateUtbetalingService by inject()
     val arrangorflateService: ArrangorflateService by inject()
     val personaliaService: PersonaliaService by inject()
@@ -208,7 +209,7 @@ fun Route.arrangorflateOpprettKravRoutes(okonomiConfig: OkonomiConfig) {
             // TODO: Inkluder filtrering på eksisternde utbetalinger
             // val tidligereUtbetalingsPerioder = db.session { queries.utbetaling.getByGjennomforing(gjennomforing.id) }.map { it.periode }.toSet()
             val innsendingsinformasjon = OpprettKravInnsendingSteg.from(
-                okonomiConfig,
+                gyldigTilsagnPeriode,
                 tiltak,
                 tilsagn,
                 tidligereUtbetalinger = emptyList(),
@@ -315,7 +316,7 @@ fun Route.arrangorflateOpprettKravRoutes(okonomiConfig: OkonomiConfig) {
                         tiltakskode = tiltak.tiltakstype.tiltakskode,
                         prismodell = tiltak.prismodell.type,
                         valuta = tiltak.prismodell.valuta,
-                        gyldigTilsagnPeriode = okonomiConfig.gyldigTilsagnPeriode,
+                        gyldigTilsagnPeriode = gyldigTilsagnPeriode,
                     )
                     ArrangorflateUtbetalingValidator
                         .validateOpprettKravArrangorflate(ctx, request)
@@ -375,13 +376,13 @@ data class OpprettKravInnsendingSteg(
 ) {
     companion object {
         fun from(
-            okonomiConfig: OkonomiConfig,
+            gyldigTilsagnPeriode: GyldigTilsagnPeriode,
             tiltak: ArrangorflateTiltak,
             tilsagn: List<ArrangorflateTilsagnDto>,
             tidligereUtbetalinger: List<Utbetaling>,
         ): OpprettKravInnsendingSteg {
             val datoVelger = DatoVelger.from(
-                okonomiConfig,
+                gyldigTilsagnPeriode,
                 tiltak,
                 tidligereUtbetalingsPerioder = tidligereUtbetalinger.map { it.periode }.toSet(),
             )
@@ -458,15 +459,15 @@ sealed class DatoVelger {
 
     companion object {
         fun from(
-            okonomiConfig: OkonomiConfig,
+            gyldigTilsagnPeriode: GyldigTilsagnPeriode,
             tiltak: ArrangorflateTiltak,
             tidligereUtbetalingsPerioder: Set<Periode> = emptySet(),
         ): DatoVelger {
             when (tiltak.prismodell.type) {
                 PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER -> {
                     // Har de nådd innsendingssteget, kan vi garantere at tiltakskoden er konfigurert opp
-                    val tilsagnPeriode =
-                        okonomiConfig.gyldigTilsagnPeriode[tiltak.tiltakstype.tiltakskode]!!
+                    val tilsagnPeriode = gyldigTilsagnPeriode
+                        .forTiltakskode(tiltak.tiltakstype.tiltakskode)!!
 
                     val firstOfThisMonth = LocalDate.now().withDayOfMonth(1)
                     val perioder = Periode(
@@ -484,7 +485,8 @@ sealed class DatoVelger {
                     return DatoRange(
                         ArrangorflateUtbetalingValidator.maksUtbetalingsPeriodeSluttDato(
                             prismodell = tiltak.prismodell.type,
-                            periode = okonomiConfig.gyldigTilsagnPeriode[tiltak.tiltakstype.tiltakskode],
+                            periode = gyldigTilsagnPeriode
+                                .forTiltakskode(tiltak.tiltakstype.tiltakskode),
                         ),
                     )
                 }

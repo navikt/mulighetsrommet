@@ -10,6 +10,7 @@ import no.nav.mulighetsrommet.api.arrangorflate.api.OpprettKravUtbetalingRequest
 import no.nav.mulighetsrommet.api.arrangorflate.api.PeriodeType
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateOpprettUtbetaling
 import no.nav.mulighetsrommet.api.domain.tiltak.PrismodellType
+import no.nav.mulighetsrommet.api.tilsagn.model.GyldigTilsagnPeriode
 import no.nav.mulighetsrommet.clamav.Content
 import no.nav.mulighetsrommet.clamav.Vedlegg
 import no.nav.mulighetsrommet.model.Periode
@@ -174,5 +175,5 @@ private fun createContext(
     tiltakskode = tiltakskode,
     prismodell = prismodell,
     valuta = Valuta.NOK,
-    gyldigTilsagnPeriode = mapOf(tiltakskode to Periode.forYear(2025)),
+    gyldigTilsagnPeriode = GyldigTilsagnPeriode(mapOf(tiltakskode to Periode.forYear(2025))),
 )

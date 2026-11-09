@@ -33,6 +33,7 @@ import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures
 import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures.utbetaling1
 import no.nav.mulighetsrommet.api.fixtures.setTilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
+import no.nav.mulighetsrommet.api.tilsagn.model.GyldigTilsagnPeriode
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFastSatsPerBenyttetPlassPerManed
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsePeriode
@@ -89,7 +90,7 @@ class GenererUtbetalingServiceTest : FunSpec({
         tidligstTidspunktForUtbetaling: TidligstTidspunktForUtbetalingCalculator = TidligstTidspunktForUtbetalingCalculator { _, _ -> null },
     ): GenererUtbetalingService {
         val tilsagnService = TilsagnService(
-            config = TilsagnService.Config(gyldigTilsagnPeriode),
+            gyldigTilsagnPeriode = GyldigTilsagnPeriode(gyldigTilsagnPeriode),
             db = database.api,
             navAnsattService = mockk(),
         )
@@ -99,7 +100,7 @@ class GenererUtbetalingServiceTest : FunSpec({
             betalingsinformasjon = betalingsinformasjon,
         )
         return GenererUtbetalingService(
-            config = GenererUtbetalingService.Config(gyldigTilsagnPeriode),
+            gyldigTilsagnPeriode = GyldigTilsagnPeriode(gyldigTilsagnPeriode),
             db = database.api,
             utbetalingService = utbetalingService,
             prismodeller = setOf(

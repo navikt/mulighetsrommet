@@ -35,15 +35,14 @@ import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsatt
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.domain.navenhet.toDto
 import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadGjennomforinger
+import no.nav.mulighetsrommet.api.tilsagn.model.GyldigTilsagnPeriode
 import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.AvtaleStatusType
 import no.nav.mulighetsrommet.model.Avtaletype
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
-import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Personopplysning
-import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.TiltakstypeEgenskap
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
 import no.nav.mulighetsrommet.validation.FieldError
@@ -55,16 +54,12 @@ import java.time.temporal.ChronoUnit
 import java.util.UUID
 
 class AvtaleService(
-    private val config: Config,
+    private val gyldigTilsagnPeriode: GyldigTilsagnPeriode,
     private val db: ApiDatabase,
     private val syncArrangor: SyncArrangorUseCase,
     private val tiltakstypeService: TiltakstypeService,
     private val gjennomforingPublisher: InitialLoadGjennomforinger,
 ) {
-    data class Config(
-        val gyldigTilsagnPeriode: Map<Tiltakskode, Periode>,
-    )
-
     suspend fun create(
         request: OpprettAvtaleRequest,
         navIdent: NavIdent,
@@ -94,7 +89,7 @@ class AvtaleService(
             tiltakskode = request.detaljer.tiltakskode,
             tiltakstypeNavn = createAvtaleContext.tiltakstype.navn,
             avtaleStartDato = detaljer.startDato,
-            gyldigTilsagnPeriode = config.gyldigTilsagnPeriode,
+            gyldigTilsagnPeriode = gyldigTilsagnPeriode,
             bruktePrismodeller = setOf(),
             systembestemtPrismodell = systembestemtPrismodell,
         )
@@ -231,7 +226,7 @@ class AvtaleService(
             tiltakskode = avtale.tiltakskode,
             tiltakstypeNavn = tiltakstype.navn,
             avtaleStartDato = avtale.startDato,
-            gyldigTilsagnPeriode = config.gyldigTilsagnPeriode,
+            gyldigTilsagnPeriode = gyldigTilsagnPeriode,
             bruktePrismodeller = gjennomforinger.map { it.prismodell.id }.toSet(),
             systembestemtPrismodell = null,
         )
