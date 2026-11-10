@@ -1,14 +1,15 @@
 resource "google_bigquery_table_iam_member" "mr_api_views_all_users_data_viewer" {
   for_each = {
-    tiltakstype_view                     = module.mr_api_tiltakstype_view.bigquery_view_id
-    avtale_view                          = module.mr_api_avtale_view.bigquery_view_id
-    gjennomforing_view                   = module.mr_api_gjennomforing_view.bigquery_view_id
-    gjennomforing_nav_enhet_view         = module.mr_api_gjennomforing_nav_enhet_view.bigquery_view_id
-    avtale_nav_enhet_view                = module.mr_api_avtale_nav_enhet_view.bigquery_view_id
-    del_med_bruker_view                  = module.mr_api_del_med_bruker_view.bigquery_view_id
-    utdanningsprogram_view               = module.mr_api_utdanningsprogram_view.bigquery_view_id
-    utdanning_view                       = module.mr_api_utdanning_view.bigquery_view_id
-    gjennomforing_utdanningsprogram_view = module.mr_api_gjennomforing_utdanningsprogram_view.bigquery_view_id
+    tiltakstype_view                                = module.mr_api_tiltakstype_view.bigquery_view_id
+    avtale_view                                     = module.mr_api_avtale_view.bigquery_view_id
+    gjennomforing_view                              = module.mr_api_gjennomforing_view.bigquery_view_id
+    gjennomforing_nav_enhet_view                    = module.mr_api_gjennomforing_nav_enhet_view.bigquery_view_id
+    avtale_nav_enhet_view                           = module.mr_api_avtale_nav_enhet_view.bigquery_view_id
+    del_med_bruker_view                             = module.mr_api_del_med_bruker_view.bigquery_view_id
+    utdanningsprogram_view                          = module.mr_api_utdanningsprogram_view.bigquery_view_id
+    utdanning_view                                  = module.mr_api_utdanning_view.bigquery_view_id
+    gjennomforing_utdanningsprogram_view            = module.mr_api_gjennomforing_utdanningsprogram_view.bigquery_view_id
+    gjennomforing_enkeltplass_godkjenn_okonomi_view = module.mr_api_gjennomforing_enkeltplass_godkjenn_okonomi_view.bigquery_view_id
   }
 
   project    = var.gcp_project["project"]
@@ -521,5 +522,82 @@ select
 from `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_opplaring_kategorisering` ok
 inner join `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_opplaring_kategorisering_utdanning` oku on ok.id = oku.opplaring_kategorisering_id
 inner join `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_gjennomforing` g on g.id = ok.id;
+EOF
+}
+
+module "mr_api_gjennomforing_enkeltplass_godkjenn_okonomi_view" {
+  view_id             = "gjennomforing_enkeltplass_godkjenn_okonomi_view"
+  source              = "../modules/google-bigquery-view"
+  deletion_protection = false
+  dataset_id          = module.mr_api_datastream.dataset_id
+  view_schema = jsonencode(
+    [
+      {
+        mode        = "NULLABLE"
+        name        = "gjennomforing_id"
+        type        = "STRING"
+        description = "ID for gjennomføring"
+      },
+      {
+        mode        = "NULLABLE"
+        name        = "gjennomforing_status"
+        type        = "STRING"
+        description = "Status for gjennomføring"
+      },
+      {
+        mode        = "NULLABLE"
+        name        = "prismodell_type"
+        type        = "STRING"
+        description = "Type prismodell"
+      },
+      {
+        mode        = "NULLABLE"
+        name        = "totrinnskontroll_type"
+        type        = "STRING"
+        description = "Type totrinnskontroll"
+      },
+      {
+        mode        = "NULLABLE"
+        name        = "totrinnskontroll_status"
+        type        = "STRING"
+        description = "Totrinnskontroll status"
+        }, {
+        mode        = "NULLABLE"
+        name        = "totrinnskontroll_behandlet_tidspunkt"
+        type        = "STRING"
+        description = "Totrinnskontroll behandlet tidspunkt"
+        }, {
+        mode        = "NULLABLE"
+        name        = "totrinnskontroll_besluttet_tidspunkt"
+        type        = "STRING"
+        description = "Totrinnskontroll besluttet tidspunkt"
+      },
+    ]
+  )
+  view_query = <<EOF
+with siste_totrinnskontroll as (
+    select
+        entity_id,
+        type,
+        status,
+        behandlet_tidspunkt,
+        besluttet_tidspunkt
+    from `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_totrinnskontroll`
+    where type in ('ENKELTPLASS_OKONOMI', 'ENKELTPLASS_PRISENDRING')
+        order by behandlet_tidspunkt desc, id desc
+)
+select
+    g.id as gjennomforing_id,
+    g.status as gjennomforing_status,
+    p.prismodell_type,
+    tk.type as totrinnskontroll_type,
+    tk.status as totrinnskontroll_status,
+    tk.behandlet_tidspunkt as totrinnskontroll_behandlet_tidspunkt,
+    tk.besluttet_tidspunkt as totrinnskontroll_besluttet_tidspunkt
+from `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_gjennomforing` g
+inner join `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_prismodell` p on p.id = g.prismodell_id
+inner join siste_totrinnskontroll tk on tk.entity_id = g.id
+where g.gjennomforing_type = 'ENKELTPLASS'
+order by g.id, tk.behandlet_tidspunkt desc;
 EOF
 }
