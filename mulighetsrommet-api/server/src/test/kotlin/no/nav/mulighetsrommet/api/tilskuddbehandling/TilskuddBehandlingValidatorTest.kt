@@ -194,7 +194,7 @@ class TilskuddBehandlingValidatorTest : FunSpec({
                 journalpostValidator = { journalpostId, _ -> JournalpostId(journalpostId).right() },
             ),
         ) shouldBeLeft listOf(
-            FieldError("/tilskudd/0/soknadDato", "Søknadsdato kan ikke være frem i tid"),
+            FieldError("/tilskuddVedtak/0/soknadDato", "Søknadsdato kan ikke være frem i tid"),
         )
     }
 

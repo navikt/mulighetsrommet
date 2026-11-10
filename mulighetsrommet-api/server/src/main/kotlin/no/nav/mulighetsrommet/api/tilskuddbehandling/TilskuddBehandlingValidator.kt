@@ -225,7 +225,7 @@ object TilskuddBehandlingValidator {
         }
         req.soknadDato?.let { soknadDato ->
             validate(!soknadDato.isAfter(LocalDate.now())) {
-                FieldError("/tilskudd/$index/soknadDato", "Søknadsdato kan ikke være frem i tid")
+                FieldError("/tilskuddVedtak/$index/soknadDato", "Søknadsdato kan ikke være frem i tid")
             }
         }
         validateNotNull(req.soknadJournalpostId) {
