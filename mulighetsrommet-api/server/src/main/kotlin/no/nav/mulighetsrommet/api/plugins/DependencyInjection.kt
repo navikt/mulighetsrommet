@@ -111,9 +111,9 @@ import no.nav.mulighetsrommet.api.services.PoaoTilgangService
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnDtoQuery
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.kafka.ReplikerBestillingStatusConsumer
-import no.nav.mulighetsrommet.api.tilsagn.kafka.SendTilsagnsbrevConsumer
+import no.nav.mulighetsrommet.api.tilsagn.kafka.SendBekreftelsesbrevConsumer
 import no.nav.mulighetsrommet.api.tilsagn.model.GyldigTilsagnPeriode
-import no.nav.mulighetsrommet.api.tilsagn.task.SendTilsagnsbrevSaga
+import no.nav.mulighetsrommet.api.tilsagn.task.SendBekreftelsesbrevSaga
 import no.nav.mulighetsrommet.api.tilskuddbehandling.TilskuddBehandlingService
 import no.nav.mulighetsrommet.api.tilskuddbehandling.TilskuddService
 import no.nav.mulighetsrommet.api.tilskuddbehandling.kafka.TilskuddArrangorUtbetalingConsumer
@@ -272,7 +272,7 @@ private fun kafka(appConfig: AppConfig) = module {
             ),
             config.clients.helvedUtbetalingStatusV1 to HelvedStatusV1KafkaConsumer(get()),
             config.clients.utbetalingAvbruttNotifier to UtbetalingAvbruttNotifierConsumer(get(), get()),
-            config.clients.sendTilsagnsbrev to SendTilsagnsbrevConsumer(get(), get()),
+            config.clients.sendBekreftelsesbrev to SendBekreftelsesbrevConsumer(get(), get()),
         )
         KafkaConsumerOrchestrator(
             db = get(),
@@ -675,7 +675,7 @@ private fun tasks(config: AppConfig) = module {
     single { JournalforUtbetaling(get(), get(), get(), get()) }
     single { NotificationTask(get()) }
     single { BeregnUtbetaling(tasks.beregnUtbetaling, get(), get()) }
-    single { SendTilsagnsbrevSaga(get(), get(), get(), get(), get(), get()) }
+    single { SendBekreftelsesbrevSaga(get(), get(), get(), get(), get(), get()) }
     single { JournalforVedtaksbrev(get(), get(), get(), get(), get()) }
     single { DistribuerVedtaksbrev(get(), get()) }
     single { UpdateGjennomforingAvtaleFreeTextSearch(get(), get()) }
@@ -709,7 +709,7 @@ private fun tasks(config: AppConfig) = module {
         val journalforUtbetaling: JournalforUtbetaling by inject()
         val oppdaterUtbetalingBeregning: GenererUtbetalingService by inject()
         val beregnUtbetaling: BeregnUtbetaling by inject()
-        val sendTilsagnsbrevSaga: SendTilsagnsbrevSaga by inject()
+        val sendBekreftelsesbrevSaga: SendBekreftelsesbrevSaga by inject()
         val journalforVedtaksbrev: JournalforVedtaksbrev by inject()
         val distribuerVedtaksbrev: DistribuerVedtaksbrev by inject()
         val updateGjennomforingAvtaleFreeTextSearch: UpdateGjennomforingAvtaleFreeTextSearch by inject()
@@ -725,9 +725,9 @@ private fun tasks(config: AppConfig) = module {
                 journalforUtbetaling.task,
                 oppdaterUtbetalingBeregning.task,
                 beregnUtbetaling.task,
-                sendTilsagnsbrevSaga.opprettInnholdTask,
-                sendTilsagnsbrevSaga.arkiverIDokarkTask,
-                sendTilsagnsbrevSaga.sendTilAltinnTask,
+                sendBekreftelsesbrevSaga.opprettInnholdTask,
+                sendBekreftelsesbrevSaga.arkiverIDokarkTask,
+                sendBekreftelsesbrevSaga.sendTilAltinnTask,
                 journalforVedtaksbrev.task,
                 distribuerVedtaksbrev.task,
                 updateGjennomforingAvtaleFreeTextSearch.task,

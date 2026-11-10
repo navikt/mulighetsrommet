@@ -7,13 +7,13 @@ import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Tiltaksnummer
 import java.util.UUID
 
-class TilsagnsbrevMeldingMapperTest : FunSpec({
+class BekreftelsesbrevMeldingMapperTest : FunSpec({
     val jsonPrettyPrint = Json {
         prettyPrint = true
         prettyPrintIndent = "  "
     }
 
-    val tilsagn = TilsagnsbrevMeldingSnapshot(
+    val tilsagn = BekreftelsesbrevMeldingSnapshot(
         tilsagnId = UUID.fromString("72c45b92-4452-4b44-b1cd-9cfe7be86222"),
         tiltakstypeNavn = "Enkeltplass Arbeidsmarkedsopplæring",
         bestillingsnummer = "A-2026/1000-1",
@@ -25,7 +25,7 @@ class TilsagnsbrevMeldingMapperTest : FunSpec({
     val pdf = "pdf-innhold".toByteArray()
 
     test("mapper tilsagn til arrangør-melding uten personopplysninger") {
-        val melding = TilsagnsbrevMeldingMapper.tilArrangorMelding(tilsagn, pdf)
+        val melding = BekreftelsesbrevMeldingMapper.tilArrangorMelding(tilsagn, pdf)
 
         expectSelfie(jsonPrettyPrint.encodeToString(melding)).toMatchDisk()
     }

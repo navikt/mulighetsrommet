@@ -15,8 +15,8 @@ class AltinnCorrespondenceClientTest : FunSpec({
 
     val initRequest = AltinnAttachmentInitRequest(
         resourceId = "nav_tiltak_tilskuddsbrev",
-        fileName = "Tilsagnsbrev.pdf",
-        displayName = "Tilsagnsbrev",
+        fileName = "Bekreftelsesbrev.pdf",
+        displayName = "Bekreftelsesbrev",
         sendersReference = "ref-1",
         checksum = "checksum",
     )
@@ -28,14 +28,14 @@ class AltinnCorrespondenceClientTest : FunSpec({
             messageSender = "NAV",
             content = AltinnCorrespondenceContent(
                 language = "nb",
-                messageTitle = "Tilsagnsbrev",
-                messageBody = "Se vedlagt tilsagnsbrev.",
+                messageTitle = "Bekreftelsesbrev",
+                messageBody = "Se vedlagt bekreftelsesbrev.",
             ),
             requestedPublishTime = Instant.now(),
             notification = AltinnCorrespondenceNotification(
                 notificationTemplate = "CustomMessage",
                 notificationChannel = "Email",
-                emailSubject = "Tilsagnsbrev tilgjengelig",
+                emailSubject = "Bekreftelsesbrev tilgjengelig",
                 emailBody = "Se Altinn",
             ),
             allowSystemDeleteAfter = Instant.now(),

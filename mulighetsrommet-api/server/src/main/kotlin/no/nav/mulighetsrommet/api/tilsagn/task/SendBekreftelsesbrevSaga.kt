@@ -20,11 +20,11 @@ import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.TransactionalQueryContext
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokarkClient
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
-import no.nav.mulighetsrommet.api.tilsagn.mapper.TilsagnJournalpostSnapshot
-import no.nav.mulighetsrommet.api.tilsagn.mapper.TilsagnTilJournalpostMapper
-import no.nav.mulighetsrommet.api.tilsagn.mapper.TilsagnToPdfDocumentContentMapper
-import no.nav.mulighetsrommet.api.tilsagn.mapper.TilsagnsbrevMeldingMapper
-import no.nav.mulighetsrommet.api.tilsagn.mapper.TilsagnsbrevMeldingSnapshot
+import no.nav.mulighetsrommet.api.tilsagn.mapper.BekreftelsesbrevJournalpostSnapshot
+import no.nav.mulighetsrommet.api.tilsagn.mapper.BekreftelsesbrevMeldingMapper
+import no.nav.mulighetsrommet.api.tilsagn.mapper.BekreftelsesbrevMeldingSnapshot
+import no.nav.mulighetsrommet.api.tilsagn.mapper.BekreftelsesbrevTilJournalpostMapper
+import no.nav.mulighetsrommet.api.tilsagn.mapper.BekreftelsesbrevToPdfDocumentContentMapper
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
@@ -44,17 +44,17 @@ import java.util.Base64
 import java.util.UUID
 
 /**
- * Saga som håndterer opprettelse og distribusjon av tilsagnsbrev for enkeltplass-tilsagn.
+ * Saga som håndterer opprettelse og distribusjon av bekreftelsesbrev for enkeltplass-tilsagn.
  *
  * Kjøres i tre steg, hver representert ved en egen [OneTimeTask]:
  *
- * 1. [opprettInnhold] henter [TilsagnsbrevInnhold] og genererer to PDF-varianter fra _samme_ innhold:
+ * 1. [opprettInnhold] henter [BekreftelsesbrevInnhold] og genererer to PDF-varianter fra _samme_ innhold:
  *    én sladdet (for Joark) og én usladdet (for Altinn). Alt de neste stegene trenger sendes videre
  *    som task-input for å unngå potensielle avvik mellom det arkiverte og det utsendte brevet.
  * 2. [arkiverIDokark] journalfører den sladdede PDF-en i Joark.
  * 3. [sendTilAltinn] sender den usladdede PDF-en til arrangøren.
  */
-class SendTilsagnsbrevSaga(
+class SendBekreftelsesbrevSaga(
     private val db: ApiDatabase,
     private val dokarkClient: DokarkClient,
     private val personaliaService: PersonaliaService,
@@ -95,16 +95,16 @@ class SendTilsagnsbrevSaga(
     )
 
     val opprettInnholdTask: OneTimeTask<OpprettInnholdTaskData> = Tasks
-        .oneTime("SendTilsagnsbrevSaga-OpprettInnhold", OpprettInnholdTaskData::class.java)
+        .oneTime("SendBekreftelsesbrevSaga-OpprettInnhold", OpprettInnholdTaskData::class.java)
         .onFailure(FailureHandler.ExponentialBackoffFailureHandler(ofMinutes(5)))
         .executeSuspend { inst, _ ->
             opprettInnhold(inst.data.tilsagnId).onLeft { message ->
-                throw Exception("Feil ved opprettelse av tilsagnsbrev for tilsagn med id=${inst.data.tilsagnId}: $message")
+                throw Exception("Feil ved opprettelse av bekreftelsesbrev for tilsagn med id=${inst.data.tilsagnId}: $message")
             }
         }
 
     val arkiverIDokarkTask: OneTimeTask<ArkiverIDokarkTaskData> = Tasks
-        .oneTime("SendTilsagnsbrevSaga-ArkiverIDokark", ArkiverIDokarkTaskData::class.java)
+        .oneTime("SendBekreftelsesbrevSaga-ArkiverIDokark", ArkiverIDokarkTaskData::class.java)
         .onFailure(FailureHandler.ExponentialBackoffFailureHandler(ofMinutes(5)))
         .executeSuspend { inst, _ ->
             arkiverIDokark(inst.data).onLeft { message ->
@@ -113,7 +113,7 @@ class SendTilsagnsbrevSaga(
         }
 
     val sendTilAltinnTask: OneTimeTask<SendTilAltinnTaskData> = Tasks
-        .oneTime("SendTilsagnsbrevSaga-SendTilAltinn", SendTilAltinnTaskData::class.java)
+        .oneTime("SendBekreftelsesbrevSaga-SendTilAltinn", SendTilAltinnTaskData::class.java)
         .onFailure(FailureHandler.ExponentialBackoffFailureHandler(ofMinutes(5)))
         .executeSuspend { inst, _ ->
             sendTilAltinn(inst.data).onLeft { message ->
@@ -133,35 +133,35 @@ class SendTilsagnsbrevSaga(
     }
 
     suspend fun opprettInnhold(tilsagnId: UUID): Either<String, Unit> = db.transaction {
-        logger.info("Oppretter tilsagnsbrev for tilsagn med id: $tilsagnId")
+        logger.info("Oppretter bekreftelsesbrev for tilsagn med id: $tilsagnId")
 
         val eksisterendeTilsagn = queries.tilsagn.getAndAcquireLock(tilsagnId)
-        if (eksisterendeTilsagn.tilsagnsbrev?.journalpostId != null && eksisterendeTilsagn.tilsagnsbrev.altinnCorrespondenceId != null) {
+        if (eksisterendeTilsagn.bekreftelsesbrev?.journalpostId != null && eksisterendeTilsagn.bekreftelsesbrev.altinnCorrespondenceId != null) {
             logger.info("Tilsagn med id $tilsagnId er allerede journalført og sendt til Altinn")
             return@transaction Either.Right(Unit)
         }
 
-        hentTilsagnsbrevInnhold(tilsagnId, personaliaService, kontoregister).flatMap { innhold ->
+        hentBekreftelsesbrevInnhold(tilsagnId, personaliaService, kontoregister).flatMap { innhold ->
             generatePdfs(innhold).map { pdfs -> schedulePdfDistribution(innhold, pdfs) }
         }
     }
 
-    private class TilsagnsbrevPdfs(
+    private class BekreftelsesbrevPdfs(
         val pdfJoark: ByteArray,
         val pdfAltinn: ByteArray,
     )
 
-    private suspend fun generatePdfs(innhold: TilsagnsbrevInnhold): Either<String, TilsagnsbrevPdfs> = coroutineScope {
+    private suspend fun generatePdfs(innhold: BekreftelsesbrevInnhold): Either<String, BekreftelsesbrevPdfs> = coroutineScope {
         val pdfJoark = async { generatePdf(innhold, visPersonopplysningerOmAdressebeskyttetPerson = false) }
         val pdfAltinn = async { generatePdf(innhold, visPersonopplysningerOmAdressebeskyttetPerson = true) }
         either {
-            TilsagnsbrevPdfs(pdfJoark = pdfJoark.await().bind(), pdfAltinn = pdfAltinn.await().bind())
+            BekreftelsesbrevPdfs(pdfJoark = pdfJoark.await().bind(), pdfAltinn = pdfAltinn.await().bind())
         }
     }
 
     private fun TransactionalQueryContext.schedulePdfDistribution(
-        innhold: TilsagnsbrevInnhold,
-        pdfer: TilsagnsbrevPdfs,
+        innhold: BekreftelsesbrevInnhold,
+        pdfer: BekreftelsesbrevPdfs,
     ) {
         val tilsagnId = innhold.tilsagn.id
         val client = transactionalSchedulerClient(arkiverIDokarkTask, session.connection.underlying)
@@ -201,41 +201,41 @@ class SendTilsagnsbrevSaga(
     }
 
     private suspend fun generatePdf(
-        innhold: TilsagnsbrevInnhold,
+        innhold: BekreftelsesbrevInnhold,
         visPersonopplysningerOmAdressebeskyttetPerson: Boolean,
     ): Either<String, ByteArray> {
-        val content = TilsagnToPdfDocumentContentMapper.toTilsagnsbrev(
+        val content = BekreftelsesbrevToPdfDocumentContentMapper.toBekreftelsesbrev(
             innhold,
             visPersonopplysningerOmAdressebeskyttetPerson,
         )
         return pdf
             .getPdfDocument(content)
-            .mapLeft { error -> "Feil ved generering av tilsagnsbrev. pdfgen: $error" }
+            .mapLeft { error -> "Feil ved generering av bekreftelsesbrev. pdfgen: $error" }
     }
 
     suspend fun arkiverIDokark(data: ArkiverIDokarkTaskData): Either<String, Unit> = db.transaction {
         val tilsagnId = data.tilsagnId
         val eksisterendeTilsagn = queries.tilsagn.getOrError(tilsagnId)
-        if (eksisterendeTilsagn.tilsagnsbrev?.journalpostId != null) {
-            logger.info("Tilsagn med id $tilsagnId er allerede journalført med id ${eksisterendeTilsagn.tilsagnsbrev.journalpostId}")
+        if (eksisterendeTilsagn.bekreftelsesbrev?.journalpostId != null) {
+            logger.info("Tilsagn med id $tilsagnId er allerede journalført med id ${eksisterendeTilsagn.bekreftelsesbrev.journalpostId}")
             return@transaction Either.Right(Unit)
         }
 
         val pdfJoark = Base64.getDecoder().decode(data.pdfBase64)
-        val tilsagn = TilsagnJournalpostSnapshot(
+        val tilsagn = BekreftelsesbrevJournalpostSnapshot(
             tilsagnId = tilsagnId,
             arrangorOrganisasjonsnummer = data.arrangorOrganisasjonsnummer,
             arrangorNavn = data.arrangorNavn,
             tiltaksnummer = data.tiltaksnummer,
             besluttetTidspunkt = data.besluttetTidspunkt,
         )
-        val journalpost = TilsagnTilJournalpostMapper.tilJournalpost(tilsagn, pdfJoark)
+        val journalpost = BekreftelsesbrevTilJournalpostMapper.tilJournalpost(tilsagn, pdfJoark)
 
         dokarkClient
             .opprettJournalpost(journalpost, AccessType.M2M)
             .mapLeft { error -> "Feil fra dokark ved journalføring av tilsagn $tilsagnId: ${error.message}" }
             .map { response ->
-                queries.tilsagn.setJournalpostId(tilsagnId, response.journalpostId)
+                queries.tilsagn.setBekreftelsesbrevJournalpostId(tilsagnId, response.journalpostId)
                 if (!response.journalpostferdigstilt) {
                     logger.info("Journalpost ${response.journalpostId} for tilsagn $tilsagnId er ikke ferdigstilt: ${response.melding}")
                 }
@@ -246,13 +246,13 @@ class SendTilsagnsbrevSaga(
     suspend fun sendTilAltinn(data: SendTilAltinnTaskData): Either<String, Unit> = db.transaction {
         val tilsagnId = data.tilsagnId
         val eksisterendeTilsagn = queries.tilsagn.getOrError(tilsagnId)
-        if (eksisterendeTilsagn.tilsagnsbrev?.altinnCorrespondenceId != null) {
-            logger.info("Tilsagn med id $tilsagnId er allerede sendt til Altinn med referanse ${eksisterendeTilsagn.tilsagnsbrev.altinnCorrespondenceId}")
+        if (eksisterendeTilsagn.bekreftelsesbrev?.altinnCorrespondenceId != null) {
+            logger.info("Tilsagn med id $tilsagnId er allerede sendt til Altinn med referanse ${eksisterendeTilsagn.bekreftelsesbrev.altinnCorrespondenceId}")
             return@transaction Either.Right(Unit)
         }
 
         val pdfAltinn = Base64.getDecoder().decode(data.pdfBase64)
-        val tilsagn = TilsagnsbrevMeldingSnapshot(
+        val tilsagn = BekreftelsesbrevMeldingSnapshot(
             tilsagnId = data.tilsagnId,
             tiltakstypeNavn = data.tiltakstypeNavn,
             bestillingsnummer = data.bestillingsnummer,
@@ -260,13 +260,13 @@ class SendTilsagnsbrevSaga(
             arrangorNavn = data.arrangorNavn,
             lopenummer = data.lopenummer,
         )
-        val melding = TilsagnsbrevMeldingMapper.tilArrangorMelding(tilsagn, pdfAltinn)
+        val melding = BekreftelsesbrevMeldingMapper.tilArrangorMelding(tilsagn, pdfAltinn)
 
         arrangorMeldingSender.send(melding)
-            .mapLeft { error -> "Feil ved sending av tilsagnsbrev til Altinn for tilsagn $tilsagnId: ${error.message}" }
+            .mapLeft { error -> "Feil ved sending av bekreftelsesbrev til Altinn for tilsagn $tilsagnId: ${error.message}" }
             .map { meldingId ->
-                queries.tilsagn.setAltinnCorrespondenceId(tilsagnId, meldingId.value.toString())
-                logger.info("Tilsagnsbrev for tilsagn $tilsagnId sendt til Altinn med referanse ${meldingId.value}")
+                queries.tilsagn.setBekreftelsesbrevAltinnCorrespondenceId(tilsagnId, meldingId.value.toString())
+                logger.info("Bekreftelsesbrev for tilsagn $tilsagnId sendt til Altinn med referanse ${meldingId.value}")
             }
     }
 

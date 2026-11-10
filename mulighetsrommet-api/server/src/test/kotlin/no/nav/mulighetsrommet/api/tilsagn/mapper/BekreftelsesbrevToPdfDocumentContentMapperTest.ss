@@ -1,7 +1,7 @@
 ╔═ inkluderer personalia kun når visningsflagg er satt til true/adressebeskyttet-med-personalia ═╗
 {
   "title": "Bekreftelse på bestilling",
-  "subject": "Bekreftelsebrev til AKSEPTABEL EMPIRISK TIGER AS",
+  "subject": "Bekreftelsesbrev til AKSEPTABEL EMPIRISK TIGER AS",
   "description": "Detaljer om tilsagn for gjennomføring av Enkeltplass Arbeidsmarkedsopplæring",
   "author": "Nav",
   "topSection": {
@@ -133,7 +133,7 @@
 ╔═ inkluderer personalia kun når visningsflagg er satt til true/adressebeskyttet-uten-personalia ═╗
 {
   "title": "Bekreftelse på bestilling",
-  "subject": "Bekreftelsebrev til AKSEPTABEL EMPIRISK TIGER AS",
+  "subject": "Bekreftelsesbrev til AKSEPTABEL EMPIRISK TIGER AS",
   "description": "Detaljer om tilsagn for gjennomføring av Enkeltplass Arbeidsmarkedsopplæring",
   "author": "Nav",
   "topSection": {
@@ -265,7 +265,7 @@
 ╔═ inkluderer personalia kun når visningsflagg er satt til true/skjermet-med-personalia ═╗
 {
   "title": "Bekreftelse på bestilling",
-  "subject": "Bekreftelsebrev til AKSEPTABEL EMPIRISK TIGER AS",
+  "subject": "Bekreftelsesbrev til AKSEPTABEL EMPIRISK TIGER AS",
   "description": "Detaljer om tilsagn for gjennomføring av Enkeltplass Arbeidsmarkedsopplæring",
   "author": "Nav",
   "topSection": {
@@ -397,7 +397,7 @@
 ╔═ inkluderer personalia kun når visningsflagg er satt til true/skjermet-uten-personalia ═╗
 {
   "title": "Bekreftelse på bestilling",
-  "subject": "Bekreftelsebrev til AKSEPTABEL EMPIRISK TIGER AS",
+  "subject": "Bekreftelsesbrev til AKSEPTABEL EMPIRISK TIGER AS",
   "description": "Detaljer om tilsagn for gjennomføring av Enkeltplass Arbeidsmarkedsopplæring",
   "author": "Nav",
   "topSection": {
@@ -529,7 +529,7 @@
 ╔═ inkluderer personalia uavhengig om visningsflagg er satt til true eller false/ugradert-med-personalia ═╗
 {
   "title": "Bekreftelse på bestilling",
-  "subject": "Bekreftelsebrev til AKSEPTABEL EMPIRISK TIGER AS",
+  "subject": "Bekreftelsesbrev til AKSEPTABEL EMPIRISK TIGER AS",
   "description": "Detaljer om tilsagn for gjennomføring av Enkeltplass Arbeidsmarkedsopplæring",
   "author": "Nav",
   "topSection": {

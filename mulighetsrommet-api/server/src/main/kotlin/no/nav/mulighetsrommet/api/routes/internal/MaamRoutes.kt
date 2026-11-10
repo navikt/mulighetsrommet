@@ -19,7 +19,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadGjennomforinger
 import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateGjennomforingAvtaleFreeTextSearch
 import no.nav.mulighetsrommet.api.navansatt.task.SynchronizeNavAnsatte
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
-import no.nav.mulighetsrommet.api.tilsagn.task.SendTilsagnsbrevSaga
+import no.nav.mulighetsrommet.api.tilsagn.task.SendBekreftelsesbrevSaga
 import no.nav.mulighetsrommet.api.tilskuddbehandling.task.DistribuerVedtaksbrev
 import no.nav.mulighetsrommet.api.tiltakstype.task.InitialLoadTiltakstyper
 import no.nav.mulighetsrommet.api.utbetaling.service.UtbetalingService
@@ -55,7 +55,7 @@ fun Route.maamRoutes() {
     val synchronizeUtdanninger: SynchronizeUtdanninger by inject()
     val generateUtbetaling: GenerateUtbetaling by inject()
     val beregnUtbetaling: BeregnUtbetaling by inject()
-    val sendTilsagnsbrevSaga: SendTilsagnsbrevSaga by inject()
+    val sendBekreftelsesbrevSaga: SendBekreftelsesbrevSaga by inject()
     val distribuerVedtaksbrev: DistribuerVedtaksbrev by inject()
     val updateGjennomforingAvtaleFreeTextSearch: UpdateGjennomforingAvtaleFreeTextSearch by inject()
     val brukerUtbetalingService: BrukerUtbetalingService by inject()
@@ -188,9 +188,9 @@ fun Route.maamRoutes() {
                 call.respond(HttpStatusCode.Accepted, response)
             }
 
-            post("send-tilsagnsbrev") {
+            post("send-bekreftelsesbrev") {
                 val request = call.receive<TilsagnIdRequest>()
-                val taskId = sendTilsagnsbrevSaga.schedule(request.tilsagnId)
+                val taskId = sendBekreftelsesbrevSaga.schedule(request.tilsagnId)
                 call.respond(ScheduleTaskResponse(taskId))
             }
 

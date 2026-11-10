@@ -20,9 +20,9 @@ import java.time.LocalDateTime
 import java.util.UUID
 
 /**
- * Samler informasjonen som trengs for å produsere innholdet i et tilsagnsbrev for en enkeltplass
+ * Samler informasjonen som trengs for å produsere innholdet i et bekreftelsesbrev for en enkeltplass
  */
-data class TilsagnsbrevInnhold(
+data class BekreftelsesbrevInnhold(
     val tiltaksnummer: Tiltaksnummer,
     val tilsagn: Tilsagn,
     val personalia: Personalia,
@@ -33,11 +33,11 @@ data class TilsagnsbrevInnhold(
     val besluttetTidspunkt: LocalDateTime,
 )
 
-suspend fun QueryContext.hentTilsagnsbrevInnhold(
+suspend fun QueryContext.hentBekreftelsesbrevInnhold(
     tilsagnId: UUID,
     personaliaService: PersonaliaService,
     kontoregister: KontoregisterGateway,
-): Either<String, TilsagnsbrevInnhold> {
+): Either<String, BekreftelsesbrevInnhold> {
     val tilsagn = queries.tilsagn.getOrError(tilsagnId)
 
     val enkeltplass = queries.gjennomforing.getGjennomforingEnkeltplassOrError(tilsagn.gjennomforing.id)
@@ -65,7 +65,7 @@ suspend fun QueryContext.hentTilsagnsbrevInnhold(
     val beslutter = (beslutning.utfortAv as? NavIdent)?.let { queries.ansatt.get(it) }
         ?: return "Klarte ikke utlede beslutter fra totrinnskontroll id=${opprettelse.id}".left()
 
-    return TilsagnsbrevInnhold(
+    return BekreftelsesbrevInnhold(
         tiltaksnummer = enkeltplass.lopenummer,
         tilsagn = tilsagn,
         personalia = personalia,

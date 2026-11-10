@@ -7,18 +7,18 @@ import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
-import no.nav.mulighetsrommet.api.tilsagn.task.SendTilsagnsbrevSaga
+import no.nav.mulighetsrommet.api.tilsagn.task.SendBekreftelsesbrevSaga
 import no.nav.mulighetsrommet.api.totrinnskontroll.kafka.TotrinnskontrollHendelseDeserializer
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import org.slf4j.LoggerFactory
 import java.util.UUID
 
 /**
- * Skedulerer utsending av tilsagnsbrev når et tilsagn for en enkeltplass-gjennomføring blir godkjent.
+ * Skedulerer utsending av bekreftelsesbrev når et tilsagn for en enkeltplass-gjennomføring blir godkjent.
  */
-class SendTilsagnsbrevConsumer(
+class SendBekreftelsesbrevConsumer(
     private val db: ApiDatabase,
-    private val sendTilsagnsbrevSaga: SendTilsagnsbrevSaga,
+    private val sendBekreftelsesbrevSaga: SendBekreftelsesbrevSaga,
 ) : KafkaTopicConsumer<UUID, TotrinnskontrollHendelse>(
     uuidDeserializer(),
     TotrinnskontrollHendelseDeserializer(),
@@ -54,6 +54,6 @@ class SendTilsagnsbrevConsumer(
             return
         }
 
-        sendTilsagnsbrevSaga.schedule(tilsagnId)
+        sendBekreftelsesbrevSaga.schedule(tilsagnId)
     }
 }

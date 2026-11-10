@@ -40,7 +40,7 @@ import java.time.LocalDateTime
 import java.util.Base64
 import java.util.UUID
 
-class SendTilsagnsbrevSagaTest : FunSpec({
+class SendBekreftelsesbrevSagaTest : FunSpec({
     val database = extension(ApiDatabaseTestListener())
 
     val deltaker = DeltakerFixtures.createDeltaker(
@@ -98,7 +98,7 @@ class SendTilsagnsbrevSagaTest : FunSpec({
         database.truncateAll()
     }
 
-    fun createSaga() = SendTilsagnsbrevSaga(
+    fun createSaga() = SendBekreftelsesbrevSaga(
         db = database.api,
         dokarkClient = dokarkClient,
         personaliaService = personaliaService,
@@ -121,15 +121,15 @@ class SendTilsagnsbrevSagaTest : FunSpec({
 
             coVerify(exactly = 2) { pdfGenClient.getPdfDocument(any()) }
             scheduledTaskNames() shouldBe listOf(
-                "SendTilsagnsbrevSaga-ArkiverIDokark",
-                "SendTilsagnsbrevSaga-SendTilAltinn",
+                "SendBekreftelsesbrevSaga-ArkiverIDokark",
+                "SendBekreftelsesbrevSaga-SendTilAltinn",
             )
         }
 
         test("er idempotent nar tilsagnet allerede er journalfort og sendt til altinn") {
             database.api.transaction {
-                queries.tilsagn.setJournalpostId(tilsagn.id, "121212")
-                queries.tilsagn.setAltinnCorrespondenceId(tilsagn.id, UUID.randomUUID().toString())
+                queries.tilsagn.setBekreftelsesbrevJournalpostId(tilsagn.id, "121212")
+                queries.tilsagn.setBekreftelsesbrevAltinnCorrespondenceId(tilsagn.id, UUID.randomUUID().toString())
             }
 
             val saga = createSaga()
@@ -161,7 +161,7 @@ class SendTilsagnsbrevSagaTest : FunSpec({
     }
 
     context("arkiverIDokark") {
-        fun taskData() = SendTilsagnsbrevSaga.ArkiverIDokarkTaskData(
+        fun taskData() = SendBekreftelsesbrevSaga.ArkiverIDokarkTaskData(
             tilsagnId = tilsagn.id,
             pdfBase64 = Base64.getEncoder().encodeToString("pdf".toByteArray()),
             arrangorOrganisasjonsnummer = Organisasjonsnummer("976663934"),
@@ -170,7 +170,7 @@ class SendTilsagnsbrevSagaTest : FunSpec({
             besluttetTidspunkt = LocalDateTime.of(2026, 3, 1, 12, 0, 0),
         )
 
-        test("journalforer og setter journalpost_id") {
+        test("journalforer og setter bekreftelsesbrev_journalpost_id") {
             coEvery { dokarkClient.opprettJournalpost(any(), any()) } returns DokarkResponse(
                 journalpostId = "121212",
                 journalstatus = "ok",
@@ -184,13 +184,13 @@ class SendTilsagnsbrevSagaTest : FunSpec({
             saga.arkiverIDokark(taskData()).shouldBeRight()
 
             database.run {
-                queries.tilsagn.getOrError(tilsagn.id).tilsagnsbrev?.journalpostId shouldBe "121212"
+                queries.tilsagn.getOrError(tilsagn.id).bekreftelsesbrev?.journalpostId shouldBe "121212"
             }
         }
 
         test("er idempotent nar tilsagnet allerede er journalfort") {
             database.api.transaction {
-                queries.tilsagn.setJournalpostId(tilsagn.id, "121212")
+                queries.tilsagn.setBekreftelsesbrevJournalpostId(tilsagn.id, "121212")
             }
 
             val saga = createSaga()
@@ -208,13 +208,13 @@ class SendTilsagnsbrevSagaTest : FunSpec({
             saga.arkiverIDokark(taskData()).shouldBeLeft()
 
             database.run {
-                queries.tilsagn.getOrError(tilsagn.id).tilsagnsbrev shouldBe null
+                queries.tilsagn.getOrError(tilsagn.id).bekreftelsesbrev shouldBe null
             }
         }
     }
 
     context("sendTilAltinn") {
-        fun taskData() = SendTilsagnsbrevSaga.SendTilAltinnTaskData(
+        fun taskData() = SendBekreftelsesbrevSaga.SendTilAltinnTaskData(
             tilsagnId = tilsagn.id,
             pdfBase64 = Base64.getEncoder().encodeToString("pdf".toByteArray()),
             tiltakstypeNavn = "Enkel Amo",
@@ -233,13 +233,13 @@ class SendTilsagnsbrevSagaTest : FunSpec({
 
             saga.sendTilAltinn(taskData()).shouldBeRight()
 
-            database.run { queries.tilsagn.getOrError(tilsagn.id).tilsagnsbrev?.altinnCorrespondenceId } shouldBe correspondenceId.toString()
+            database.run { queries.tilsagn.getOrError(tilsagn.id).bekreftelsesbrev?.altinnCorrespondenceId } shouldBe correspondenceId.toString()
         }
 
         test("er idempotent nar tilsagnet allerede er sendt til altinn") {
             database.api.transaction {
-                queries.tilsagn.setJournalpostId(tilsagn.id, "121212")
-                queries.tilsagn.setAltinnCorrespondenceId(tilsagn.id, correspondenceId.toString())
+                queries.tilsagn.setBekreftelsesbrevJournalpostId(tilsagn.id, "121212")
+                queries.tilsagn.setBekreftelsesbrevAltinnCorrespondenceId(tilsagn.id, correspondenceId.toString())
             }
 
             val saga = createSaga()
@@ -256,7 +256,7 @@ class SendTilsagnsbrevSagaTest : FunSpec({
 
             saga.sendTilAltinn(taskData()).shouldBeLeft()
 
-            database.run { queries.tilsagn.getOrError(tilsagn.id).tilsagnsbrev?.altinnCorrespondenceId } shouldBe null
+            database.run { queries.tilsagn.getOrError(tilsagn.id).bekreftelsesbrev?.altinnCorrespondenceId } shouldBe null
         }
     }
 
@@ -270,7 +270,7 @@ class SendTilsagnsbrevSagaTest : FunSpec({
             database.run {
                 session.list(queryOf("select task_name, task_instance from scheduled_tasks")) {
                     it.string("task_name") to it.string("task_instance")
-                } shouldBe listOf("SendTilsagnsbrevSaga-OpprettInnhold" to tilsagn.id.toString())
+                } shouldBe listOf("SendBekreftelsesbrevSaga-OpprettInnhold" to tilsagn.id.toString())
             }
         }
     }

@@ -118,10 +118,10 @@ class KafkaClients(
         topic = "team-mulighetsrommet.totrinnskontroll-v2",
         consumerProperties = getConsumerProperties("mulighetsrommet-api.oppdater-utbetaling-blokkeringer-fra-besluttet-tilsagn.v1"),
     )
-    val sendTilsagnsbrev: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
-        id = "send-tilsagnsbrev",
+    val sendBekreftelsesbrev: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
+        id = "send-bekreftelsesbrev",
         topic = "team-mulighetsrommet.totrinnskontroll-v2",
-        consumerProperties = getConsumerProperties("mulighetsrommet-api.send-tilsagnsbrev.v2"),
+        consumerProperties = getConsumerProperties("mulighetsrommet-api.send-bekreftelsesbrev.v2"),
     )
     var handterGjennomforingRequest: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
         id = "handter-gjennomforing-request",

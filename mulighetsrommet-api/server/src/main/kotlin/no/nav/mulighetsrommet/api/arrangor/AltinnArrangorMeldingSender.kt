@@ -3,9 +3,9 @@ package no.nav.mulighetsrommet.api.arrangor
 import arrow.core.Either
 import arrow.core.flatMap
 import no.nav.mulighetsrommet.admin.arrangor.ArrangorMeldingSender
+import no.nav.mulighetsrommet.admin.arrangor.BekreftelsesbrevArrangorMelding
 import no.nav.mulighetsrommet.admin.arrangor.MeldingError
 import no.nav.mulighetsrommet.admin.arrangor.MeldingId
-import no.nav.mulighetsrommet.admin.arrangor.TilsagnsbrevArrangorMelding
 import no.nav.mulighetsrommet.altinn.AltinnAttachmentInitRequest
 import no.nav.mulighetsrommet.altinn.AltinnCorrespondenceBase
 import no.nav.mulighetsrommet.altinn.AltinnCorrespondenceClient
@@ -22,7 +22,7 @@ class AltinnArrangorMeldingSender(
     private val client: AltinnCorrespondenceClient,
 ) : ArrangorMeldingSender {
     /**
-     * ResourceId registrert i Altinns for utsending av tilsagnsbrev fra Nav til tiltaksarrangører.
+     * ResourceId registrert i Altinns for utsending av bekreftelsesbrev fra Nav til tiltaksarrangører.
      * Deles med tiltak-tilsagnsbrev (https://github.com/navikt/tiltak-tilsagnsbrev).
      */
     private val resourceId = "nav_tiltak_tilskuddsbrev"
@@ -33,7 +33,7 @@ class AltinnArrangorMeldingSender(
     private val notificationTemplate = "CustomMessage"
     private val notificationChannel = "Email"
 
-    override suspend fun send(melding: TilsagnsbrevArrangorMelding): Either<MeldingError, MeldingId> {
+    override suspend fun send(melding: BekreftelsesbrevArrangorMelding): Either<MeldingError, MeldingId> {
         val vedlegg = tilAttachmentInitRequest(melding)
         return client.sendVedlegg(vedlegg, melding.vedlegg.innhold)
             .mapLeft { error -> MeldingError(error.message) }
@@ -45,7 +45,7 @@ class AltinnArrangorMeldingSender(
             }
     }
 
-    private fun tilAttachmentInitRequest(melding: TilsagnsbrevArrangorMelding): AltinnAttachmentInitRequest {
+    private fun tilAttachmentInitRequest(melding: BekreftelsesbrevArrangorMelding): AltinnAttachmentInitRequest {
         val checksum = MessageDigest.getInstance("MD5")
             .digest(melding.vedlegg.innhold)
             .joinToString("") { "%02x".format(it) }
@@ -61,7 +61,7 @@ class AltinnArrangorMeldingSender(
     }
 
     private fun tilCorrespondenceRequest(
-        melding: TilsagnsbrevArrangorMelding,
+        melding: BekreftelsesbrevArrangorMelding,
         vedleggId: UUID,
         now: Instant = Instant.now(),
     ): AltinnCorrespondenceRequest = AltinnCorrespondenceRequest(
@@ -72,7 +72,7 @@ class AltinnArrangorMeldingSender(
     )
 
     private fun createCorrespondenceBase(
-        melding: TilsagnsbrevArrangorMelding,
+        melding: BekreftelsesbrevArrangorMelding,
         requestedPublishTime: Instant,
     ): AltinnCorrespondenceBase {
         val allowSystemDeleteAfter = OffsetDateTime.ofInstant(requestedPublishTime, ZoneOffset.UTC)

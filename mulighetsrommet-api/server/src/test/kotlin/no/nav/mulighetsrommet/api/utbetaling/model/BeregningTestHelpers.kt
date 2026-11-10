@@ -169,7 +169,7 @@ object BeregningTestHelpers {
         status = TilsagnStatus.GODKJENT,
         kommentar = null,
         beskrivelse = null,
-        tilsagnsbrev = null,
+        bekreftelsesbrev = null,
         deltakere = emptyList(),
     )
 

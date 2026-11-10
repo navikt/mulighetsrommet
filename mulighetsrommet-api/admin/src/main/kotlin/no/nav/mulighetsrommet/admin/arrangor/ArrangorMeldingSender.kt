@@ -10,11 +10,11 @@ import java.util.UUID
  * Port for å sende digitale meldinger med vedlegg til arrangør.
  */
 interface ArrangorMeldingSender {
-    suspend fun send(melding: TilsagnsbrevArrangorMelding): Either<MeldingError, MeldingId>
+    suspend fun send(melding: BekreftelsesbrevArrangorMelding): Either<MeldingError, MeldingId>
 }
 
 @Serializable
-data class TilsagnsbrevArrangorMelding(
+data class BekreftelsesbrevArrangorMelding(
     val mottakerOrganisasjonsnummer: Organisasjonsnummer,
     val sendersReferanse: String,
     val innhold: Innhold,

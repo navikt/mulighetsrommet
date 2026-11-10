@@ -179,7 +179,7 @@ export type MrApiTask =
   | "regenerer-utbetaling"
   | "beregn-utbetaling"
   | "sync-arrangorer"
-  | "send-tilsagnsbrev"
+  | "send-bekreftelsesbrev"
   | "sync-gjennomforing-avtale-fts"
   | "hel-ved-utbetaling";
 

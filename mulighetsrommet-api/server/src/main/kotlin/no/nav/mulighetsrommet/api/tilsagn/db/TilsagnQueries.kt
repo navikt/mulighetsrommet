@@ -486,11 +486,11 @@ class TilsagnQueries(private val session: Session) {
         session.execute(queryOf(query, status.name, bestillingsnummer))
     }
 
-    fun setJournalpostId(id: UUID, journalpostId: String) {
+    fun setBekreftelsesbrevJournalpostId(id: UUID, journalpostId: String) {
         @Language("PostgreSQL")
         val query = """
             update tilsagn
-              set journalpost_id = :journalpost_id
+              set bekreftelsesbrev_journalpost_id = :journalpost_id
             where
               id = :id::uuid
         """.trimIndent()
@@ -502,11 +502,11 @@ class TilsagnQueries(private val session: Session) {
         session.execute(queryOf(query, params))
     }
 
-    fun setAltinnCorrespondenceId(id: UUID, altinnCorrespondenceId: String) {
+    fun setBekreftelsesbrevAltinnCorrespondenceId(id: UUID, altinnCorrespondenceId: String) {
         @Language("PostgreSQL")
         val query = """
             update tilsagn
-              set altinn_correspondence_id = :altinn_correspondence_id
+              set bekreftelsesbrev_altinn_correspondence_id = :altinn_correspondence_id
             where
               id = :id::uuid
         """.trimIndent()
@@ -541,10 +541,10 @@ class TilsagnQueries(private val session: Session) {
             ?.let { Json.decodeFromString<List<Tilsagn.Deltaker>>(it) }
             ?: emptyList()
 
-        val journalpostId = stringOrNull("journalpost_id")
-        val altinnCorrespondenceId = stringOrNull("altinn_correspondence_id")
-        val tilsagnsbrev = if (journalpostId != null || altinnCorrespondenceId != null) {
-            Tilsagn.Tilsagnsbrev(journalpostId = journalpostId, altinnCorrespondenceId = altinnCorrespondenceId)
+        val journalpostId = stringOrNull("bekreftelsesbrev_journalpost_id")
+        val altinnCorrespondenceId = stringOrNull("bekreftelsesbrev_altinn_correspondence_id")
+        val bekreftelsesbrev = if (journalpostId != null || altinnCorrespondenceId != null) {
+            Tilsagn.Bekreftelsesbrev(journalpostId = journalpostId, altinnCorrespondenceId = altinnCorrespondenceId)
         } else {
             null
         }
@@ -586,7 +586,7 @@ class TilsagnQueries(private val session: Session) {
             status = TilsagnStatus.valueOf(string("status")),
             kommentar = stringOrNull("kommentar"),
             beskrivelse = stringOrNull("beskrivelse"),
-            tilsagnsbrev = tilsagnsbrev,
+            bekreftelsesbrev = bekreftelsesbrev,
             deltakere = deltakere,
         )
     }
