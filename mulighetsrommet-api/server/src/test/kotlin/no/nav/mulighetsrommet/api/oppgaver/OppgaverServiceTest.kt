@@ -1203,7 +1203,6 @@ class OppgaverServiceTest : FunSpec({
                 OppgaveType.TILSAGN_RETURNERT,
                 OppgaveType.UTBETALING_TIL_BEHANDLING,
                 OppgaveType.UTBETALING_RETURNERT,
-                OppgaveType.UTBETALING_TIL_AVBRYTELSE,
                 OppgaveType.TILSKUDDBEHANDLING_RETURNERT,
             )
 

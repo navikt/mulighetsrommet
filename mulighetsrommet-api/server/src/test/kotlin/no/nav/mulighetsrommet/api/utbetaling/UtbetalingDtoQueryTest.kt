@@ -212,7 +212,7 @@ class UtbetalingDtoQueryTest : FunSpec({
             avbrytelse = UtbetalingTilstandsendringDbo(avbrytelse.id, UtbetalingStatusType.GENERERT),
         )
 
-        test("en annen saksbehandler kan godkjenne eller avslå avbrytelsen") {
+        test("saksbehandler uten attestantrolle kan avslå, attestant uten saksbehandlerrolle kan godkjenne") {
             MulighetsrommetTestDomain(
                 ansatte = listOf(saksbehandler, annenSaksbehandler, attestant),
                 avtaler = listOf(AvtaleFixtures.AFT),
@@ -228,13 +228,82 @@ class UtbetalingDtoQueryTest : FunSpec({
             val saksbehandlerDetaljer = query.getDetaljer(utbetaling1.id, annenSaksbehandler.navIdent).shouldBeRight()
 
             saksbehandlerDetaljer.handlinger shouldBe setOf(
-                UtbetalingHandling.GODKJENN_AVBRYTELSE,
                 UtbetalingHandling.AVSLA_AVBRYTELSE,
             )
 
             val attestantDetaljer = query.getDetaljer(utbetaling1.id, attestant.navIdent).shouldBeRight()
 
-            attestantDetaljer.handlinger.shouldBeEmpty()
+            attestantDetaljer.handlinger shouldBe setOf(
+                UtbetalingHandling.GODKJENN_AVBRYTELSE,
+            )
+        }
+
+        test("en annen saksbehandler med attestantrolle kan godkjenne eller avslå avbrytelsen") {
+            val saksbehandlerOgAttestant = NavAnsattFixture.FetterAnton.medRoller(
+                saksbehandler.roller + attestant.roller,
+            )
+            MulighetsrommetTestDomain(
+                ansatte = listOf(saksbehandler, saksbehandlerOgAttestant),
+                avtaler = listOf(AvtaleFixtures.AFT),
+                gjennomforinger = listOf(AFT1),
+                utbetalinger = listOf(utbetaling1),
+            ) {
+                queries.totrinnskontroll.upsert(avbrytelse)
+                queries.utbetaling.upsert(utbetalingTilAvbrytelse)
+            }.initialize(database.api)
+
+            val detaljer = createQuery()
+                .getDetaljer(utbetaling1.id, saksbehandlerOgAttestant.navIdent)
+                .shouldBeRight()
+
+            detaljer.handlinger shouldBe setOf(
+                UtbetalingHandling.GODKJENN_AVBRYTELSE,
+                UtbetalingHandling.AVSLA_AVBRYTELSE,
+            )
+        }
+
+        test("attestantrolle ved feil enhet gir ikke godkjenning av avbrytelsen") {
+            val attestantVedAnnenEnhet = NavAnsattFixture.FetterAnton.medRoller(
+                saksbehandler.roller + NavAnsattRolle.kontorspesifikk(
+                    Rolle.OKONOMI_ATTESTANT_GRUPPETILTAK,
+                    setOf(NavEnhetFixtures.Gjovik.enhetsnummer),
+                ),
+            )
+            MulighetsrommetTestDomain(
+                ansatte = listOf(saksbehandler, attestantVedAnnenEnhet),
+                avtaler = listOf(AvtaleFixtures.AFT),
+                gjennomforinger = listOf(AFT1),
+                utbetalinger = listOf(utbetaling1),
+            ) {
+                queries.totrinnskontroll.upsert(avbrytelse)
+                queries.utbetaling.upsert(utbetalingTilAvbrytelse)
+            }.initialize(database.api)
+
+            createQuery()
+                .getDetaljer(utbetaling1.id, attestantVedAnnenEnhet.navIdent)
+                .shouldBeRight()
+                .handlinger shouldBe setOf(UtbetalingHandling.AVSLA_AVBRYTELSE)
+        }
+
+        test("saksbehandler med attestantrolle kan ikke godkjenne sin egen avbrytelse") {
+            val saksbehandlerOgAttestant = saksbehandler.medRoller(saksbehandler.roller + attestant.roller)
+            MulighetsrommetTestDomain(
+                ansatte = listOf(saksbehandlerOgAttestant),
+                avtaler = listOf(AvtaleFixtures.AFT),
+                gjennomforinger = listOf(AFT1),
+                utbetalinger = listOf(utbetaling1),
+            ) {
+                queries.totrinnskontroll.upsert(avbrytelse)
+                queries.utbetaling.upsert(utbetalingTilAvbrytelse)
+            }.initialize(database.api)
+
+            val detaljer = createQuery()
+                .getDetaljer(utbetaling1.id, saksbehandlerOgAttestant.navIdent)
+                .shouldBeRight()
+
+            detaljer.handlinger shouldBe setOf(
+                UtbetalingHandling.AVSLA_AVBRYTELSE,
+            )
         }
 
         test("saksbehandler kan avslå, men ikke godkjenne sin egen avbrytelse") {

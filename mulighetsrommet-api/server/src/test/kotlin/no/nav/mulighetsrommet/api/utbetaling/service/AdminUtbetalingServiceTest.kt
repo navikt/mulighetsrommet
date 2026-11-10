@@ -1857,9 +1857,10 @@ class AdminUtbetalingServiceTest : FunSpec({
         }
 
         context("godkjenn avbrytelse") {
-            test("godkjenning av avbrytelse krever saksbehandlerrolle for riktig type gjennomføring") {
+            test("godkjenning av avbrytelse krever attestantrolle") {
+                val annenSaksbehandler = NavAnsattFixture.FetterAnton.medRoller(saksbehandler.roller)
                 MulighetsrommetTestDomain(
-                    ansatte = listOf(saksbehandler, enkeltplassSaksbehandler, attestant),
+                    ansatte = listOf(saksbehandler, annenSaksbehandler, attestant),
                     avtaler = listOf(AvtaleFixtures.AFT),
                     gjennomforinger = listOf(AFT1),
                     utbetalinger = listOf(utbetaling1.copy(status = UtbetalingStatusType.TIL_BEHANDLING)),
@@ -1870,30 +1871,51 @@ class AdminUtbetalingServiceTest : FunSpec({
                 val avbrytelse = AarsakerOgBegrunnelseRequest(listOf(UtbetalingStatusAarsak.TILSAGN_GJORT_OPP), null)
                 service.sendTilAvbrytelse(utbetaling1.id, saksbehandler.navIdent, avbrytelse).shouldBeRight()
 
-                service.godkjennAvbrytelse(utbetaling1.id, enkeltplassSaksbehandler.navIdent)
+                service.godkjennAvbrytelse(utbetaling1.id, annenSaksbehandler.navIdent)
                     .shouldBeLeft().shouldBeTypeOf<UtbetalingError.ManglerTilgang>()
 
                 service.avslaAvbrytelse(utbetaling1.id, attestant.navIdent, avbrytelse)
                     .shouldBeLeft().shouldBeTypeOf<UtbetalingError.ManglerTilgang>()
             }
 
+            test("attestant ved en annen enhet enn gjennomføringens ansvarlige enhet kan ikke godkjenne avbrytelsen") {
+                val attestantVedAnnenEnhet = attestant.medRoller(
+                    setOf(NavAnsattRolle.kontorspesifikk(Rolle.OKONOMI_ATTESTANT_GRUPPETILTAK, setOf(Gjovik.enhetsnummer))),
+                )
+                MulighetsrommetTestDomain(
+                    ansatte = listOf(saksbehandler, attestantVedAnnenEnhet),
+                    avtaler = listOf(AvtaleFixtures.AFT),
+                    gjennomforinger = listOf(AFT1),
+                    utbetalinger = listOf(utbetaling1.copy(status = UtbetalingStatusType.TIL_BEHANDLING)),
+                ).initialize(database.api)
+
+                val service = createUtbetalingService()
+
+                val avbrytelse = AarsakerOgBegrunnelseRequest(listOf(UtbetalingStatusAarsak.TILSAGN_GJORT_OPP), null)
+                service.sendTilAvbrytelse(utbetaling1.id, saksbehandler.navIdent, avbrytelse).shouldBeRight()
+
+                service.godkjennAvbrytelse(utbetaling1.id, attestantVedAnnenEnhet.navIdent)
+                    .shouldBeLeft().shouldBeTypeOf<UtbetalingError.ManglerTilgang>()
+            }
+
             test("kan ikke godkjenne en utbetaling som ikke er til avbrytelse") {
                 MulighetsrommetTestDomain(
-                    ansatte = listOf(saksbehandler),
+                    ansatte = listOf(attestant, saksbehandler),
                     avtaler = listOf(AvtaleFixtures.AFT),
                     gjennomforinger = listOf(AFT1),
                     utbetalinger = listOf(utbetaling1.copy(status = UtbetalingStatusType.GENERERT)),
                 ).initialize(database.api)
                 val service = createUtbetalingService()
 
-                service.godkjennAvbrytelse(utbetaling1.id, saksbehandler.navIdent) shouldHaveValidationErrors listOf(
+                service.godkjennAvbrytelse(utbetaling1.id, attestant.navIdent) shouldHaveValidationErrors listOf(
                     FieldError.of("Utbetalingen kan ikke avbrytes"),
                 )
             }
 
             test("samme navident kan ikke både behandle og beslutte en avbrytelse") {
+                val attestantOgSaksbehandler = attestant.medRoller(attestant.roller + saksbehandler.roller)
                 MulighetsrommetTestDomain(
-                    ansatte = listOf(saksbehandler),
+                    ansatte = listOf(attestantOgSaksbehandler, saksbehandler),
                     avtaler = listOf(AvtaleFixtures.AFT),
                     gjennomforinger = listOf(AFT1),
                     utbetalinger = listOf(utbetaling1),
@@ -1904,17 +1926,17 @@ class AdminUtbetalingServiceTest : FunSpec({
                     aarsaker = listOf(UtbetalingStatusAarsak.TILSAGN_GJORT_OPP),
                     begrunnelse = null,
                 )
-                service.sendTilAvbrytelse(utbetaling1.id, saksbehandler.navIdent, aarsakerOgBegrunnelse).shouldBeRight()
+                service.sendTilAvbrytelse(utbetaling1.id, attestantOgSaksbehandler.navIdent, aarsakerOgBegrunnelse)
+                    .shouldBeRight()
 
-                service.godkjennAvbrytelse(utbetaling1.id, saksbehandler.navIdent) shouldHaveValidationErrors listOf(
+                service.godkjennAvbrytelse(utbetaling1.id, attestantOgSaksbehandler.navIdent) shouldHaveValidationErrors listOf(
                     FieldError.of("Du kan ikke beslutte noe du selv har behandlet"),
                 )
             }
 
-            test("skal kunne godkjenne en avbrytelse") {
-                val annenSaksbehandler = NavAnsattFixture.FetterAnton.medRoller(saksbehandler.roller)
+            test("attestant uten saksbehandlerrolle kan godkjenne en avbrytelse") {
                 MulighetsrommetTestDomain(
-                    ansatte = listOf(saksbehandler, annenSaksbehandler),
+                    ansatte = listOf(saksbehandler, attestant),
                     avtaler = listOf(AvtaleFixtures.AFT),
                     gjennomforinger = listOf(AFT1),
                     utbetalinger = listOf(utbetaling1),
@@ -1925,10 +1947,10 @@ class AdminUtbetalingServiceTest : FunSpec({
                     aarsaker = listOf(UtbetalingStatusAarsak.TILSAGN_GJORT_OPP),
                     begrunnelse = null,
                 )
-                service.sendTilAvbrytelse(utbetaling1.id, annenSaksbehandler.navIdent, aarsakerOgBegrunnelse)
+                service.sendTilAvbrytelse(utbetaling1.id, saksbehandler.navIdent, aarsakerOgBegrunnelse)
                     .shouldBeRight()
 
-                service.godkjennAvbrytelse(utbetaling1.id, saksbehandler.navIdent)
+                service.godkjennAvbrytelse(utbetaling1.id, attestant.navIdent)
                     .shouldBeRight().status shouldBe UtbetalingStatusType.AVBRUTT
             }
         }
