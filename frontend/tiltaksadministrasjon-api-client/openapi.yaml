@@ -4063,7 +4063,7 @@ components:
     OpenApiVersion:
       type: number
       enum:
-        - 32
+        - 33
     RedaksjoneltInnholdLenke:
       type: object
       properties:

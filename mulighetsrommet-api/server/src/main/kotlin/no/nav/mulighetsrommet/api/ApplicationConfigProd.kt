@@ -97,6 +97,7 @@ val ApplicationConfigProd = AppConfig(
                 Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV to Periode(LocalDate.of(2026, 1, 1), slutt),
                 Tiltakskode.STUDIESPESIALISERING to Periode(LocalDate.of(2026, 1, 1), slutt),
                 Tiltakskode.FAG_OG_YRKESOPPLAERING to Periode(LocalDate.of(2026, 1, 1), slutt),
+                Tiltakskode.HOYERE_YRKESFAGLIG_UTDANNING to Periode(LocalDate.of(2026, 1, 1), slutt),
             ),
             tidligstTidspunktForUtbetaling = tidligstTidspunktForUtbetalingProd,
         )

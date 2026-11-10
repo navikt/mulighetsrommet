@@ -47,7 +47,11 @@ fun Route.arrangorFeatureToggleRoutes() {
         val orgnr = call.parameters.getOrFail("orgnr").let { Organisasjonsnummer(it) }
         requireTilgangHosArrangor(altinnRettigheterService, orgnr)
 
-        val feature: FeatureToggle by call.parameters
+        val feature: String by call.parameters
+
+        val toggle = FeatureToggle.entries.find { it.name == feature }
+            ?: return@get call.respond(false)
+
         val tiltakskoder = call.parameters.getAll("tiltakskoder")
             ?.filter { it.isNotBlank() }
             ?.map { Tiltakskode.valueOf(it) }
@@ -60,6 +64,6 @@ fun Route.arrangorFeatureToggleRoutes() {
             orgnr = listOf(orgnr),
         )
 
-        call.respond(features.isEnabled(feature, context))
+        call.respond(features.isEnabled(toggle, context))
     }
 }

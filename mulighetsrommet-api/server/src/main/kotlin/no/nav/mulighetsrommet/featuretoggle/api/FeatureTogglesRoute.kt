@@ -44,7 +44,11 @@ fun Route.featureTogglesRoute() {
                 }
             }
         }) {
-            val feature: FeatureToggle by call.parameters
+            val feature: String by call.parameters
+
+            val toggle = FeatureToggle.entries.find { it.name == feature }
+                ?: return@get call.respond(false)
+
             val tiltakskoder = call.parameters.getAll("tiltakskoder")
                 ?.filter { it.isNotBlank() }
                 ?.map { Tiltakskode.valueOf(it) }
@@ -58,9 +62,7 @@ fun Route.featureTogglesRoute() {
                 orgnr = emptyList(),
             )
 
-            val isEnabled = features.isEnabled(feature, context)
-
-            call.respond(isEnabled)
+            call.respond(features.isEnabled(toggle, context))
         }
     }
 }
