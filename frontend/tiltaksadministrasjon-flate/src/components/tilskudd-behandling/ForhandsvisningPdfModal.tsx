@@ -1,5 +1,5 @@
 import { Button, HStack, Modal } from "@navikt/ds-react";
-import { VedtaksbrevPdf } from "./VedtaksbrevPdf";
+import { ForhandsvisningPdf } from "./ForhandsvisningPdf";
 
 interface Props {
   blob: Blob | undefined;
@@ -7,18 +7,16 @@ interface Props {
   isError: boolean;
   open: boolean;
   onClose: () => void;
+  title: string;
 }
 
-export function VedtaksbrevPdfModal({ blob, isLoading, isError, open, onClose }: Props) {
+export function ForhandsvisningPdfModal({ blob, isLoading, isError, open, onClose, title }: Props) {
   return (
-    <Modal
-      open={open}
-      onClose={onClose}
-      header={{ heading: "Forhåndsvisning av vedtaksbrev" }}
-      width="1200px"
-    >
+    <Modal open={open} onClose={onClose} header={{ heading: title }} width="1200px">
       <Modal.Body>
-        {open && <VedtaksbrevPdf blob={blob} isLoading={isLoading} isError={isError} />}
+        {open && (
+          <ForhandsvisningPdf title={title} blob={blob} isLoading={isLoading} isError={isError} />
+        )}
       </Modal.Body>
       <Modal.Footer>
         <HStack justify="end">

@@ -2,7 +2,7 @@ import { useTilskuddBehandling } from "@/api/tilskudd-behandling/useTilskuddBeha
 import { useVedtaksbrevPdfBlob } from "@/api/tilskudd-behandling/useVedtaksbrevPdfBlob";
 import { Endringshistorikk } from "@/components/endringshistorikk/Endringshistorikk";
 import { Handlinger } from "@/components/handlinger/Handlinger";
-import { VedtaksbrevPdfModal } from "@/components/tilskudd-behandling/VedtaksbrevPdfModal";
+import { ForhandsvisningPdfModal } from "@/components/tilskudd-behandling/ForhandsvisningPdfModal";
 import { KnapperadContainer } from "@/layouts/KnapperadContainer";
 import { erTilBeslutning } from "@/utils/totrinnskontroll";
 import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
@@ -61,12 +61,13 @@ export function TilskuddBehandlingHandlinger({
         />
       </KnapperadContainer>
       <Separator />
-      <VedtaksbrevPdfModal
+      <ForhandsvisningPdfModal
         blob={pdfBlob}
         isLoading={pdfIsLoading}
         isError={pdfIsError}
         open={pdfPreviewOpen}
         onClose={() => setPdfPreviewOpen(false)}
+        title="Forhåndsvisning av vedtaksbrev"
       />
     </>
   );
