@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.utbetaling.service
 
 import arrow.core.Either
 import arrow.core.nel
+import arrow.core.right
 import kotlinx.coroutines.runBlocking
 import no.nav.mulighetsrommet.admin.journalpost.ForventetBruker
 import no.nav.mulighetsrommet.admin.journalpost.JournalpostValidator
@@ -10,6 +11,7 @@ import no.nav.mulighetsrommet.api.domain.arrangor.Arrangor
 import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsreferanse
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.ArrangorReferanseType
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingRequest
 import no.nav.mulighetsrommet.api.utbetaling.api.ValutaBelopRequest
 import no.nav.mulighetsrommet.api.utbetaling.model.OpprettUtbetalingLinjer
@@ -17,6 +19,8 @@ import no.nav.mulighetsrommet.api.utbetaling.model.Tilskuddstype
 import no.nav.mulighetsrommet.api.utbetaling.model.UpsertUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
+import no.nav.mulighetsrommet.model.Fakturanummer
+import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.JournalpostId
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Periode
@@ -42,10 +46,11 @@ object UtbetalingValidator {
         val arrangor: Arrangor?,
         val korrigertUtbetalingFinnes: Boolean,
         val journalpostValidator: (String) -> Validated<JournalpostId>,
+        val gjennomforingOppstartsType: GjennomforingOppstartstype,
         val today: LocalDate = LocalDate.now(),
     )
 
-    suspend fun validateUpsertUtbetaling(
+    fun validateUpsertUtbetaling(
         request: UtbetalingRequest,
         ctx: Ctx,
     ): Validated<UpsertUtbetaling> = validation {
@@ -60,11 +65,7 @@ object UtbetalingValidator {
             FieldError.of("Beløp må være positivt", UtbetalingRequest::pris, ValutaBelopRequest::belop)
         }
 
-        val kid = request.kidNummer?.let { value ->
-            validateNotNull(Kid.parse(value)) {
-                FieldError.of("Ugyldig kid", UtbetalingRequest::kidNummer)
-            }
-        }
+        val referanseValidering = validerMottakerReferanse(request, ctx.gjennomforingOppstartsType)
 
         when (request.korrigererUtbetaling) {
             null -> if (ctx.arrangor is Arrangor.Norsk) {
@@ -108,13 +109,13 @@ object UtbetalingValidator {
             }
         }
 
-        val jId = if (ctx.arrangor is Arrangor.Norsk && request.korrigererUtbetaling == null) {
+        val journalpostValidering = if (ctx.arrangor is Arrangor.Norsk && request.korrigererUtbetaling == null) {
             requireNotNull(request.journalpostId) {
                 FieldError.of("Journalpost-ID er påkrevd", UtbetalingRequest::journalpostId)
             }
-            ctx.journalpostValidator(request.journalpostId).bind()
+            ctx.journalpostValidator(request.journalpostId)
         } else {
-            null
+            null.right()
         }
 
         val korreksjonBegrunnelse = when (request.korrigererUtbetaling) {
@@ -138,6 +139,16 @@ object UtbetalingValidator {
             }
         }
 
+        val (referanse, journalpostId) =
+            Either.zipOrAccumulate(
+                { first, second -> first + second },
+                referanseValidering,
+                journalpostValidering,
+            )
+                { referanse, journalpostId ->
+                    referanse to journalpostId
+                }.bind()
+
         requireValid(requireNotNull(request.periodeStart) <= requireNotNull(request.periodeSlutt)) {
             FieldError.of("Periodeslutt må være etter periodestart", UtbetalingRequest::periodeSlutt)
         }
@@ -146,8 +157,6 @@ object UtbetalingValidator {
         val beregning = requireNotNull(request.pris).let { (belop, valuta) ->
             UtbetalingBeregningFri.from(ValutaBelop(requireNotNull(belop), requireNotNull(valuta)))
         }
-
-        val referanse = kid?.let { Betalingsreferanse.KidNummer(it) }
 
         if (request.korrigererUtbetaling != null) {
             UpsertUtbetaling.Korreksjon(
@@ -165,7 +174,7 @@ object UtbetalingValidator {
                 id = request.id,
                 gjennomforingId = request.gjennomforingId,
                 periode = periode,
-                journalpostId = jId,
+                journalpostId = journalpostId,
                 beregning = beregning,
                 referanse = referanse,
                 kommentar = kommentar,
@@ -246,5 +255,71 @@ object UtbetalingValidator {
             }
         }
         return journalpostValidatorFunc
+    }
+
+    private fun validerMottakerReferanse(
+        request: UtbetalingRequest,
+        gjennomforingOppstartsType: GjennomforingOppstartstype,
+    ): Validated<Betalingsreferanse?> = validation {
+        val erEnkeltplass = gjennomforingOppstartsType == GjennomforingOppstartstype.ENKELTPLASS
+        val referanse = when (request.referanse) {
+            ArrangorReferanseType.KID ->
+                if (request.kidNummer.isNullOrBlank() && erEnkeltplass) {
+                    error {
+                        FieldError.of(
+                            "Du må oppgi et KID-nummer",
+                            UtbetalingRequest::kidNummer,
+                        )
+                    }
+                    null
+                } else {
+                    request.kidNummer?.let { kidNummer ->
+                        val kid = Kid.parse(kidNummer)?.let { kid ->
+                            Betalingsreferanse.KidNummer(kid)
+                        }
+                        requireNotNull(kid) {
+                            FieldError.of(
+                                "Ugyldig KID",
+                                UtbetalingRequest::kidNummer,
+                            )
+                        }
+                    }
+                }
+
+            ArrangorReferanseType.FAKTURANUMMER -> if (request.fakturanummer.isNullOrBlank() && erEnkeltplass) {
+                error {
+                    FieldError.of(
+                        "Du må oppgi et fakturanummer",
+                        UtbetalingRequest::fakturanummer,
+                    )
+                }
+                null
+            } else {
+                request.fakturanummer?.let { fakturanummer ->
+                    val fakturanummer = Fakturanummer.parse(fakturanummer)?.let { faktura ->
+                        Betalingsreferanse.MeldingTilMottaker(faktura.value)
+                    }
+                    requireNotNull(fakturanummer) {
+                        FieldError.of(
+                            "Ugyldig fakturanummer",
+                            UtbetalingRequest::fakturanummer,
+                        )
+                    }
+                }
+            }
+
+            null -> {
+                if (erEnkeltplass) {
+                    error {
+                        FieldError.of(
+                            "Du må oppgi en referanse til mottaker",
+                            UtbetalingRequest::referanse,
+                        )
+                    }
+                }
+                null
+            }
+        }
+        referanse
     }
 }

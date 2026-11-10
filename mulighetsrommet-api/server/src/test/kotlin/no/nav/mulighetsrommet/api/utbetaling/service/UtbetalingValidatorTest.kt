@@ -11,6 +11,7 @@ import no.nav.mulighetsrommet.api.domain.testing.fixture.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.ArrangorReferanseType
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingRequest
 import no.nav.mulighetsrommet.api.utbetaling.api.ValutaBelopRequest
 import no.nav.mulighetsrommet.api.utbetaling.model.BeregningTestHelpers
@@ -21,6 +22,7 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UpsertUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
+import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.JournalpostId
 import no.nav.mulighetsrommet.model.NOK
 import no.nav.mulighetsrommet.model.Periode
@@ -39,6 +41,7 @@ class UtbetalingValidatorTest : FunSpec({
             JournalpostId.parse(journalpostId)?.right()
                 ?: FieldError(pointer = "/journalpostId", detail = "Feil format").nel().left()
         },
+        gjennomforingOppstartsType = GjennomforingOppstartstype.LOPENDE,
         today = LocalDate.now(),
     )
 
@@ -125,6 +128,7 @@ class UtbetalingValidatorTest : FunSpec({
                 gjennomforingId = UUID.randomUUID(),
                 periodeStart = periodeStart,
                 journalpostId = "abc",
+                referanse = ArrangorReferanseType.KID,
                 kidNummer = "asdf",
                 kommentar = "1",
                 pris = ValutaBelopRequest(0, Valuta.NOK),
@@ -135,9 +139,9 @@ class UtbetalingValidatorTest : FunSpec({
                 FieldError.of("Periodeslutt må være satt", UtbetalingRequest::periodeSlutt),
                 FieldError.of("Beløp må være positivt", UtbetalingRequest::pris, ValutaBelopRequest::belop),
                 FieldError.of("Kommentar må være minst 10 tegn", UtbetalingRequest::kommentar),
-                FieldError(pointer = "/journalpostId", detail = "Feil format"),
-                FieldError.of("Ugyldig kid", UtbetalingRequest::kidNummer),
-                FieldError(pointer = "/utbetalingsDato", detail = "Utbetalingsdato er påkrevd"),
+                FieldError.of("Feil format", UtbetalingRequest::journalpostId),
+                FieldError.of("Ugyldig KID", UtbetalingRequest::kidNummer),
+                FieldError.of("Utbetalingsdato er påkrevd", UtbetalingRequest::utbetalingsDato),
             )
         }
 
@@ -203,13 +207,212 @@ class UtbetalingValidatorTest : FunSpec({
                 ctx.copy(today = today),
             ).shouldBeRight()
 
-            val etterTreMåneder = nullDato.copy(utbetalingsDato = today.plusMonths(3).plusDays(1))
-            UtbetalingValidator.validateUpsertUtbetaling(etterTreMåneder, ctx.copy(today = today)) shouldBeLeft listOf(
+            val etterTreMaaneder = nullDato.copy(utbetalingsDato = today.plusMonths(3).plusDays(1))
+            UtbetalingValidator.validateUpsertUtbetaling(etterTreMaaneder, ctx.copy(today = today)) shouldBeLeft listOf(
                 FieldError.of(
                     "Utbetalingsdato må være mellom i dag og 3 måneder frem i tid",
                     UtbetalingRequest::utbetalingsDato,
                 ),
             )
+        }
+
+        context("betalingsreferanse") {
+            test("Validerer ikke kid eller fakturanummer om referanse ikke er satt") {
+                val request = UtbetalingRequest(
+                    id = UUID.randomUUID(),
+                    gjennomforingId = UUID.randomUUID(),
+                    periodeStart = periodeStart,
+                    periodeSlutt = periodeSlutt,
+                    journalpostId = "123",
+                    utbetalingsDato = LocalDate.now(),
+                    pris = ValutaBelopRequest(150, Valuta.NOK),
+                    referanse = null,
+                    kidNummer = "1234",
+                    fakturanummer = "Jeg skriver en melding istedet",
+                )
+
+                UtbetalingValidator.validateUpsertUtbetaling(request, ctx).shouldBeRight()
+            }
+
+            test("validerer ikke KID om feltet er tomt") {
+                val request = UtbetalingRequest(
+                    id = UUID.randomUUID(),
+                    gjennomforingId = UUID.randomUUID(),
+                    periodeStart = periodeStart,
+                    periodeSlutt = periodeSlutt,
+                    journalpostId = "123",
+                    utbetalingsDato = LocalDate.now(),
+                    pris = ValutaBelopRequest(150, Valuta.NOK),
+                    referanse = ArrangorReferanseType.KID,
+                    kidNummer = null,
+                    fakturanummer = null,
+                )
+
+                UtbetalingValidator.validateUpsertUtbetaling(request, ctx).shouldBeRight()
+            }
+
+            test("validerer ikke tomt fakturanummer, selvom referansen er satt") {
+                val request = UtbetalingRequest(
+                    id = UUID.randomUUID(),
+                    gjennomforingId = UUID.randomUUID(),
+                    periodeStart = periodeStart,
+                    periodeSlutt = periodeSlutt,
+                    journalpostId = "123",
+                    utbetalingsDato = LocalDate.now(),
+                    pris = ValutaBelopRequest(150, Valuta.NOK),
+                    referanse = ArrangorReferanseType.FAKTURANUMMER,
+                    kidNummer = null,
+                    fakturanummer = null,
+                )
+
+                UtbetalingValidator.validateUpsertUtbetaling(request, ctx).shouldBeRight()
+            }
+
+            test("validerer kid når referansen er satt og den er ugyldig") {
+                val request = UtbetalingRequest(
+                    id = UUID.randomUUID(),
+                    gjennomforingId = UUID.randomUUID(),
+                    periodeStart = periodeStart,
+                    periodeSlutt = periodeSlutt,
+                    journalpostId = "123",
+                    utbetalingsDato = LocalDate.now(),
+                    pris = ValutaBelopRequest(150, Valuta.NOK),
+                    referanse = ArrangorReferanseType.KID,
+                    kidNummer = "1234",
+                    fakturanummer = null,
+                )
+
+                UtbetalingValidator.validateUpsertUtbetaling(request, ctx) shouldBeLeft listOf(
+                    FieldError.of("Ugyldig KID", UtbetalingRequest::kidNummer),
+                )
+            }
+
+            test("validerer fakturanummer når referansen er satt og den er ugyldig") {
+                val request = UtbetalingRequest(
+                    id = UUID.randomUUID(),
+                    gjennomforingId = UUID.randomUUID(),
+                    periodeStart = periodeStart,
+                    periodeSlutt = periodeSlutt,
+                    journalpostId = "123",
+                    utbetalingsDato = LocalDate.now(),
+                    pris = ValutaBelopRequest(150, Valuta.NOK),
+                    referanse = ArrangorReferanseType.FAKTURANUMMER,
+                    kidNummer = null,
+                    fakturanummer = "Jeg skriver en melding istedet",
+                )
+
+                UtbetalingValidator.validateUpsertUtbetaling(request, ctx) shouldBeLeft listOf(
+                    FieldError.of("Ugyldig fakturanummer", UtbetalingRequest::fakturanummer),
+                )
+            }
+
+            test("validerer gyldig fakturanummer når referansen er satt") {
+                val request = UtbetalingRequest(
+                    id = UUID.randomUUID(),
+                    gjennomforingId = UUID.randomUUID(),
+                    periodeStart = periodeStart,
+                    periodeSlutt = periodeSlutt,
+                    journalpostId = "123",
+                    utbetalingsDato = LocalDate.now(),
+                    pris = ValutaBelopRequest(150, Valuta.NOK),
+                    referanse = ArrangorReferanseType.FAKTURANUMMER,
+                    kidNummer = null,
+                    fakturanummer = "INV-1234",
+                )
+
+                UtbetalingValidator.validateUpsertUtbetaling(request, ctx).shouldBeRight()
+            }
+
+            test("validerer gyldig KID når referansen er satt") {
+                val request = UtbetalingRequest(
+                    id = UUID.randomUUID(),
+                    gjennomforingId = UUID.randomUUID(),
+                    periodeStart = periodeStart,
+                    periodeSlutt = periodeSlutt,
+                    journalpostId = "123",
+                    utbetalingsDato = LocalDate.now(),
+                    pris = ValutaBelopRequest(150, Valuta.NOK),
+                    referanse = ArrangorReferanseType.KID,
+                    kidNummer = "116",
+                    fakturanummer = null,
+                )
+
+                UtbetalingValidator.validateUpsertUtbetaling(request, ctx).shouldBeRight()
+            }
+
+            context("enkeltplass") {
+                val enkeltplassCtx = ctx.copy(gjennomforingOppstartsType = GjennomforingOppstartstype.ENKELTPLASS)
+                val enkeltplassRequest = UtbetalingRequest(
+                    id = UUID.randomUUID(),
+                    gjennomforingId = UUID.randomUUID(),
+                    periodeStart = periodeStart,
+                    periodeSlutt = periodeSlutt,
+                    journalpostId = "123",
+                    utbetalingsDato = LocalDate.now(),
+                    pris = ValutaBelopRequest(150, Valuta.NOK),
+                )
+
+                test("referanse valg er påkrevd") {
+                    UtbetalingValidator.validateUpsertUtbetaling(enkeltplassRequest, enkeltplassCtx) shouldBeLeft listOf(
+                        FieldError.of("Du må oppgi en referanse til mottaker", UtbetalingRequest::referanse),
+                    )
+                }
+
+                test("Kid er påkrevd når valgt som referanse") {
+                    val request = enkeltplassRequest.copy(referanse = ArrangorReferanseType.KID)
+
+                    UtbetalingValidator.validateUpsertUtbetaling(request, enkeltplassCtx) shouldBeLeft listOf(
+                        FieldError.of("Du må oppgi et KID-nummer", UtbetalingRequest::kidNummer),
+                    )
+                }
+                test("Kid må være på rett format") {
+                    val request = enkeltplassRequest.copy(referanse = ArrangorReferanseType.KID, kidNummer = "1234")
+
+                    UtbetalingValidator.validateUpsertUtbetaling(request, enkeltplassCtx) shouldBeLeft listOf(
+                        FieldError.of("Ugyldig KID", UtbetalingRequest::kidNummer),
+                    )
+                }
+
+                test("Fakturanummer er påkrevd når valgt som referanse") {
+                    val request = enkeltplassRequest.copy(referanse = ArrangorReferanseType.FAKTURANUMMER)
+
+                    UtbetalingValidator.validateUpsertUtbetaling(request, enkeltplassCtx) shouldBeLeft listOf(
+                        FieldError.of("Du må oppgi et fakturanummer", UtbetalingRequest::fakturanummer),
+                    )
+                }
+
+                test("Fakturanummer må være på rett format") {
+                    val request = enkeltplassRequest.copy(referanse = ArrangorReferanseType.FAKTURANUMMER, fakturanummer = "Jeg skriver en melding istedet")
+
+                    UtbetalingValidator.validateUpsertUtbetaling(request, enkeltplassCtx) shouldBeLeft listOf(
+                        FieldError.of("Ugyldig fakturanummer", UtbetalingRequest::fakturanummer),
+                    )
+                }
+
+                test("Validerer basert på referansen, selvom både kid og fakturanummer er satt: KID") {
+                    val request = enkeltplassRequest.copy(
+                        referanse = ArrangorReferanseType.KID,
+                        kidNummer = "1234",
+                        fakturanummer = "Jeg skriver en melding istedet",
+                    )
+
+                    UtbetalingValidator.validateUpsertUtbetaling(request, enkeltplassCtx) shouldBeLeft listOf(
+                        FieldError.of("Ugyldig KID", UtbetalingRequest::kidNummer),
+                    )
+                }
+
+                test("Validerer basert på referansen, selvom både kid og fakturanummer er satt: FAKTURANUMMER") {
+                    val request = enkeltplassRequest.copy(
+                        referanse = ArrangorReferanseType.FAKTURANUMMER,
+                        kidNummer = "1234",
+                        fakturanummer = "Jeg skriver en melding istedet",
+                    )
+
+                    UtbetalingValidator.validateUpsertUtbetaling(request, enkeltplassCtx) shouldBeLeft listOf(
+                        FieldError.of("Ugyldig fakturanummer", UtbetalingRequest::fakturanummer),
+                    )
+                }
+            }
         }
     }
 

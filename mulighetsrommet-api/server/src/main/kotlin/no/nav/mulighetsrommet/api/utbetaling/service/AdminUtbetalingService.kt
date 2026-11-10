@@ -24,6 +24,7 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UpsertUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeReturnertAarsak
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusAarsak
+import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.validation.FieldError
 import no.nav.tiltak.okonomi.FakturaStatusType
@@ -53,7 +54,7 @@ class AdminUtbetalingService(
             if (!kanOppretteUtbetaling(agent, gjennomforing)) {
                 return UtbetalingError.ManglerTilgang("Du mangler saksbehandlertilgang til utbetalingen").left()
             }
-            hentValideringsContext(arrangorId = gjennomforing.arrangor.id, korrigertUtbetalingFinnes = true)
+            hentValideringsContext(arrangorId = gjennomforing.arrangor.id, korrigertUtbetalingFinnes = true, gjennomforingOppstartsType = gjennomforing.oppstart)
         }
 
         val opprett = UtbetalingValidator.validateUpsertUtbetaling(request, ctx)
@@ -77,11 +78,13 @@ class AdminUtbetalingService(
             if (!erSaksbehandler(agent, utbetaling)) {
                 return UtbetalingError.ManglerTilgang("Du mangler saksbehandlertilgang til utbetalingen").left()
             }
+            val gjennomforing = queries.gjennomforing.getGjennomforingTiltaksadministrasjon(utbetaling.gjennomforing.id)
             hentValideringsContext(
                 arrangorId = utbetaling.arrangor.id,
                 korrigertUtbetalingFinnes = request.korrigererUtbetaling
                     ?.let { queries.utbetaling.get(it) != null }
                     ?: true,
+                gjennomforingOppstartsType = gjennomforing.oppstart,
             )
         }
 
@@ -112,6 +115,7 @@ class AdminUtbetalingService(
     private fun QueryContext.hentValideringsContext(
         arrangorId: UUID,
         korrigertUtbetalingFinnes: Boolean,
+        gjennomforingOppstartsType: GjennomforingOppstartstype,
     ): UtbetalingValidator.Ctx {
         val arrangor = db.session { repository.arrangor.get(arrangorId) }
         val forventetBruker = ForventetBruker.Bedrift(organisasjonsnummer = arrangor.organisasjonsnummer)
@@ -125,6 +129,7 @@ class AdminUtbetalingService(
             arrangor = repository.arrangor.get(arrangorId),
             korrigertUtbetalingFinnes = korrigertUtbetalingFinnes,
             journalpostValidator = journalpostValidatorFunc,
+            gjennomforingOppstartsType = gjennomforingOppstartsType,
             today = today(),
         )
     }
