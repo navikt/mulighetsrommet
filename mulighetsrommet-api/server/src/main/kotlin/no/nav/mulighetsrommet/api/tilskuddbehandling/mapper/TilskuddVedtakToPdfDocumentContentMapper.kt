@@ -214,9 +214,8 @@ private fun PdfDocumentContentBuilder.klagerettSection() {
             regular(
                 "Når du klager, vil den Nav-enheten som har skrevet vedtaket, vurdere saken din på nytt. Hvis du får " +
                     "medhold i klagen din, mottar du et nytt vedtak. Hvis du ikke får medhold, sender vi klagen videre til " +
-                    "Nav klageinstans. Du får brev når saken er sendt dit. I brevet står det hva som skjer videre. Før en " +
-                    "sak kan bringes inn for domstolene, må du ha brukt muligheten til å klage og anke. Dette følger av " +
-                    "arbeidsmarkedsloven § 17"
+                    "Nav klageinstans. Du får brev når saken er sendt dit. I brevet står det hva som skjer videre. Dette følger av " +
+                    "forvaltningsloven § 28."
             )
         }
         paragraph {
