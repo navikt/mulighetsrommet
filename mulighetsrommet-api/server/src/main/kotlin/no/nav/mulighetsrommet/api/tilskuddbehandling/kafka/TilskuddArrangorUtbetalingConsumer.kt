@@ -6,6 +6,7 @@ import no.nav.common.kafka.consumer.util.deserializer.Deserializers.uuidDeserial
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.TransactionalQueryContext
 import no.nav.mulighetsrommet.api.contracts.totrinnskontroll.TotrinnskontrollHendelse
+import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsreferanse
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
@@ -14,8 +15,9 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningType
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.tilsagn.model.ValutaBelopRequest
-import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.ArrangorReferanse
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingDto
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddMottaker
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
 import no.nav.mulighetsrommet.api.totrinnskontroll.kafka.TotrinnskontrollHendelseDeserializer
 import no.nav.mulighetsrommet.api.utbetaling.model.AutomatisertUtbetalingResult
@@ -25,7 +27,6 @@ import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
 import no.nav.mulighetsrommet.api.utbetaling.service.UtbetalingService
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
-import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
@@ -60,8 +61,11 @@ class TilskuddArrangorUtbetalingConsumer(
     private suspend fun utbetalTilskuddTilArrangor(behandling: TilskuddBehandlingDto) {
         behandling.tilskuddVedtak
             .filter { it.vedtakResultat.type == VedtakResultat.INNVILGELSE }
-            .filter { it.utbetalingMottaker == TilskuddMottaker.ARRANGOR }
+            .filter { it.utbetalingMottaker is TilskuddMottaker.Arrangor }
             .forEach { tilskuddVedtak ->
+                require(tilskuddVedtak.utbetalingMottaker is TilskuddMottaker.Arrangor) {
+                    "Forventet at utbetaling mottaker er arrangør for tilskudd vedtak id=${tilskuddVedtak.id}, behandling id=${behandling.id}"
+                }
                 db.transaction {
                     // Idempotency check
                     queries.tilskuddBehandling.acquireLockTilskudd(tilskuddVedtak.tilskuddId)
@@ -69,6 +73,11 @@ class TilskuddArrangorUtbetalingConsumer(
                     if (utbetalingOpprettet != null) {
                         logger.warn("Utbetaling for tilskudd vedtak med id=${tilskuddVedtak.id} er allerede opprettet. Se utbetaling id=${utbetalingOpprettet.id}.")
                         return@transaction
+                    }
+
+                    val betalingReferanse = when (tilskuddVedtak.utbetalingMottaker.referanse) {
+                        is ArrangorReferanse.Fakturanummer -> Betalingsreferanse.MeldingTilMottaker(tilskuddVedtak.utbetalingMottaker.referanse.fakturanummer.value)
+                        is ArrangorReferanse.Kid -> tilskuddVedtak.utbetalingMottaker.referanse.kid?.let { Betalingsreferanse.KidNummer(it) }
                     }
 
                     opprettOgGodkjennTilsagn(
@@ -83,7 +92,7 @@ class TilskuddArrangorUtbetalingConsumer(
                         gjennomforingId = behandling.gjennomforingId,
                         periode = tilskuddVedtak.periode,
                         belop = tilskuddVedtak.utbetalingBelop,
-                        kid = tilskuddVedtak.kid,
+                        betalingsreferanse = betalingReferanse,
                     )
                     queries.tilskuddBehandling.setUtbetalingTilskuddVedtak(tilskuddVedtak.id, utbetaling.id)
                 }
@@ -127,7 +136,7 @@ class TilskuddArrangorUtbetalingConsumer(
         gjennomforingId: UUID,
         periode: Periode,
         belop: ValutaBelop,
-        kid: Kid?,
+        betalingsreferanse: Betalingsreferanse?,
     ): Utbetaling {
         return utbetalingService.opprettUtbetaling(
             UpsertUtbetaling.Generering(
@@ -136,7 +145,7 @@ class TilskuddArrangorUtbetalingConsumer(
                 gjennomforingId = gjennomforingId,
                 beregning = UtbetalingBeregningFri.from(belop),
                 tilskuddstype = Tilskuddstype.TILTAK_OPPLAERING_TILSKUDD,
-                kid = kid,
+                referanse = betalingsreferanse,
                 blokkeringer = emptySet(),
             ),
             Tiltaksadministrasjon,

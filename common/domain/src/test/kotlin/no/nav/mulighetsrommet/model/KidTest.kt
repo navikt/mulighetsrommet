@@ -5,11 +5,11 @@ import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 
 class KidTest : FunSpec({
-    test("tom streng behandles som fravær av kid") {
+    test("tom streng behandles som fravær av KID") {
         Kid.parse("").shouldBeNull()
     }
 
-    test("blank streng behandles som fravær av kid") {
+    test("blank streng behandles som fravær av KID") {
         Kid.parse("   ").shouldBeNull()
     }
 

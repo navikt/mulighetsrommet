@@ -104,7 +104,7 @@ class AdminUtbetalingServiceTest : FunSpec({
 
     coEvery { betalingsinformasjon.execute(any()) } returns Betalingsinformasjon.BBan(
         kontonummer = Kontonummer("12345678901"),
-        kid = null,
+        referanse = null,
     )
 
     fun createTilsagnService(): TilsagnService = TilsagnService(
@@ -184,6 +184,7 @@ class AdminUtbetalingServiceTest : FunSpec({
             periodeSlutt = LocalDate.of(2025, 1, 31),
             journalpostId = "123123123",
             pris = ValutaBelopRequest(10, Valuta.NOK),
+            referanse = null,
             utbetalingsDato = utbetalingsDato,
             kommentar = "Arrangør trenger penger",
         )
@@ -418,7 +419,7 @@ class AdminUtbetalingServiceTest : FunSpec({
                 periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
                 beregning = UtbetalingBeregningFri.from(10.NOK),
                 tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
-                kid = null,
+                referanse = null,
             )
             val innerService = createInnerUtbetalingService()
             database.api.transaction {

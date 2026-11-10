@@ -1608,13 +1608,36 @@ components:
       properties:
         kontonummer:
           type: string
+        referanse:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/Betalingsreferanse"
+      required:
+      - kontonummer
+      - referanse
+    Betalingsreferanse:
+      anyOf:
+      - $ref: "#/components/schemas/KidNummer"
+      - $ref: "#/components/schemas/MeldingTilMottaker"
+      discriminator:
+        propertyName: type
+        mapping:
+          KidNummer: "#/components/schemas/KidNummer"
+          MeldingTilMottaker: "#/components/schemas/MeldingTilMottaker"
+    KidNummer:
+      type: object
+      properties:
         kid:
-          type:
-          - "null"
-          - string
+          type: string
       required:
       - kid
-      - kontonummer
+    MeldingTilMottaker:
+      type: object
+      properties:
+        melding:
+          type: string
+      required:
+      - melding
     ArrangorflateBeregning:
       type: object
       properties:

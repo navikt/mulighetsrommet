@@ -1,4 +1,4 @@
-import { opplaeringTilskuddToString, tilskuddMottakerTabellToString } from "@/utils/Utils";
+import { opplaeringTilskuddToString, tilskuddMottakerTypeTabellToString } from "@/utils/Utils";
 import {
   KostnadsstedDto,
   TilskuddUtbetalingKompaktDto,
@@ -75,7 +75,7 @@ export function TilskuddUtbetalingTable({ utbetalinger }: Props) {
               <Table.DataCell>{formaterPeriodeSlutt(periode)}</Table.DataCell>
               <Table.DataCell>{opplaeringTilskuddToString(type)}</Table.DataCell>
               <Table.DataCell> {kostnadssted?.navn ?? "-"} </Table.DataCell>
-              <Table.DataCell>{tilskuddMottakerTabellToString(mottaker)}</Table.DataCell>
+              <Table.DataCell>{tilskuddMottakerTypeTabellToString(mottaker)}</Table.DataCell>
               <Table.DataCell align="right">
                 {belopUtbetalt ? formaterValutaBelop(belopUtbetalt) : ""}
               </Table.DataCell>

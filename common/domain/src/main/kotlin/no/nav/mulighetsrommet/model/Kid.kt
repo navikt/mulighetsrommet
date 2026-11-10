@@ -29,7 +29,7 @@ value class Kid private constructor(val value: String) {
         }
 
         fun parseOrThrow(kid: String): Kid {
-            return parse(kid) ?: throw IllegalArgumentException("Ugyldig kid")
+            return parse(kid) ?: throw IllegalArgumentException("Ugyldig KID")
         }
     }
 

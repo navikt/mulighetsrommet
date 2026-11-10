@@ -26,7 +26,12 @@ export default function Betalingsinformasjon() {
   const syncKontonummer = useSyncKontonummer(id);
   const wizard = useUtbetalingWizard(utbetaling);
 
-  const [kid, setKid] = useState(kidFromState ?? utbetaling.betalingsinformasjon?.kid ?? "");
+  const kidFromUtbetaling: string =
+    (utbetaling.betalingsinformasjon?.referanse?.type === "KidNummer" &&
+      utbetaling.betalingsinformasjon.referanse.kid) ||
+    "";
+
+  const [kid, setKid] = useState(kidFromState || kidFromUtbetaling);
   const [kontonummerError, setKontonummerError] = useState<string>();
 
   const validateAndContinue = () => {

@@ -122,7 +122,13 @@ export const aftUtbetalt: UtbetalingMock = {
     stengt: [],
   },
   advarsler: [],
-  betalingsinformasjon: { kontonummer: "63728787114", kid: "2851777587" },
+  betalingsinformasjon: {
+    kontonummer: "63728787114",
+    referanse: {
+      type: "KidNummer",
+      kid: "2851777587",
+    },
+  },
   periode: { start: "2025-01-01", slutt: "2025-02-01" },
   type: utbetalingType.INNSENDING,
   blokkeringer: [],
@@ -191,7 +197,13 @@ export const avklaringManedKlarTilGodkjenning: UtbetalingMock = {
     lopenummer: "2025/10001",
   },
   arrangor: arrangorMock,
-  betalingsinformasjon: { kontonummer: "63728787114", kid: "2851777587" },
+  betalingsinformasjon: {
+    kontonummer: "63728787114",
+    referanse: {
+      type: "KidNummer",
+      kid: "2851777587",
+    },
+  },
   valuta: Valuta.NOK,
   beregning: {
     pris: { type: "BEREGNET", pris: { belop: 20000, valuta: Valuta.NOK } },
@@ -256,7 +268,13 @@ export const aftKreverEndring: UtbetalingMock = {
     deltakelser: toSatserUkesverkDeltakelse,
     stengt: [],
   },
-  betalingsinformasjon: { kontonummer: "63728787114", kid: "2851777587" },
+  betalingsinformasjon: {
+    kontonummer: "63728787114",
+    referanse: {
+      type: "KidNummer",
+      kid: "2851777587",
+    },
+  },
   periode: { start: "2025-01-01", slutt: "2025-02-01" },
   type: utbetalingType.INNSENDING,
   linjer: [],
@@ -313,7 +331,13 @@ export const aftBehandlesAvNav: UtbetalingMock = {
     satsDetaljer: [],
     pris: { type: "BEREGNET", pris: { belop: 234, valuta: Valuta.NOK } },
   },
-  betalingsinformasjon: { kontonummer: "63728787114", kid: "2851777587" },
+  betalingsinformasjon: {
+    kontonummer: "63728787114",
+    referanse: {
+      type: "KidNummer",
+      kid: "2851777587",
+    },
+  },
   periode: { start: "2025-05-01", slutt: "2025-08-02" },
   type: utbetalingType.INVESTERING,
   linjer: [],
@@ -377,7 +401,13 @@ export const avklaringOverfortTilUtbetaling: UtbetalingMock = {
     pris: { type: "BEREGNET", pris: { belop: 500, valuta: Valuta.NOK } },
   },
   blokkeringer: [],
-  betalingsinformasjon: { kontonummer: "63728787114", kid: "2851777587" },
+  betalingsinformasjon: {
+    kontonummer: "63728787114",
+    referanse: {
+      type: "KidNummer",
+      kid: "2851777587",
+    },
+  },
   periode: { start: "2025-01-01", slutt: "2025-02-01" },
   type: utbetalingType.KORRIGERING,
   linjer: [
@@ -453,7 +483,13 @@ export const vtaKlarForGodkjenning: UtbetalingMock = {
     stengt: [],
   },
   blokkeringer: [],
-  betalingsinformasjon: { kontonummer: "63728787114", kid: "2851777587" },
+  betalingsinformasjon: {
+    kontonummer: "63728787114",
+    referanse: {
+      type: "KidNummer",
+      kid: "2851777587",
+    },
+  },
   periode: { start: "2025-06-01", slutt: "2025-07-01" },
   type: utbetalingType.INNSENDING,
   linjer: [],
@@ -504,7 +540,13 @@ export const arrUkesprisKlarTilGodkjenning: UtbetalingMock = {
     lopenummer: "2025/10006",
   },
   arrangor: arrangorMock,
-  betalingsinformasjon: { kontonummer: "63728787114", kid: "2851777587" },
+  betalingsinformasjon: {
+    kontonummer: "63728787114",
+    referanse: {
+      type: "KidNummer",
+      kid: "2851777587",
+    },
+  },
   valuta: Valuta.NOK,
   beregning: {
     pris: { type: "BEREGNET", pris: { belop: 53100, valuta: Valuta.NOK } },
@@ -604,6 +646,7 @@ export function medUtbetalingsdetaljer({
   ].includes(utbetaling.status)
     ? utbetaling.linjer
     : [];
+
   return {
     ...utbetaling,
     detaljer: {
@@ -629,8 +672,13 @@ export function medUtbetalingsdetaljer({
         header: "Betalingsinformasjon",
         entries: [
           text("Kontonummer", utbetaling.betalingsinformasjon?.kontonummer),
-          text("KID-nummer", utbetaling.betalingsinformasjon?.kid),
-        ],
+          (utbetaling.betalingsinformasjon?.referanse?.type === "KidNummer" &&
+            text("KID-nummer", utbetaling.betalingsinformasjon.referanse.kid)) ||
+            undefined,
+          (utbetaling.betalingsinformasjon?.referanse?.type === "MeldingTilMottaker" &&
+            text("Referanse", utbetaling.betalingsinformasjon.referanse.melding)) ||
+            undefined,
+        ].filter((x) => !!x) as LabeledDataElement[],
       },
       status: {
         header: "Utbetalingsstatus",

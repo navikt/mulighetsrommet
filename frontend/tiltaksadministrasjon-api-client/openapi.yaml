@@ -8226,6 +8226,11 @@ components:
       - displayName
       - displayNameLong
       - tagName
+    ArrangorReferanseType:
+      type: string
+      enum:
+      - KID
+      - FAKTURANUMMER
     UtbetalingRequest:
       type: object
       properties:
@@ -8267,7 +8272,15 @@ components:
           type:
           - "null"
           - string
+        referanse:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/ArrangorReferanseType"
         kidNummer:
+          type:
+          - "null"
+          - string
+        fakturanummer:
           type:
           - "null"
           - string
@@ -8276,6 +8289,7 @@ components:
           - type: "null"
           - $ref: "#/components/schemas/ValutaBelopRequest"
       required:
+      - fakturanummer
       - gjennomforingId
       - id
       - journalpostId
@@ -8286,6 +8300,7 @@ components:
       - periodeSlutt
       - periodeStart
       - pris
+      - referanse
       - utbetalingsDato
     UtbetalingDto:
       type: object
@@ -8386,13 +8401,36 @@ components:
       properties:
         kontonummer:
           type: string
+        referanse:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/Betalingsreferanse"
+      required:
+      - kontonummer
+      - referanse
+    Betalingsreferanse:
+      anyOf:
+      - $ref: "#/components/schemas/KidNummer"
+      - $ref: "#/components/schemas/MeldingTilMottaker"
+      discriminator:
+        propertyName: type
+        mapping:
+          KidNummer: "#/components/schemas/KidNummer"
+          MeldingTilMottaker: "#/components/schemas/MeldingTilMottaker"
+    KidNummer:
+      type: object
+      properties:
         kid:
-          type:
-          - "null"
-          - string
+          type: string
       required:
       - kid
-      - kontonummer
+    MeldingTilMottaker:
+      type: object
+      properties:
+        melding:
+          type: string
+      required:
+      - melding
     IBan:
       type: object
       properties:
@@ -8787,7 +8825,7 @@ components:
         vedtakResultat:
           $ref: "#/components/schemas/VedtakResultatDto"
         mottaker:
-          $ref: "#/components/schemas/TilskuddMottaker"
+          $ref: "#/components/schemas/TilskuddMottakerType"
       required:
       - belopUtbetalt
       - id
@@ -8830,7 +8868,7 @@ components:
       enum:
       - INNVILGELSE
       - AVSLAG
-    TilskuddMottaker:
+    TilskuddMottakerType:
       type: string
       enum:
       - BRUKER
@@ -9472,14 +9510,6 @@ components:
           - string
         utbetalingMottaker:
           $ref: "#/components/schemas/TilskuddMottaker"
-        kid:
-          type:
-          - "null"
-          - string
-        brukerUtbetalingType:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/BrukerUtbetalingType"
         utbetalingBelop:
           oneOf:
           - type: "null"
@@ -9493,9 +9523,7 @@ components:
           - "null"
           - string
       required:
-      - brukerUtbetalingType
       - id
-      - kid
       - kommentarIntern
       - kommentarVedtaksbrev
       - kostnadssted
@@ -9510,6 +9538,54 @@ components:
       - utbetalingMottaker
       - vedtakJournalpostId
       - vedtakResultat
+    TilskuddMottaker:
+      anyOf:
+      - $ref: "#/components/schemas/ARRANGOR"
+      - $ref: "#/components/schemas/BRUKER"
+      discriminator:
+        propertyName: type
+        mapping:
+          ARRANGOR: "#/components/schemas/ARRANGOR"
+          BRUKER: "#/components/schemas/BRUKER"
+    ARRANGOR:
+      type: object
+      properties:
+        referanse:
+          $ref: "#/components/schemas/ArrangorReferanse"
+      required:
+      - referanse
+    ArrangorReferanse:
+      anyOf:
+      - $ref: "#/components/schemas/FAKTURANUMMER"
+      - $ref: "#/components/schemas/KID"
+      discriminator:
+        propertyName: type
+        mapping:
+          FAKTURANUMMER: "#/components/schemas/FAKTURANUMMER"
+          KID: "#/components/schemas/KID"
+    FAKTURANUMMER:
+      type: object
+      properties:
+        fakturanummer:
+          type: string
+      required:
+      - fakturanummer
+    KID:
+      type: object
+      properties:
+        kid:
+          type:
+          - "null"
+          - string
+      required:
+      - kid
+    BRUKER:
+      type: object
+      properties:
+        utbetalingType:
+          $ref: "#/components/schemas/BrukerUtbetalingType"
+      required:
+      - utbetalingType
     BrukerUtbetalingType:
       type: string
       enum:
@@ -9638,8 +9714,16 @@ components:
         utbetalingMottaker:
           oneOf:
           - type: "null"
-          - $ref: "#/components/schemas/TilskuddMottaker"
+          - $ref: "#/components/schemas/TilskuddMottakerType"
+        arrangorReferanse:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/ArrangorReferanseType"
         kidNummer:
+          type:
+          - "null"
+          - string
+        fakturanummer:
           type:
           - "null"
           - string
@@ -9669,8 +9753,10 @@ components:
           - "null"
           - string
       required:
+      - arrangorReferanse
       - belop
       - brukerUtbetalingType
+      - fakturanummer
       - id
       - kidNummer
       - kommentarIntern

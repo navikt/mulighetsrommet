@@ -131,8 +131,6 @@ export function TilskuddBehandlingDetaljerPage() {
                     belop={t.soknadBelop.belop || 0}
                     tilskuddOpplaeringType={t.tilskuddOpplaeringType}
                     utbetalingMottaker={t.utbetalingMottaker}
-                    kid={t.kid}
-                    brukerUtbetalingType={t.brukerUtbetalingType}
                     betalingsinformasjon={betalingsinformasjon ?? null}
                   />
                   <Separator />
@@ -253,7 +251,7 @@ function godkjennModalInnhold(behandling: TilskuddBehandlingDto) {
             <List.Item key={t.id}>
               {t.utbetalingBelop?.belop ?? 0} {(t.utbetalingBelop?.valuta ?? Valuta.NOK).toString()}{" "}
               i {opplaeringTilskuddToString(t.tilskuddOpplaeringType).toLowerCase()} som utbetales
-              til {tilskuddMottakerToString(t.utbetalingMottaker, null).toLowerCase()}
+              til {tilskuddMottakerToString(t.utbetalingMottaker).toLowerCase()}
             </List.Item>
           ) : (
             <List.Item key={t.id}>

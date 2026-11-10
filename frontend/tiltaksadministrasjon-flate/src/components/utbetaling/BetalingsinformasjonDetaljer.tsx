@@ -12,7 +12,12 @@ export function BetalingsinformasjonDetaljer({ betalingsinformasjon }: Props) {
       return (
         <HGrid columns="1fr 1fr" gap="space-24">
           <MetadataVStack label="Kontonummer" value={betalingsinformasjon.kontonummer} />
-          <MetadataVStack label="KID (valgfritt)" value={betalingsinformasjon.kid} />
+          {betalingsinformasjon.referanse?.type === "KidNummer" && (
+            <MetadataVStack label="KID (valgfritt)" value={betalingsinformasjon.referanse.kid} />
+          )}
+          {betalingsinformasjon.referanse?.type === "MeldingTilMottaker" && (
+            <MetadataVStack label="Referanse" value={betalingsinformasjon.referanse.melding} />
+          )}
         </HGrid>
       );
     case "IBan":

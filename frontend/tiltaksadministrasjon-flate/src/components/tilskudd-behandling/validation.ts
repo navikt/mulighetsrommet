@@ -1,6 +1,6 @@
 import {
   OpplaeringtilskuddKode,
-  TilskuddMottaker,
+  TilskuddMottakerType,
   VedtakResultat,
 } from "@tiltaksadministrasjon/api-client";
 import z from "zod";
@@ -37,7 +37,7 @@ export const saksopplysningerSchema = z
                 .int(belopFraFakturaError)
                 .positive(belopFraFakturaError),
             }),
-            utbetalingMottaker: z.enum(TilskuddMottaker, {
+            utbetalingMottaker: z.enum(TilskuddMottakerType, {
               error: "Mottaker må være satt",
             }),
           })

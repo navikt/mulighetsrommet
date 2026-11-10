@@ -15,6 +15,7 @@ import io.mockk.coEvery
 import io.mockk.mockk
 import no.nav.mulighetsrommet.admin.arrangor.BetalingsinformasjonQuery
 import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsinformasjon
+import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsreferanse
 import no.nav.mulighetsrommet.api.domain.avtale.Avtale
 import no.nav.mulighetsrommet.api.domain.deltaker.Deltaker
 import no.nav.mulighetsrommet.api.domain.deltaker.DeltakerForslag
@@ -79,7 +80,7 @@ class GenererUtbetalingServiceTest : FunSpec({
     beforeEach {
         coEvery { betalingsinformasjon.execute(any()) } returns Betalingsinformasjon.BBan(
             kontonummer = Kontonummer("12345678901"),
-            kid = null,
+            referanse = null,
         )
     }
 
@@ -260,7 +261,7 @@ class GenererUtbetalingServiceTest : FunSpec({
             utbetaling.beregning.output.pris shouldBe 20975.NOK
         }
 
-        test("genererer utbetaling med kid-nummer fra forrige godkjente utbetaling fra arrangør") {
+        test("genererer utbetaling med KID-nummer fra forrige godkjente utbetaling fra arrangør") {
             MulighetsrommetTestDomain(
                 deltakere = listOf(
                     DeltakerFixtures.createDeltakerMedDeltakelsesmengder(
@@ -277,19 +278,19 @@ class GenererUtbetalingServiceTest : FunSpec({
             utbetaling.gjennomforing.id shouldBe AFT1.id
             utbetaling.betalingsinformasjon.shouldBeTypeOf<Betalingsinformasjon.BBan>() should {
                 it.kontonummer shouldBe Kontonummer("12345678901")
-                it.kid shouldBe null
+                it.referanse shouldBe null
             }
 
             database.run {
-                queries.utbetaling.setKid(
+                queries.utbetaling.setBetalingsreferanse(
                     id = utbetaling.id,
-                    kid = Kid.parseOrThrow("006402710013"),
+                    referanse = Betalingsreferanse.KidNummer(Kid.parseOrThrow("006402710013")),
                 )
             }
 
             val sisteKrav = service.genererUtbetalingerForPeriode(februar).first()
             sisteKrav.gjennomforing.id shouldBe AFT1.id
-            sisteKrav.betalingsinformasjon.shouldBeTypeOf<Betalingsinformasjon.BBan>().kid shouldBe Kid.parseOrThrow("006402710013")
+            sisteKrav.betalingsinformasjon.shouldBeTypeOf<Betalingsinformasjon.BBan>().referanse shouldBe Betalingsreferanse.KidNummer(Kid.parseOrThrow("006402710013"))
         }
 
         test("genererer ikke utbetaling hvis det allerede finnes en med overlappende periode") {

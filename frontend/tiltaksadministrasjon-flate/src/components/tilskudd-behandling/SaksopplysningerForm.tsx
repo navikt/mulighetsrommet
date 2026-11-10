@@ -1,37 +1,22 @@
 import { PlusIcon, TrashIcon } from "@navikt/aksel-icons";
-import {
-  Bleed,
-  BodyShort,
-  Button,
-  Heading,
-  HGrid,
-  HStack,
-  Radio,
-  Spacer,
-  TextField,
-  VStack,
-} from "@navikt/ds-react";
-import { Path, useFieldArray, useFormContext } from "react-hook-form";
+import { Button, Heading, HGrid, HStack, Spacer, TextField, VStack } from "@navikt/ds-react";
+import { useFieldArray, useFormContext } from "react-hook-form";
 import { FormDateInput } from "@/components/skjema/FormDateInput";
 import { FormSelect } from "@/components/skjema/FormSelect";
 import { FormTextField } from "@/components/skjema/FormTextField";
 import {
-  BrukerUtbetalingType,
   AnsvarligEnhetDto,
   OpplaeringtilskuddKode,
   TilskuddBehandlingRequest,
-  TilskuddVedtakRequest,
-  TilskuddMottaker,
   Valuta,
   ValutaBelop,
 } from "@tiltaksadministrasjon/api-client";
 import { VelgKostnadssted } from "../tilsagn/form/VelgKostnadssted";
-import { ControlledRadioGroup } from "../skjema/ControlledRadioGroup";
-import { BetalingsinformasjonFields } from "../utbetaling/form/BetalingsinformasjonFields";
 import { opplaeringTilskuddToString } from "@/utils/Utils";
 import { defaultTilskuddRequest } from "./defaultTilskuddRequest";
 import { TotaltBelopBox } from "./TotaltBelopBox";
 import { TilskuddFormGroup } from "@/layouts/TilskuddFormGroup";
+import { UtbetalingMottakerForm } from "./UtbetalingMottakerForm";
 
 interface Props {
   arrangorId: string;
@@ -140,7 +125,7 @@ export function SaksopplysningerForm({ arrangorId, ansvarligEnhet }: Props) {
                   </FormSelect>
                 </HStack>
               </HGrid>
-              <MottakerValg index={index} arrangorId={arrangorId} />
+              <UtbetalingMottakerForm index={index} arrangorId={arrangorId} />
               {fields.length > 1 && (
                 <Button
                   className="self-end"
@@ -173,65 +158,6 @@ export function SaksopplysningerForm({ arrangorId, ansvarligEnhet }: Props) {
         </HStack>
         <TotaltBelopBox label="Totalt beløp fra fakturaer" belop={totaltBelop()} />
       </VStack>
-    </>
-  );
-}
-
-interface MottakerValgProps {
-  index: number;
-  arrangorId: string;
-}
-
-function MottakerValg({ index, arrangorId }: MottakerValgProps) {
-  const { watch } = useFormContext<TilskuddBehandlingRequest>();
-  const tilskuddVedtak = watch("tilskuddVedtak")[index];
-
-  return (
-    <>
-      <ControlledRadioGroup
-        size="small"
-        name={`tilskuddVedtak.${index}.utbetalingMottaker`}
-        legend="Hvem skal motta utbetalingen?"
-        horisontal
-      >
-        <Radio value={TilskuddMottaker.BRUKER}>Utbetales til brukeren</Radio>
-        <Radio value={TilskuddMottaker.ARRANGOR}>Utbetales til arrangøren</Radio>
-      </ControlledRadioGroup>
-      {tilskuddVedtak.utbetalingMottaker === TilskuddMottaker.BRUKER && (
-        <>
-          <ControlledRadioGroup
-            size="small"
-            name={`tilskuddVedtak.${index}.brukerUtbetalingType`}
-            legend="Har bruker lagt ut for tilskuddet selv?"
-            horisontal
-          >
-            <Radio value={BrukerUtbetalingType.REFUSJON}>
-              Ja, bruker har betalt til utdanningsinstitusjonen
-            </Radio>
-            <Radio value={BrukerUtbetalingType.FORSKUDD}>
-              Nei, det skal utbetales som forskudd
-            </Radio>
-          </ControlledRadioGroup>
-          <Bleed marginBlock="space-16 space-0">
-            <BodyShort size="small">
-              Husk at det skal være avklart med Nav-veileder at bruker skal få utbetalt som forskudd
-            </BodyShort>
-          </Bleed>
-        </>
-      )}{" "}
-      {tilskuddVedtak.utbetalingMottaker === TilskuddMottaker.ARRANGOR && (
-        <>
-          <Bleed marginBlock="space-16 space-0">
-            <BodyShort size="small">
-              Husk at arrangør må ha sendt faktura med Nav som mottaker av fakturaen
-            </BodyShort>
-          </Bleed>
-          <BetalingsinformasjonFields<TilskuddVedtakRequest>
-            arrangorId={arrangorId}
-            kidNummerName={`tilskuddVedtak.${index}.kidNummer` as Path<TilskuddVedtakRequest>}
-          />
-        </>
-      )}
     </>
   );
 }

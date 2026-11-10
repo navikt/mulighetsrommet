@@ -11,6 +11,7 @@ import no.nav.mulighetsrommet.api.arrangorflate.dto.UtbetalingsdetaljerDto
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetaling
 import no.nav.mulighetsrommet.api.arrangorflate.service.mapUtbetalingsdetaljer
 import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsinformasjon
+import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsreferanse
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingType
 import no.nav.mulighetsrommet.api.domain.personalia.Gradering
 import no.nav.mulighetsrommet.api.domain.personalia.Personalia
@@ -29,6 +30,7 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningOutputDelt
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningOutputDeltakelse.BeregnetPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
+import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.NOK
 import no.nav.mulighetsrommet.model.NorskIdent
@@ -220,6 +222,22 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
         avbrytelse = null,
     )
 
+    val utbetalingFastSatsMedMeldingReferanse = utbetalingFastSats.copy(
+        betalingsinformasjon = Betalingsinformasjon.BBan(
+            kontonummer = Kontonummer("12345678901"),
+            referanse = Betalingsreferanse.MeldingTilMottaker(
+                "FAKTURA-ABC-123",
+            ),
+        ),
+    )
+
+    val utbetalingFastSatsMedKidReferanse = utbetalingFastSats.copy(
+        betalingsinformasjon = Betalingsinformasjon.BBan(
+            kontonummer = Kontonummer("12345678901"),
+            referanse = Betalingsreferanse.KidNummer(Kid.parseOrThrow("116")),
+        ),
+    )
+
     val utbetalingPrisPerTimeOppfolging = Utbetaling(
         id = UUID.randomUUID(),
         status = UtbetalingStatusType.FERDIG_BEHANDLET,
@@ -395,10 +413,26 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
         return mapUtbetalingsdetaljer(arrangorflateUtbetaling, linjer)
     }
 
-    context("pdf-content for utbetalingsdetaljer til arrangør") {
+    context("pdf-content for utbetalingsdetaljer til arrangør, uten referanse") {
         test("fast sats per tiltaksplass per maned") {
             val pdfContent = UbetalingToPdfDocumentContentMapper.toUtbetalingsdetaljerPdfContent(
                 utbetalingsdetaljer(utbetalingFastSats),
+            )
+
+            expectSelfie(jsonPrettyPrint.encodeToString<PdfDocumentContent>(pdfContent)).toMatchDisk("utbetalingsdetaljerFastSats")
+        }
+
+        test("fast sats per tiltaksplass per maned, med kid") {
+            val pdfContent = UbetalingToPdfDocumentContentMapper.toUtbetalingsdetaljerPdfContent(
+                utbetalingsdetaljer(utbetalingFastSatsMedKidReferanse),
+            )
+
+            expectSelfie(jsonPrettyPrint.encodeToString<PdfDocumentContent>(pdfContent)).toMatchDisk("utbetalingsdetaljerFastSats")
+        }
+
+        test("fast sats per tiltaksplass per maned, med melding til mottaker") {
+            val pdfContent = UbetalingToPdfDocumentContentMapper.toUtbetalingsdetaljerPdfContent(
+                utbetalingsdetaljer(utbetalingFastSatsMedMeldingReferanse),
             )
 
             expectSelfie(jsonPrettyPrint.encodeToString<PdfDocumentContent>(pdfContent)).toMatchDisk("utbetalingsdetaljerFastSats")

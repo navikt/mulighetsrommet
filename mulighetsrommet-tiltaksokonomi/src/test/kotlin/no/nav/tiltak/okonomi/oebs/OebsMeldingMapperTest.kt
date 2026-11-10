@@ -113,7 +113,7 @@ class OebsMeldingMapperTest : FunSpec({
             )
         }
 
-        test("melding til leverandør blir bare satt når kid mangler") {
+        test("melding til leverandør blir bare satt når KID mangler") {
             val meldingTilLeverandor = """
                 Tiltakstype: Arbeidsforberedende trening
                 Periode: 01.01.2025 - 31.01.2025
