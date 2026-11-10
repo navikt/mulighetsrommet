@@ -246,6 +246,7 @@ val ApplicationConfigTest = AppConfig(
         url = "http://localhost/saf",
         scope = "default",
     ),
+    validerJournalpostMotSaf = false,
     dokdistfordeling = AuthenticatedHttpClientConfig(
         url = "http://localhost/dokdistfordeling",
         scope = "default",

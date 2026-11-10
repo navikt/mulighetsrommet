@@ -18,7 +18,6 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
 import io.mockk.coEvery
 import io.mockk.coVerify
-import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
@@ -26,6 +25,7 @@ import no.nav.common.kafka.util.KafkaUtils
 import no.nav.mulighetsrommet.admin.aarsakerbegrunnelse.AarsakerOgBegrunnelseRequest
 import no.nav.mulighetsrommet.admin.arrangor.BetalingsinformasjonQuery
 import no.nav.mulighetsrommet.admin.endringshistorikk.EndringshistorikkType
+import no.nav.mulighetsrommet.admin.journalpost.FormatJournalpostValidator
 import no.nav.mulighetsrommet.admin.journalpost.ForventetBruker
 import no.nav.mulighetsrommet.admin.journalpost.JournalpostValidator
 import no.nav.mulighetsrommet.admin.journalpost.JournalpostValidator.JournalpostValideringError
@@ -69,8 +69,6 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusAarsak
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
-import no.nav.mulighetsrommet.featuretoggle.model.FeatureToggle
-import no.nav.mulighetsrommet.featuretoggle.service.FeatureToggleService
 import no.nav.mulighetsrommet.kafka.KAFKA_CONSUMER_RECORD_PROCESSOR_SCHEDULED_AT
 import no.nav.mulighetsrommet.model.JournalpostId
 import no.nav.mulighetsrommet.model.Kontonummer
@@ -127,20 +125,13 @@ class AdminUtbetalingServiceTest : FunSpec({
     fun createUtbetalingService(
         tilsagnService: TilsagnService = createTilsagnService(),
         tidligstTidspunktForUtbetaling: TidligstTidspunktForUtbetalingCalculator = umiddelbarUtbetaling,
-        journalpostValidator: JournalpostValidator = mockk(),
-        journalpostValideringEnabled: Boolean = false,
+        journalpostValidator: JournalpostValidator = FormatJournalpostValidator,
     ): AdminUtbetalingService {
         val utbetalingService = createInnerUtbetalingService(tilsagnService, tidligstTidspunktForUtbetaling)
-        val featureToggleService = mockk<FeatureToggleService> {
-            every {
-                isEnabled(FeatureToggle.TILTAKSADMINISTRASJON_JOURNALPOST_VALIDERING)
-            } returns journalpostValideringEnabled
-        }
         return AdminUtbetalingService(
             db = database.api,
             utbetalingService = utbetalingService,
             journalpostValidator = journalpostValidator,
-            featureToggleService = featureToggleService,
             today = { LocalDate.of(2025, 1, 10) },
         )
     }
@@ -351,7 +342,6 @@ class AdminUtbetalingServiceTest : FunSpec({
                 } returns JournalpostId("123123123").right()
                 val service = createUtbetalingService(
                     journalpostValidator = journalpostValidator,
-                    journalpostValideringEnabled = true,
                 )
 
                 service.opprettUtbetaling(upsert, saksbehandler.navIdent).shouldBeRight()
@@ -380,7 +370,6 @@ class AdminUtbetalingServiceTest : FunSpec({
                     coEvery { journalpostValidator.validerJournalpost(any(), any(), any()) } returns error.left()
                     val service = createUtbetalingService(
                         journalpostValidator = journalpostValidator,
-                        journalpostValideringEnabled = true,
                     )
 
                     runBlocking {

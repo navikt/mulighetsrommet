@@ -123,7 +123,6 @@ class TilskuddBehandlingServiceTest : FunSpec({
             pdf = mockk(relaxed = true),
             journalpostValidator = gyldigJournalpostValidator(),
             personaliaService = mockk(relaxed = true),
-            featureToggleService = mockk(relaxed = true),
             betalingsinformasjon = betalingsinformasjon,
         )
     }

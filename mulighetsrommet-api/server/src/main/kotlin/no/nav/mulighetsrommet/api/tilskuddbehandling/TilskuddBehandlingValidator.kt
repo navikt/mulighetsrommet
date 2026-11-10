@@ -1,8 +1,6 @@
 package no.nav.mulighetsrommet.api.tilskuddbehandling
 
-import arrow.core.left
 import arrow.core.nel
-import arrow.core.right
 import kotlinx.coroutines.runBlocking
 import no.nav.mulighetsrommet.admin.journalpost.ForventetBruker
 import no.nav.mulighetsrommet.admin.journalpost.JournalpostValidator
@@ -362,18 +360,7 @@ object TilskuddBehandlingValidator {
     fun createJournalpostValidator(
         forventetBruker: ForventetBruker,
         journalpostValidator: JournalpostValidator,
-        valideringEnabled: Boolean,
     ): (String, Int) -> Validated<JournalpostId> {
-        if (!valideringEnabled) {
-            return { journalpostId: String, index: Int ->
-                JournalpostId.parse(journalpostId)
-                    ?.right()
-                    ?: FieldError(
-                        pointer = "/tilskuddVedtak/$index/soknadJournalpostId",
-                        detail = "Feil format på Journalpost-ID: $journalpostId",
-                    ).nel().left()
-            }
-        }
         val journalpostValidatorFunc: (String, Int) -> Validated<JournalpostId> = { journalpostId: String, index: Int ->
             runBlocking {
                 journalpostValidator.validerJournalpost(

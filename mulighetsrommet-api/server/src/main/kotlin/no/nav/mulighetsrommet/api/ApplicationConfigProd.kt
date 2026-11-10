@@ -501,6 +501,7 @@ val ApplicationConfigProd = AppConfig(
         url = "https://saf.prod-fss-pub.nais.io",
         scope = "api://prod-fss.teamdokumenthandtering.saf/.default",
     ),
+    validerJournalpostMotSaf = true,
     dokdistfordeling = AuthenticatedHttpClientConfig(
         url = "https://dokdistfordeling.prod-fss-pub.nais.io",
         scope = "api://prod-fss.teamdokumenthandtering.dokdistfordeling/.default",
