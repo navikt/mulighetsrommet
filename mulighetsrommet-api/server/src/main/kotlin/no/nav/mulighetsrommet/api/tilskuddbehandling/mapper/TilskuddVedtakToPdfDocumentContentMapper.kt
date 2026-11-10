@@ -215,7 +215,7 @@ private fun PdfDocumentContentBuilder.klagerettSection() {
                 "Når du klager, vil den Nav-enheten som har skrevet vedtaket, vurdere saken din på nytt. Hvis du får " +
                     "medhold i klagen din, mottar du et nytt vedtak. Hvis du ikke får medhold, sender vi klagen videre til " +
                     "Nav klageinstans. Du får brev når saken er sendt dit. I brevet står det hva som skjer videre. Dette følger av " +
-                    "forvaltningsloven § 28."
+                    "forvaltningsloven § 28.",
             )
         }
         paragraph {
@@ -223,7 +223,7 @@ private fun PdfDocumentContentBuilder.klagerettSection() {
                 "Hvis du får medhold i klagen, kan du ha rett til å få dekket utgifter som har vært nødvendige for å " +
                     "få endret vedtaket, for eksempel hjelp fra advokat. Du kan lese mer om sakskostnader i " +
                     "forvaltningsloven § 36. Du kan ha krav på fri rettshjelp etter rettshjelploven. Du kan få mer " +
-                    "informasjon om denne ordningen hos advokater, statsforvalteren eller Nav. "
+                    "informasjon om denne ordningen hos advokater, statsforvalteren eller Nav. ",
             )
         }
 
