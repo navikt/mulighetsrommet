@@ -4,6 +4,7 @@ import arrow.core.Either
 import arrow.core.flatMap
 import arrow.core.left
 import arrow.core.right
+import no.nav.mulighetsrommet.admin.journalpost.JournalpostValidator.JournalpostValideringError
 import no.nav.mulighetsrommet.api.clients.pdl.GraphqlRequest
 import no.nav.mulighetsrommet.api.clients.pdl.HentHistoriskeIdenterPdlQuery
 import no.nav.mulighetsrommet.api.clients.pdl.IdentGruppe
@@ -18,11 +19,44 @@ import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 
-class JournalpostValidator(
+interface JournalpostValidator {
+    suspend fun validerJournalpost(
+        journalpostId: String,
+        forventetBruker: ForventetBruker,
+        accessType: AccessType,
+    ): Either<JournalpostValideringError, JournalpostId>
+
+    enum class JournalpostValideringError {
+        NotFound,
+        SafError,
+        FeilFormat,
+        TilhorerVirksomhet,
+        TilhorerPerson,
+        TilhorerAnnenPerson,
+        TilhorerAnnenVirksomhet,
+        KunneIkkeVeksleAktoerId,
+        IngenTilknytning,
+        ;
+
+        fun melding(journalpostId: String?): String = when (this) {
+            NotFound -> "Fant ingen journalpost med id $journalpostId"
+            SafError -> "Klarte ikke å slå opp journalpost"
+            FeilFormat -> "Feil format på Journalpost-ID: $journalpostId"
+            TilhorerVirksomhet -> "Journalposten tilhører en virksomhet"
+            TilhorerPerson -> "Journalposten tilhører en person"
+            TilhorerAnnenPerson -> "Journalposten tilhører en annen person enn deltakeren"
+            TilhorerAnnenVirksomhet -> "Journalposten tilhører en annen virksomhet"
+            KunneIkkeVeksleAktoerId -> "Kunne ikke slå opp person i PDL for å verifisere journalposten"
+            IngenTilknytning -> "Journalposten var ikke tilknyttet en bruker eller virksomhet"
+        }
+    }
+}
+
+class SafJournalpostValidator(
     private val safClient: SafClient,
     private val hentIdenterQuery: HentHistoriskeIdenterPdlQuery,
-) {
-    suspend fun validerJournalpost(
+) : JournalpostValidator {
+    override suspend fun validerJournalpost(
         journalpostId: String,
         forventetBruker: ForventetBruker,
         accessType: AccessType,
@@ -132,31 +166,16 @@ class JournalpostValidator(
                 JournalpostValideringError.TilhorerAnnenPerson.left()
             }
         }
+}
 
-    enum class JournalpostValideringError {
-        NotFound,
-        SafError,
-        FeilFormat,
-        TilhorerVirksomhet,
-        TilhorerPerson,
-        TilhorerAnnenPerson,
-        TilhorerAnnenVirksomhet,
-        KunneIkkeVeksleAktoerId,
-        IngenTilknytning,
-        ;
-
-        fun melding(journalpostId: String?): String = when (this) {
-            NotFound -> "Fant ingen journalpost med id $journalpostId"
-            SafError -> "Klarte ikke å slå opp journalpost"
-            FeilFormat -> "Feil format på Journalpost-ID: $journalpostId"
-            TilhorerVirksomhet -> "Journalposten tilhører en virksomhet"
-            TilhorerPerson -> "Journalposten tilhører en person"
-            TilhorerAnnenPerson -> "Journalposten tilhører en annen person enn deltakeren"
-            TilhorerAnnenVirksomhet -> "Journalposten tilhører en annen virksomhet"
-            KunneIkkeVeksleAktoerId -> "Kunne ikke slå opp person i PDL for å verifisere journalposten"
-            IngenTilknytning -> "Journalposten var ikke tilknyttet en bruker eller virksomhet"
-        }
-    }
+/** Brukes i miljøer der vi ikke validerer mot SAF/Joark. */
+object FormatJournalpostValidator : JournalpostValidator {
+    override suspend fun validerJournalpost(
+        journalpostId: String,
+        forventetBruker: ForventetBruker,
+        accessType: AccessType,
+    ): Either<JournalpostValideringError, JournalpostId> = JournalpostId.parse(journalpostId)?.right()
+        ?: JournalpostValideringError.FeilFormat.left()
 }
 
 sealed class ForventetBruker {

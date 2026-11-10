@@ -11,6 +11,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import no.nav.mulighetsrommet.admin.journalpost.FormatJournalpostValidator
 import no.nav.mulighetsrommet.admin.journalpost.ForventetBruker
 import no.nav.mulighetsrommet.admin.journalpost.JournalpostValidator
 import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsinformasjon
@@ -507,11 +508,9 @@ class TilskuddBehandlingValidatorTest : FunSpec({
     }
 
     test("journalpostvalidator uten oppslag godtar kun journalpost-id med tall") {
-        val journalpostValidator = mockk<JournalpostValidator>()
         val validate = TilskuddBehandlingValidator.createJournalpostValidator(
             forventetBruker = forventetBruker(),
-            journalpostValidator = journalpostValidator,
-            valideringEnabled = false,
+            journalpostValidator = FormatJournalpostValidator,
         )
 
         validate("12345", 3) shouldBeRight JournalpostId("12345")
@@ -533,7 +532,6 @@ class TilskuddBehandlingValidatorTest : FunSpec({
         val validate = TilskuddBehandlingValidator.createJournalpostValidator(
             forventetBruker = forventetBruker,
             journalpostValidator = journalpostValidator,
-            valideringEnabled = true,
         )
 
         validate("12345", 3) shouldBeRight JournalpostId("12345")
@@ -568,7 +566,6 @@ class TilskuddBehandlingValidatorTest : FunSpec({
             TilskuddBehandlingValidator.createJournalpostValidator(
                 forventetBruker = forventetBruker(),
                 journalpostValidator = journalpostValidator,
-                valideringEnabled = true,
             )("12345", 4) shouldBeLeft listOf(
                 FieldError("/tilskuddVedtak/4/soknadJournalpostId", forventetDetalj),
             )

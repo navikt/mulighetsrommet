@@ -59,6 +59,8 @@ data class AppConfig(
     val altinnCorrespondence: AuthenticatedHttpClientConfig,
     val dokark: AuthenticatedHttpClientConfig,
     val saf: AuthenticatedHttpClientConfig,
+    /** Om journalpost-id skal slås opp i SAF og valideres mot forventet bruker. Når false sjekkes bare formatet. */
+    val validerJournalpostMotSaf: Boolean,
     val dokdistfordeling: AuthenticatedHttpClientConfig,
     val kontoregisterOrganisasjon: AuthenticatedHttpClientConfig,
     val helvedSimuleringConfig: AuthenticatedHttpClientConfig,

@@ -165,7 +165,6 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
             mockk(relaxed = true),
             journalpostValidator = gyldigJournalpostValidator(),
             personaliaService = mockk(relaxed = true),
-            featureToggleService = mockk(relaxed = true),
             betalingsinformasjon = betalingsinformasjon,
         )
         service.upsert(request, NavAnsattFixture.DonaldDuck.navIdent).shouldBeRight()
@@ -192,7 +191,6 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
             mockk(relaxed = true),
             journalpostValidator = gyldigJournalpostValidator(),
             personaliaService = mockk(relaxed = true),
-            featureToggleService = mockk(relaxed = true),
             betalingsinformasjon = betalingsinformasjon,
         )
         service.upsert(request, NavAnsattFixture.DonaldDuck.navIdent).shouldBeRight()
@@ -212,7 +210,6 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
             mockk(relaxed = true),
             journalpostValidator = gyldigJournalpostValidator(),
             personaliaService = mockk(relaxed = true),
-            featureToggleService = mockk(relaxed = true),
             betalingsinformasjon = betalingsinformasjon,
         )
         service.upsert(request, NavAnsattFixture.DonaldDuck.navIdent).shouldBeRight()
@@ -236,7 +233,6 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
             mockk(relaxed = true),
             journalpostValidator = gyldigJournalpostValidator(),
             personaliaService = mockk(relaxed = true),
-            featureToggleService = mockk(relaxed = true),
             betalingsinformasjon = betalingsinformasjon,
         )
         service.upsert(request, NavAnsattFixture.DonaldDuck.navIdent).shouldBeRight()
@@ -277,7 +273,6 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
             mockk(relaxed = true),
             journalpostValidator = gyldigJournalpostValidator(),
             personaliaService = mockk(relaxed = true),
-            featureToggleService = mockk(relaxed = true),
             betalingsinformasjon = betalingsinformasjon,
         )
         service.upsert(request, NavAnsattFixture.DonaldDuck.navIdent).shouldBeRight()
@@ -314,7 +309,6 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
             mockk(relaxed = true),
             journalpostValidator = gyldigJournalpostValidator(),
             personaliaService = mockk(relaxed = true),
-            featureToggleService = mockk(relaxed = true),
             betalingsinformasjon = betalingsinformasjon,
         )
         val consumer = createConsumer()

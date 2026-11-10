@@ -161,7 +161,6 @@ class VedtaksbrevTaskTest : FunSpec({
             pdf = mockk(relaxed = true),
             journalpostValidator = gyldigJournalpostValidator(),
             personaliaService = mockk(relaxed = true),
-            featureToggleService = mockk(relaxed = true),
             betalingsinformasjon = betalingsinformasjon,
         )
 
@@ -279,7 +278,6 @@ private suspend fun opprettOgGodkjennTilskudd(
         pdf = mockk(relaxed = true),
         journalpostValidator = gyldigJournalpostValidator(),
         personaliaService = mockk(relaxed = true),
-        featureToggleService = mockk(relaxed = true),
         betalingsinformasjon = mockk(relaxed = true),
     )
 

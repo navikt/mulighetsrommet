@@ -31,7 +31,7 @@ class JournalpostValidatorTest : FunSpec({
     test("journalpost uten bruker er ikke gyldig") {
         coEvery { saf.hentJournalpost(any(), any()) } returns SafJournalpost("453857496").right()
 
-        JournalpostValidator(saf, hentIdenterQuery).validerJournalpost("453857496", person, AccessType.M2M).shouldBeLeft(
+        SafJournalpostValidator(saf, hentIdenterQuery).validerJournalpost("453857496", person, AccessType.M2M).shouldBeLeft(
             JournalpostValidator.JournalpostValideringError.IngenTilknytning,
         )
     }
@@ -42,7 +42,7 @@ class JournalpostValidatorTest : FunSpec({
             bruker = SafBruker(id = person.norskIdent.value, type = SafBrukerIdType.FNR),
         ).right()
 
-        JournalpostValidator(saf, hentIdenterQuery).validerJournalpost("453857496", person, AccessType.M2M).shouldBeRight()
+        SafJournalpostValidator(saf, hentIdenterQuery).validerJournalpost("453857496", person, AccessType.M2M).shouldBeRight()
     }
 
     test("journalpost knyttet til feil person gir feil") {
@@ -51,7 +51,7 @@ class JournalpostValidatorTest : FunSpec({
             bruker = SafBruker(id = "10987654321", type = SafBrukerIdType.FNR),
         ).right()
 
-        JournalpostValidator(saf, hentIdenterQuery).validerJournalpost("453857496", person, AccessType.M2M).shouldBeLeft(
+        SafJournalpostValidator(saf, hentIdenterQuery).validerJournalpost("453857496", person, AccessType.M2M).shouldBeLeft(
             JournalpostValidator.JournalpostValideringError.TilhorerAnnenPerson,
         )
     }
@@ -62,7 +62,7 @@ class JournalpostValidatorTest : FunSpec({
             bruker = SafBruker(id = arrangor.organisasjonsnummer.value, type = SafBrukerIdType.ORGNR),
         ).right()
 
-        JournalpostValidator(saf, hentIdenterQuery).validerJournalpost("453857496", arrangor, AccessType.M2M).shouldBeRight()
+        SafJournalpostValidator(saf, hentIdenterQuery).validerJournalpost("453857496", arrangor, AccessType.M2M).shouldBeRight()
     }
 
     test("journalpost knyttet til feil virksomhet gir feil") {
@@ -71,7 +71,7 @@ class JournalpostValidatorTest : FunSpec({
             bruker = SafBruker(id = "987654321", type = SafBrukerIdType.ORGNR),
         ).right()
 
-        JournalpostValidator(saf, hentIdenterQuery).validerJournalpost("453857496", arrangor, AccessType.M2M).shouldBeLeft(
+        SafJournalpostValidator(saf, hentIdenterQuery).validerJournalpost("453857496", arrangor, AccessType.M2M).shouldBeLeft(
             JournalpostValidator.JournalpostValideringError.TilhorerAnnenVirksomhet,
         )
     }
@@ -86,7 +86,7 @@ class JournalpostValidatorTest : FunSpec({
                 IdentInformasjon(PdlIdent(person.norskIdent.value), IdentGruppe.FOLKEREGISTERIDENT, historisk = false),
             ).right()
 
-        JournalpostValidator(saf, hentIdenterQuery).validerJournalpost("453857496", person, AccessType.M2M).shouldBeRight()
+        SafJournalpostValidator(saf, hentIdenterQuery).validerJournalpost("453857496", person, AccessType.M2M).shouldBeRight()
     }
 
     test("journalpost med aktørid som veksles til en annen person gir feil") {
@@ -99,7 +99,7 @@ class JournalpostValidatorTest : FunSpec({
                 IdentInformasjon(PdlIdent("10987654321"), IdentGruppe.FOLKEREGISTERIDENT, historisk = false),
             ).right()
 
-        JournalpostValidator(saf, hentIdenterQuery).validerJournalpost("453857496", person, AccessType.M2M).shouldBeLeft(
+        SafJournalpostValidator(saf, hentIdenterQuery).validerJournalpost("453857496", person, AccessType.M2M).shouldBeLeft(
             JournalpostValidator.JournalpostValideringError.TilhorerAnnenPerson,
         )
     }
@@ -112,7 +112,7 @@ class JournalpostValidatorTest : FunSpec({
         coEvery { hentIdenterQuery.hentHistoriskeIdenter(any(), any()) } returns
             PdlError.Error.left()
 
-        JournalpostValidator(saf, hentIdenterQuery).validerJournalpost("453857496", person, AccessType.M2M).shouldBeLeft(
+        SafJournalpostValidator(saf, hentIdenterQuery).validerJournalpost("453857496", person, AccessType.M2M).shouldBeLeft(
             JournalpostValidator.JournalpostValideringError.KunneIkkeVeksleAktoerId,
         )
     }
@@ -120,7 +120,7 @@ class JournalpostValidatorTest : FunSpec({
     test("journalpost på feil format gir feil") {
         coEvery { saf.hentJournalpost(any(), any()) } returns SafError.NotFound.left()
 
-        JournalpostValidator(saf, hentIdenterQuery).validerJournalpost("finnes-ikke", person, AccessType.M2M).shouldBeLeft(
+        SafJournalpostValidator(saf, hentIdenterQuery).validerJournalpost("finnes-ikke", person, AccessType.M2M).shouldBeLeft(
             JournalpostValidator.JournalpostValideringError.FeilFormat,
         )
     }
@@ -128,7 +128,7 @@ class JournalpostValidatorTest : FunSpec({
     test("journalpost som ikke finnes gir feil") {
         coEvery { saf.hentJournalpost(any(), any()) } returns SafError.NotFound.left()
 
-        JournalpostValidator(saf, hentIdenterQuery).validerJournalpost("123", person, AccessType.M2M).shouldBeLeft(
+        SafJournalpostValidator(saf, hentIdenterQuery).validerJournalpost("123", person, AccessType.M2M).shouldBeLeft(
             JournalpostValidator.JournalpostValideringError.NotFound,
         )
     }
@@ -136,7 +136,7 @@ class JournalpostValidatorTest : FunSpec({
     test("feil mot saf gir feil") {
         coEvery { saf.hentJournalpost(any(), any()) } returns SafError.Error.left()
 
-        JournalpostValidator(saf, hentIdenterQuery).validerJournalpost("453857496", person, AccessType.M2M).shouldBeLeft(
+        SafJournalpostValidator(saf, hentIdenterQuery).validerJournalpost("453857496", person, AccessType.M2M).shouldBeLeft(
             JournalpostValidator.JournalpostValideringError.SafError,
         )
     }

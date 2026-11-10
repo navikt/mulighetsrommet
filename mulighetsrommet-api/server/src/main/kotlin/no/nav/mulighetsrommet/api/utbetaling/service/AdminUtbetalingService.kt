@@ -24,8 +24,6 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UpsertUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeReturnertAarsak
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusAarsak
-import no.nav.mulighetsrommet.featuretoggle.model.FeatureToggle
-import no.nav.mulighetsrommet.featuretoggle.service.FeatureToggleService
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.validation.FieldError
 import no.nav.tiltak.okonomi.FakturaStatusType
@@ -37,7 +35,6 @@ class AdminUtbetalingService(
     private val db: ApiDatabase,
     private val utbetalingService: UtbetalingService,
     private val journalpostValidator: JournalpostValidator,
-    private val featureToggleService: FeatureToggleService,
     private val today: () -> LocalDate = { LocalDate.now() },
 ) {
     suspend fun opprettUtbetaling(
@@ -122,7 +119,6 @@ class AdminUtbetalingService(
         val journalpostValidatorFunc = UtbetalingValidator.createJournalpostValidator(
             forventetBruker = forventetBruker,
             journalpostValidator = journalpostValidator,
-            valideringEnabled = featureToggleService.isEnabled(FeatureToggle.TILTAKSADMINISTRASJON_JOURNALPOST_VALIDERING),
         )
 
         return UtbetalingValidator.Ctx(

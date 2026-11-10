@@ -26,7 +26,9 @@ import no.nav.mulighetsrommet.admin.enhetsregister.EnhetsregisterQuery
 import no.nav.mulighetsrommet.admin.gjennomforing.GjennomforingAvtaleService
 import no.nav.mulighetsrommet.admin.gjennomforing.GjennomforingDetaljerService
 import no.nav.mulighetsrommet.admin.gjennomforing.GjennomforingEnkeltplassService
+import no.nav.mulighetsrommet.admin.journalpost.FormatJournalpostValidator
 import no.nav.mulighetsrommet.admin.journalpost.JournalpostValidator
+import no.nav.mulighetsrommet.admin.journalpost.SafJournalpostValidator
 import no.nav.mulighetsrommet.admin.kostnadssted.KostnadsstedQuery
 import no.nav.mulighetsrommet.admin.navansatt.NavAnsattDtoQuery
 import no.nav.mulighetsrommet.admin.navansatt.service.NavAnsattService
@@ -370,11 +372,15 @@ private fun services(appConfig: AppConfig) = module {
     single { HentAdressebeskyttetPersonBolkPdlQuery(get()) }
     single { HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQuery(get()) }
     single { HentHistoriskeIdenterPdlQuery(get()) }
-    single {
-        JournalpostValidator(
-            safClient = get(),
-            hentIdenterQuery = get(),
-        )
+    single<JournalpostValidator> {
+        if (appConfig.validerJournalpostMotSaf) {
+            SafJournalpostValidator(
+                safClient = get(),
+                hentIdenterQuery = get(),
+            )
+        } else {
+            FormatJournalpostValidator
+        }
     }
     single { HentBrukerPdlQuery(get()) }
     single<PoaoTilgangClient> {
@@ -604,7 +610,7 @@ private fun services(appConfig: AppConfig) = module {
             get(),
         )
     }
-    single { AdminUtbetalingService(get(), get(), get(), get()) }
+    single { AdminUtbetalingService(get(), get(), get()) }
     single { UtbetalingDtoQuery(get(), get()) }
     single {
         BrukerUtbetalingService(
@@ -632,7 +638,6 @@ private fun services(appConfig: AppConfig) = module {
             pdf = get(),
             personaliaService = get(),
             journalpostValidator = get(),
-            featureToggleService = get(),
             betalingsinformasjon = get(),
         )
     }

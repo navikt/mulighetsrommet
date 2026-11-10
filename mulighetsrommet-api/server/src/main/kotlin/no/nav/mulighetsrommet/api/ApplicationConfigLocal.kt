@@ -551,6 +551,7 @@ val ApplicationConfigLocal = AppConfig(
         url = "http://localhost:8090/saf",
         scope = "default",
     ),
+    validerJournalpostMotSaf = false,
     dokdistfordeling = AuthenticatedHttpClientConfig(
         url = "http://localhost:8090/dokdistfordeling",
         scope = "default",

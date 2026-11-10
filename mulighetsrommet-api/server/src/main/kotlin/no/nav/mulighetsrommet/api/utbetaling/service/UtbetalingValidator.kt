@@ -1,9 +1,7 @@
 package no.nav.mulighetsrommet.api.utbetaling.service
 
 import arrow.core.Either
-import arrow.core.left
 import arrow.core.nel
-import arrow.core.right
 import kotlinx.coroutines.runBlocking
 import no.nav.mulighetsrommet.admin.journalpost.ForventetBruker
 import no.nav.mulighetsrommet.admin.journalpost.JournalpostValidator
@@ -231,18 +229,7 @@ object UtbetalingValidator {
     fun createJournalpostValidator(
         forventetBruker: ForventetBruker,
         journalpostValidator: JournalpostValidator,
-        valideringEnabled: Boolean,
     ): (String) -> Validated<JournalpostId> {
-        if (!valideringEnabled) {
-            return { journalpostId: String ->
-                JournalpostId.parse(journalpostId)
-                    ?.right()
-                    ?: FieldError.of(
-                        detail = "Feil format på Journalpost-ID: $journalpostId",
-                        UtbetalingRequest::journalpostId,
-                    ).nel().left()
-            }
-        }
         val journalpostValidatorFunc: (String) -> Validated<JournalpostId> = { journalpostId: String ->
             runBlocking {
                 journalpostValidator.validerJournalpost(

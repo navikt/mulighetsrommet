@@ -503,6 +503,7 @@ val ApplicationConfigDev = AppConfig(
         url = "https://saf-q2.dev-fss-pub.nais.io",
         scope = "api://dev-fss.teamdokumenthandtering.saf/.default",
     ),
+    validerJournalpostMotSaf = false,
     dokdistfordeling = AuthenticatedHttpClientConfig(
         url = "https://dokdistfordeling.dev-fss-pub.nais.io",
         scope = "api://dev-fss.teamdokumenthandtering.dokdistfordeling/.default",
