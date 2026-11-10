@@ -6,7 +6,7 @@ import no.nav.mulighetsrommet.model.Tiltaksnummer
 import java.time.LocalDateTime
 import java.util.UUID
 
-data class TilsagnJournalpostSnapshot(
+data class BekreftelsesbrevJournalpostSnapshot(
     val tilsagnId: UUID,
     val arrangorOrganisasjonsnummer: Organisasjonsnummer,
     val arrangorNavn: String,
@@ -14,9 +14,9 @@ data class TilsagnJournalpostSnapshot(
     val besluttetTidspunkt: LocalDateTime,
 )
 
-object TilsagnTilJournalpostMapper {
+object BekreftelsesbrevTilJournalpostMapper {
     fun tilJournalpost(
-        tilsagn: TilsagnJournalpostSnapshot,
+        tilsagn: BekreftelsesbrevJournalpostSnapshot,
         pdf: ByteArray,
     ): Journalpost = Journalpost(
         tittel = "Bekreftelse på bestilling",

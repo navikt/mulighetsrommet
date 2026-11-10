@@ -130,11 +130,11 @@ export function MrApi() {
 
       <RunTask
         base={ApiBase.MR_API}
-        task={"send-tilsagnsbrev"}
-        form={(props) => <TextInputForm {...props} label="Tilsangs id" name="tilsagnId" />}
+        task={"send-bekreftelsesbrev"}
+        form={(props) => <TextInputForm {...props} label="Tilsagn id" name="tilsagnId" />}
       >
         <BodyShort>
-          Lager et tilsagnsbrev for gitt tilsagn id, journalfører det i Joark og sender det til
+          Lager et bekreftelsesbrev for gitt tilsagn id, journalfører det i Joark og sender det til
           arrangøren via Altinn.
         </BodyShort>
       </RunTask>

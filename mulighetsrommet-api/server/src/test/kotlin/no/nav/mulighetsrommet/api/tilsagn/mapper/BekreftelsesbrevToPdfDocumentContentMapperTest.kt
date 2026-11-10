@@ -16,7 +16,7 @@ import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAnnenAvtaltPris
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
-import no.nav.mulighetsrommet.api.tilsagn.task.TilsagnsbrevInnhold
+import no.nav.mulighetsrommet.api.tilsagn.task.BekreftelsesbrevInnhold
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.NOK
 import no.nav.mulighetsrommet.model.NavEnhetNummer
@@ -30,7 +30,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
 
-class TilsagnToPdfDocumentContentMapperTest : FunSpec({
+class BekreftelsesbrevToPdfDocumentContentMapperTest : FunSpec({
     val jsonPrettyPrint = Json {
         prettyPrint = true
         prettyPrintIndent = "  "
@@ -117,7 +117,7 @@ class TilsagnToPdfDocumentContentMapperTest : FunSpec({
         status = TilsagnStatus.GODKJENT,
         kommentar = null,
         beskrivelse = null,
-        tilsagnsbrev = null,
+        bekreftelsesbrev = null,
         beregning = TilsagnBeregningAnnenAvtaltPris(
             input = TilsagnBeregningAnnenAvtaltPris.Input(
                 listOf(
@@ -137,9 +137,9 @@ class TilsagnToPdfDocumentContentMapperTest : FunSpec({
         deltakere = emptyList(),
     )
 
-    context("pdf-content for tilsagnsbrev til arrangør") {
+    context("pdf-content for bekreftelsesbrev til arrangør") {
         context("når deltaker er adressebeskyttet") {
-            val innhold = TilsagnsbrevInnhold(
+            val innhold = BekreftelsesbrevInnhold(
                 tilsagn = tilsagn,
                 personalia = adressebekyttetDeltaker,
                 arrangor = arrangor,
@@ -151,13 +151,13 @@ class TilsagnToPdfDocumentContentMapperTest : FunSpec({
             )
 
             test("inkluderer personalia kun når visningsflagg er satt til true") {
-                val medPersonalia = TilsagnToPdfDocumentContentMapper.toTilsagnsbrev(
+                val medPersonalia = BekreftelsesbrevToPdfDocumentContentMapper.toBekreftelsesbrev(
                     innhold,
                     visPersonopplysningerOmAdressebeskyttetEllerSkjermetPerson = true,
                 )
                 expectSelfie(jsonPrettyPrint.encodeToString(medPersonalia)).toMatchDisk("adressebeskyttet-med-personalia")
 
-                val utenPersonalia = TilsagnToPdfDocumentContentMapper.toTilsagnsbrev(
+                val utenPersonalia = BekreftelsesbrevToPdfDocumentContentMapper.toBekreftelsesbrev(
                     innhold,
                     visPersonopplysningerOmAdressebeskyttetEllerSkjermetPerson = false,
                 )
@@ -166,7 +166,7 @@ class TilsagnToPdfDocumentContentMapperTest : FunSpec({
         }
 
         context("når deltaker er skjermet") {
-            val innhold = TilsagnsbrevInnhold(
+            val innhold = BekreftelsesbrevInnhold(
                 tilsagn = tilsagn,
                 personalia = skjermetDeltaker,
                 arrangor = arrangor,
@@ -178,13 +178,13 @@ class TilsagnToPdfDocumentContentMapperTest : FunSpec({
             )
 
             test("inkluderer personalia kun når visningsflagg er satt til true") {
-                val medPersonalia = TilsagnToPdfDocumentContentMapper.toTilsagnsbrev(
+                val medPersonalia = BekreftelsesbrevToPdfDocumentContentMapper.toBekreftelsesbrev(
                     innhold,
                     visPersonopplysningerOmAdressebeskyttetEllerSkjermetPerson = true,
                 )
                 expectSelfie(jsonPrettyPrint.encodeToString(medPersonalia)).toMatchDisk("skjermet-med-personalia")
 
-                val utenPersonalia = TilsagnToPdfDocumentContentMapper.toTilsagnsbrev(
+                val utenPersonalia = BekreftelsesbrevToPdfDocumentContentMapper.toBekreftelsesbrev(
                     innhold,
                     visPersonopplysningerOmAdressebeskyttetEllerSkjermetPerson = false,
                 )
@@ -193,7 +193,7 @@ class TilsagnToPdfDocumentContentMapperTest : FunSpec({
         }
 
         context("når person er ugradert") {
-            val innhold = TilsagnsbrevInnhold(
+            val innhold = BekreftelsesbrevInnhold(
                 tilsagn = tilsagn,
                 personalia = deltaker,
                 arrangor = arrangor,
@@ -205,13 +205,13 @@ class TilsagnToPdfDocumentContentMapperTest : FunSpec({
             )
 
             test("inkluderer personalia uavhengig om visningsflagg er satt til true eller false") {
-                val medPersonalia = TilsagnToPdfDocumentContentMapper.toTilsagnsbrev(
+                val medPersonalia = BekreftelsesbrevToPdfDocumentContentMapper.toBekreftelsesbrev(
                     innhold,
                     visPersonopplysningerOmAdressebeskyttetEllerSkjermetPerson = true,
                 )
                 expectSelfie(jsonPrettyPrint.encodeToString(medPersonalia)).toMatchDisk("ugradert-med-personalia")
 
-                val utenPersonalia = TilsagnToPdfDocumentContentMapper.toTilsagnsbrev(
+                val utenPersonalia = BekreftelsesbrevToPdfDocumentContentMapper.toBekreftelsesbrev(
                     innhold,
                     visPersonopplysningerOmAdressebeskyttetEllerSkjermetPerson = false,
                 )

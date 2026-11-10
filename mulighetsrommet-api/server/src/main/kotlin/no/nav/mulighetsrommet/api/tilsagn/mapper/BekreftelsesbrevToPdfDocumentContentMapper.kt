@@ -5,18 +5,18 @@ import no.nav.mulighetsrommet.api.domain.personalia.Personalia
 import no.nav.mulighetsrommet.api.pdfgen.PdfDocumentContent
 import no.nav.mulighetsrommet.api.pdfgen.Signature
 import no.nav.mulighetsrommet.api.pdfgen.TopSection
-import no.nav.mulighetsrommet.api.tilsagn.task.TilsagnsbrevInnhold
+import no.nav.mulighetsrommet.api.tilsagn.task.BekreftelsesbrevInnhold
 import no.nav.mulighetsrommet.model.ValutaBelop
 import java.text.NumberFormat
 import java.util.Locale
 
-object TilsagnToPdfDocumentContentMapper {
-    fun toTilsagnsbrev(
-        innhold: TilsagnsbrevInnhold,
+object BekreftelsesbrevToPdfDocumentContentMapper {
+    fun toBekreftelsesbrev(
+        innhold: BekreftelsesbrevInnhold,
         visPersonopplysningerOmAdressebeskyttetEllerSkjermetPerson: Boolean = false,
     ): PdfDocumentContent = PdfDocumentContent.create(
         title = "Bekreftelse på bestilling",
-        subject = "Bekreftelsebrev til ${innhold.arrangor.navn}",
+        subject = "Bekreftelsesbrev til ${innhold.arrangor.navn}",
         description = "Detaljer om tilsagn for gjennomføring av ${innhold.tilsagn.tiltakstype.navn}",
         author = "Nav",
     ) {

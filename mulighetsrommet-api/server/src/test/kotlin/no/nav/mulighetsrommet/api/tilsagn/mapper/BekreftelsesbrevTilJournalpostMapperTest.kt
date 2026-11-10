@@ -8,13 +8,13 @@ import no.nav.mulighetsrommet.model.Tiltaksnummer
 import java.time.LocalDateTime
 import java.util.UUID
 
-class TilsagnTilJournalpostMapperTest : FunSpec({
+class BekreftelsesbrevTilJournalpostMapperTest : FunSpec({
     val jsonPrettyPrint = Json {
         prettyPrint = true
         prettyPrintIndent = "  "
     }
 
-    val tilsagn = TilsagnJournalpostSnapshot(
+    val tilsagn = BekreftelsesbrevJournalpostSnapshot(
         tilsagnId = UUID.fromString("72c45b92-4452-4b44-b1cd-9cfe7be86222"),
         arrangorOrganisasjonsnummer = Organisasjonsnummer("310438707"),
         arrangorNavn = "AKSEPTABEL EMPIRISK TIGER AS",
@@ -23,7 +23,7 @@ class TilsagnTilJournalpostMapperTest : FunSpec({
     )
 
     test("mapping av tilsagn til journalpost inneholder ingen personopplysninger utover deltakers fødselsnummer") {
-        val journalpost = TilsagnTilJournalpostMapper.tilJournalpost(
+        val journalpost = BekreftelsesbrevTilJournalpostMapper.tilJournalpost(
             tilsagn,
             pdf = "pdf-innhold".toByteArray(),
         )

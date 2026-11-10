@@ -33,7 +33,7 @@ data class Tilsagn(
     val status: TilsagnStatus,
     val kommentar: String?,
     val beskrivelse: String?,
-    val tilsagnsbrev: Tilsagnsbrev?,
+    val bekreftelsesbrev: Bekreftelsesbrev?,
     val deltakere: List<Deltaker>,
 ) {
     @Serializable
@@ -67,7 +67,7 @@ data class Tilsagn(
     )
 
     @Serializable
-    data class Tilsagnsbrev(
+    data class Bekreftelsesbrev(
         val journalpostId: String?,
         val altinnCorrespondenceId: String?,
     )

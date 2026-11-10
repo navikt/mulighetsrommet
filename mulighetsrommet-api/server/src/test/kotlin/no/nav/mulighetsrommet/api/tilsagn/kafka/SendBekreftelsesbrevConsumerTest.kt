@@ -16,12 +16,12 @@ import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures
 import no.nav.mulighetsrommet.api.fixtures.setTilsagnStatus
 import no.nav.mulighetsrommet.api.persistence.testing.fixture.GjennomforingDboFixtures
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
-import no.nav.mulighetsrommet.api.tilsagn.task.SendTilsagnsbrevSaga
+import no.nav.mulighetsrommet.api.tilsagn.task.SendBekreftelsesbrevSaga
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import java.time.Instant
 import java.util.UUID
 
-class SendTilsagnsbrevConsumerTest : FunSpec({
+class SendBekreftelsesbrevConsumerTest : FunSpec({
     val database = extension(ApiDatabaseTestListener())
 
     val avtaleGjennomforing = GjennomforingDboFixtures.ArbeidsrettetRehabilitering
@@ -35,10 +35,10 @@ class SendTilsagnsbrevConsumerTest : FunSpec({
     val anskaffelseTilsagn = TilsagnFixtures.createTilsagn(gjennomforingId = enkeltplassAnskaffelse.id, lopenummer = 1)
     val tilskuddTilsagn = TilsagnFixtures.createTilsagn(gjennomforingId = enkeltplassTilskudd.id, lopenummer = 3)
 
-    fun createConsumer(sendTilsagnsbrevSaga: SendTilsagnsbrevSaga = mockk(relaxed = true)): SendTilsagnsbrevConsumer {
-        return SendTilsagnsbrevConsumer(
+    fun createConsumer(sendBekreftelsesbrevSaga: SendBekreftelsesbrevSaga = mockk(relaxed = true)): SendBekreftelsesbrevConsumer {
+        return SendBekreftelsesbrevConsumer(
             db = database.api,
-            sendTilsagnsbrevSaga = sendTilsagnsbrevSaga,
+            sendBekreftelsesbrevSaga = sendBekreftelsesbrevSaga,
         )
     }
 
@@ -79,8 +79,8 @@ class SendTilsagnsbrevConsumerTest : FunSpec({
         }.initialize(database.api)
     }
 
-    test("skedulerer tilsagnsbrev når et godkjent tilsagn for en enkeltplass-gjennomføring blir opprettet") {
-        val saga = mockk<SendTilsagnsbrevSaga>(relaxed = true)
+    test("skedulerer bekreftelsesbrev når et godkjent tilsagn for en enkeltplass-gjennomføring blir opprettet") {
+        val saga = mockk<SendBekreftelsesbrevSaga>(relaxed = true)
         val consumer = createConsumer(saga)
 
         val hendelse = opprettHendelseMedStatus(
@@ -93,8 +93,8 @@ class SendTilsagnsbrevConsumerTest : FunSpec({
         verify(exactly = 1) { saga.schedule(anskaffelseTilsagn.id, any()) }
     }
 
-    test("skedulerer ikke tilsagnsbrev for tilsagn tilhørende en gjennomføring som ikke er enkeltplass") {
-        val saga = mockk<SendTilsagnsbrevSaga>(relaxed = true)
+    test("skedulerer ikke bekreftelsesbrev for tilsagn tilhørende en gjennomføring som ikke er enkeltplass") {
+        val saga = mockk<SendBekreftelsesbrevSaga>(relaxed = true)
         val consumer = createConsumer(saga)
 
         val hendelse = opprettHendelseMedStatus(
@@ -107,8 +107,8 @@ class SendTilsagnsbrevConsumerTest : FunSpec({
         verify(exactly = 0) { saga.schedule(any(), any()) }
     }
 
-    test("skedulerer ikke tilsagnsbrev for enkeltplass-gjennomføring med annen prismodell enn anskaffet enkeltplass") {
-        val saga = mockk<SendTilsagnsbrevSaga>(relaxed = true)
+    test("skedulerer ikke bekreftelsesbrev for enkeltplass-gjennomføring med annen prismodell enn anskaffet enkeltplass") {
+        val saga = mockk<SendBekreftelsesbrevSaga>(relaxed = true)
         val consumer = createConsumer(saga)
 
         val hendelse = opprettHendelseMedStatus(
@@ -121,8 +121,8 @@ class SendTilsagnsbrevConsumerTest : FunSpec({
         verify(exactly = 0) { saga.schedule(any(), any()) }
     }
 
-    test("skedulerer ikke tilsagnsbrev dersom tilsagnet ikke lenger er godkjent (gammel hendelse)") {
-        val saga = mockk<SendTilsagnsbrevSaga>(relaxed = true)
+    test("skedulerer ikke bekreftelsesbrev dersom tilsagnet ikke lenger er godkjent (gammel hendelse)") {
+        val saga = mockk<SendBekreftelsesbrevSaga>(relaxed = true)
         val consumer = createConsumer(saga)
 
         database.api.session {
@@ -139,8 +139,8 @@ class SendTilsagnsbrevConsumerTest : FunSpec({
         verify(exactly = 0) { saga.schedule(any(), any()) }
     }
 
-    test("skedulerer ikke tilsagnsbrev når tilsagnet ikke finnes") {
-        val saga = mockk<SendTilsagnsbrevSaga>(relaxed = true)
+    test("skedulerer ikke bekreftelsesbrev når tilsagnet ikke finnes") {
+        val saga = mockk<SendBekreftelsesbrevSaga>(relaxed = true)
         val consumer = createConsumer(saga)
 
         val hendelse = opprettHendelseMedStatus(
@@ -153,7 +153,7 @@ class SendTilsagnsbrevConsumerTest : FunSpec({
         verify(exactly = 0) { saga.schedule(any(), any()) }
     }
 
-    test("skedulerer bare tilsagnsbrev for TILSAGN_OPPRETTELSE og status GODKJENT") {
+    test("skedulerer bare bekreftelsesbrev for TILSAGN_OPPRETTELSE og status GODKJENT") {
         forAll(
             row(TotrinnskontrollType.TILSAGN_OPPRETTELSE, TotrinnskontrollHendelse.Status.GODKJENT, true),
             row(TotrinnskontrollType.TILSAGN_OPPRETTELSE, TotrinnskontrollHendelse.Status.TIL_BEHANDLING, false),
@@ -163,7 +163,7 @@ class SendTilsagnsbrevConsumerTest : FunSpec({
             row(TotrinnskontrollType.TILSAGN_OPPGJOR, TotrinnskontrollHendelse.Status.GODKJENT, false),
             row(TotrinnskontrollType.UTBETALING_LINJE_OPPRETTELSE, TotrinnskontrollHendelse.Status.GODKJENT, false),
         ) { type, status, shouldBeCalled ->
-            val saga = mockk<SendTilsagnsbrevSaga>(relaxed = true)
+            val saga = mockk<SendBekreftelsesbrevSaga>(relaxed = true)
             val consumer = createConsumer(saga)
 
             val hendelse = opprettHendelseMedStatus(anskaffelseTilsagn.id, type, status)

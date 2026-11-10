@@ -1,11 +1,11 @@
 package no.nav.mulighetsrommet.api.tilsagn.mapper
 
-import no.nav.mulighetsrommet.admin.arrangor.TilsagnsbrevArrangorMelding
+import no.nav.mulighetsrommet.admin.arrangor.BekreftelsesbrevArrangorMelding
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Tiltaksnummer
 import java.util.UUID
 
-data class TilsagnsbrevMeldingSnapshot(
+data class BekreftelsesbrevMeldingSnapshot(
     val tilsagnId: UUID,
     val tiltakstypeNavn: String,
     val bestillingsnummer: String,
@@ -14,18 +14,18 @@ data class TilsagnsbrevMeldingSnapshot(
     val lopenummer: Tiltaksnummer,
 )
 
-object TilsagnsbrevMeldingMapper {
+object BekreftelsesbrevMeldingMapper {
     fun tilArrangorMelding(
-        tilsagn: TilsagnsbrevMeldingSnapshot,
+        tilsagn: BekreftelsesbrevMeldingSnapshot,
         pdf: ByteArray,
-    ): TilsagnsbrevArrangorMelding = TilsagnsbrevArrangorMelding(
+    ): BekreftelsesbrevArrangorMelding = BekreftelsesbrevArrangorMelding(
         mottakerOrganisasjonsnummer = tilsagn.arrangorOrganisasjonsnummer,
         sendersReferanse = tilsagn.bestillingsnummer,
-        innhold = TilsagnsbrevArrangorMelding.Innhold(
+        innhold = BekreftelsesbrevArrangorMelding.Innhold(
             tittel = "Bekreftelse på bestilling ${tilsagn.tiltakstypeNavn} ${tilsagn.lopenummer.value}",
             brevtekst = "Se vedlagt bekreftelsesbrev for ${tilsagn.tiltakstypeNavn}.",
         ),
-        varsel = TilsagnsbrevArrangorMelding.Varsel(
+        varsel = BekreftelsesbrevArrangorMelding.Varsel(
             emne = "Bekreftelse på bestilling for ${tilsagn.arrangorOrganisasjonsnummer} ${tilsagn.arrangorNavn} er tilgjengelig i Altinn",
             tekst = """
 
@@ -34,7 +34,7 @@ object TilsagnsbrevMeldingMapper {
                 Vennlig hilsen Nav
             """.trimIndent(),
         ),
-        vedlegg = TilsagnsbrevArrangorMelding.Vedlegg(
+        vedlegg = BekreftelsesbrevArrangorMelding.Vedlegg(
             navn = "Bekreftelsesbrev-${tilsagn.tiltakstypeNavn}.pdf",
             innhold = pdf,
         ),
