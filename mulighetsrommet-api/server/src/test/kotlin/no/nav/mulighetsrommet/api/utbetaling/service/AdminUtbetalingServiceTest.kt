@@ -56,6 +56,7 @@ import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.model.GyldigTilsagnPeriode
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAnnenAvtaltPris
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.ArrangorReferanseType
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingRequest
 import no.nav.mulighetsrommet.api.utbetaling.api.ValutaBelopRequest
 import no.nav.mulighetsrommet.api.utbetaling.model.OpprettUtbetalingLinje
@@ -440,7 +441,7 @@ class AdminUtbetalingServiceTest : FunSpec({
                 gjennomforinger = listOf(GjennomforingDboFixtures.EnkelAmo),
             ).initialize(database.api)
 
-            val enkeltplassUpsert = upsert.copy(gjennomforingId = GjennomforingDboFixtures.EnkelAmo.id)
+            val enkeltplassUpsert = upsert.copy(gjennomforingId = GjennomforingDboFixtures.EnkelAmo.id, referanse = ArrangorReferanseType.KID, kidNummer = "116")
             val service = createUtbetalingService()
 
             service.opprettUtbetaling(enkeltplassUpsert, saksbehandler.navIdent).shouldBeLeft()
@@ -536,7 +537,7 @@ class AdminUtbetalingServiceTest : FunSpec({
 
             val service = createUtbetalingService()
 
-            val korreksjon = upsert.copy(korrigererUtbetaling = enkeltplassUtbetaling.id)
+            val korreksjon = upsert.copy(korrigererUtbetaling = enkeltplassUtbetaling.id, referanse = ArrangorReferanseType.FAKTURANUMMER, fakturanummer = "INV-116")
 
             service.opprettUtbetaling(korreksjon, saksbehandler.navIdent)
                 .shouldBeLeft().shouldBeTypeOf<UtbetalingError.ManglerTilgang>()

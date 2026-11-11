@@ -1,4 +1,6 @@
 import {
+  ArrangorReferanseType,
+  BBan,
   UtbetalingDto,
   UtbetalingRequest,
   ValidationError,
@@ -23,15 +25,11 @@ export function useRedigerUtbetalingForm(
     periodeSlutt: yyyyMMddFormatting(subDuration(utbetaling.periode.slutt, { days: 1 })) ?? null,
     journalpostId: utbetaling.journalpostId,
     kommentar: utbetaling.kommentar,
-    kidNummer:
-      utbetaling.betalingsinformasjon?.type === "BBan" &&
-      utbetaling.betalingsinformasjon.referanse?.type === "KidNummer"
-        ? utbetaling.betalingsinformasjon.referanse.kid
-        : null,
     pris: utbetaling.beregning,
     utbetalingsDato: utbetaling.utbetalesTidligstDato ?? null,
     korrigererUtbetaling: utbetaling.korreksjon?.opprinneligUtbetaling,
     korreksjonBegrunnelse: utbetaling.korreksjon?.begrunnelse,
+    ...betalingsReferanseDefaults(utbetaling),
   };
 
   const form = useForm<UtbetalingRequest>({ defaultValues: defaults });
@@ -46,6 +44,36 @@ export function useRedigerUtbetalingForm(
   }
 
   return { form, submit, mutation };
+}
+
+function betalingsReferanseDefaults(
+  utbetaling: UtbetalingDto,
+): Pick<UtbetalingRequest, "referanse" | "kidNummer" | "fakturanummer"> {
+  const bban: BBan | null =
+    utbetaling.betalingsinformasjon?.type === "BBan" ? utbetaling.betalingsinformasjon : null;
+
+  if (!bban?.referanse) {
+    return {
+      referanse: null,
+      kidNummer: null,
+      fakturanummer: null,
+    };
+  }
+
+  switch (bban.referanse.type) {
+    case "KidNummer":
+      return {
+        referanse: ArrangorReferanseType.KID,
+        kidNummer: bban.referanse.kid,
+        fakturanummer: null,
+      };
+    case "MeldingTilMottaker":
+      return {
+        referanse: ArrangorReferanseType.FAKTURANUMMER,
+        kidNummer: null,
+        fakturanummer: bban.referanse.melding,
+      };
+  }
 }
 
 // Unngå deserialiseringsproblemer: default verdi er tom streng, mens api krever null

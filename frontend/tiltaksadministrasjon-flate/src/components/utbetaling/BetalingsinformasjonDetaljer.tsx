@@ -13,10 +13,10 @@ export function BetalingsinformasjonDetaljer({ betalingsinformasjon }: Props) {
         <HGrid columns="1fr 1fr" gap="space-24">
           <MetadataVStack label="Kontonummer" value={betalingsinformasjon.kontonummer} />
           {betalingsinformasjon.referanse?.type === "KidNummer" && (
-            <MetadataVStack label="KID (valgfritt)" value={betalingsinformasjon.referanse.kid} />
+            <MetadataVStack label="KID" value={betalingsinformasjon.referanse.kid} />
           )}
           {betalingsinformasjon.referanse?.type === "MeldingTilMottaker" && (
-            <MetadataVStack label="Referanse" value={betalingsinformasjon.referanse.melding} />
+            <MetadataVStack label="Fakturanummer" value={betalingsinformasjon.referanse.melding} />
           )}
         </HGrid>
       );
