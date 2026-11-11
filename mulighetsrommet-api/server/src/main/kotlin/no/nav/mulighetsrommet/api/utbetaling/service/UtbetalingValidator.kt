@@ -312,7 +312,7 @@ object UtbetalingValidator {
                 if (erEnkeltplass) {
                     error {
                         FieldError.of(
-                            "Du må oppgi en referanse til mottaker",
+                            "Betalingsinformasjon må legges til av arrangør",
                             UtbetalingRequest::referanse,
                         )
                     }

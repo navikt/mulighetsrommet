@@ -1,5 +1,6 @@
 import {
   BodyShort,
+  ErrorMessage,
   Heading,
   InfoCard,
   Link,
@@ -10,7 +11,7 @@ import {
 } from "@navikt/ds-react";
 import { useArrangorBetalingsinformasjon } from "@/api/arrangor/useArrangorBetalingsinformasjon";
 import { FormTextField } from "@/components/skjema/FormTextField";
-import { FieldValues, Path, useFormContext } from "react-hook-form";
+import { FieldError, FieldValues, get, Path, useFormContext, useFormState } from "react-hook-form";
 import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
 import { ControlledRadioGroup } from "@/components/skjema/ControlledRadioGroup";
 import { ArrangorReferanseType, BBan } from "@tiltaksadministrasjon/api-client";
@@ -29,19 +30,27 @@ export function BetalingsinformasjonFields<T extends FieldValues>(
     props.arrangorId,
   );
 
+  // Referanse-feltet vises bare for BBan. For andre tilfeller må feilen vises her,
+  // ellers forsvinner valideringsfeil fra backend uten tilbakemelding.
+  const { errors } = useFormState<T>({ name: props.referanseName });
+  const referanseError = (get(errors, props.referanseName) as FieldError | undefined)?.message;
+
   if (isPending) return <Loader />;
 
   if (!betalingsinformasjon?.type) {
     return (
-      <InfoCard data-color="warning">
-        <InfoCard.Header>
-          <InfoCard.Title as="h3">Mangler betalingsinformasjon</InfoCard.Title>
-        </InfoCard.Header>
-        <InfoCard.Content>
-          Arrangøren har ingen betalingsinformasjon registrert i Altinn. Arrangøren må registrere
-          kontonummer i Altinn før utbetaling kan behandles. Les mer om <EndreKontonummerLink />.
-        </InfoCard.Content>
-      </InfoCard>
+      <VStack gap="space-8">
+        <InfoCard data-color="warning">
+          <InfoCard.Header>
+            <InfoCard.Title as="h3">Mangler betalingsinformasjon</InfoCard.Title>
+          </InfoCard.Header>
+          <InfoCard.Content>
+            Arrangøren har ingen betalingsinformasjon registrert i Altinn. Arrangøren må registrere
+            kontonummer i Altinn før utbetaling kan behandles. Les mer om <EndreKontonummerLink />.
+          </InfoCard.Content>
+        </InfoCard>
+        {referanseError && <ErrorMessage size="small">{referanseError}</ErrorMessage>}
+      </VStack>
     );
   }
 
@@ -64,6 +73,7 @@ export function BetalingsinformasjonFields<T extends FieldValues>(
           <BodyShort size="small">
             Dersom informasjonen må oppdateres ta kontakt med utviklingsteamet.
           </BodyShort>
+          {referanseError && <ErrorMessage size="small">{referanseError}</ErrorMessage>}
         </VStack>
       );
   }
