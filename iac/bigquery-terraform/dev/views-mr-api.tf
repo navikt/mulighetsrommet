@@ -543,12 +543,12 @@ module "mr_api_gjennomforing_enkeltplass_godkjenn_okonomi_view" {
         }, {
         mode        = "NULLABLE"
         name        = "totrinnskontroll_behandlet_tidspunkt"
-        type        = "STRING"
+        type        = "TIMESTAMP"
         description = "Totrinnskontroll behandlet tidspunkt"
         }, {
         mode        = "NULLABLE"
         name        = "totrinnskontroll_besluttet_tidspunkt"
-        type        = "STRING"
+        type        = "TIMESTAMP"
         description = "Totrinnskontroll besluttet tidspunkt"
       },
     ]
