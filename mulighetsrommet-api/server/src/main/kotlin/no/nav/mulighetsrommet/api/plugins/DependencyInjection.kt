@@ -240,7 +240,6 @@ private fun kafka(appConfig: AppConfig) = module {
             ),
             config.clients.tilskuddBrukerUtbetaling to TilskuddBrukerUtbetalingConsumer(
                 get(),
-                get(),
             ),
 
             config.clients.datavarehusGjennomforingerConsumer to DatavarehusTiltakV1KafkaProducer(
@@ -613,6 +612,7 @@ private fun services(appConfig: AppConfig) = module {
     single {
         BrukerUtbetalingService(
             BrukerUtbetalingService.Config(appConfig.kafka.topics.helvedUtbetalingTopic),
+            get(),
             get(),
             get(),
         )
