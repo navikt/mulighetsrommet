@@ -4,7 +4,6 @@ import no.nav.common.kafka.consumer.util.deserializer.Deserializers.uuidDeserial
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.TransactionalQueryContext
-import no.nav.mulighetsrommet.api.brukerutbetaling.BrukerUtbetalingService
 import no.nav.mulighetsrommet.api.brukerutbetaling.db.BrukerUtbetalingDbo
 import no.nav.mulighetsrommet.api.brukerutbetaling.db.UpsertBrukerUtbetalingDbo
 import no.nav.mulighetsrommet.api.contracts.helved.HelVedUtbetaling
@@ -13,7 +12,6 @@ import no.nav.mulighetsrommet.api.contracts.totrinnskontroll.TotrinnskontrollHen
 import no.nav.mulighetsrommet.api.domain.deltaker.Deltaker
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd
-import no.nav.mulighetsrommet.api.domain.personalia.Personalia
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandlingType
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingDto
@@ -34,7 +32,6 @@ import java.util.UUID
 class TilskuddBrukerUtbetalingConsumer(
     private val db: ApiDatabase,
     private val personaliaService: PersonaliaService,
-    private val brukerUtbetalingService: BrukerUtbetalingService,
 ) : KafkaTopicConsumer<UUID, TotrinnskontrollHendelse>(
     uuidDeserializer(),
     TotrinnskontrollHendelseDeserializer(),
@@ -69,18 +66,21 @@ class TilskuddBrukerUtbetalingConsumer(
         }
         val personalia = personaliaService.getPersonalia(deltaker.id, PersonaliaService.OnBehalfOf.System)
 
+        val norskIdent = checkNotNull(personalia.norskIdent()) {
+            "Fant ikke norsk ident for deltaker med id=${deltaker.id}, behandlingId=${behandling.id}"
+        }
         when (behandling.type) {
             TilskuddBehandlingType.REGISTRERING -> nyUtbetalingTilBruker(
                 behandling,
                 totrinnskontroll,
                 gjennomforing,
-                personalia,
+                norskIdent,
             )
 
             TilskuddBehandlingType.REVURDERING -> revurderUtbetalingTilBruker(
                 behandling,
                 totrinnskontroll,
-                personalia,
+                norskIdent,
             )
         }
     }
@@ -88,7 +88,7 @@ class TilskuddBrukerUtbetalingConsumer(
     private fun revurderUtbetalingTilBruker(
         behandling: TilskuddBehandlingDto,
         totrinnskontroll: TotrinnskontrollHendelse,
-        brukerPersonalia: Personalia,
+        personIdent: NorskIdent,
     ) {
         val saksbehandler = (totrinnskontroll.behandletAv as? TotrinnskontrollAgent.NavAnsatt)?.navIdent
             ?: error("behandletAv must be NavAnsatt")
@@ -104,18 +104,13 @@ class TilskuddBrukerUtbetalingConsumer(
                     throw IllegalStateException("Revurdering av tilskudd med type ${totrinnskontroll.type} støttes ikke for utbetaling til bruker")
                 }
                 db.transaction {
-                    // Idempotency check
                     queries.tilskuddBehandling.acquireLockTilskudd(tilskuddVedtak.tilskuddId)
                     val tidligereUtbetaling = queries.brukerUtbetaling.getByTilskuddVedtak(tilskuddVedtak.id)
                     if (tidligereUtbetaling != null) {
                         logger.warn("Revurdering av utbetaling for tilskudd vedtak med id=${tilskuddVedtak.id} er allerede opprettet. Sak id=${tidligereUtbetaling.sakId}, behandling id=${tidligereUtbetaling.behandlingId}")
                         return@transaction
                     }
-                    require(queries.brukerUtbetaling.getLastFromTilskudd(tilskuddVedtak.tilskuddId) != null) {
-                        "Forventet å kunne revurdere utbetaling for tilskuddId=${tilskuddVedtak.tilskuddId}, men det finnes ingen tidligere utbetalinger"
-                    }
-
-                    utbetalingTilOpphor(tilskuddVedtak, brukerPersonalia, saksbehandler, beslutter, besluttetTidspunkt)
+                    utbetalingTilOpphor(tilskuddVedtak, personIdent, saksbehandler, beslutter, besluttetTidspunkt)
                 }
             }
     }
@@ -124,7 +119,7 @@ class TilskuddBrukerUtbetalingConsumer(
         behandling: TilskuddBehandlingDto,
         totrinnskontroll: TotrinnskontrollHendelse,
         gjennomforing: GjennomforingEnkeltplass,
-        brukerPersonalia: Personalia,
+        personIdent: NorskIdent,
     ) {
         val saksbehandler = (totrinnskontroll.behandletAv as? TotrinnskontrollAgent.NavAnsatt)?.navIdent
             ?: error("behandletAv must be NavAnsatt")
@@ -136,7 +131,6 @@ class TilskuddBrukerUtbetalingConsumer(
             .filter { it.utbetalingMottaker is TilskuddMottaker.Bruker }
             .forEach { tilskuddVedtak ->
                 db.transaction {
-                    // Idempotency check
                     queries.tilskuddBehandling.acquireLockTilskudd(tilskuddVedtak.tilskuddId)
                     val tidligereUtbetaling = queries.brukerUtbetaling.getByTilskuddVedtak(tilskuddVedtak.id)
                     if (tidligereUtbetaling != null) {
@@ -162,12 +156,7 @@ class TilskuddBrukerUtbetalingConsumer(
                         ),
                     )
 
-                    val brukerUtbetaling = requireNotNull(queries.brukerUtbetaling.getByTilskuddVedtak(tilskuddVedtak.id))
-                    brukerUtbetalingService.produceTilskuddUtbetaling(
-                        brukerUtbetaling.toHelVedUtbetaling(
-                            brukerPersonalia.norskIdent(),
-                        ),
-                    )
+                    sendHelVedUtbetaling(tilskuddVedtak.id, personIdent)
                 }
             }
     }
@@ -175,7 +164,7 @@ class TilskuddBrukerUtbetalingConsumer(
     context(tx: TransactionalQueryContext)
     private fun utbetalingTilOpphor(
         tilskuddVedtak: TilskuddVedtakDto,
-        brukerPersonalia: Personalia,
+        personIdent: NorskIdent,
         saksbehandler: NavIdent,
         beslutter: NavIdent,
         besluttetTidspunkt: Instant,
@@ -201,10 +190,15 @@ class TilskuddBrukerUtbetalingConsumer(
             ),
         )
 
-        val opphor = requireNotNull(queries.brukerUtbetaling.getByTilskuddVedtak(tilskuddVedtak.id))
-        brukerUtbetalingService.produceTilskuddUtbetaling(
-            opphor.toHelVedUtbetaling(brukerPersonalia.norskIdent()),
-        )
+        sendHelVedUtbetaling(tilskuddVedtak.id, personIdent)
+    }
+
+    context(tx: TransactionalQueryContext)
+    private fun sendHelVedUtbetaling(tilskuddVedtakId: UUID, personIdent: NorskIdent) = with(tx) {
+        val utbetaling = requireNotNull(queries.brukerUtbetaling.getByTilskuddVedtak(tilskuddVedtakId)) {
+            "Fant ikke utbetaling for vedtak $tilskuddVedtakId"
+        }
+        outbox.publish(utbetaling.toHelVedUtbetaling(personIdent))
     }
 
     private fun QueryContext.getDeltaker(gjennomforingId: UUID): Deltaker {
@@ -216,12 +210,11 @@ class TilskuddBrukerUtbetalingConsumer(
     }
 }
 
-fun BrukerUtbetalingDbo.toHelVedUtbetaling(personIdent: NorskIdent?, simulering: Boolean = false): HelVedUtbetaling = HelVedUtbetaling(
+fun BrukerUtbetalingDbo.toHelVedUtbetaling(personIdent: NorskIdent, simulering: Boolean = false): HelVedUtbetaling = HelVedUtbetaling(
     id = id,
     sakId = sakId,
     behandlingId = behandlingId.toString(),
-    personIdent = personIdent
-        ?: throw IllegalStateException("Fant ikke norsk ident for bruker utbetaling med id=$id, sakId=$sakId, behandlingId=$behandlingId"),
+    personIdent = personIdent,
     periode = HelVedUtbetaling.Periode(transaksjonsDato, transaksjonsDato),
     belop = belop,
     kostnadssted = kostnadssted.enhetsnummer,
@@ -234,30 +227,14 @@ fun BrukerUtbetalingDbo.toHelVedUtbetaling(personIdent: NorskIdent?, simulering:
 )
 
 fun Tiltakskode.toHelVedTiltakskode(): HelVedUtbetaling.Tiltakskode = when (this) {
-    Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING ->
-        HelVedUtbetaling.Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING
-
-    Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING ->
-        HelVedUtbetaling.Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING
-
-    Tiltakskode.ARBEIDSMARKEDSOPPLAERING ->
-        HelVedUtbetaling.Tiltakskode.ARBEIDSMARKEDSOPPLAERING
-
-    Tiltakskode.FAG_OG_YRKESOPPLAERING ->
-        HelVedUtbetaling.Tiltakskode.FAG_OG_YRKESOPPLAERING
-
-    Tiltakskode.HOYERE_UTDANNING ->
-        HelVedUtbetaling.Tiltakskode.HOYERE_UTDANNING
-
-    Tiltakskode.HOYERE_YRKESFAGLIG_UTDANNING ->
-        HelVedUtbetaling.Tiltakskode.HOYERE_YRKESFAGLIG_UTDANNING
-
-    Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV ->
-        HelVedUtbetaling.Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV
-
-    Tiltakskode.STUDIESPESIALISERING ->
-        HelVedUtbetaling.Tiltakskode.STUDIESPESIALISERING
-
+    Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING -> HelVedUtbetaling.Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING
+    Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING -> HelVedUtbetaling.Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING
+    Tiltakskode.ARBEIDSMARKEDSOPPLAERING -> HelVedUtbetaling.Tiltakskode.ARBEIDSMARKEDSOPPLAERING
+    Tiltakskode.FAG_OG_YRKESOPPLAERING -> HelVedUtbetaling.Tiltakskode.FAG_OG_YRKESOPPLAERING
+    Tiltakskode.HOYERE_UTDANNING -> HelVedUtbetaling.Tiltakskode.HOYERE_UTDANNING
+    Tiltakskode.HOYERE_YRKESFAGLIG_UTDANNING -> HelVedUtbetaling.Tiltakskode.HOYERE_YRKESFAGLIG_UTDANNING
+    Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV -> HelVedUtbetaling.Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV
+    Tiltakskode.STUDIESPESIALISERING -> HelVedUtbetaling.Tiltakskode.STUDIESPESIALISERING
     else -> throw IllegalStateException("Tiltakstype $this ikke støttet for utbetaling av tilskudd til bruker")
 }
 

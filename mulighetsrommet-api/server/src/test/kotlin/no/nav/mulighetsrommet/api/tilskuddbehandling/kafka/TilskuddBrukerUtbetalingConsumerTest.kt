@@ -1,16 +1,19 @@
 package no.nav.mulighetsrommet.api.tilskuddbehandling.kafka
 
 import io.kotest.assertions.arrow.core.shouldBeRight
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
-import io.mockk.clearMocks
 import io.mockk.coEvery
+import io.mockk.every
 import io.mockk.mockk
-import io.mockk.verify
+import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.admin.arrangor.BetalingsinformasjonQuery
-import no.nav.mulighetsrommet.api.brukerutbetaling.BrukerUtbetalingService
 import no.nav.mulighetsrommet.api.brukerutbetaling.db.UpsertBrukerUtbetalingDbo
 import no.nav.mulighetsrommet.api.contracts.helved.HelVedUtbetaling
 import no.nav.mulighetsrommet.api.contracts.helved.HelVedUtbetaling.Periode
@@ -35,7 +38,6 @@ import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
 import no.nav.mulighetsrommet.api.tilskuddbehandling.task.JournalforVedtaksbrev
 import no.nav.mulighetsrommet.api.utbetaling.api.ValutaBelopRequest
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
-import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskDato
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NorskIdent
@@ -50,7 +52,6 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
     val database = extension(ApiDatabaseTestListener())
 
     val personaliaService = mockk<PersonaliaService>()
-    val brukerUtbetalingService = mockk<BrukerUtbetalingService>(relaxed = true)
     val journalforVedtaksbrev = mockk<JournalforVedtaksbrev>(relaxed = true)
     val betalingsinformasjon = mockk<BetalingsinformasjonQuery>(relaxed = true)
 
@@ -59,6 +60,7 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
     val tilskuddId = UUID.randomUUID()
     val deltakerId = UUID.randomUUID()
     val deltakerNorskIdent = NorskIdent("12345678901")
+    val utbetalingTopic = "test.tilskudd.utbetaling-v1"
 
     val gyldigTilsagnPeriode = GyldigTilsagnPeriode(
         Tiltakskode.entries.associateWith {
@@ -67,8 +69,6 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
     )
 
     beforeEach {
-        clearMocks(brukerUtbetalingService)
-
         MulighetsrommetTestDomain(
             ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
             gjennomforinger = listOf(GjennomforingDboFixtures.EnkelAmo),
@@ -126,11 +126,11 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
         type = TotrinnskontrollType.TILSKUDD_OPPRETTELSE,
         status = TotrinnskontrollHendelse.Status.GODKJENT,
         behandletAv = TotrinnskontrollAgent.NavAnsatt(NavAnsattFixture.DonaldDuck.navIdent),
-        behandletTidspunkt = Instant.now(),
+        behandletTidspunkt = Instant.parse("2025-03-14T10:00:00Z"),
         behandletBegrunnelse = null,
         behandletAarsaker = emptyList(),
         besluttetAv = TotrinnskontrollAgent.NavAnsatt(NavAnsattFixture.MikkeMus.navIdent),
-        besluttetTidspunkt = Instant.now(),
+        besluttetTidspunkt = Instant.parse("2025-03-15T10:00:00Z"),
         besluttetBegrunnelse = null,
         besluttetAarsaker = emptyList(),
     )
@@ -138,8 +138,21 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
     fun createConsumer() = TilskuddBrukerUtbetalingConsumer(
         db = database.api,
         personaliaService = personaliaService,
-        brukerUtbetalingService = brukerUtbetalingService,
     )
+
+    fun createService() = TilskuddBehandlingService(
+        gyldigTilsagnPeriode = gyldigTilsagnPeriode,
+        database.api,
+        journalforVedtaksbrev,
+        mockk(relaxed = true),
+        journalpostValidator = gyldigJournalpostValidator(),
+        personaliaService = mockk(relaxed = true),
+        betalingsinformasjon = betalingsinformasjon,
+    )
+
+    fun getHelVedUtbetalinger() = database.api.session {
+        queries.kafkaProducerRecord.getRecords(10, listOf(utbetalingTopic))
+    }
 
     fun seedBrukerUtbetaling(
         tilskuddVedtakId: UUID,
@@ -158,15 +171,7 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
     )
 
     test("oppretter hel ved utbetaling for innvilget tilskudd til bruker") {
-        val service = TilskuddBehandlingService(
-            gyldigTilsagnPeriode = gyldigTilsagnPeriode,
-            database.api,
-            journalforVedtaksbrev,
-            mockk(relaxed = true),
-            journalpostValidator = gyldigJournalpostValidator(),
-            personaliaService = mockk(relaxed = true),
-            betalingsinformasjon = betalingsinformasjon,
-        )
+        val service = createService()
         service.upsert(request, NavAnsattFixture.DonaldDuck.navIdent).shouldBeRight()
 
         createConsumer().consume(behandlingId, godkjentHendelse)
@@ -180,38 +185,55 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
         result.saksbehandler shouldBe NavAnsattFixture.DonaldDuck.navIdent
         result.beslutter shouldBe NavAnsattFixture.MikkeMus.navIdent
 
-        verify(exactly = 1) { brukerUtbetalingService.produceTilskuddUtbetaling(any()) }
+        val record = getHelVedUtbetalinger().single()
+        record.key.decodeToString() shouldBe result.id.toString()
+        Json.decodeFromString<HelVedUtbetaling>(record.value!!.decodeToString()) shouldBe HelVedUtbetaling(
+            id = result.id,
+            sakId = result.sakId,
+            behandlingId = "1",
+            personIdent = deltakerNorskIdent,
+            periode = Periode(LocalDate.of(2025, 3, 15), LocalDate.of(2025, 3, 15)),
+            belop = 5000,
+            kostnadssted = NavEnhetNummer("0502"),
+            tilskuddstype = HelVedUtbetaling.Tilskuddstype.SKOLEPENGER,
+            tiltakskode = HelVedUtbetaling.Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
+            saksbehandler = NavAnsattFixture.DonaldDuck.navIdent,
+            beslutter = NavAnsattFixture.MikkeMus.navIdent,
+            besluttetTidspunkt = Instant.parse("2025-03-15T10:00:00Z"),
+            dryrun = false,
+        )
+    }
+
+    test("oppretter ikke utbetaling når norsk ident mangler") {
+        createService().upsert(request, NavAnsattFixture.DonaldDuck.navIdent).shouldBeRight()
+        coEvery { personaliaService.getPersonalia(deltakerId, any()) } returns mockk {
+            every { norskIdent() } returns null
+        }
+
+        val error = shouldThrow<IllegalStateException> { createConsumer().consume(behandlingId, godkjentHendelse) }
+
+        error.message shouldBe "Fant ikke norsk ident for deltaker med id=$deltakerId, behandlingId=$behandlingId"
+        database.api.session { queries.brukerUtbetaling.getByTilskuddVedtak(tilskuddVedtakId) }.shouldBeNull()
+        getHelVedUtbetalinger().shouldBeEmpty()
     }
 
     test("behandler ikke tilskudd to ganger hvis utbetaling allerede eksisterer") {
-        val service = TilskuddBehandlingService(
-            gyldigTilsagnPeriode = gyldigTilsagnPeriode,
-            database.api,
-            journalforVedtaksbrev,
-            mockk(relaxed = true),
-            journalpostValidator = gyldigJournalpostValidator(),
-            personaliaService = mockk(relaxed = true),
-            betalingsinformasjon = betalingsinformasjon,
-        )
+        val service = createService()
         service.upsert(request, NavAnsattFixture.DonaldDuck.navIdent).shouldBeRight()
 
         val consumer = createConsumer()
         consumer.consume(behandlingId, godkjentHendelse)
+        val record = getHelVedUtbetalinger().single()
+        database.api.session { queries.kafkaProducerRecord.deleteRecords(listOf(record.id)) }
         consumer.consume(behandlingId, godkjentHendelse)
 
-        verify(exactly = 1) { brukerUtbetalingService.produceTilskuddUtbetaling(any()) }
+        getHelVedUtbetalinger().shouldBeEmpty()
+        database.api.session { queries.brukerUtbetaling.getByTilskuddVedtak(tilskuddVedtakId) }
+            .shouldNotBeNull().id.toString() shouldBe record.key.decodeToString()
     }
 
     test("hopper over brukerutbetaling når utbetaling allerede finnes") {
-        val service = TilskuddBehandlingService(
-            gyldigTilsagnPeriode = gyldigTilsagnPeriode,
-            database.api,
-            journalforVedtaksbrev,
-            mockk(relaxed = true),
-            journalpostValidator = gyldigJournalpostValidator(),
-            personaliaService = mockk(relaxed = true),
-            betalingsinformasjon = betalingsinformasjon,
-        )
+        val service = createService()
         service.upsert(request, NavAnsattFixture.DonaldDuck.navIdent).shouldBeRight()
 
         database.api.transaction {
@@ -222,19 +244,11 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
 
         val result = database.api.session { queries.brukerUtbetaling.getByTilskuddVedtak(tilskuddVedtakId) }
         result.shouldNotBeNull()
-        verify(exactly = 0) { brukerUtbetalingService.produceTilskuddUtbetaling(any()) }
+        getHelVedUtbetalinger().shouldBeEmpty()
     }
 
     test("hopper over brukerutbetaling når revurdering allerede finnes") {
-        val service = TilskuddBehandlingService(
-            gyldigTilsagnPeriode = gyldigTilsagnPeriode,
-            database.api,
-            journalforVedtaksbrev,
-            mockk(relaxed = true),
-            journalpostValidator = gyldigJournalpostValidator(),
-            personaliaService = mockk(relaxed = true),
-            betalingsinformasjon = betalingsinformasjon,
-        )
+        val service = createService()
         service.upsert(request, NavAnsattFixture.DonaldDuck.navIdent).shouldBeRight()
 
         val revurderingBehandlingId = service
@@ -262,55 +276,25 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
 
         val result = database.api.session { queries.brukerUtbetaling.getByTilskuddVedtak(revurderingTilskuddVedtakId) }
         result.shouldNotBeNull()
-        verify(exactly = 0) { brukerUtbetalingService.produceTilskuddUtbetaling(any()) }
+        getHelVedUtbetalinger().shouldBeEmpty()
     }
 
     test("bruker besluttet tidspunkt som periode for utbetaling") {
-        val service = TilskuddBehandlingService(
-            gyldigTilsagnPeriode = gyldigTilsagnPeriode,
-            database.api,
-            journalforVedtaksbrev,
-            mockk(relaxed = true),
-            journalpostValidator = gyldigJournalpostValidator(),
-            personaliaService = mockk(relaxed = true),
-            betalingsinformasjon = betalingsinformasjon,
-        )
+        val service = createService()
         service.upsert(request, NavAnsattFixture.DonaldDuck.navIdent).shouldBeRight()
 
         val besluttetTidspunkt = Instant.parse("2025-03-15T10:00:00Z")
         val hendelse = godkjentHendelse.copy(besluttetTidspunkt = besluttetTidspunkt)
         createConsumer().consume(behandlingId, hendelse)
 
-        val result = database.api.session { queries.brukerUtbetaling.getByTilskuddVedtak(tilskuddVedtakId) }
-        result.shouldNotBeNull()
-        val utbetaling = HelVedUtbetaling(
-            id = result.id,
-            sakId = result.sakId,
-            behandlingId = result.behandlingId.toString(),
-            personIdent = deltakerNorskIdent,
-            periode = Periode(result.transaksjonsDato, result.transaksjonsDato),
-            belop = result.belop,
-            kostnadssted = result.kostnadssted.enhetsnummer,
-            tilskuddstype = result.tilskuddstype,
-            saksbehandler = result.saksbehandler,
-            beslutter = result.beslutter,
-            besluttetTidspunkt = result.besluttetTidspunkt,
-            tiltakskode = result.tiltakskode,
-            dryrun = false,
-        )
-        verify(exactly = 1) { brukerUtbetalingService.produceTilskuddUtbetaling(utbetaling) }
+        val utbetaling =
+            Json.decodeFromString<HelVedUtbetaling>(getHelVedUtbetalinger().single().value!!.decodeToString())
+        utbetaling.periode shouldBe Periode(LocalDate.of(2025, 3, 15), LocalDate.of(2025, 3, 15))
+        utbetaling.besluttetTidspunkt shouldBe Instant.parse("2025-03-15T10:00:00Z")
     }
 
     test("håndterer opphørsrevurdering av tilskudd lagres som ny utbetaling og sender hel ved utbetaling") {
-        val service = TilskuddBehandlingService(
-            gyldigTilsagnPeriode = gyldigTilsagnPeriode,
-            database.api,
-            journalforVedtaksbrev,
-            mockk(relaxed = true),
-            journalpostValidator = gyldigJournalpostValidator(),
-            personaliaService = mockk(relaxed = true),
-            betalingsinformasjon = betalingsinformasjon,
-        )
+        val service = createService()
         val consumer = createConsumer()
         service.upsert(request, NavAnsattFixture.DonaldDuck.navIdent).shouldBeRight()
 
@@ -332,6 +316,7 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
         )
 
         consumer.consume(revurderingBehandlingId, revurderingHendelse)
+        consumer.consume(revurderingBehandlingId, revurderingHendelse)
 
         val result = database.api.session { queries.brukerUtbetaling.getLastFromTilskudd(tilskuddId) }
         result.shouldNotBeNull()
@@ -341,21 +326,12 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
         result.belop shouldBe 0
         result.behandlingId shouldNotBe forsteUtbetaling.behandlingId
 
-        val utbetaling = HelVedUtbetaling(
-            id = result.id,
-            sakId = result.sakId,
-            behandlingId = result.behandlingId.toString(),
-            personIdent = deltakerNorskIdent,
-            periode = Periode(besluttetTidspunkt.tilNorskDato(), besluttetTidspunkt.tilNorskDato()),
-            belop = result.belop,
-            kostnadssted = result.kostnadssted.enhetsnummer,
-            tilskuddstype = result.tilskuddstype,
-            saksbehandler = result.saksbehandler,
-            beslutter = result.beslutter,
-            besluttetTidspunkt = result.besluttetTidspunkt,
-            tiltakskode = result.tiltakskode,
-            dryrun = false,
-        )
-        verify(exactly = 1) { brukerUtbetalingService.produceTilskuddUtbetaling(utbetaling) }
+        val records = getHelVedUtbetalinger().shouldHaveSize(2)
+        val utbetaling = Json.decodeFromString<HelVedUtbetaling>(records.last().value!!.decodeToString())
+        records.last().key.decodeToString() shouldBe forsteUtbetaling.id.toString()
+        utbetaling.id shouldBe forsteUtbetaling.id
+        utbetaling.behandlingId shouldBe "2"
+        utbetaling.belop shouldBe 0
+        utbetaling.periode shouldBe Periode(LocalDate.of(2025, 3, 15), LocalDate.of(2025, 3, 15))
     }
 })
