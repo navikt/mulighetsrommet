@@ -97,6 +97,6 @@ object PrismodellFixtures {
         tilskudd = mapOf(
             Opplaeringtilskudd.Kode.SKOLEPENGER to 10_000.NOK,
         ),
-        tilleggsopplysninger = null,
+        prisbetingelser = null,
     )
 }

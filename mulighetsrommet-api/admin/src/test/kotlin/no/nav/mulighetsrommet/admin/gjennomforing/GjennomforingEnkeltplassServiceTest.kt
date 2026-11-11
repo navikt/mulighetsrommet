@@ -307,7 +307,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
             val prismodell = UpsertEnkeltplass.Prismodell.TilskuddTilOpplaering(
                 tilskudd = mapOf(Opplaeringtilskudd.Kode.SKOLEPENGER to 100),
-                tilleggsopplysninger = null,
+                prisbetingelser = null,
             )
             val enkeltplass2 = service
                 .soktInn(soktInn.copy(prismodell = prismodell), behandling(opprettetAv))
@@ -331,7 +331,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
             val prismodell = UpsertEnkeltplass.Prismodell.TilskuddTilOpplaering(
                 tilskudd = mapOf(Opplaeringtilskudd.Kode.SKOLEPENGER to 100),
-                tilleggsopplysninger = null,
+                prisbetingelser = null,
             )
             val (gjennomforing, okonomi) = service
                 .soktInn(soktInn.copy(prismodell = prismodell), behandling(opprettetAv))
@@ -355,7 +355,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
             val prismodell = UpsertEnkeltplass.Prismodell.TilskuddTilOpplaering(
                 tilskudd = mapOf(Opplaeringtilskudd.Kode.SKOLEPENGER to 100),
-                tilleggsopplysninger = null,
+                prisbetingelser = null,
             )
             val (gjennomforing, okonomi) = service
                 .soktInn(soktInn.copy(prismodell = prismodell), behandling(opprettetAv))

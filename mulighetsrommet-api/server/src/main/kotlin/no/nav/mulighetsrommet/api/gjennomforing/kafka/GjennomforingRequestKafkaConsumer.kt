@@ -139,7 +139,7 @@ private fun toPrismodell(
     return when (prisinformasjon) {
         is GjennomforingRequest.EnkeltplassPrisinformasjon.Tilskudd -> UpsertEnkeltplass.Prismodell.TilskuddTilOpplaering(
             tilskudd = prisinformasjon.tilskudd,
-            tilleggsopplysninger = prisinformasjon.tilleggsopplysninger,
+            prisbetingelser = prisinformasjon.tilleggsopplysninger,
         )
 
         is GjennomforingRequest.EnkeltplassPrisinformasjon.Anskaffelse -> UpsertEnkeltplass.Prismodell.Anskaffelse(
@@ -147,7 +147,7 @@ private fun toPrismodell(
         )
 
         is GjennomforingRequest.EnkeltplassPrisinformasjon.IngenKostnader -> UpsertEnkeltplass.Prismodell.IngenKostnader(
-            tilleggsopplysninger = prisinformasjon.tilleggsopplysninger,
+            prisbetingelser = prisinformasjon.tilleggsopplysninger,
         )
     }
 }

@@ -192,7 +192,7 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
             database.run {
                 queries.gjennomforing.getPrismodellOrError(gjennomforingId)
                     .shouldBeTypeOf<Prismodell.IngenKostnader>()
-                    .tilleggsopplysninger shouldBe "Opplæringen er kostnadsfri"
+                    .prisbetingelser shouldBe "Opplæringen er kostnadsfri"
             }
         }
 

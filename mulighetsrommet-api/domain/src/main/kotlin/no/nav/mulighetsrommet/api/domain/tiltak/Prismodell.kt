@@ -125,7 +125,7 @@ sealed interface Prismodell {
         override val id: UUID,
         override val valuta: Valuta,
         val tilskudd: Map<Opplaeringtilskudd.Kode, ValutaBelop>,
-        val tilleggsopplysninger: String?,
+        val prisbetingelser: String?,
     ) : Prismodell {
         @Transient
         override val type = PrismodellType.TILSKUDD_TIL_OPPLAERING
@@ -136,7 +136,7 @@ sealed interface Prismodell {
         @Serializable(with = UUIDSerializer::class)
         override val id: UUID,
         override val valuta: Valuta,
-        val tilleggsopplysninger: String,
+        val prisbetingelser: String,
     ) : Prismodell {
         @Transient
         override val type = PrismodellType.INGEN_KOSTNADER
@@ -155,7 +155,6 @@ sealed interface Prismodell {
         is IngenKostnader -> emptyList()
     }
 
-    // TODO: enten behandle "prisbetingelser" og "tilleggsopplysninger" som to separate felter, eller benytte samme navn
     fun prisbetingelser(): String? = when (this) {
         is AnnenAvtaltPris -> prisbetingelser
         is AnskaffetEnkeltplass -> null
@@ -165,8 +164,8 @@ sealed interface Prismodell {
         is AvtaltPrisPerTimeOppfolgingPerDeltaker -> prisbetingelser
         is FastSatsPerBenyttetPlassPerManed -> null
         is FastSatsPerAvtaltPlassPerManed -> null
-        is TilskuddTilOpplaering -> tilleggsopplysninger
-        is IngenKostnader -> tilleggsopplysninger
+        is TilskuddTilOpplaering -> prisbetingelser
+        is IngenKostnader -> prisbetingelser
     }
 
     fun findAvtaltSats(dato: LocalDate): AvtaltSats? {
@@ -243,14 +242,14 @@ sealed interface Prismodell {
                 PrismodellType.TILSKUDD_TIL_OPPLAERING -> TilskuddTilOpplaering(
                     id = id,
                     valuta = valuta,
-                    tilleggsopplysninger = prisbetingelser,
+                    prisbetingelser = prisbetingelser,
                     tilskudd = requireNotNull(tilskudd).mapValues { it.value.withValuta(valuta) },
                 )
 
                 PrismodellType.INGEN_KOSTNADER -> IngenKostnader(
                     id = id,
                     valuta = valuta,
-                    tilleggsopplysninger = requireNotNull(prisbetingelser),
+                    prisbetingelser = requireNotNull(prisbetingelser),
                 )
             }
         }
