@@ -5,6 +5,7 @@ import kotliquery.Session
 import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
 import no.nav.common.kafka.util.KafkaUtils
 import no.nav.mulighetsrommet.api.contracts.gjennomforing.TiltaksgjennomforingV2Dto
+import no.nav.mulighetsrommet.api.contracts.helved.HelVedUtbetaling
 import no.nav.mulighetsrommet.api.domain.tiltak.Tiltakstype
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.Totrinnskontroll
 import no.nav.mulighetsrommet.api.persistence.tiltak.AdminTiltakstypeQueries
@@ -49,6 +50,16 @@ class OutboxEventPublisher(session: Session, private val topics: KafkaTopics) {
             topics.sisteTiltaksgjennomforingerV2Topic,
             id.toString().toByteArray(),
             dto?.let { Json.encodeToString(it) }?.toByteArray(),
+            null,
+        )
+        kpr.storeRecord(record)
+    }
+
+    fun publish(utbetaling: HelVedUtbetaling) {
+        val record = StoredProducerRecord(
+            topics.helvedUtbetalingTopic,
+            utbetaling.id.toString().toByteArray(),
+            Json.encodeToString(utbetaling).toByteArray(),
             null,
         )
         kpr.storeRecord(record)

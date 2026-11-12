@@ -117,7 +117,6 @@ import no.nav.mulighetsrommet.api.tilsagn.kafka.SendBekreftelsesbrevConsumer
 import no.nav.mulighetsrommet.api.tilsagn.model.GyldigTilsagnPeriode
 import no.nav.mulighetsrommet.api.tilsagn.task.SendBekreftelsesbrevSaga
 import no.nav.mulighetsrommet.api.tilskuddbehandling.TilskuddBehandlingService
-import no.nav.mulighetsrommet.api.tilskuddbehandling.TilskuddService
 import no.nav.mulighetsrommet.api.tilskuddbehandling.kafka.TilskuddArrangorUtbetalingConsumer
 import no.nav.mulighetsrommet.api.tilskuddbehandling.kafka.TilskuddBrukerUtbetalingConsumer
 import no.nav.mulighetsrommet.api.tilskuddbehandling.task.DistribuerVedtaksbrev
@@ -240,8 +239,6 @@ private fun kafka(appConfig: AppConfig) = module {
                 get(),
             ),
             config.clients.tilskuddBrukerUtbetaling to TilskuddBrukerUtbetalingConsumer(
-                get(),
-                get(),
                 get(),
             ),
 
@@ -617,6 +614,7 @@ private fun services(appConfig: AppConfig) = module {
             BrukerUtbetalingService.Config(appConfig.kafka.topics.helvedUtbetalingTopic),
             get(),
             get(),
+            get(),
         )
     }
     single { PersonaliaService(get(), get(), get(), get(), get()) }
@@ -641,7 +639,6 @@ private fun services(appConfig: AppConfig) = module {
             betalingsinformasjon = get(),
         )
     }
-    single { TilskuddService(get(), get(), get()) }
     single { AltinnRettigheterService(db = get(), altinnClient = get()) }
     single { OppgaverService(get(), get()) }
     single { ArrangorflateService(get(), get(), get()) }
