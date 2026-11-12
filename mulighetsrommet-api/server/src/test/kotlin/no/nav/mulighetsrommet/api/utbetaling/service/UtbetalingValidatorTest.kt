@@ -354,7 +354,7 @@ class UtbetalingValidatorTest : FunSpec({
 
                 test("referanse valg er påkrevd") {
                     UtbetalingValidator.validateUpsertUtbetaling(enkeltplassRequest, enkeltplassCtx) shouldBeLeft listOf(
-                        FieldError.of("Du må oppgi en referanse til mottaker", UtbetalingRequest::referanse),
+                        FieldError.of("Betalingsinformasjon må legges til av arrangør", UtbetalingRequest::referanse),
                     )
                 }
 
