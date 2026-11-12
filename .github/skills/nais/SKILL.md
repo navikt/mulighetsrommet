@@ -104,7 +104,7 @@ Common anti-patterns:
 ```yaml
 gcp:
   sqlInstances:
-    - type: POSTGRES_15
+    - type: POSTGRES_18
       databases:
         - name: myapp-db
           envVarPrefix: DB
@@ -119,7 +119,7 @@ kafka:
   pool: nav-dev # or nav-prod
 ```
 
-### Azure AD Authentication
+### Entra ID Authentication
 
 ```yaml
 azure:
@@ -143,7 +143,14 @@ accessPolicy:
     rules:
       - application: downstream-app
         namespace: downstream-namespace
+    external:
+      - host: api.example.com
+      - host: db.example.com
+        ports:
+          - port: 5432
 ```
+
+Egress to hosts outside the cluster is blocked unless listed in `outbound.external` or on the [Nais default allow-list](https://doc.nais.io/workloads/reference/access-policies/) (Google APIs, Microsoft login/Graph, Aiven). Use `host` (no `https://`) or `ipv4`, not both. Add `ports` for protocols other than HTTPS.
 
 ### Ingress Configuration
 
