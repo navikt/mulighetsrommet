@@ -59,6 +59,7 @@ dependencies {
     implementation(projects.common.brreg)
     testImplementation(testFixtures(projects.common.brreg))
     implementation(projects.common.kafka)
+    implementation(projects.common.maam)
     implementation(projects.common.ktor)
     testImplementation(testFixtures(projects.common.ktor))
     implementation(projects.common.ktorClients)

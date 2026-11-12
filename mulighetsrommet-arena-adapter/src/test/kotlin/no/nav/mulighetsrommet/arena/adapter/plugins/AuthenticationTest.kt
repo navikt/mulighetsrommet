@@ -10,7 +10,7 @@ import no.nav.security.mock.oauth2.MockOAuth2Server
 
 class AuthenticationTest : FunSpec({
     val oauth = MockOAuth2Server()
-    val apiUrl = "/topics"
+    val apiUrl = "/kafka/consumers"
 
     beforeSpec {
         oauth.start()

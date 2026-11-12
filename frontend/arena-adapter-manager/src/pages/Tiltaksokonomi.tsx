@@ -1,11 +1,11 @@
-import TopicOverview from "../sections/TopicOverview";
+import KafkaConsumersOverview from "../sections/KafkaConsumersOverview";
 import { ApiBase } from "../core/api.tsx";
 import FailedKafkaConsumerRecordsOverview from "../sections/FailedKafkaConsumerRecordsOverview.tsx";
 
 export function Tiltaksokonomi() {
   return (
     <>
-      <TopicOverview base={ApiBase.TILTAKSOKONOMI} />
+      <KafkaConsumersOverview base={ApiBase.TILTAKSOKONOMI} />
       <FailedKafkaConsumerRecordsOverview base={ApiBase.TILTAKSOKONOMI} />
     </>
   );

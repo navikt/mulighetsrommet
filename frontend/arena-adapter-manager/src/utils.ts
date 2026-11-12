@@ -1,9 +1,7 @@
 export function isDevelopment() {
   const hostname = window.location.hostname;
   return (
-    hostname.endsWith(".intern.dev.nav.no") ||
-    hostname === "localhost" ||
-    hostname === "127.0.0.1"
+    hostname.endsWith(".intern.dev.nav.no") || hostname === "localhost" || hostname === "127.0.0.1"
   );
 }
 

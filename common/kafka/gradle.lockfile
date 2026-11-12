@@ -242,7 +242,6 @@ org.jetbrains.kotlin:kotlin-scripting-common:2.4.21=kotlinCompilerPluginClasspat
 org.jetbrains.kotlin:kotlin-scripting-compiler-embeddable:2.4.21=kotlinCompilerPluginClasspathMain,kotlinCompilerPluginClasspathTest
 org.jetbrains.kotlin:kotlin-scripting-compiler-impl-embeddable:2.4.21=kotlinCompilerPluginClasspathMain,kotlinCompilerPluginClasspathTest
 org.jetbrains.kotlin:kotlin-scripting-jvm:2.4.21=kotlinCompilerPluginClasspathMain,kotlinCompilerPluginClasspathTest
-org.jetbrains.kotlin:kotlin-serialization-compiler-plugin-embeddable:2.4.21=kotlinCompilerPluginClasspathMain,kotlinCompilerPluginClasspathTest
 org.jetbrains.kotlin:kotlin-stdlib-common:2.2.21=ktlintReporter
 org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.0=ktlintReporter
 org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.21=runtimeClasspath,testRuntimeClasspath
