@@ -82,7 +82,6 @@ class SafJournalpostValidator(
         forventetBruker: ForventetBruker,
         accessType: AccessType,
     ): Either<JournalpostValideringError, Unit> = when (bruker?.type) {
-        // TODO: Ikke helt sikker på at dette alltid skal være en feil, men vi kan vel begynne med det
         null -> JournalpostValideringError.IngenTilknytning.left()
 
         SafBrukerIdType.FNR ->

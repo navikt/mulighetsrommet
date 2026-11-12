@@ -18,24 +18,16 @@ import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandlingStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskLocalDateTime
-import no.nav.mulighetsrommet.featuretoggle.model.FeatureToggle
-import no.nav.mulighetsrommet.featuretoggle.service.FeatureToggleService
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Tiltakskode
 import java.util.UUID
 
-class OppgaverService(val db: ApiDatabase, private val features: FeatureToggleService) {
+class OppgaverService(val db: ApiDatabase) {
     fun getOppgavetyper(ansatt: NavAnsatt): List<OppgaveTypeDto> {
         val roller = ansatt.roller.map { it.rolle }.toSet()
 
         return OppgaveType.entries
             .filter { it.roller.intersect(roller).isNotEmpty() }
-            .filter {
-                isEnkeltplassEnabled() || it.kategori !in setOf(
-                    Kategori.ENKELTPLASS,
-                    Kategori.TILSKUDDBEHANDLING,
-                )
-            }
             .map { OppgaveTypeDto(navn = it.navn, type = it) }
     }
 
@@ -105,7 +97,7 @@ class OppgaverService(val db: ApiDatabase, private val features: FeatureToggleSe
                     ),
                 )
             }
-            if (isEnkeltplassEnabled() && (oppgavetyper.isEmpty() || oppgavetyper.any { it.kategori == Kategori.ENKELTPLASS })) {
+            if (oppgavetyper.isEmpty() || oppgavetyper.any { it.kategori == Kategori.ENKELTPLASS }) {
                 addAll(
                     enkeltplassOppgaver(
                         tiltakskoder = tiltakskoder,
@@ -129,8 +121,6 @@ class OppgaverService(val db: ApiDatabase, private val features: FeatureToggleSe
 
         return oppgaver.filter { oppgavetyper.isEmpty() || it.type in oppgavetyper }
     }
-
-    private fun isEnkeltplassEnabled(): Boolean = features.isEnabled(FeatureToggle.TILTAKSADMINISTRASJON_ENKELTPLASS_FILTER)
 
     private fun QueryContext.tilsagnOppgaver(
         tiltakskoder: Set<Tiltakskode>,

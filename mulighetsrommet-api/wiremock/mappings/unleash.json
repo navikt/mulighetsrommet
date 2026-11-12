@@ -14,16 +14,6 @@
           "strategies": []
         },
         {
-          "name": "tiltaksadministrasjon.enkeltplass-filter",
-          "enabled": true,
-          "strategies": []
-        },
-        {
-          "name": "tiltaksadministrasjon.vis-tilskuddsbehandling",
-          "enabled": true,
-          "strategies": []
-        },
-        {
           "name": "tiltaksadministrasjon.avbryt-utbetaling-handling",
           "enabled": true,
           "strategies": []

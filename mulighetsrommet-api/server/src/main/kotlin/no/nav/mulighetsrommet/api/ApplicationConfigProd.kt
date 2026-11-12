@@ -53,13 +53,13 @@ val ApplicationConfigProd = AppConfig(
                 Tiltakskode.OPPFOLGING to admin + modia + migrert,
                 Tiltakskode.STUDIESPESIALISERING to admin + modia + migrert,
                 Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET to admin + modia + migrert,
+                Tiltakskode.HOYERE_YRKESFAGLIG_UTDANNING to admin + modia + migrert,
 
                 Tiltakskode.TILRETTELAGT_ARBEID_ORDINAER to admin + modia,
 
                 Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING to admin + modia,
                 Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING to admin + modia,
                 Tiltakskode.HOYERE_UTDANNING to admin + modia,
-                Tiltakskode.HOYERE_YRKESFAGLIG_UTDANNING to admin + modia,
 
                 Tiltakskode.ARBEIDSTRENING to admin + modia,
                 Tiltakskode.MIDLERTIDIG_LONNSTILSKUDD to admin + modia,
@@ -97,6 +97,7 @@ val ApplicationConfigProd = AppConfig(
                 Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV to Periode(LocalDate.of(2026, 1, 1), slutt),
                 Tiltakskode.STUDIESPESIALISERING to Periode(LocalDate.of(2026, 1, 1), slutt),
                 Tiltakskode.FAG_OG_YRKESOPPLAERING to Periode(LocalDate.of(2026, 1, 1), slutt),
+                Tiltakskode.HOYERE_YRKESFAGLIG_UTDANNING to Periode(LocalDate.of(2026, 1, 1), slutt),
             ),
             tidligstTidspunktForUtbetaling = tidligstTidspunktForUtbetalingProd,
         )

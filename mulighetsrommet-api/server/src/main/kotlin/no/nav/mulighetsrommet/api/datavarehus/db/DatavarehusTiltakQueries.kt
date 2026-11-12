@@ -32,7 +32,6 @@ class DatavarehusTiltakQueries(private val session: Session) {
 
         val dto = session.single(queryOf(query, id)) { it.toDatavarehusTiltakDto() } ?: return null
 
-        // TODO: inkluder utdanningsløp/amo-kategorisering når vi har dette for enkeltplasser
         return when (dto.tiltakskode) {
             Tiltakskode.FAG_OG_YRKESOPPLAERING,
             Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING,
