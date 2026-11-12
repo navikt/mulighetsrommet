@@ -37,6 +37,6 @@
     }
   ],
   "overrides": [
-    ".github/skills/kotlin-test/SKILL.md"
+    ".github/skills/test-best-practices/SKILL.md"
   ]
 }
