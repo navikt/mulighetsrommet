@@ -1,3 +1,5 @@
+@file:UseSerializers(InstantSerializer::class, UUIDSerializer::class)
+
 package no.nav.mulighetsrommet.altinn
 
 import arrow.core.Either
@@ -9,15 +11,18 @@ import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.get
+import io.ktor.client.request.parameter
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
+import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.UseSerializers
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
 import no.nav.mulighetsrommet.serializers.InstantSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -73,6 +78,10 @@ class AltinnCorrespondenceClient(
             setBody(request)
         }
 
+        if (response.status == HttpStatusCode.Conflict) {
+            return hentEksisterendeKorrespondanse(request)
+        }
+
         if (!response.status.isSuccess()) {
             log.warn("Feil fra Altinn ved oppretting av korrespondanse: ${response.status} ${response.bodyAsText()}")
             return AltinnCorrespondenceError("Feil fra Altinn ved oppretting av korrespondanse: ${response.status}").left()
@@ -81,6 +90,27 @@ class AltinnCorrespondenceClient(
         val body = response.body<AltinnCorrespondenceResponse>()
         val correspondenceId = body.correspondences.firstOrNull()?.correspondenceId
             ?: return AltinnCorrespondenceError("Tomt svar fra Altinn korrespondanse-API").left()
+
+        return correspondenceId.right()
+    }
+
+    private suspend fun hentEksisterendeKorrespondanse(
+        request: AltinnCorrespondenceRequest,
+    ): Either<AltinnCorrespondenceError, UUID> {
+        val response = client.get("$baseUrl/correspondence/api/v1/correspondence") {
+            bearerAuth(tokenProvider.exchange(AccessType.M2M))
+            parameter("resourceId", request.correspondence.resourceId)
+            parameter("role", "Sender")
+            parameter("idempotentKey", request.idempotentKey)
+        }
+
+        if (!response.status.isSuccess()) {
+            log.warn("Feil fra Altinn ved henting av eksisterende korrespondanse: ${response.status} ${response.bodyAsText()}")
+            return AltinnCorrespondenceError("Feil fra Altinn ved henting av eksisterende korrespondanse: ${response.status}").left()
+        }
+
+        val correspondenceId = response.body<AltinnCorrespondenceIdsResponse>().ids.singleOrNull()
+            ?: return AltinnCorrespondenceError("Fant ikke entydig korrespondanse for idempotensnøkkel ${request.idempotentKey}").left()
 
         return correspondenceId.right()
     }
@@ -197,11 +227,7 @@ data class AltinnVedleggStatusResponse(
 data class AltinnCorrespondenceRequest(
     val correspondence: AltinnCorrespondenceBase,
     val recipients: List<String>,
-    val existingAttachments: List<
-        @Serializable(with = UUIDSerializer::class)
-        UUID,
-        >,
-    @Serializable(with = UUIDSerializer::class)
+    val existingAttachments: List<UUID>,
     val idempotentKey: UUID,
 )
 
@@ -211,10 +237,8 @@ data class AltinnCorrespondenceBase(
     val sendersReference: String,
     val messageSender: String,
     val content: AltinnCorrespondenceContent,
-    @Serializable(with = InstantSerializer::class)
     val requestedPublishTime: Instant,
     val notification: AltinnCorrespondenceNotification,
-    @Serializable(with = InstantSerializer::class)
     val allowSystemDeleteAfter: Instant,
 )
 
@@ -240,7 +264,11 @@ data class AltinnCorrespondenceResponse(
 ) {
     @Serializable
     data class Correspondence(
-        @Serializable(with = UUIDSerializer::class)
         val correspondenceId: UUID,
     )
 }
+
+@Serializable
+data class AltinnCorrespondenceIdsResponse(
+    val ids: List<UUID>,
+)
