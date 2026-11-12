@@ -5,6 +5,7 @@ import {
   UtbetalingKompaktDto,
   UtbetalingHandling,
   UtbetalingLinjeDto,
+  UtbetalingVedleggDto,
 } from "@tiltaksadministrasjon/api-client";
 import { http, HttpResponse, PathParams } from "msw";
 import {
@@ -16,6 +17,10 @@ import {
 import { mockTilsagn } from "../fixtures/mock_tilsagn";
 
 export const utbetalingHandlers = [
+  http.get<PathParams, PathParams, UtbetalingVedleggDto[]>(
+    "*/api/tiltaksadministrasjon/utbetaling/:id/vedlegg",
+    () => HttpResponse.json([]),
+  ),
   http.get<PathParams, PathParams, UtbetalingKompaktDto[]>(
     "*/api/tiltaksadministrasjon/utbetaling",
     () => {

@@ -27,7 +27,9 @@ export function ForhandsvisningPdf({ blob, isLoading, isError, title }: Props) {
   return (
     <VStack align="center">
       {isLoading && <Loader size="xlarge" title="Laster PDF..." />}
-      {isError && <InlineMessage status="error">Kunne ikke laste vedtaksbrevet.</InlineMessage>}
+      {isError && (
+        <InlineMessage status="error">Kunne ikke laste PDF-en. Prøv igjen.</InlineMessage>
+      )}
       {blobUrl && <iframe src={blobUrl} title={title} className="w-full h-screen" />}
     </VStack>
   );

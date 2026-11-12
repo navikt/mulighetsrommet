@@ -10,6 +10,7 @@ import {
   OpprettUtbetalingLinjerRequest,
   FieldError,
   UtbetalingStatusAarsak,
+  UtbetalingVedleggDto,
 } from "@tiltaksadministrasjon/api-client";
 import { formaterValutaBelop } from "@mr/frontend-common/utils/utils";
 import {
@@ -52,6 +53,7 @@ import { BetalingsinformasjonDetaljer } from "@/components/utbetaling/Betalingsi
 import { useState } from "react";
 import {
   FileCheckmarkIcon,
+  FilePdfIcon,
   PencilIcon,
   PiggybankIcon,
   PlusCircleIcon,
@@ -70,6 +72,8 @@ import { TotrinnskontrollUtbetalingAvbrytelse } from "@/components/totrinnskontr
 import { TotrinnsBegrunnelse } from "@mr/frontend-common/components/TotrinnsBegrunnelse";
 import { aarsakTilTekst } from "@/utils/Utils";
 import { BekreftAvbrytelseModal } from "@/components/utbetaling/BekreftAvbrytelseModal";
+import { useVedleggForUtbetaling } from "@/api/utbetaling/useVedleggPdfBlob";
+import { UtbetalingVedleggModal } from "./UtbetalingVedleggModal";
 
 function useUtbetalingDetaljerData() {
   const { utbetalingId } = useRequiredParams(["utbetalingId"]);
@@ -82,9 +86,11 @@ export function UtbetalingDetaljerPage() {
   const navigate = useNavigate();
   const [errors, setErrors] = useState<FieldError[]>([]);
   const [modalVariant, setModalVariant] = useState<UtbetalingHandling | null>(null);
+  const [valgtVedlegg, setValgtVedlegg] = useState<UtbetalingVedleggDto | null>(null);
 
   const { utbetaling, handlinger, beregning } = useUtbetalingDetaljerData();
   const { data: utbetalingLinjer } = useUtbetalingsLinjer(utbetaling.id);
+  const { data: vedlegg = [] } = useVedleggForUtbetaling(utbetaling.id);
 
   const { gjennomforingId, periode, tilskuddstype } = utbetaling;
 
@@ -274,21 +280,43 @@ export function UtbetalingDetaljerPage() {
                     value={utbetaling.kommentar}
                   />
                 )}
+                {utbetaling.status.type === UtbetalingStatusDtoType.AVBRUTT_AV_NAV &&
+                  utbetaling.avbrytelse && (
+                    <>
+                      <Separator />
+                      <TotrinnsBegrunnelse
+                        title="Begrunnelse for avbrytelse"
+                        aarsaker={utbetaling.avbrytelse.behandling.aarsaker.map((arsak) =>
+                          aarsakTilTekst(arsak as UtbetalingStatusAarsak),
+                        )}
+                        begrunnelse={utbetaling.avbrytelse.behandling.begrunnelse}
+                      />
+                    </>
+                  )}
+                {vedlegg.length > 0 && (
+                  <Box>
+                    <Heading size="medium" level="3" spacing>
+                      Vedlegg
+                    </Heading>
+                    <VStack gap="space-16">
+                      {vedlegg.map((vedlegg) => (
+                        <Button
+                          key={vedlegg.dokumentInfoId}
+                          type="button"
+                          variant="tertiary"
+                          size="small"
+                          onClick={() => setValgtVedlegg(vedlegg)}
+                          className="self-start"
+                          icon={<FilePdfIcon aria-hidden />}
+                        >
+                          {vedlegg.tittel || "Vedlegg"}
+                        </Button>
+                      ))}
+                    </VStack>
+                  </Box>
+                )}
               </VStack>
             </Box>
-            {utbetaling.status.type === UtbetalingStatusDtoType.AVBRUTT_AV_NAV &&
-              utbetaling.avbrytelse && (
-                <>
-                  <Separator />
-                  <TotrinnsBegrunnelse
-                    title="Begrunnelse for avbrytelse"
-                    aarsaker={utbetaling.avbrytelse.behandling.aarsaker.map((arsak) =>
-                      aarsakTilTekst(arsak as UtbetalingStatusAarsak),
-                    )}
-                    begrunnelse={utbetaling.avbrytelse.behandling.begrunnelse}
-                  />
-                </>
-              )}
           </TwoColumnGrid>
         </HGrid>
         <UtbetalingBeregningView
@@ -350,6 +378,13 @@ export function UtbetalingDetaljerPage() {
             utbetalingId={utbetaling.id}
             open={modalVariant === UtbetalingHandling.SLETT}
             onClose={() => setModalVariant(null)}
+          />
+          <UtbetalingVedleggModal
+            open={valgtVedlegg !== null}
+            onClose={() => setValgtVedlegg(null)}
+            dokumentInfoId={valgtVedlegg?.dokumentInfoId ?? ""}
+            utbetalingId={utbetaling.id}
+            title={valgtVedlegg?.tittel || "Vedlegg"}
           />
         </HStack>
       </VStack>

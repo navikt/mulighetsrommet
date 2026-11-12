@@ -16,6 +16,7 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
+import io.mockk.clearMocks
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
@@ -30,6 +31,11 @@ import no.nav.mulighetsrommet.admin.journalpost.ForventetBruker
 import no.nav.mulighetsrommet.admin.journalpost.JournalpostValidator
 import no.nav.mulighetsrommet.admin.journalpost.JournalpostValidator.JournalpostValideringError
 import no.nav.mulighetsrommet.api.ApplicationConfigTest
+import no.nav.mulighetsrommet.api.clients.saf.SafClient
+import no.nav.mulighetsrommet.api.clients.saf.SafDokument
+import no.nav.mulighetsrommet.api.clients.saf.SafDokumentvariant
+import no.nav.mulighetsrommet.api.clients.saf.SafError
+import no.nav.mulighetsrommet.api.clients.saf.SafJournalpost
 import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsattRolle
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
@@ -58,6 +64,7 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAnnenAvtaltPris
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.ArrangorReferanseType
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingRequest
+import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingVedleggDto
 import no.nav.mulighetsrommet.api.utbetaling.api.ValutaBelopRequest
 import no.nav.mulighetsrommet.api.utbetaling.model.OpprettUtbetalingLinje
 import no.nav.mulighetsrommet.api.utbetaling.model.OpprettUtbetalingLinjer
@@ -127,12 +134,14 @@ class AdminUtbetalingServiceTest : FunSpec({
         tilsagnService: TilsagnService = createTilsagnService(),
         tidligstTidspunktForUtbetaling: TidligstTidspunktForUtbetalingCalculator = umiddelbarUtbetaling,
         journalpostValidator: JournalpostValidator = FormatJournalpostValidator,
+        safClient: SafClient = mockk(),
     ): AdminUtbetalingService {
         val utbetalingService = createInnerUtbetalingService(tilsagnService, tidligstTidspunktForUtbetaling)
         return AdminUtbetalingService(
             db = database.api,
             utbetalingService = utbetalingService,
             journalpostValidator = journalpostValidator,
+            safClient = safClient,
             today = { LocalDate.of(2025, 1, 10) },
         )
     }
@@ -167,6 +176,155 @@ class AdminUtbetalingServiceTest : FunSpec({
     )
 
     val utbetalingsDato = LocalDate.of(2025, 1, 12)
+
+    context("PDF-vedlegg") {
+        val journalpostId = JournalpostId("453857496")
+        val safClient = mockk<SafClient>()
+        val service = createUtbetalingService(safClient = safClient)
+        val journalpost = SafJournalpost(
+            journalpostId = journalpostId.value,
+            dokumenter = listOf(
+                SafDokument(
+                    dokumentInfoId = "111",
+                    tittel = "Faktura",
+                    dokumentvarianter = listOf(
+                        SafDokumentvariant("ARKIV", "PDF", true),
+                        SafDokumentvariant("ORIGINAL", "PDF", true),
+                    ),
+                ),
+                SafDokument(
+                    dokumentInfoId = "222",
+                    tittel = "Vedlegg",
+                    dokumentvarianter = listOf(
+                        SafDokumentvariant("ARKIV", "PDF", true),
+                        SafDokumentvariant("SLADDET", "PDF", true),
+                    ),
+                ),
+                SafDokument(
+                    dokumentInfoId = "333",
+                    dokumentvarianter = listOf(SafDokumentvariant("ARKIV", "PDF", false)),
+                ),
+                SafDokument(
+                    dokumentInfoId = "444",
+                    dokumentvarianter = listOf(SafDokumentvariant("ORIGINAL", "DOCX", true)),
+                ),
+            ),
+        )
+
+        beforeEach {
+            clearMocks(safClient)
+            MulighetsrommetTestDomain(
+                ansatte = listOf(saksbehandler, enkeltplassSaksbehandler),
+                avtaler = listOf(AvtaleFixtures.AFT),
+                gjennomforinger = listOf(AFT1),
+                utbetalinger = listOf(utbetaling1.copy(journalpostId = journalpostId)),
+            ).initialize(database.api)
+            coEvery {
+                safClient.hentDokumenterForJournalpost(
+                    journalpostId.value,
+                    AccessType.M2M,
+                )
+            } returns journalpost.right()
+        }
+
+        test("lister hvert tilgjengelige PDF-dokument én gang uten å hente filene") {
+            service.hentVedleggForUtbetaling(utbetaling1.id, AccessType.M2M).shouldBeRight(
+                listOf(
+                    UtbetalingVedleggDto("111", "Faktura", "ARKIV"),
+                    UtbetalingVedleggDto("222", "Vedlegg", "SLADDET"),
+                ),
+            )
+            coVerify(exactly = 0) { safClient.hentDokument(any(), any(), any(), any()) }
+        }
+
+        test("foretrekker sladdet PDF fra utbetalingens journalpost") {
+            coEvery { safClient.hentDokument("453857496", "222", "SLADDET", AccessType.M2M) } returns byteArrayOf(
+                1,
+                2,
+                3,
+            ).right()
+
+            service.hentVedleggPdf(utbetaling1.id, "222", AccessType.M2M)
+                .shouldBeRight().toList() shouldBe listOf<Byte>(1, 2, 3)
+            coVerify(exactly = 1) { safClient.hentDokument("453857496", "222", "SLADDET", AccessType.M2M) }
+        }
+
+        test("bruker innlogget brukers token til både metadata og dokument") {
+            val accessType = AccessType.OBO.AzureAd("brukertoken")
+            coEvery {
+                safClient.hentDokumenterForJournalpost(
+                    journalpostId.value,
+                    accessType,
+                )
+            } returns journalpost.right()
+            coEvery { safClient.hentDokument("453857496", "111", "ARKIV", accessType) } returns byteArrayOf(1).right()
+
+            service.hentVedleggForUtbetaling(utbetaling1.id, accessType).shouldBeRight()
+            service.hentVedleggPdf(utbetaling1.id, "111", accessType).shouldBeRight()
+
+            coVerify(exactly = 2) { safClient.hentDokumenterForJournalpost("453857496", accessType) }
+            coVerify(exactly = 1) { safClient.hentDokument("453857496", "111", "ARKIV", accessType) }
+        }
+
+        for (dokumentInfoId in listOf("999", "333", "444")) {
+            test("avviser dokument $dokumentInfoId uten tilgjengelig PDF før filen hentes") {
+                service.hentVedleggPdf(utbetaling1.id, dokumentInfoId, AccessType.M2M)
+                    .shouldBeLeft().shouldBeTypeOf<UtbetalingError.NotFound>()
+                coVerify(exactly = 0) { safClient.hentDokument(any(), any(), any(), any()) }
+            }
+        }
+
+        test("returnerer tom liste når journalposten ikke har PDF-dokumenter") {
+            coEvery {
+                safClient.hentDokumenterForJournalpost(journalpostId.value, AccessType.M2M)
+            } returns SafJournalpost(journalpostId.value).right()
+
+            service.hentVedleggForUtbetaling(utbetaling1.id, AccessType.M2M)
+                .shouldBeRight().shouldBeEmpty()
+        }
+
+        test("returnerer tom liste når ingen PDF-dokumenter er tilgjengelige") {
+            coEvery {
+                safClient.hentDokumenterForJournalpost(journalpostId.value, AccessType.M2M)
+            } returns SafJournalpost(
+                journalpostId.value,
+                dokumenter = listOf(
+                    SafDokument("333", dokumentvarianter = listOf(SafDokumentvariant("ARKIV", "PDF", false))),
+                    SafDokument("444", dokumentvarianter = listOf(SafDokumentvariant("ORIGINAL", "DOCX", true))),
+                ),
+            ).right()
+
+            service.hentVedleggForUtbetaling(utbetaling1.id, AccessType.M2M)
+                .shouldBeRight().shouldBeEmpty()
+        }
+
+        test("returnerer tom liste når SAF nekter tilgang til journalposten") {
+            coEvery {
+                safClient.hentDokumenterForJournalpost(journalpostId.value, AccessType.M2M)
+            } returns SafError.Forbidden.left()
+
+            service.hentVedleggForUtbetaling(utbetaling1.id, AccessType.M2M)
+                .shouldBeRight().shouldBeEmpty()
+        }
+
+        test("returnerer tom liste når utbetalingen ikke har journalpost") {
+            val id = UUID.randomUUID()
+            database.api.transaction { queries.utbetaling.upsert(utbetaling1.copy(id = id)) }
+
+            service.hentVedleggForUtbetaling(id, AccessType.M2M)
+                .shouldBeRight().shouldBeEmpty()
+            coVerify(exactly = 0) { safClient.hentDokumenterForJournalpost(any(), any()) }
+        }
+
+        test("returnerer NotFound ved PDF-henting når utbetalingen ikke har journalpost") {
+            val id = UUID.randomUUID()
+            database.api.transaction { queries.utbetaling.upsert(utbetaling1.copy(id = id)) }
+
+            service.hentVedleggPdf(id, "111", AccessType.M2M)
+                .shouldBeLeft().shouldBeTypeOf<UtbetalingError.NotFound>()
+            coVerify(exactly = 0) { safClient.hentDokument(any(), any(), any(), any()) }
+        }
+    }
 
     context("opprett og rediger utbetaling") {
         val upsert = UtbetalingRequest(

@@ -68,7 +68,7 @@ class SafJournalpostValidator(
             .mapLeft {
                 when (it) {
                     SafError.NotFound -> JournalpostValideringError.NotFound
-                    SafError.Error -> JournalpostValideringError.SafError
+                    SafError.Forbidden, SafError.Error -> JournalpostValideringError.SafError
                 }
             }
             .flatMap { journalpost ->

@@ -7,9 +7,12 @@ import io.github.smiley4.ktoropenapi.delete
 import io.github.smiley4.ktoropenapi.get
 import io.github.smiley4.ktoropenapi.post
 import io.github.smiley4.ktoropenapi.put
+import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
+import io.ktor.server.response.respondBytes
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.RoutingContext
 import io.ktor.server.routing.route
@@ -40,6 +43,9 @@ import no.nav.mulighetsrommet.api.utbetaling.service.AdminUtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.api.utbetaling.service.UtbetalingError
 import no.nav.mulighetsrommet.ktor.exception.Forbidden
+import no.nav.mulighetsrommet.ktor.exception.NotFound
+import no.nav.mulighetsrommet.ktor.exception.toProblemDetail
+import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.model.Tiltakskode
@@ -296,6 +302,73 @@ fun Route.utbetalingRoutes() {
                     .mapLeft { toProblemDetail(it) }
 
                 call.respondWithStatusResponse(result)
+            }
+            get("/vedlegg", {
+                description = "Hent tilgjengelige PDF-vedlegg fra utbetalingens journalpost"
+                tags = setOf("Utbetaling")
+                operationId = "getUtbetalingVedleggData"
+                request {
+                    pathParameterUuid("id")
+                }
+                response {
+                    code(HttpStatusCode.OK) {
+                        description = "PDF-vedlegg som innlogget bruker har tilgang til"
+                        body<List<UtbetalingVedleggDto>>()
+                    }
+                    default {
+                        description = "Problem details"
+                        body<ProblemDetail>()
+                    }
+                }
+            }) {
+                val id = call.parameters.getOrFail<UUID>("id")
+                val accessType = call.getAccessType().requireAzureAd()
+
+                call.response.headers.append(HttpHeaders.CacheControl, "no-store")
+                val result = utbetalingService.hentVedleggForUtbetaling(id, accessType).mapLeft { toProblemDetail(it) }
+                call.respondWithStatusResponse(result)
+            }
+
+            get("/vedlegg/{dokumentInfoId}/pdf", {
+                description = "Hent et PDF-vedlegg fra utbetalingens journalpost"
+                tags = setOf("Utbetaling")
+                operationId = "getUtbetalingVedleggPdf"
+                request {
+                    pathParameterUuid("id")
+                    pathParameter<String>("dokumentInfoId") {
+                        required = true
+                    }
+                }
+                response {
+                    code(HttpStatusCode.OK) {
+                        description = "Vedlegg-pdf"
+                        body<String> {
+                            mediaTypes(ContentType.Application.Pdf)
+                        }
+                    }
+                    default {
+                        description = "Problem details"
+                        body<ProblemDetail>()
+                    }
+                }
+            }) {
+                val id = call.parameters.getOrFail<UUID>("id")
+                val accessType = call.getAccessType().requireAzureAd()
+
+                call.response.headers.append(HttpHeaders.CacheControl, "no-store")
+                utbetalingService.hentVedleggPdf(
+                    utbetalingId = id,
+                    dokumentInfoId = call.parameters.getOrFail("dokumentInfoId"),
+                    accessType = accessType,
+                )
+                    .onRight { pdfContent ->
+                        call.response.headers.append(
+                            HttpHeaders.ContentDisposition,
+                            "inline; filename=\"utbetaling-vedlegg.pdf\"",
+                        )
+                        call.respondBytes(pdfContent, contentType = ContentType.Application.Pdf)
+                    }
+                    .onLeft { call.respondWithProblemDetail(toProblemDetail(it)) }
             }
         }
 
@@ -627,6 +700,13 @@ private fun toProblemDetail(error: UtbetalingDtoQueryError): ProblemDetail = whe
 
 private fun toProblemDetail(error: UtbetalingError, title: String? = null): ProblemDetail = when (error) {
     is UtbetalingError.ManglerTilgang -> Forbidden(error.message)
+
+    is UtbetalingError.NotFound -> NotFound(error.message)
+
+    UtbetalingError.SafFeil -> HttpStatusCode.BadGateway.toProblemDetail(
+        type = "saf-error",
+        detail = "Kunne ikke hente vedlegg fra SAF. Prøv igjen senere.",
+    )
 
     is UtbetalingError.Valideringsfeil -> if (title == null) {
         ValidationError(errors = error.errors)
