@@ -41,6 +41,21 @@ data class HentJournalpost(
 data class SafJournalpost(
     val journalpostId: String,
     val bruker: SafBruker? = null,
+    val dokumenter: List<SafDokument> = emptyList(),
+)
+
+@Serializable
+data class SafDokument(
+    val dokumentInfoId: String,
+    val tittel: String? = null,
+    val dokumentvarianter: List<SafDokumentvariant>,
+)
+
+@Serializable
+data class SafDokumentvariant(
+    val variantformat: String,
+    val filtype: String,
+    val saksbehandlerHarTilgang: Boolean,
 )
 
 @Serializable
@@ -71,5 +86,6 @@ enum class SafErrorCode {
 
 sealed interface SafError {
     data object NotFound : SafError
+    data object Forbidden : SafError
     data object Error : SafError
 }

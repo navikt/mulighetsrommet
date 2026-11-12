@@ -29,7 +29,7 @@ class JournalpostValidatorTest : FunSpec({
     coEvery { hentIdenterQuery.hentHistoriskeIdenter(any(), any()) } returns PdlError.NotFound.left()
 
     test("journalpost uten bruker er ikke gyldig") {
-        coEvery { saf.hentJournalpost(any(), any()) } returns SafJournalpost("453857496").right()
+        coEvery { saf.hentBrukerForJournalpost(any(), any()) } returns SafJournalpost("453857496").right()
 
         SafJournalpostValidator(saf, hentIdenterQuery).validerJournalpost("453857496", person, AccessType.M2M).shouldBeLeft(
             JournalpostValidator.JournalpostValideringError.IngenTilknytning,
@@ -37,7 +37,7 @@ class JournalpostValidatorTest : FunSpec({
     }
 
     test("journalpost knyttet til riktig person er gyldig") {
-        coEvery { saf.hentJournalpost(any(), any()) } returns SafJournalpost(
+        coEvery { saf.hentBrukerForJournalpost(any(), any()) } returns SafJournalpost(
             "453857496",
             bruker = SafBruker(id = person.norskIdent.value, type = SafBrukerIdType.FNR),
         ).right()
@@ -46,7 +46,7 @@ class JournalpostValidatorTest : FunSpec({
     }
 
     test("journalpost knyttet til feil person gir feil") {
-        coEvery { saf.hentJournalpost(any(), any()) } returns SafJournalpost(
+        coEvery { saf.hentBrukerForJournalpost(any(), any()) } returns SafJournalpost(
             "453857496",
             bruker = SafBruker(id = "10987654321", type = SafBrukerIdType.FNR),
         ).right()
@@ -57,7 +57,7 @@ class JournalpostValidatorTest : FunSpec({
     }
 
     test("journalpost knyttet til riktig virksomhet er gyldig") {
-        coEvery { saf.hentJournalpost(any(), any()) } returns SafJournalpost(
+        coEvery { saf.hentBrukerForJournalpost(any(), any()) } returns SafJournalpost(
             "453857496",
             bruker = SafBruker(id = arrangor.organisasjonsnummer.value, type = SafBrukerIdType.ORGNR),
         ).right()
@@ -66,7 +66,7 @@ class JournalpostValidatorTest : FunSpec({
     }
 
     test("journalpost knyttet til feil virksomhet gir feil") {
-        coEvery { saf.hentJournalpost(any(), any()) } returns SafJournalpost(
+        coEvery { saf.hentBrukerForJournalpost(any(), any()) } returns SafJournalpost(
             "453857496",
             bruker = SafBruker(id = "987654321", type = SafBrukerIdType.ORGNR),
         ).right()
@@ -77,7 +77,7 @@ class JournalpostValidatorTest : FunSpec({
     }
 
     test("journalpost med aktørid veksles til fnr og er gyldig for riktig person") {
-        coEvery { saf.hentJournalpost(any(), any()) } returns SafJournalpost(
+        coEvery { saf.hentBrukerForJournalpost(any(), any()) } returns SafJournalpost(
             "453857496",
             bruker = SafBruker(id = "1000012345678", type = SafBrukerIdType.AKTOERID),
         ).right()
@@ -90,7 +90,7 @@ class JournalpostValidatorTest : FunSpec({
     }
 
     test("journalpost med aktørid som veksles til en annen person gir feil") {
-        coEvery { saf.hentJournalpost(any(), any()) } returns SafJournalpost(
+        coEvery { saf.hentBrukerForJournalpost(any(), any()) } returns SafJournalpost(
             "453857496",
             bruker = SafBruker(id = "1000012345678", type = SafBrukerIdType.AKTOERID),
         ).right()
@@ -105,7 +105,7 @@ class JournalpostValidatorTest : FunSpec({
     }
 
     test("journalpost med aktørid gir feil når pdl-oppslag feiler") {
-        coEvery { saf.hentJournalpost(any(), any()) } returns SafJournalpost(
+        coEvery { saf.hentBrukerForJournalpost(any(), any()) } returns SafJournalpost(
             "453857496",
             bruker = SafBruker(id = "1000012345678", type = SafBrukerIdType.AKTOERID),
         ).right()
@@ -118,7 +118,7 @@ class JournalpostValidatorTest : FunSpec({
     }
 
     test("journalpost på feil format gir feil") {
-        coEvery { saf.hentJournalpost(any(), any()) } returns SafError.NotFound.left()
+        coEvery { saf.hentBrukerForJournalpost(any(), any()) } returns SafError.NotFound.left()
 
         SafJournalpostValidator(saf, hentIdenterQuery).validerJournalpost("finnes-ikke", person, AccessType.M2M).shouldBeLeft(
             JournalpostValidator.JournalpostValideringError.FeilFormat,
@@ -126,7 +126,7 @@ class JournalpostValidatorTest : FunSpec({
     }
 
     test("journalpost som ikke finnes gir feil") {
-        coEvery { saf.hentJournalpost(any(), any()) } returns SafError.NotFound.left()
+        coEvery { saf.hentBrukerForJournalpost(any(), any()) } returns SafError.NotFound.left()
 
         SafJournalpostValidator(saf, hentIdenterQuery).validerJournalpost("123", person, AccessType.M2M).shouldBeLeft(
             JournalpostValidator.JournalpostValideringError.NotFound,
@@ -134,7 +134,7 @@ class JournalpostValidatorTest : FunSpec({
     }
 
     test("feil mot saf gir feil") {
-        coEvery { saf.hentJournalpost(any(), any()) } returns SafError.Error.left()
+        coEvery { saf.hentBrukerForJournalpost(any(), any()) } returns SafError.Error.left()
 
         SafJournalpostValidator(saf, hentIdenterQuery).validerJournalpost("453857496", person, AccessType.M2M).shouldBeLeft(
             JournalpostValidator.JournalpostValideringError.SafError,

@@ -8,12 +8,14 @@ import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.plugins.HttpRequestRetry
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.request.bearerAuth
+import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.appendPathSegments
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
 import no.nav.mulighetsrommet.teamLogsError
 import no.nav.mulighetsrommet.tokenprovider.AccessType
@@ -21,7 +23,7 @@ import no.nav.mulighetsrommet.tokenprovider.TokenProvider
 import org.slf4j.LoggerFactory
 
 /**
- * Klient mot SAF (Sak og arkiv) sitt GraphQL-API.
+ * Klient mot SAF (Sak og arkiv) sine GraphQL- og REST-API-er.
  *
  * Brukes til å slå opp journalposter, blant annet for å verifisere at en
  * oppgitt journalpostId finnes.
@@ -48,12 +50,50 @@ class SafClient(
         }
     }
 
-    suspend fun hentJournalpost(
+    suspend fun hentBrukerForJournalpost(
         journalpostId: String,
         accessType: AccessType,
+    ): Either<SafError, SafJournalpost> = hentJournalpost(journalpostId, accessType, JOURNALPOST_BRUKER_QUERY)
+
+    suspend fun hentDokumenterForJournalpost(
+        journalpostId: String,
+        accessType: AccessType,
+    ): Either<SafError, SafJournalpost> = hentJournalpost(journalpostId, accessType, JOURNALPOST_DOKUMENT_QUERY)
+
+    suspend fun hentDokument(
+        journalpostId: String,
+        dokumentInfoId: String,
+        variantformat: String,
+        accessType: AccessType,
+    ): Either<SafError, ByteArray> {
+        val response = client.get(config.baseUrl) {
+            url {
+                appendPathSegments("rest", "hentdokument", journalpostId, dokumentInfoId, variantformat, encodeSlash = true)
+            }
+            bearerAuth(tokenProvider.exchange(accessType))
+        }
+
+        return when (response.status) {
+            HttpStatusCode.OK -> response.body<ByteArray>().right()
+
+            HttpStatusCode.NotFound -> SafError.NotFound.left()
+
+            HttpStatusCode.Forbidden -> SafError.Forbidden.left()
+
+            else -> {
+                log.error("Uventet svar fra saf ved henting av dokument: ${response.status}")
+                SafError.Error.left()
+            }
+        }
+    }
+
+    private suspend fun hentJournalpost(
+        journalpostId: String,
+        accessType: AccessType,
+        query: String,
     ): Either<SafError, SafJournalpost> {
         val request = GraphqlRequest(
-            query = JOURNALPOST_QUERY,
+            query = query,
             variables = GraphqlRequest.JournalpostId(journalpostId = journalpostId),
         )
 
@@ -63,6 +103,9 @@ class SafClient(
             setBody(request)
         }
 
+        if (response.status == HttpStatusCode.Forbidden) {
+            return SafError.Forbidden.left()
+        }
         if (response.status != HttpStatusCode.OK) {
             log.error("Uventet svar fra saf: ${response.status}")
             return SafError.Error.left()
@@ -77,11 +120,15 @@ class SafClient(
         }
 
         if (graphqlResponse.errors.isNotEmpty()) {
-            return if (graphqlResponse.errors.any { it.extensions?.code == SafErrorCode.NOT_FOUND }) {
-                SafError.NotFound.left()
-            } else {
-                log.error("Feil fra saf: ${graphqlResponse.errors}")
-                SafError.Error.left()
+            return when {
+                graphqlResponse.errors.any { it.extensions?.code == SafErrorCode.NOT_FOUND } -> SafError.NotFound.left()
+
+                graphqlResponse.errors.all { it.extensions?.code == SafErrorCode.FORBIDDEN } -> SafError.Forbidden.left()
+
+                else -> {
+                    log.error("Feil fra saf: ${graphqlResponse.errors}")
+                    SafError.Error.left()
+                }
             }
         }
 
@@ -89,13 +136,30 @@ class SafClient(
     }
 
     companion object {
-        private val JOURNALPOST_QUERY = $$"""
+        private val JOURNALPOST_BRUKER_QUERY = $$"""
             query($journalpostId: String!) {
                 journalpost(journalpostId: $journalpostId) {
                     journalpostId
                     bruker {
                         id
                         type
+                    }
+                }
+            }
+        """.trimIndent()
+
+        private val JOURNALPOST_DOKUMENT_QUERY = $$"""
+            query HentJournalpost($journalpostId: String!) {
+                journalpost(journalpostId: $journalpostId) {
+                    journalpostId
+                    dokumenter {
+                        dokumentInfoId
+                        tittel
+                        dokumentvarianter {
+                            variantformat
+                            filtype
+                            saksbehandlerHarTilgang
+                        }
                     }
                 }
             }

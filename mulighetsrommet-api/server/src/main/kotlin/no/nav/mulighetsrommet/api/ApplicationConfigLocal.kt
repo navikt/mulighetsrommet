@@ -27,6 +27,13 @@ import no.nav.mulighetsrommet.api.clients.msgraph.GetUserSearchResponse
 import no.nav.mulighetsrommet.api.clients.msgraph.MsGraphUserDto
 import no.nav.mulighetsrommet.api.clients.pdl.GraphqlRequest
 import no.nav.mulighetsrommet.api.clients.pdl.GraphqlRequest.Identer
+import no.nav.mulighetsrommet.api.clients.saf.GraphqlResponse
+import no.nav.mulighetsrommet.api.clients.saf.HentJournalpost
+import no.nav.mulighetsrommet.api.clients.saf.SafBruker
+import no.nav.mulighetsrommet.api.clients.saf.SafBrukerIdType
+import no.nav.mulighetsrommet.api.clients.saf.SafDokument
+import no.nav.mulighetsrommet.api.clients.saf.SafDokumentvariant
+import no.nav.mulighetsrommet.api.clients.saf.SafJournalpost
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.clients.tilgangsmaskin.TilgangsmaskinRequest
 import no.nav.mulighetsrommet.api.clients.tilgangsmaskin.TilgangsmaskinResponse
@@ -54,6 +61,7 @@ import org.apache.kafka.common.serialization.ByteArrayDeserializer
 import org.apache.kafka.common.serialization.ByteArraySerializer
 import java.time.LocalDate
 import java.util.UUID
+import no.nav.mulighetsrommet.api.clients.saf.GraphqlRequest as SafGraphqlRequest
 
 private val adGruppeForLokalUtvikling = "52bb9196-b071-4cc7-9472-be4942d33c4b".toUUID()
 
@@ -550,6 +558,54 @@ val ApplicationConfigLocal = AppConfig(
     saf = AuthenticatedHttpClientConfig(
         url = "http://localhost:8090/saf",
         scope = "default",
+        engine = MockEngine { request ->
+            val path = request.url.encodedPath
+            when (request.method) {
+                HttpMethod.Post if path == "/saf/graphql" -> {
+                    val payload = JsonIgnoreUnknownKeys
+                        .decodeFromString<SafGraphqlRequest<SafGraphqlRequest.JournalpostId>>(
+                            (request.body as TextContent).text,
+                        )
+                    respond(
+                        content = Json.encodeToString(
+                            GraphqlResponse(
+                                data = HentJournalpost(
+                                    journalpost = SafJournalpost(
+                                        journalpostId = payload.variables.journalpostId,
+                                        bruker = SafBruker("12345678901", SafBrukerIdType.FNR),
+                                        dokumenter = listOf(
+                                            SafDokument(
+                                                dokumentInfoId = "123456789",
+                                                tittel = "Faktura",
+                                                dokumentvarianter = listOf(SafDokumentvariant("ARKIV", "PDF", true)),
+                                            ),
+                                            SafDokument(
+                                                dokumentInfoId = "987654321",
+                                                tittel = "Vedlegg til faktura",
+                                                dokumentvarianter = listOf(SafDokumentvariant("ARKIV", "PDF", true)),
+                                            ),
+                                        ),
+                                    ),
+                                ),
+                            ),
+                        ),
+                        headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString()),
+                    )
+                }
+
+                HttpMethod.Get if Regex("/saf/rest/hentdokument/[^/]+/(123456789|987654321)/ARKIV").matches(path) ->
+                    respond(
+                        content = checkNotNull(AppConfig::class.java.getResource("/local-saf.pdf"))
+                            .readBytes(),
+                        headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Pdf.toString()),
+                    )
+
+                else -> respondError(
+                    HttpStatusCode.NotFound,
+                    "Mangler MockEngine for SAF: ${request.method.value} $path",
+                )
+            }
+        },
     ),
     validerJournalpostMotSaf = false,
     dokdistfordeling = AuthenticatedHttpClientConfig(
