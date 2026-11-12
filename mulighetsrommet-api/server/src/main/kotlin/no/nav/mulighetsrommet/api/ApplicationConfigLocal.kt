@@ -92,8 +92,8 @@ val ApplicationConfigLocal = AppConfig(
                 Tiltakskode.HOYERE_YRKESFAGLIG_UTDANNING to admin + modia + migrert,
 
                 Tiltakskode.TILRETTELAGT_ARBEID_ORDINAER to admin + modia,
-                Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING to admin + modia,
-                Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING to admin + modia,
+                Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING to admin,
+                Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING to admin,
                 Tiltakskode.HOYERE_UTDANNING to admin + modia,
 
                 Tiltakskode.ARBEIDSTRENING to admin + modia,
