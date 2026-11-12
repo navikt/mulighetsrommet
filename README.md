@@ -180,10 +180,10 @@ på følgende måte (gitt at databasen allerede er klargjort for personlig tilko
 
 ```bash
 # 1a. Enten, gi IAM-brukere lesetilgang til <app> sin database
-nais postgres prepare --environment prod-gcp --team team-mulighetsrommet <app>
+nais cloudsql prepare --environment prod-gcp --team team-mulighetsrommet <app>
 
 # 1b. Alternativt, gi IAM-brukere full tilgang (les, skriv, alter etc.) til <app> sin database
-nais postgres prepare --environment prod-gcp --team team-mulighetsrommet --all-privileges <app>
+nais cloudsql prepare --environment prod-gcp --team team-mulighetsrommet --all-privileges <app>
 
 # 2. Gi deg selv tilgang til <app> sin database, med rettighetene spesifisert fra steg 1.
 nais postgres grant --environment prod-gcp --team team-mulighetsrommet <app>
@@ -191,7 +191,7 @@ nais postgres grant --environment prod-gcp --team team-mulighetsrommet <app>
 # 3. Gjør det du trenger å gjøre...
 
 # 4. Fjern rettighetene til IAM-brukere fra <app> sin database når du er ferdig
-nais postgres revoke --environment prod-gcp --team team-mulighetsrommet <app>
+nais cloudsql revoke --environment prod-gcp --team team-mulighetsrommet <app>
 ```
 
 **MERK:** Hvis du skaffer deg skrivetilgang er det god praksis å avslutte med å kjør `revoke` til slutt, evt. etterfulgt
