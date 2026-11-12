@@ -1,7 +1,7 @@
 import { ScheduledTask } from "src/domain";
 import { JsonOrTextValue } from "../components/JsonOrTextValue";
 import { Section } from "../components/Section";
-import { ApiBase, deleteFailedScheduledTask, putRetryScheduledTask } from "../core/api";
+import { ApiBase, deleteFailedScheduledTask, postRetryScheduledTask } from "../core/api";
 import { useFailedScheduledTasks } from "../core/hooks";
 import { BodyShort, Box, Button, HStack, Label, Table, VStack } from "@navikt/ds-react";
 import { formatUTCDate, isDevelopment } from "../utils";
@@ -27,7 +27,7 @@ function FailedScheduledTasksOverview({ base }: Props) {
 
   async function handleSubmit(previousData: ExecutionTimeData, newTime: Date) {
     setData(null);
-    await putRetryScheduledTask(base, {
+    await postRetryScheduledTask(base, {
       taskName: previousData.taskName,
       taskInstance: previousData.taskInstance,
       executionTime: newTime,

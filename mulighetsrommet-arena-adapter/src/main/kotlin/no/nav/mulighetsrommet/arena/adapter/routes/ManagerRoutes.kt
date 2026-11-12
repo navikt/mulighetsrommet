@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.arena.adapter.routes
 
 import io.ktor.http.HttpStatusCode
+import io.ktor.server.application.install
 import io.ktor.server.application.log
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
@@ -18,7 +19,7 @@ import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEventService
 import no.nav.mulighetsrommet.arena.adapter.tasks.ReplayEvents
 import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
-import no.nav.mulighetsrommet.kafka.Topic
+import no.nav.mulighetsrommet.maam.Maam
 import org.koin.ktor.ext.inject
 
 fun Route.managerRoutes() {
@@ -26,15 +27,10 @@ fun Route.managerRoutes() {
     val arenaEventService: ArenaEventService by inject()
     val replayEvents: ReplayEvents by inject()
 
-    get("/topics") {
-        val topics = kafka.getTopics()
-        call.respond(topics)
-    }
-
-    put("/topics") {
-        val topics = call.receive<List<Topic>>()
-        kafka.updateRunningTopics(topics)
-        call.respond(HttpStatusCode.OK)
+    install(Maam) {
+        kafka(orchestrator = { kafka }) {
+            consumers()
+        }
     }
 
     get("/arena-tables") {

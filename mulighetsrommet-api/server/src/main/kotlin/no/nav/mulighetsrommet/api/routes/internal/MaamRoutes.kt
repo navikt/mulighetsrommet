@@ -1,14 +1,6 @@
 package no.nav.mulighetsrommet.api.routes.internal
 
-import io.ktor.http.HttpStatusCode
-import io.ktor.server.plugins.BadRequestException
-import io.ktor.server.request.receive
-import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
-import io.ktor.server.routing.delete
-import io.ktor.server.routing.get
-import io.ktor.server.routing.post
-import io.ktor.server.routing.put
 import io.ktor.server.routing.route
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.admin.arrangor.SyncArrangor
@@ -20,32 +12,27 @@ import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadGjennomforinger
 import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateGjennomforingAvtaleFreeTextSearch
 import no.nav.mulighetsrommet.api.navansatt.task.SynchronizeNavAnsatte
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
-import no.nav.mulighetsrommet.api.tilsagn.task.SendBekreftelsesbrevSaga
 import no.nav.mulighetsrommet.api.tilskuddbehandling.task.DistribuerVedtaksbrev
 import no.nav.mulighetsrommet.api.tiltakstype.task.InitialLoadTiltakstyper
 import no.nav.mulighetsrommet.api.utbetaling.service.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.task.BeregnUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.task.GenerateUtbetaling
-import no.nav.mulighetsrommet.database.queries.KafkaConsumerRecordDbo
-import no.nav.mulighetsrommet.database.queries.ScheduledTaskDbo
-import no.nav.mulighetsrommet.env.NaisEnv
 import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
-import no.nav.mulighetsrommet.kafka.Topic
+import no.nav.mulighetsrommet.maam.Maam
+import no.nav.mulighetsrommet.maam.TaskResult
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
-import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.utdanning.task.SynchronizeUtdanninger
 import org.koin.ktor.ext.inject
 import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.ZoneOffset
 import java.util.UUID
 
 fun Route.maamRoutes() {
     val db: ApiDatabase by inject()
+    val kafka: KafkaConsumerOrchestrator by inject()
     val arrangor: SyncArrangorUseCase by inject()
     val tilsagnService: TilsagnService by inject()
     val utbetalingService: UtbetalingService by inject()
@@ -57,225 +44,123 @@ fun Route.maamRoutes() {
     val synchronizeUtdanninger: SynchronizeUtdanninger by inject()
     val generateUtbetaling: GenerateUtbetaling by inject()
     val beregnUtbetaling: BeregnUtbetaling by inject()
-    val sendBekreftelsesbrevSaga: SendBekreftelsesbrevSaga by inject()
     val distribuerVedtaksbrev: DistribuerVedtaksbrev by inject()
     val updateGjennomforingAvtaleFreeTextSearch: UpdateGjennomforingAvtaleFreeTextSearch by inject()
     val brukerUtbetalingService: BrukerUtbetalingService by inject()
 
     route("/api/intern/maam") {
-        route("/tasks") {
-            route("/scheduled") {
-                get("failed") {
-                    db.session {
-                        val failedTasks = queries.scheduledTask.getFailedTasks()
-                            .map { it.toDto() }
-                        call.respond(failedTasks)
-                    }
-                }
+        install(Maam) {
+            database = { db.db }
 
-                put("retry") {
-                    val request = call.receive<RetryScheduledTaskRequest>()
-                    db.transaction {
-                        queries.scheduledTask.retryAt(
-                            taskName = request.taskName,
-                            taskInstance = request.taskInstance,
-                            executionTime = request.executionTime.toInstant(ZoneOffset.UTC),
-                        )
-                    }
-                    call.respond(HttpStatusCode.OK)
-                }
+            kafka(orchestrator = { kafka }) {
+                consumers()
+                failedRecords()
+            }
 
-                delete {
-                    if (NaisEnv.current().isProdGCP()) {
-                        return@delete call.respond(HttpStatusCode.Forbidden)
-                    }
-                    val request = call.receive<DeleteScheduledTaskRequest>()
-                    val deleted = db.transaction {
-                        queries.scheduledTask.deleteFailedTask(request.taskName, request.taskInstance)
-                    }
-                    if (deleted == 0) {
-                        call.respond(HttpStatusCode.Conflict, "Task is no longer failed, is running, or does not exist")
+            tasks {
+                scheduled()
+
+                task<StartInitialLoadTiltaksgjennomforingRequest>("initial-load-gjennomforinger") { request ->
+                    val taskId = if (request.id != null) {
+                        val ids = request.id.split(",").map { UUID.fromString(it.trim()) }
+                        initialLoadGjennomforinger.schedule(InitialLoadGjennomforinger.Input(ids = ids))
+                    } else if (request.tiltakstyper != null) {
+                        request.tiltakstyper
+                            .map { tiltakskode ->
+                                val input = InitialLoadGjennomforinger.Input(tiltakskode = tiltakskode)
+                                initialLoadGjennomforinger.schedule(input)
+                            }
+                            .first()
                     } else {
-                        call.respond(HttpStatusCode.NoContent)
+                        return@task TaskResult.Rejected("Ugyldig input")
                     }
-                }
-            }
 
-            post("initial-load-gjennomforinger") {
-                val request = call.receive<StartInitialLoadTiltaksgjennomforingRequest>()
-
-                val taskId = if (request.id != null) {
-                    val ids = request.id.split(",").map { UUID.fromString(it.trim()) }
-                    initialLoadGjennomforinger.schedule(InitialLoadGjennomforinger.Input(ids = ids))
-                } else if (request.tiltakstyper != null) {
-                    request.tiltakstyper
-                        .map { tiltakskode ->
-                            val input = InitialLoadGjennomforinger.Input(tiltakskode = tiltakskode)
-                            initialLoadGjennomforinger.schedule(input)
-                        }
-                        .first()
-                } else {
-                    throw BadRequestException("Ugyldig input")
+                    TaskResult.Scheduled(taskId)
                 }
 
-                call.respond(HttpStatusCode.Accepted, ScheduleTaskResponse(id = taskId))
-            }
-
-            post("initial-load-tiltakstyper") {
-                val taskId = initialLoadTiltakstyper.schedule()
-
-                call.respond(HttpStatusCode.Accepted, ScheduleTaskResponse(id = taskId))
-            }
-
-            post("republish-opprett-bestilling") {
-                val params = call.receive<RepublishOpprettBestillingRequest>()
-
-                val bestillinger = params.bestillingsnummer.split(",").map { it.trim() }
-                val tilsagn = bestillinger.map { bestillingsnummer ->
-                    tilsagnService.republishOpprettBestilling(bestillingsnummer)
+                task("initial-load-tiltakstyper") {
+                    TaskResult.Scheduled(initialLoadTiltakstyper.schedule())
                 }
 
-                val response = ExecutedTaskResponse("Republiserte ${tilsagn.size} tilsagn til økonomi")
-                call.respond(HttpStatusCode.OK, response)
-            }
-
-            post("republish-opprett-faktura") {
-                val params = call.receive<RepublishOpprettFakturaRequest>()
-
-                val fakturaer = params.fakturanummer.split(",").map { it.trim() }
-                val utbetalingLinjer = fakturaer.map { fakturanummer ->
-                    db.transaction { utbetalingService.republishFaktura(fakturanummer) }
-                }
-
-                val response = ExecutedTaskResponse("Republiserte ${utbetalingLinjer.size} fakturaer til økonomi")
-                call.respond(HttpStatusCode.OK, response)
-            }
-
-            post("sync-navansatte") {
-                val taskId = synchronizeNavAnsatte.schedule()
-                call.respond(HttpStatusCode.Accepted, ScheduleTaskResponse(id = taskId))
-            }
-
-            post("sync-utdanning") {
-                synchronizeUtdanninger.syncUtdanninger()
-                call.respond(HttpStatusCode.OK, ExecutedTaskResponse("Synkronisering av utdanning.no OK"))
-            }
-
-            post("sync-arrangorer") {
-                val input = call.receive<SynchronizeArrangorerRequest>()
-
-                input.organisasjonsnummer
-                    .split(",")
-                    .map { Organisasjonsnummer(it.trim()) }
-                    .forEach { arrangor.execute(SyncArrangor(it)) }
-
-                call.respond(HttpStatusCode.OK, ExecutedTaskResponse("Synkronisert! :)"))
-            }
-
-            post("generate-utbetaling") {
-                val request = call.receive<GenerateUtbetalingRequest>()
-                val periode = Periode.forMonthOf(request.date)
-                val utbetalinger = generateUtbetaling.runTask(periode)
-                val response = ExecutedTaskResponse("Genererte ${utbetalinger.size} utbetalinger for periode $periode")
-                call.respond(HttpStatusCode.OK, response)
-            }
-
-            post("regenerer-utbetaling") {
-                val request = call.receive<RegenererUtbetalingRequest>()
-                val utbetaling = arrangorflateUtbetalingService.getOrError(request.utbetalingId)
-
-                arrangorflateUtbetalingService.regenererUtbetaling(utbetaling)
-                    .onLeft { errors ->
-                        val message = errors.joinToString(prefix = "Utbetalingen kan ikke regenereres: ") { it.detail }
-                        call.respond(HttpStatusCode.BadRequest, ExecutedTaskResponse(message))
+                task<RepublishOpprettBestillingRequest>("republish-opprett-bestilling") { params ->
+                    val bestillinger = params.bestillingsnummer.split(",").map { it.trim() }
+                    val tilsagn = bestillinger.map { bestillingsnummer ->
+                        tilsagnService.republishOpprettBestilling(bestillingsnummer)
                     }
-                    .onRight {
-                        val response = ExecutedTaskResponse(
-                            "Regenererte utbetaling med id=${request.utbetalingId} på vegne av arrangør",
-                        )
-                        call.respond(HttpStatusCode.OK, response)
+
+                    TaskResult.Completed("Republiserte ${tilsagn.size} tilsagn til økonomi")
+                }
+
+                task<RepublishOpprettFakturaRequest>("republish-opprett-faktura") { params ->
+                    val fakturaer = params.fakturanummer.split(",").map { it.trim() }
+                    val utbetalingLinjer = fakturaer.map { fakturanummer ->
+                        db.transaction { utbetalingService.republishFaktura(fakturanummer) }
                     }
-            }
 
-            post("beregn-utbetaling") {
-                val request = call.receive<BeregnUtbetalingRequest>()
-                val periode = Periode.forMonthOf(request.date)
-                val id = beregnUtbetaling.schedule(BeregnUtbetaling.Input(periode))
-                val response = ScheduleTaskResponse(id)
-                call.respond(HttpStatusCode.Accepted, response)
-            }
-
-            post("send-bekreftelsesbrev") {
-                val request = call.receive<TilsagnIdRequest>()
-                val taskId = sendBekreftelsesbrevSaga.schedule(request.tilsagnId)
-                call.respond(ScheduleTaskResponse(taskId))
-            }
-
-            post("distribuer-vedtaksbrev") {
-                val request = call.receive<VedtakIdRequest>()
-                val taskId = distribuerVedtaksbrev.schedule(request.vedtakId)
-                call.respond(ScheduleTaskResponse(taskId))
-            }
-
-            post("sync-gjennomforing-avtale-fts") {
-                val taskId = updateGjennomforingAvtaleFreeTextSearch.schedule()
-                call.respond(ScheduleTaskResponse(taskId))
-            }
-
-            post("hel-ved-utbetaling") {
-                val utbetalingId = brukerUtbetalingService.produceTilskuddUtbetalingTest()
-                if (utbetalingId == null) {
-                    call.respond(HttpStatusCode.InternalServerError)
-                } else {
-                    call.respond(ExecutedTaskResponse("Produserte hel ved utbetaling med id=$utbetalingId"))
+                    TaskResult.Completed("Republiserte ${utbetalingLinjer.size} fakturaer til økonomi")
                 }
-            }
-        }
 
-        route("/topics") {
-            val kafka: KafkaConsumerOrchestrator by inject()
-
-            get {
-                val topics = kafka.getTopics()
-                call.respond(topics)
-            }
-
-            put {
-                val topics = call.receive<List<Topic>>()
-                kafka.updateRunningTopics(topics)
-                call.respond(HttpStatusCode.OK)
-            }
-
-            get("/failed-records") {
-                db.session {
-                    val failedRecords = queries.kafkaConsumerRecords.getFailedRecords()
-                        .map { it.toDto() }
-                    call.respond(failedRecords)
+                task("sync-navansatte") {
+                    TaskResult.Scheduled(synchronizeNavAnsatte.schedule())
                 }
-            }
-            put("/failed-records") {
-                val request = call.receive<RetryKafkaRecordRequest>()
-                db.transaction {
-                    queries.kafkaConsumerRecords.retryAt(
-                        request.id,
-                        request.topic,
-                        request.executionTime.toInstant(ZoneOffset.UTC),
+
+                task("sync-utdanning") {
+                    synchronizeUtdanninger.syncUtdanninger()
+                    TaskResult.Completed("Synkronisering av utdanning.no OK")
+                }
+
+                task<SynchronizeArrangorerRequest>("sync-arrangorer") { input ->
+                    input.organisasjonsnummer
+                        .split(",")
+                        .map { Organisasjonsnummer(it.trim()) }
+                        .forEach { arrangor.execute(SyncArrangor(it)) }
+
+                    TaskResult.Completed("Synkronisert! :)")
+                }
+
+                task<GenerateUtbetalingRequest>("generate-utbetaling") { request ->
+                    val periode = Periode.forMonthOf(request.date)
+                    val utbetalinger = generateUtbetaling.runTask(periode)
+                    TaskResult.Completed("Genererte ${utbetalinger.size} utbetalinger for periode $periode")
+                }
+
+                task<RegenererUtbetalingRequest>("regenerer-utbetaling") { request ->
+                    val utbetaling = arrangorflateUtbetalingService.getOrError(request.utbetalingId)
+
+                    arrangorflateUtbetalingService.regenererUtbetaling(utbetaling).fold(
+                        { errors ->
+                            TaskResult.Rejected(
+                                errors.joinToString(prefix = "Utbetalingen kan ikke regenereres: ") { it.detail },
+                            )
+                        },
+                        {
+                            TaskResult.Completed(
+                                "Regenererte utbetaling med id=${request.utbetalingId} på vegne av arrangør",
+                            )
+                        },
                     )
                 }
-                call.respond(HttpStatusCode.OK)
-            }
-            delete("/failed-records") {
-                if (NaisEnv.current().isProdGCP()) {
-                    return@delete call.respond(HttpStatusCode.Forbidden)
+
+                task<BeregnUtbetalingRequest>("beregn-utbetaling") { request ->
+                    val periode = Periode.forMonthOf(request.date)
+                    TaskResult.Scheduled(beregnUtbetaling.schedule(BeregnUtbetaling.Input(periode)))
                 }
-                val request = call.receive<DeleteKafkaRecordRequest>()
-                val deleted = db.transaction {
-                    queries.kafkaConsumerRecords.deleteFailedRecord(request.id, request.topic)
+
+                task<VedtakIdRequest>("distribuer-vedtaksbrev") { request ->
+                    TaskResult.Scheduled(distribuerVedtaksbrev.schedule(request.vedtakId))
                 }
-                if (deleted == 0) {
-                    call.respond(HttpStatusCode.Conflict, "Record is no longer failed or does not exist")
-                } else {
-                    call.respond(HttpStatusCode.NoContent)
+
+                task("sync-gjennomforing-avtale-fts") {
+                    TaskResult.Scheduled(updateGjennomforingAvtaleFreeTextSearch.schedule())
+                }
+
+                task("hel-ved-utbetaling") {
+                    val utbetalingId = brukerUtbetalingService.produceTilskuddUtbetalingTest()
+                    if (utbetalingId == null) {
+                        TaskResult.Forbidden("Hel Ved-testutbetaling er ikke tillatt i produksjon")
+                    } else {
+                        TaskResult.Completed("Produserte hel ved utbetaling med id=$utbetalingId")
+                    }
                 }
             }
         }
@@ -322,116 +207,7 @@ data class SynchronizeArrangorerRequest(
 )
 
 @Serializable
-data class ScheduleTaskResponse(
-    @Serializable(with = UUIDSerializer::class)
-    val id: UUID,
-)
-
-@Serializable
-data class ExecutedTaskResponse(
-    val message: String,
-)
-
-@Serializable
-data class TilsagnIdRequest(
-    @Serializable(with = UUIDSerializer::class)
-    val tilsagnId: UUID,
-)
-
-@Serializable
 data class VedtakIdRequest(
     @Serializable(with = UUIDSerializer::class)
     val vedtakId: UUID,
-)
-
-@Serializable
-data class ScheduledTaskDto(
-    val taskName: String,
-    val taskInstance: String,
-    val taskData: String?,
-    val executionTime: String,
-    val picked: Boolean,
-    val pickedBy: String?,
-    val lastSuccess: String?,
-    val lastFailure: String?,
-    val consecutiveFailures: Int,
-    val lastHeartbeat: String?,
-    val version: Long,
-    val priority: Short?,
-)
-
-fun ScheduledTaskDbo.toDto(): ScheduledTaskDto {
-    return ScheduledTaskDto(
-        taskName = taskName,
-        taskInstance = taskInstance,
-        taskData = taskData?.decodeToString(),
-        executionTime = executionTime.toString(),
-        picked = picked,
-        pickedBy = pickedBy,
-        lastSuccess = lastSuccess?.toString(),
-        lastFailure = lastFailure?.toString(),
-        consecutiveFailures = consecutiveFailures,
-        lastHeartbeat = lastHeartbeat?.toString(),
-        version = version,
-        priority = priority,
-    )
-}
-
-@Serializable
-data class DeleteScheduledTaskRequest(
-    val taskName: String,
-    val taskInstance: String,
-)
-
-@Serializable
-data class RetryScheduledTaskRequest(
-    val taskName: String,
-    val taskInstance: String,
-    @Serializable(with = LocalDateTimeSerializer::class)
-    val executionTime: LocalDateTime,
-)
-
-@Serializable
-data class KafkaConsumerRecordDto(
-    val id: Long,
-    val topic: String,
-    val partition: Int,
-    val recordOffset: Long,
-    val retries: Int,
-    val lastRetry: String?,
-    val key: String?,
-    val value: String?,
-    val headersJson: String?,
-    val recordTimestamp: String?,
-    val createdAt: String,
-)
-
-fun KafkaConsumerRecordDbo.toDto(): KafkaConsumerRecordDto {
-    return KafkaConsumerRecordDto(
-        id = id,
-        topic = topic,
-        partition = partition,
-        recordOffset = recordOffset,
-        retries = retries,
-        lastRetry = lastRetry?.toString(),
-        key = key?.decodeToString(),
-        value = value?.decodeToString(),
-        headersJson = headersJson,
-        recordTimestamp = recordTimestamp?.toString(),
-        createdAt = createdAt.toString(),
-    )
-}
-
-@Serializable
-data class DeleteKafkaRecordRequest(
-    val id: Long,
-    val topic: String,
-)
-
-@Serializable
-data class RetryKafkaRecordRequest(
-    val id: Long,
-    val topic: String,
-    @Serializable(with = LocalDateTimeSerializer::class)
-    val executionTime: LocalDateTime,
 )
