@@ -117,6 +117,12 @@ spec:
           permissions:
             roles:
               - tiltakshistorikk-read
+        - application: paw-arbeidssoekerregisteret-tiltak-kafka-adapter
+          namespace: paw
+          cluster: dev-gcp
+          permissions:
+            roles:
+              - tiltakshistorikk-read
     outbound:
       external:
         - host: data.brreg.no
