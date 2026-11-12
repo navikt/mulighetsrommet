@@ -213,7 +213,7 @@ class SafClientTest : FunSpec({
                                 {
                                     "data": { "journalpost": null },
                                     "errors": [
-                                        { "extensions": { "code": "forbidden" } }
+                                        { "extensions": { "code": "server_error" } }
                                     ]
                                 }
                             """.trimIndent(),
