@@ -35,5 +35,8 @@
       "hash": "6c2dc64c5fe6b81e",
       "revision": "e493cefdc144fb09b1824dc56fcfbc28130c2c9a"
     }
+  ],
+  "overrides": [
+    ".github/skills/kotlin-test/SKILL.md"
   ]
 }
