@@ -68,11 +68,11 @@ data class UpsertEnkeltplass(
 
         data class TilskuddTilOpplaering(
             val tilskudd: Map<Opplaeringtilskudd.Kode, Int>,
-            val tilleggsopplysninger: String?,
+            val prisbetingelser: String?,
         ) : UpsertEnkeltplass.Prismodell
 
         data class IngenKostnader(
-            val tilleggsopplysninger: String,
+            val prisbetingelser: String,
         ) : UpsertEnkeltplass.Prismodell
     }
 }
@@ -691,14 +691,14 @@ class GjennomforingEnkeltplassService(
         is UpsertEnkeltplass.Prismodell.TilskuddTilOpplaering -> Prismodell.TilskuddTilOpplaering(
             id = id,
             valuta = Valuta.NOK,
-            tilleggsopplysninger = prismodell.tilleggsopplysninger,
+            prisbetingelser = prismodell.prisbetingelser,
             tilskudd = prismodell.tilskudd.mapValues { it.value.NOK },
         )
 
         is UpsertEnkeltplass.Prismodell.IngenKostnader -> Prismodell.IngenKostnader(
             id = id,
             valuta = Valuta.NOK,
-            tilleggsopplysninger = prismodell.tilleggsopplysninger,
+            prisbetingelser = prismodell.prisbetingelser,
         )
     }
 
@@ -858,12 +858,12 @@ private fun toUpsertPrismodell(prismodell: Prismodell): UpsertEnkeltplass.Prismo
     is Prismodell.AnskaffetEnkeltplass -> UpsertEnkeltplass.Prismodell.Anskaffelse(prismodell.totalbelop.belop)
 
     is Prismodell.IngenKostnader -> UpsertEnkeltplass.Prismodell.IngenKostnader(
-        prismodell.tilleggsopplysninger,
+        prismodell.prisbetingelser,
     )
 
     is Prismodell.TilskuddTilOpplaering -> UpsertEnkeltplass.Prismodell.TilskuddTilOpplaering(
         prismodell.tilskudd.mapValues { it.value.belop },
-        prismodell.tilleggsopplysninger,
+        prismodell.prisbetingelser,
     )
 
     is Prismodell.AnnenAvtaltPris,

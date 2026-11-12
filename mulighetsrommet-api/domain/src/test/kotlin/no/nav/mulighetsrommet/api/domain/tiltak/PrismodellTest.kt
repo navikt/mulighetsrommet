@@ -9,7 +9,7 @@ import java.time.LocalDate
 import java.util.UUID
 
 class PrismodellTest : FunSpec({
-    test("prismodell uten kostnader krever tilleggsopplysninger") {
+    test("prismodell uten kostnader krever prisbetingelser") {
         shouldThrowExactly<IllegalArgumentException> {
             Prismodell.from(
                 id = UUID.randomUUID(),

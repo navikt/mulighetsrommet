@@ -45,7 +45,7 @@ class PrismodellQueriesTest : FunSpec({
                 val tilskudd = Prismodell.TilskuddTilOpplaering(
                     id = UUID.randomUUID(),
                     valuta = Valuta.NOK,
-                    tilleggsopplysninger = null,
+                    prisbetingelser = "Dekker skolepenger og botilbud",
                     tilskudd = mapOf(
                         Opplaeringtilskudd.Kode.SKOLEPENGER to 50_000.NOK,
                         Opplaeringtilskudd.Kode.INTEGRERT_BOTILBUD to 30_000.NOK,
@@ -55,6 +55,7 @@ class PrismodellQueriesTest : FunSpec({
                 prismodell.upsert(tilskudd)
 
                 prismodell.getOrError(tilskudd.id).shouldBeTypeOf<Prismodell.TilskuddTilOpplaering>().should {
+                    it.prisbetingelser shouldBe "Dekker skolepenger og botilbud"
                     it.tilskudd shouldBe mapOf(
                         Opplaeringtilskudd.Kode.SKOLEPENGER to 50_000.NOK,
                         Opplaeringtilskudd.Kode.INTEGRERT_BOTILBUD to 30_000.NOK,
@@ -68,7 +69,7 @@ class PrismodellQueriesTest : FunSpec({
                 val tilskudd = Prismodell.TilskuddTilOpplaering(
                     id = UUID.randomUUID(),
                     valuta = Valuta.NOK,
-                    tilleggsopplysninger = null,
+                    prisbetingelser = null,
                     tilskudd = emptyMap(),
                 )
                 prismodell.upsert(tilskudd)
@@ -81,24 +82,24 @@ class PrismodellQueriesTest : FunSpec({
     }
 
     context("IngenKostnader") {
-        test("lagrer og henter tilleggsopplysninger") {
+        test("lagrer og henter prisbetingelser") {
             database.runAndRollback {
                 val ingenKostnader = Prismodell.IngenKostnader(
                     id = UUID.randomUUID(),
                     valuta = Valuta.NOK,
-                    tilleggsopplysninger = "Finansiert av arbeidsgiver",
+                    prisbetingelser = "Finansiert av arbeidsgiver",
                 )
 
                 prismodell.upsert(ingenKostnader)
 
                 prismodell.getOrError(ingenKostnader.id).shouldBeTypeOf<Prismodell.IngenKostnader>().should {
-                    it.tilleggsopplysninger shouldBe "Finansiert av arbeidsgiver"
+                    it.prisbetingelser shouldBe "Finansiert av arbeidsgiver"
                 }
 
-                prismodell.upsert(ingenKostnader.copy(tilleggsopplysninger = "Opplæringen er kostnadsfri"))
+                prismodell.upsert(ingenKostnader.copy(prisbetingelser = "Opplæringen er kostnadsfri"))
 
                 prismodell.getOrError(ingenKostnader.id).shouldBeTypeOf<Prismodell.IngenKostnader>().should {
-                    it.tilleggsopplysninger shouldBe "Opplæringen er kostnadsfri"
+                    it.prisbetingelser shouldBe "Opplæringen er kostnadsfri"
                 }
             }
         }
