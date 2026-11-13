@@ -14,16 +14,23 @@ import { gjennomforingTekster } from "@/components/ledetekster/gjennomforingLede
 import { LabelWithHelpText } from "@mr/frontend-common/components/label/LabelWithHelpText";
 import { FormSelect } from "../skjema/FormSelect";
 import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
+import { kanOppretteTiltakBeskrivelse } from "@/utils/tiltakstype";
 import { VStack } from "@navikt/ds-react";
 
-export function TiltakBeskrivelseDetaljerForm() {
+interface Props {
+  erOpprettelse?: boolean;
+}
+
+export function TiltakBeskrivelseDetaljerForm({ erOpprettelse = false }: Props) {
   useFormContext<TiltakBeskrivelseFormValues>();
 
   const tiltakstyper = useTiltakstyper({
     sort: { field: TiltakstypeSortField.NAVN, direction: SortDirection.ASC },
     egenskaper: [TiltakstypeEgenskap.STOTTER_TILTAK_BESKRIVELSE],
   });
-  const tiltakstypeOptions = tiltakstyper.map((t) => ({ value: t.id, label: t.navn }));
+  const tiltakstypeOptions = tiltakstyper
+    .filter((t) => !erOpprettelse || kanOppretteTiltakBeskrivelse(t))
+    .map((t) => ({ value: t.id, label: t.navn }));
 
   const { data: administratorer } = useNavAnsatte([Rolle.TILTAKSGJENNOMFORINGER_SKRIV]);
   const administratorOptions = administratorer.map((a) => ({
