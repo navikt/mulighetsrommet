@@ -44,7 +44,7 @@ const steps: WizardStep<TiltakBeskrivelseFormValues>[] = [
   {
     key: "Detaljer",
     schema: tiltakBeskrivelseDetaljerSchema,
-    Component: <TiltakBeskrivelseDetaljerForm erOpprettelse />,
+    Component: <TiltakBeskrivelseDetaljerForm />,
   },
   {
     key: "Informasjon for veiledere",

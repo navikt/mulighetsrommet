@@ -1,4 +1,4 @@
-import { useFormContext } from "react-hook-form";
+import { useFormContext, useWatch } from "react-hook-form";
 import { TiltakBeskrivelseFormValues } from "@/pages/tiltak-beskrivelse/TiltakBeskrivelseFormValues";
 import { FormTextField } from "@/components/skjema/FormTextField";
 import { FormTextarea } from "@/components/skjema/FormTextarea";
@@ -17,19 +17,16 @@ import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 import { kanOppretteTiltakBeskrivelse } from "@/utils/tiltakstype";
 import { VStack } from "@navikt/ds-react";
 
-interface Props {
-  erOpprettelse?: boolean;
-}
-
-export function TiltakBeskrivelseDetaljerForm({ erOpprettelse = false }: Props) {
-  useFormContext<TiltakBeskrivelseFormValues>();
+export function TiltakBeskrivelseDetaljerForm() {
+  const { control } = useFormContext<TiltakBeskrivelseFormValues>();
+  const tiltakstypeId = useWatch({ control, name: "tiltakstypeId" });
 
   const tiltakstyper = useTiltakstyper({
     sort: { field: TiltakstypeSortField.NAVN, direction: SortDirection.ASC },
     egenskaper: [TiltakstypeEgenskap.STOTTER_TILTAK_BESKRIVELSE],
   });
   const tiltakstypeOptions = tiltakstyper
-    .filter((t) => !erOpprettelse || kanOppretteTiltakBeskrivelse(t))
+    .filter((t) => t.id === tiltakstypeId || kanOppretteTiltakBeskrivelse(t))
     .map((t) => ({ value: t.id, label: t.navn }));
 
   const { data: administratorer } = useNavAnsatte([Rolle.TILTAKSGJENNOMFORINGER_SKRIV]);

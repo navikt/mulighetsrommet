@@ -14,10 +14,6 @@ export function erUtfaset(tiltakstype: TiltakstypeKompaktDto) {
   return harFeature(tiltakstype, TiltakstypeFeature.UTFASET);
 }
 
-/**
- * Utgåtte tiltakstyper kan ikke velges når en ny tiltaksbeskrivelse opprettes, men må fortsatt
- * kunne vises ved redigering av eksisterende beskrivelser. Se TiltakBeskrivelseValidator i API-et.
- */
 export function kanOppretteTiltakBeskrivelse(tiltakstype: TiltakstypeKompaktDto): boolean {
   return !UTGATTE_TILTAKSTYPER_FOR_TILTAKSBESKRIVELSE.includes(tiltakstype.tiltakskode);
 }
