@@ -26,7 +26,7 @@ enum class Artskontokode {
     HOYERE_UTDANNING,
 }
 
-fun utledArtskontokode(tiltakskode: Tiltakskode, oppstartstype: GjennomforingOppstartstype): Artskontokode? {
+fun utledArtskontokode(tiltakskode: Tiltakskode, oppstartstype: GjennomforingOppstartstype): Artskontokode {
     val erEnkeltplass = oppstartstype == GjennomforingOppstartstype.ENKELTPLASS
 
     return when (tiltakskode) {
@@ -54,20 +54,34 @@ fun utledArtskontokode(tiltakskode: Tiltakskode, oppstartstype: GjennomforingOpp
             Artskontokode.STUDIESPESIALISERING
         }
 
-        Tiltakskode.ARBEIDSRETTET_REHABILITERING,
-        Tiltakskode.AVKLARING,
-        Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK,
-        Tiltakskode.JOBBKLUBB,
-        Tiltakskode.OPPFOLGING,
-        Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
-        Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
-        Tiltakskode.TILRETTELAGT_ARBEID_ORDINAER,
-        Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
-        Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING,
-        Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
-        Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
-        Tiltakskode.HOYERE_UTDANNING,
-        Tiltakskode.HOYERE_YRKESFAGLIG_UTDANNING,
+        Tiltakskode.ARBEIDSRETTET_REHABILITERING -> Artskontokode.ARBEIDSRETTET_REHABILITERING
+
+        Tiltakskode.AVKLARING -> Artskontokode.AVKLARING
+
+        Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK -> Artskontokode.DIGITALT_OPPFOLGINGSTILTAK
+
+        Tiltakskode.JOBBKLUBB -> Artskontokode.JOBBKLUBB
+
+        Tiltakskode.OPPFOLGING -> Artskontokode.OPPFOLGING
+
+        Tiltakskode.ARBEIDSFORBEREDENDE_TRENING -> Artskontokode.ARBEIDSFORBEREDENDE_TRENING
+
+        Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET -> Artskontokode.VARIG_TILRETTELAGT_ARBEID_SKJERMET
+
+        Tiltakskode.TILRETTELAGT_ARBEID_ORDINAER -> Artskontokode.TILRETTELAGT_ARBEID_ORDINAER
+
+        Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING -> Artskontokode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING
+
+        Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING -> Artskontokode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING
+
+        Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING -> Artskontokode.GRUPPE_ARBEIDSMARKEDSOPPLAERING
+
+        Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING -> Artskontokode.GRUPPE_FAG_OG_YRKESOPPLAERING
+
+        Tiltakskode.HOYERE_UTDANNING -> Artskontokode.HOYERE_UTDANNING
+
+        Tiltakskode.HOYERE_YRKESFAGLIG_UTDANNING -> Artskontokode.HOYERE_YRKESFAGLIG_UTDANNING
+
         Tiltakskode.INDIVIDUELL_JOBBSTOTTE,
         Tiltakskode.INDIVIDUELL_JOBBSTOTTE_UNG,
         Tiltakskode.ARBEID_MED_STOTTE,
@@ -80,6 +94,6 @@ fun utledArtskontokode(tiltakskode: Tiltakskode, oppstartstype: GjennomforingOpp
         Tiltakskode.VTAO,
         Tiltakskode.FIREARIG_LONNSTILSKUDD,
         Tiltakskode.EKSPERTBISTAND,
-        -> null
+        -> error("Artskontokode for $tiltakskode er ikke støttet")
     }
 }

@@ -1,0 +1,35 @@
+package no.nav.mulighetsrommet.api.tilsagn.mapper
+
+import no.nav.mulighetsrommet.api.domain.gjennomforing.Artskontokode
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
+import no.nav.tiltak.okonomi.Artskonto
+import no.nav.tiltak.okonomi.Regnskapskonto
+
+fun TilsagnType.toRegnskapskonto(): Regnskapskonto = when (this) {
+    TilsagnType.TILSAGN, TilsagnType.EKSTRATILSAGN -> Regnskapskonto.TILTAK_DRIFTSTILSKUDD
+    TilsagnType.INVESTERING -> Regnskapskonto.TILTAK_INVESTERINGER
+    TilsagnType.TILSKUDD_TIL_OPPLAERING -> Regnskapskonto.TILTAK_OPPLAERING_TILSKUDD
+}
+
+fun Artskontokode.toOkonomiArtskonto(): Artskonto = when (this) {
+    Artskontokode.ARBEIDSRETTET_REHABILITERING -> Artskonto.ARBEIDSRETTET_REHABILITERING
+    Artskontokode.AVKLARING -> Artskonto.AVKLARING
+    Artskontokode.DIGITALT_OPPFOLGINGSTILTAK -> Artskonto.DIGITALT_OPPFOLGINGSTILTAK
+    Artskontokode.JOBBKLUBB -> Artskonto.JOBBKLUBB
+    Artskontokode.OPPFOLGING -> Artskonto.OPPFOLGING
+    Artskontokode.ARBEIDSFORBEREDENDE_TRENING -> Artskonto.ARBEIDSFORBEREDENDE_TRENING
+    Artskontokode.VARIG_TILRETTELAGT_ARBEID_SKJERMET -> Artskonto.VARIG_TILRETTELAGT_ARBEID_SKJERMET
+    Artskontokode.TILRETTELAGT_ARBEID_ORDINAER -> Artskonto.TILRETTELAGT_ARBEID_ORDINAER
+    Artskontokode.ARBEIDSMARKEDSOPPLAERING -> Artskonto.ARBEIDSMARKEDSOPPLAERING
+    Artskontokode.FAG_OG_YRKESOPPLAERING -> Artskonto.FAG_OG_YRKESOPPLAERING
+    Artskontokode.GRUPPE_ARBEIDSMARKEDSOPPLAERING -> Artskonto.GRUPPE_ARBEIDSMARKEDSOPPLAERING
+    Artskontokode.GRUPPE_FAG_OG_YRKESOPPLAERING -> Artskonto.GRUPPE_FAG_OG_YRKESOPPLAERING
+    Artskontokode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING -> Artskonto.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING
+    Artskontokode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING -> Artskonto.ENKELTPLASS_FAG_OG_YRKESOPPLAERING
+    Artskontokode.HOYERE_UTDANNING -> Artskonto.HOYERE_UTDANNING
+    Artskontokode.HOYERE_YRKESFAGLIG_UTDANNING -> Artskonto.HOYERE_YRKESFAGLIG_UTDANNING
+    Artskontokode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV -> Artskonto.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV
+    Artskontokode.ENKELTPLASS_NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV -> Artskonto.ENKELTPLASS_NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV
+    Artskontokode.STUDIESPESIALISERING -> Artskonto.STUDIESPESIALISERING
+    Artskontokode.ENKELTPLASS_STUDIESPESIALISERING -> Artskonto.ENKELTPLASS_STUDIESPESIALISERING
+}

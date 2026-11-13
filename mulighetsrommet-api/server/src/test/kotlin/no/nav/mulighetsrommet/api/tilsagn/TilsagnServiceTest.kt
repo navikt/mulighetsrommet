@@ -17,6 +17,7 @@ import no.nav.mulighetsrommet.admin.aarsakerbegrunnelse.AarsakerOgBegrunnelseReq
 import no.nav.mulighetsrommet.admin.navansatt.service.NavAnsattService
 import no.nav.mulighetsrommet.api.ApplicationConfigTest
 import no.nav.mulighetsrommet.api.QueryContext
+import no.nav.mulighetsrommet.api.domain.gjennomforing.Artskontokode
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsattRolle
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.domain.testing.fixture.ArrangorFixtures
@@ -26,6 +27,7 @@ import no.nav.mulighetsrommet.api.domain.testing.fixture.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavEnhetFixtures.Gjovik
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavEnhetFixtures.Lillehammer
 import no.nav.mulighetsrommet.api.domain.testing.fixture.PrismodellFixtures
+import no.nav.mulighetsrommet.api.domain.testing.fixture.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollStatus
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
@@ -150,6 +152,7 @@ class TilsagnServiceTest : FunSpec({
                     Tiltakskode.ARBEIDSFORBEREDENDE_TRENING to gyldigTilsagnPeriode,
                     Tiltakskode.ARBEIDSRETTET_REHABILITERING to gyldigTilsagnPeriode,
                     Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING to gyldigTilsagnPeriode,
+                    Tiltakskode.ARBEIDSMARKEDSOPPLAERING to gyldigTilsagnPeriode,
                     Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV to gyldigTilsagnPeriode,
                 ),
             ),
@@ -472,6 +475,8 @@ class TilsagnServiceTest : FunSpec({
             Json.decodeFromString<OkonomiBestillingMelding>(value.decodeToString())
                 .shouldBeTypeOf<OkonomiBestillingMelding.Bestilling>()
                 .payload.should {
+                    it.artskonto shouldBe Artskonto.ARBEIDSFORBEREDENDE_TRENING
+                    it.regnskapskonto shouldBe Regnskapskonto.TILTAK_DRIFTSTILSKUDD
                     it.behandletAv shouldBe OkonomiPart.NavAnsatt(navIdent = ansatt1)
                     it.besluttetAv shouldBe OkonomiPart.NavAnsatt(navIdent = ansatt2)
                     it.kostnadssted shouldBe request.kostnadssted
@@ -482,10 +487,39 @@ class TilsagnServiceTest : FunSpec({
                 }
         }
 
-        test("enkeltplass-gjennomføringer benytter artskonto for enkeltplasser i melding til økonomi") {
+        test("gruppetiltak benytter lagret artskontokode i melding til økonomi") {
+            val gjennomforing = GjennomforingDboFixtures.GruppeAmo1.copy(
+                id = UUID.randomUUID(),
+                tiltakskode = Tiltakskode.ARBEIDSMARKEDSOPPLAERING,
+                artskontokode = Artskontokode.ARBEIDSMARKEDSOPPLAERING,
+                startDato = LocalDate.of(2025, 1, 1),
+                sluttDato = LocalDate.of(2025, 12, 31),
+            )
+            MulighetsrommetTestDomain(
+                ansatte = emptyList(),
+                tiltakstyper = listOf(TiltakstypeFixtures.Amo),
+                avtaler = listOf(AvtaleFixtures.gruppeAmo.copy(tiltakskode = Tiltakskode.ARBEIDSMARKEDSOPPLAERING)),
+                gjennomforinger = listOf(gjennomforing),
+            ).initialize(database.api)
+
+            service.upsert(request.copy(gjennomforingId = gjennomforing.id), ansatt1).shouldBeRight()
+            service.godkjennTilsagn(requestId, ansatt2).shouldBeRight()
+
+            val melding = database.run { queries.kafkaProducerRecord.getRecords(50, listOf(BESTILLING_TOPIC)) }
+                .shouldHaveSize(1)
+                .single()
+            val bestilling = Json.decodeFromString<OkonomiBestillingMelding>(melding.value.decodeToString())
+                .shouldBeTypeOf<OkonomiBestillingMelding.Bestilling>()
+                .payload
+
+            bestilling.artskonto shouldBe Artskonto.ARBEIDSMARKEDSOPPLAERING
+        }
+
+        test("enkeltplass benytter lagret artskontokode i melding til økonomi") {
             val gjennomforing = GjennomforingDboFixtures.EnkelAmo.copy(
                 id = UUID.randomUUID(),
                 tiltakskode = Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV,
+                artskontokode = Artskontokode.ENKELTPLASS_NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV,
                 prismodellId = PrismodellFixtures.TilskuddTilOpplaering.id,
             )
             MulighetsrommetTestDomain(

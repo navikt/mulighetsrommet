@@ -25,7 +25,8 @@ import no.nav.mulighetsrommet.api.domain.navansatt.OkonomiBeslutningContext
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.Totrinnskontroll
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
-import no.nav.mulighetsrommet.api.tilsagn.mapper.TilsagnOkonomiMapper
+import no.nav.mulighetsrommet.api.tilsagn.mapper.toOkonomiArtskonto
+import no.nav.mulighetsrommet.api.tilsagn.mapper.toRegnskapskonto
 import no.nav.mulighetsrommet.api.tilsagn.model.BeregnTilsagnRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.GyldigTilsagnPeriode
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
@@ -733,14 +734,8 @@ class TilsagnService(
 
         val bestilling = OpprettBestilling(
             bestillingsnummer = Bestillingsnummer(tilsagn.bestilling.bestillingsnummer),
-            regnskapskonto = TilsagnOkonomiMapper.toRegnskapskonto(tilsagn.type),
-            artskonto = when (gjennomforing) {
-                is GjennomforingAvtale,
-                -> TilsagnOkonomiMapper.toArtskontoAvtale(gjennomforing.tiltakstype.tiltakskode)
-
-                is GjennomforingEnkeltplass,
-                -> TilsagnOkonomiMapper.toArtskontoEnkeltplass(gjennomforing.tiltakstype.tiltakskode)
-            },
+            regnskapskonto = tilsagn.type.toRegnskapskonto(),
+            artskonto = gjennomforing.artskontokode.toOkonomiArtskonto(),
             arrangor = arrangor,
             kostnadssted = tilsagn.kostnadssted.enhetsnummer,
             avtalenummer = avtale?.sakarkivNummer?.value,

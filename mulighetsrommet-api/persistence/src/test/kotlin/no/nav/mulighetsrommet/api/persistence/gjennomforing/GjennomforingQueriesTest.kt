@@ -93,7 +93,7 @@ class GjennomforingQueriesTest : FunSpec({
 
                 gjennomforing.getGjennomforingOrError(dbo.id).artskontokode shouldBe artskontokode
 
-                gjennomforing.upsert(dbo.copy(artskontokode = null))
+                gjennomforing.upsert(dbo.copy(artskontokode = Artskontokode.STUDIESPESIALISERING))
 
                 gjennomforing.getGjennomforingOrError(dbo.id).artskontokode shouldBe artskontokode
             }

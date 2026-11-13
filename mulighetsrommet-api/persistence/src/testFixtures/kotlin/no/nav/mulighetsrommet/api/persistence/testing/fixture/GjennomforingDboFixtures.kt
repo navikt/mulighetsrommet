@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.persistence.testing.fixture
 
+import no.nav.mulighetsrommet.api.domain.gjennomforing.Artskontokode
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingType
 import no.nav.mulighetsrommet.api.domain.testing.fixture.ArrangorFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.AvtaleFixtures
@@ -21,7 +22,7 @@ object GjennomforingDboFixtures {
         type = GjennomforingType.AVTALE,
         navn = "Oppfølging 1",
         tiltakskode = TiltakstypeFixtures.Oppfolging.tiltakskode,
-        artskontokode = null,
+        artskontokode = Artskontokode.OPPFOLGING,
         arrangorId = ArrangorFixtures.underenhet1.id,
         startDato = AvtaleFixtures.oppfolging.startDato,
         sluttDato = AvtaleFixtures.oppfolging.sluttDato,
@@ -42,7 +43,7 @@ object GjennomforingDboFixtures {
         type = GjennomforingType.AVTALE,
         navn = "VTA 1",
         tiltakskode = TiltakstypeFixtures.VTA.tiltakskode,
-        artskontokode = null,
+        artskontokode = Artskontokode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
         arrangorId = ArrangorFixtures.underenhet1.id,
         startDato = LocalDate.of(2023, 1, 1),
         sluttDato = null,
@@ -63,7 +64,7 @@ object GjennomforingDboFixtures {
         type = GjennomforingType.AVTALE,
         navn = "AFT 1",
         tiltakskode = TiltakstypeFixtures.AFT.tiltakskode,
-        artskontokode = null,
+        artskontokode = Artskontokode.ARBEIDSFORBEREDENDE_TRENING,
         arrangorId = ArrangorFixtures.underenhet1.id,
         startDato = LocalDate.of(2023, 1, 1),
         sluttDato = null,
@@ -84,7 +85,7 @@ object GjennomforingDboFixtures {
         type = GjennomforingType.AVTALE,
         navn = "Varig tilrettelagt arbeid i ordinær virksomhet",
         tiltakskode = TiltakstypeFixtures.TAO.tiltakskode,
-        artskontokode = null,
+        artskontokode = Artskontokode.TILRETTELAGT_ARBEID_ORDINAER,
         arrangorId = ArrangorFixtures.underenhet1.id,
         startDato = LocalDate.of(2023, 1, 1),
         sluttDato = null,
@@ -105,7 +106,7 @@ object GjennomforingDboFixtures {
         type = GjennomforingType.AVTALE,
         navn = "Gruppe Amo 1",
         tiltakskode = TiltakstypeFixtures.GruppeAmo.tiltakskode,
-        artskontokode = null,
+        artskontokode = Artskontokode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
         arrangorId = ArrangorFixtures.underenhet1.id,
         startDato = LocalDate.of(2023, 1, 1),
         sluttDato = LocalDate.of(2023, 2, 1),
@@ -126,7 +127,7 @@ object GjennomforingDboFixtures {
         type = GjennomforingType.AVTALE,
         navn = "Gruppe Fag- og yrkesopplæring 1",
         tiltakskode = TiltakstypeFixtures.GruppeFagOgYrkesopplaering.tiltakskode,
-        artskontokode = null,
+        artskontokode = Artskontokode.GRUPPE_FAG_OG_YRKESOPPLAERING,
         arrangorId = ArrangorFixtures.underenhet1.id,
         startDato = LocalDate.of(2023, 1, 1),
         sluttDato = LocalDate.of(2023, 2, 1),
@@ -147,7 +148,7 @@ object GjennomforingDboFixtures {
         type = GjennomforingType.AVTALE,
         navn = "Arbeidsretter Rehabilitering 1",
         tiltakskode = TiltakstypeFixtures.ArbeidsrettetRehabilitering.tiltakskode,
-        artskontokode = null,
+        artskontokode = Artskontokode.ARBEIDSRETTET_REHABILITERING,
         arrangorId = ArrangorFixtures.underenhet1.id,
         startDato = LocalDate.of(2023, 1, 1),
         sluttDato = LocalDate.of(2026, 1, 1),
@@ -166,7 +167,7 @@ object GjennomforingDboFixtures {
     val EnkelAmo = GjennomforingDbo(
         id = UUID.randomUUID(),
         tiltakskode = TiltakstypeFixtures.EnkelAmo.tiltakskode,
-        artskontokode = null,
+        artskontokode = Artskontokode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
         type = GjennomforingType.ENKELTPLASS,
         oppstart = GjennomforingOppstartstype.ENKELTPLASS,
         pameldingType = GjennomforingPameldingType.TRENGER_GODKJENNING,
@@ -187,7 +188,7 @@ object GjennomforingDboFixtures {
     val EnkelFagOgYrke = GjennomforingDbo(
         id = UUID.randomUUID(),
         tiltakskode = TiltakstypeFixtures.EnkelFagOgYrke.tiltakskode,
-        artskontokode = null,
+        artskontokode = Artskontokode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING,
         type = GjennomforingType.ENKELTPLASS,
         oppstart = GjennomforingOppstartstype.ENKELTPLASS,
         pameldingType = GjennomforingPameldingType.TRENGER_GODKJENNING,
@@ -209,7 +210,7 @@ object GjennomforingDboFixtures {
         id = UUID.fromString("cdc50d11-7d86-4a4b-a8d0-1f8a1be575d0"),
         type = GjennomforingType.ENKELTPLASS,
         tiltakskode = Tiltakskode.HOYERE_UTDANNING,
-        artskontokode = null,
+        artskontokode = Artskontokode.HOYERE_UTDANNING,
         arrangorId = ArrangorFixtures.underenhet1.id,
         navn = "Høyere utdanning",
         startDato = LocalDate.of(2025, 1, 1),
@@ -229,7 +230,7 @@ object GjennomforingDboFixtures {
     val ArenaEnkelAmo = GjennomforingDbo(
         id = UUID.randomUUID(),
         tiltakskode = TiltakstypeFixtures.EnkelAmo.tiltakskode,
-        artskontokode = null,
+        artskontokode = Artskontokode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
         type = GjennomforingType.ARENA,
         oppstart = GjennomforingOppstartstype.ENKELTPLASS,
         pameldingType = GjennomforingPameldingType.TRENGER_GODKJENNING,
@@ -250,7 +251,7 @@ object GjennomforingDboFixtures {
     val ArenaArbeidsrettetRehabilitering = GjennomforingDbo(
         id = UUID.randomUUID(),
         tiltakskode = TiltakstypeFixtures.ArbeidsrettetRehabilitering.tiltakskode,
-        artskontokode = null,
+        artskontokode = Artskontokode.ARBEIDSRETTET_REHABILITERING,
         type = GjennomforingType.ARENA,
         oppstart = GjennomforingOppstartstype.LOPENDE,
         pameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,
