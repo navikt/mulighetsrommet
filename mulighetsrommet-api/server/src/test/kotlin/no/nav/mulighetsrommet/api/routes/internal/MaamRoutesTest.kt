@@ -5,7 +5,10 @@ import io.kotest.data.forAll
 import io.kotest.data.row
 import io.kotest.matchers.shouldBe
 import io.ktor.client.request.bearerAuth
+import io.ktor.client.request.delete
 import io.ktor.client.request.get
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
@@ -18,6 +21,8 @@ import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.getAnsattClaims
 import no.nav.mulighetsrommet.api.withTestApplication
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
+import no.nav.mulighetsrommet.maam.dto.DeleteKafkaRecordRequest
+import no.nav.mulighetsrommet.maam.dto.DeleteScheduledTaskRequest
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import java.util.UUID
 
@@ -50,6 +55,28 @@ class MaamRoutesTest : FunSpec({
         ),
     )
 
+    test("sletting krever rollen TEAM_MULIGHETSROMMET") {
+        withTestApplication(appConfig()) {
+            forAll(
+                row(generellRolle, HttpStatusCode.Forbidden),
+                row(teamMulighetsrommetRolle, HttpStatusCode.Conflict),
+            ) { rolle, status ->
+                val token = oauth.issueToken(claims = getAnsattClaims(ansatt, setOf(rolle))).serialize()
+                client.delete("/api/intern/maam/kafka/failed-records") {
+                    bearerAuth(token)
+                    contentType(ContentType.Application.Json)
+                    setBody(DeleteKafkaRecordRequest(id = 0, topic = "missing"))
+                }.status shouldBe status
+
+                client.delete("/api/intern/maam/tasks/scheduled") {
+                    bearerAuth(token)
+                    contentType(ContentType.Application.Json)
+                    setBody(DeleteScheduledTaskRequest(taskName = "missing", taskInstance = "missing"))
+                }.status shouldBe status
+            }
+        }
+    }
+
     test("maam er bare tilgjengelig med når man har rollen TEAM_MULIGHETSROMMET") {
         withTestApplication(appConfig()) {
             forAll(
@@ -58,12 +85,26 @@ class MaamRoutesTest : FunSpec({
             ) { rolle, status ->
                 val claims = getAnsattClaims(ansatt, setOf(rolle))
 
-                val response = client.get("/api/intern/maam/topics") {
+                val response = client.get("/api/intern/maam/kafka/consumers") {
                     bearerAuth(oauth.issueToken(claims = claims).serialize())
                     contentType(ContentType.Application.Json)
                 }
 
                 response.status shouldBe status
+            }
+        }
+    }
+
+    test("start av task krever rollen TEAM_MULIGHETSROMMET") {
+        withTestApplication(appConfig()) {
+            forAll(
+                row(generellRolle, HttpStatusCode.Forbidden),
+                row(teamMulighetsrommetRolle, HttpStatusCode.Accepted),
+            ) { rolle, status ->
+                val token = oauth.issueToken(claims = getAnsattClaims(ansatt, setOf(rolle))).serialize()
+                client.post("/api/intern/maam/tasks/sync-gjennomforing-avtale-fts") {
+                    bearerAuth(token)
+                }.status shouldBe status
             }
         }
     }

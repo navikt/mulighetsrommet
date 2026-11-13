@@ -4,6 +4,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.openapi.OpenApiDoc
 import io.ktor.openapi.OpenApiInfo
 import io.ktor.openapi.jsonSchema
+import io.ktor.server.application.install
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.response.respondText
@@ -19,7 +20,7 @@ import io.ktor.server.routing.route
 import io.ktor.server.util.getValue
 import io.ktor.utils.io.ExperimentalKtorApi
 import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
-import no.nav.mulighetsrommet.kafka.Topic
+import no.nav.mulighetsrommet.maam.Maam
 import no.nav.tiltak.historikk.db.TiltakshistorikkDatabase
 import no.nav.tiltak.historikk.plugins.AuthProvider
 import no.nav.tiltak.historikk.plugins.authenticate
@@ -114,16 +115,9 @@ fun Route.tiltakshistorikkRoutes(
 
     authenticate(AuthProvider.TEAM_MULIGHETSROMMET) {
         route("/maam") {
-            route("/topics") {
-                get {
-                    val topics = kafka.getTopics()
-                    call.respond(topics)
-                }
-
-                put {
-                    val topics = call.receive<List<Topic>>()
-                    kafka.updateRunningTopics(topics)
-                    call.respond(HttpStatusCode.OK)
+            install(Maam) {
+                kafka(orchestrator = { kafka }) {
+                    consumers()
                 }
             }
         }

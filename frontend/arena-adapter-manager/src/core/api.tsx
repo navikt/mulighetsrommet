@@ -1,4 +1,4 @@
-import { KafkaConsumerRecord, ScheduledTask, Topic } from "../domain";
+import { KafkaConsumerRecord, ScheduledTask, KafkaTopicConsumer } from "../domain";
 import toast from "react-hot-toast";
 import { ErrorToast } from "../components/Toast";
 
@@ -19,18 +19,18 @@ export enum ApiBase {
   TILTAKSOKONOMI = "/tiltaksokonomi/maam",
 }
 
-export const getTopics = (base: ApiBase) =>
-  fetch(`${base}/topics`, {
+export const getKafkaConsumers = (base: ApiBase) =>
+  fetch(`${base}/kafka/consumers`, {
     method: "GET",
     headers: getDefaultHeaders(),
   })
     .then(parseJson)
-    .catch((error) => toastError("Klarte ikke laste Topics", error));
+    .catch((error) => toastError("Klarte ikke laste Kafka-consumere", error));
 
 export const getFailedKafkaConsumerRecords = async (
   base: ApiBase,
 ): Promise<KafkaConsumerRecord[]> =>
-  fetch(`${base}/topics/failed-records`, {
+  fetch(`${base}/kafka/failed-records`, {
     method: "GET",
     headers: getDefaultHeaders(),
   })
@@ -42,8 +42,31 @@ export interface RetryFailedKafkaRecord {
   topic: string;
   executionTime: Date;
 }
+
+export const deleteFailedKafkaRecord = (
+  base: ApiBase,
+  record: Pick<KafkaConsumerRecord, "id" | "topic">,
+) =>
+  fetch(`${base}/kafka/failed-records`, {
+    method: "DELETE",
+    headers: {
+      ...getDefaultHeaders(),
+      "content-type": "application/json",
+    },
+    body: JSON.stringify({ id: record.id, topic: record.topic }),
+  })
+    .then(checkOk)
+    .then(() => {
+      toast.success("Kafka record deleted");
+      return true;
+    })
+    .catch((error) => {
+      toastError("Failed to delete Kafka record", error);
+      return false;
+    });
+
 export const putRetryFailedKafkaRecord = (base: ApiBase, payload: RetryFailedKafkaRecord) =>
-  fetch(`${base}/topics/failed-records`, {
+  fetch(`${base}/kafka/failed-records`, {
     method: "PUT",
     headers: {
       ...getDefaultHeaders(),
@@ -66,18 +89,18 @@ export const getArenaTables = () =>
     .then(parseJson)
     .catch((error) => toastError("Klarte ikke laste ArenaTables", error));
 
-export const putTopicRunningState = (base: ApiBase, topics: Topic[]) =>
-  fetch(`${base}/topics`, {
+export const putKafkaConsumerRunningState = (base: ApiBase, consumers: KafkaTopicConsumer[]) =>
+  fetch(`${base}/kafka/consumers`, {
     method: "PUT",
     headers: {
       ...getDefaultHeaders(),
       "content-type": "application/json",
     },
-    body: JSON.stringify(topics),
+    body: JSON.stringify(consumers),
   })
     .then(checkOk)
-    .then(() => toast.success("Topics oppdatert"))
-    .catch((error) => toastError("Klarte ikke oppdatere topics", error));
+    .then(() => toast.success("Kafka-consumere oppdatert"))
+    .catch((error) => toastError("Klarte ikke oppdatere Kafka-consumere", error));
 
 export const getFailedScheduledTasks = async (base: ApiBase): Promise<ScheduledTask[]> =>
   fetch(`${base}/tasks/scheduled/failed`, {
@@ -93,9 +116,31 @@ export interface RetryScheduledTask {
   executionTime: Date;
 }
 
-export const putRetryScheduledTask = (base: ApiBase, payload: RetryScheduledTask) =>
+export const deleteFailedScheduledTask = (
+  base: ApiBase,
+  task: Pick<ScheduledTask, "taskName" | "taskInstance">,
+) =>
+  fetch(`${base}/tasks/scheduled`, {
+    method: "DELETE",
+    headers: {
+      ...getDefaultHeaders(),
+      "content-type": "application/json",
+    },
+    body: JSON.stringify({ taskName: task.taskName, taskInstance: task.taskInstance }),
+  })
+    .then(checkOk)
+    .then(() => {
+      toast.success("Scheduled task deleted");
+      return true;
+    })
+    .catch((error) => {
+      toastError("Failed to delete scheduled task", error);
+      return false;
+    });
+
+export const postRetryScheduledTask = (base: ApiBase, payload: RetryScheduledTask) =>
   fetch(`${base}/tasks/scheduled/retry`, {
-    method: "PUT",
+    method: "POST",
     headers: {
       ...getDefaultHeaders(),
       "content-type": "application/json",
@@ -179,7 +224,6 @@ export type MrApiTask =
   | "regenerer-utbetaling"
   | "beregn-utbetaling"
   | "sync-arrangorer"
-  | "send-bekreftelsesbrev"
   | "sync-gjennomforing-avtale-fts"
   | "hel-ved-utbetaling";
 
