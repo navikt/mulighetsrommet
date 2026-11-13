@@ -2601,6 +2601,77 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
+  /api/tiltaksadministrasjon/utbetaling/{id}/vedlegg:
+    get:
+      tags:
+      - Utbetaling
+      description: Hent tilgjengelige PDF-vedlegg fra utbetalingens journalpost
+      operationId: getUtbetalingVedleggData
+      parameters:
+      - name: id
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: PDF-vedlegg som innlogget bruker har tilgang til
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/UtbetalingVedleggDto"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/tiltaksadministrasjon/utbetaling/{id}/vedlegg/{dokumentInfoId}/pdf:
+    get:
+      tags:
+      - Utbetaling
+      description: Hent et PDF-vedlegg fra utbetalingens journalpost
+      operationId: getUtbetalingVedleggPdf
+      parameters:
+      - name: id
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      - name: dokumentInfoId
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Vedlegg-pdf
+          headers: {}
+          content:
+            application/pdf:
+              schema:
+                type: string
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
   /api/tiltaksadministrasjon/utbetaling/{id}/avbryt:
     put:
       tags:
@@ -8675,6 +8746,21 @@ components:
       - GODKJENN
       - RETURNER
       - SEND_TIL_GODKJENNING
+    UtbetalingVedleggDto:
+      type: object
+      properties:
+        dokumentInfoId:
+          type: string
+        tittel:
+          type:
+          - "null"
+          - string
+        variantFormat:
+          type: string
+      required:
+      - dokumentInfoId
+      - tittel
+      - variantFormat
     UtbetalingStatusAarsak:
       type: string
       enum:

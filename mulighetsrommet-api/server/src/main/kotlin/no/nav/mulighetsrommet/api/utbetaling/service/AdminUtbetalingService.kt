@@ -6,11 +6,16 @@ import arrow.core.getOrElse
 import arrow.core.left
 import arrow.core.nel
 import arrow.core.nonEmptySetOf
+import arrow.core.right
 import no.nav.mulighetsrommet.admin.aarsakerbegrunnelse.AarsakerOgBegrunnelseRequest
 import no.nav.mulighetsrommet.admin.journalpost.ForventetBruker
 import no.nav.mulighetsrommet.admin.journalpost.JournalpostValidator
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
+import no.nav.mulighetsrommet.api.clients.saf.SafClient
+import no.nav.mulighetsrommet.api.clients.saf.SafDokument
+import no.nav.mulighetsrommet.api.clients.saf.SafDokumentvariant
+import no.nav.mulighetsrommet.api.clients.saf.SafError
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingTiltaksadministrasjon
@@ -19,13 +24,16 @@ import no.nav.mulighetsrommet.api.domain.navansatt.OkonomiAuthorization
 import no.nav.mulighetsrommet.api.domain.navansatt.OkonomiBeslutningContext
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingRequest
+import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingVedleggDto
 import no.nav.mulighetsrommet.api.utbetaling.model.OpprettUtbetalingLinjer
 import no.nav.mulighetsrommet.api.utbetaling.model.UpsertUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeReturnertAarsak
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusAarsak
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
+import no.nav.mulighetsrommet.model.JournalpostId
 import no.nav.mulighetsrommet.model.NavIdent
+import no.nav.mulighetsrommet.tokenprovider.AccessType
 import no.nav.mulighetsrommet.validation.FieldError
 import no.nav.tiltak.okonomi.FakturaStatusType
 import java.time.Instant
@@ -36,6 +44,7 @@ class AdminUtbetalingService(
     private val db: ApiDatabase,
     private val utbetalingService: UtbetalingService,
     private val journalpostValidator: JournalpostValidator,
+    private val safClient: SafClient,
     private val today: () -> LocalDate = { LocalDate.now() },
 ) {
     suspend fun opprettUtbetaling(
@@ -264,6 +273,69 @@ class AdminUtbetalingService(
         fakturaStatusEndretTidspunkt: Instant,
     ): Utbetaling = db.transaction {
         utbetalingService.oppdaterFakturaStatus(fakturanummer, nyStatus, fakturaStatusEndretTidspunkt)
+    }
+
+    suspend fun hentVedleggForUtbetaling(
+        utbetalingId: UUID,
+        accessType: AccessType,
+    ): Either<UtbetalingError, List<UtbetalingVedleggDto>> {
+        val journalpostId = hentJournalpostId(utbetalingId).getOrElse { return it.left() }
+            ?: return emptyList<UtbetalingVedleggDto>().right()
+
+        return hentVedleggInfo(journalpostId, accessType).right()
+    }
+
+    suspend fun hentVedleggPdf(
+        utbetalingId: UUID,
+        dokumentInfoId: String,
+        accessType: AccessType,
+    ): Either<UtbetalingError, ByteArray> {
+        val journalpostId = hentJournalpostId(utbetalingId).getOrElse { return it.left() }
+            ?: return UtbetalingError.NotFound("Utbetalingen har ingen journalpost").left()
+        val vedlegg = hentVedleggInfo(journalpostId, accessType)
+            .find { it.dokumentInfoId == dokumentInfoId }
+            ?: return UtbetalingError.NotFound("Fant ikke vedlegget med dokumentInfoId=$dokumentInfoId").left()
+
+        return safClient.hentDokument(journalpostId.value, vedlegg.dokumentInfoId, vedlegg.variantFormat, accessType)
+            .mapLeft { it.toUtbetalingError() }
+    }
+
+    private fun hentJournalpostId(utbetalingId: UUID): Either<UtbetalingError, JournalpostId?> = db.session {
+        val utbetaling = queries.utbetaling.get(utbetalingId)
+            ?: return UtbetalingError.NotFound("Fant ikke utbetalingen").left()
+
+        utbetaling.journalpostId.right()
+    }
+
+    private suspend fun hentVedleggInfo(
+        journalpostId: JournalpostId,
+        accessType: AccessType,
+    ): List<UtbetalingVedleggDto> {
+        val journalpost = safClient.hentDokumenterForJournalpost(journalpostId.value, accessType).getOrElse {
+            return emptyList()
+        }
+
+        return journalpost.dokumenter.mapNotNull { dokument ->
+            val variant = dokument.tilgjengeligPdfVariant() ?: return@mapNotNull null
+            UtbetalingVedleggDto(
+                dokumentInfoId = dokument.dokumentInfoId,
+                tittel = dokument.tittel,
+                variantFormat = variant.variantformat,
+            )
+        }
+    }
+
+    private fun SafDokument.tilgjengeligPdfVariant(): SafDokumentvariant? = dokumentvarianter
+        .filter { it.filtype == "PDF" && it.saksbehandlerHarTilgang }
+        .let { varianter ->
+            varianter.find { it.variantformat == "SLADDET" }
+                ?: varianter.find { it.variantformat == "ARKIV" }
+        }
+
+    private fun SafError.toUtbetalingError(): UtbetalingError = when (this) {
+        SafError.NotFound -> UtbetalingError.NotFound("Fant ikke journalposten eller dokumentet i SAF")
+        SafError.Forbidden -> UtbetalingError.ManglerTilgang("Du mangler tilgang til journalposten i SAF")
+        SafError.Error -> UtbetalingError.SafFeil
     }
 
     private fun QueryContext.getGjennomforingId(upsert: UpsertUtbetaling): UUID? = when (upsert) {

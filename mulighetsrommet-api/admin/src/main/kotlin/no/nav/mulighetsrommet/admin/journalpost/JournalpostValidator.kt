@@ -64,11 +64,11 @@ class SafJournalpostValidator(
         val validatedId = JournalpostId.parse(journalpostId)
             ?: return JournalpostValideringError.FeilFormat.left()
 
-        return safClient.hentJournalpost(journalpostId, accessType)
+        return safClient.hentBrukerForJournalpost(journalpostId, accessType)
             .mapLeft {
                 when (it) {
                     SafError.NotFound -> JournalpostValideringError.NotFound
-                    SafError.Error -> JournalpostValideringError.SafError
+                    SafError.Forbidden, SafError.Error -> JournalpostValideringError.SafError
                 }
             }
             .flatMap { journalpost ->

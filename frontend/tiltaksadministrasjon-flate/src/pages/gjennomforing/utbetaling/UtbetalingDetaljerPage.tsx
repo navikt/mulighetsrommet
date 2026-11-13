@@ -10,9 +10,11 @@ import {
   OpprettUtbetalingLinjerRequest,
   FieldError,
   UtbetalingStatusAarsak,
+  UtbetalingVedleggDto,
 } from "@tiltaksadministrasjon/api-client";
 import { formaterValutaBelop } from "@mr/frontend-common/utils/utils";
 import {
+  BodyShort,
   Box,
   Button,
   CopyButton,
@@ -52,6 +54,7 @@ import { BetalingsinformasjonDetaljer } from "@/components/utbetaling/Betalingsi
 import { useState } from "react";
 import {
   FileCheckmarkIcon,
+  FilePdfIcon,
   PencilIcon,
   PiggybankIcon,
   PlusCircleIcon,
@@ -70,6 +73,8 @@ import { TotrinnskontrollUtbetalingAvbrytelse } from "@/components/totrinnskontr
 import { TotrinnsBegrunnelse } from "@mr/frontend-common/components/TotrinnsBegrunnelse";
 import { aarsakTilTekst } from "@/utils/Utils";
 import { BekreftAvbrytelseModal } from "@/components/utbetaling/BekreftAvbrytelseModal";
+import { useVedleggForUtbetaling } from "@/api/utbetaling/useVedleggPdfBlob";
+import { UtbetalingVedleggModal } from "./UtbetalingVedleggModal";
 
 function useUtbetalingDetaljerData() {
   const { utbetalingId } = useRequiredParams(["utbetalingId"]);
@@ -82,9 +87,11 @@ export function UtbetalingDetaljerPage() {
   const navigate = useNavigate();
   const [errors, setErrors] = useState<FieldError[]>([]);
   const [modalVariant, setModalVariant] = useState<UtbetalingHandling | null>(null);
+  const [valgtVedlegg, setValgtVedlegg] = useState<UtbetalingVedleggDto | null>(null);
 
   const { utbetaling, handlinger, beregning } = useUtbetalingDetaljerData();
   const { data: utbetalingLinjer } = useUtbetalingsLinjer(utbetaling.id);
+  const { data: vedlegg = [] } = useVedleggForUtbetaling(utbetaling.id);
 
   const { gjennomforingId, periode, tilskuddstype } = utbetaling;
 
@@ -105,7 +112,7 @@ export function UtbetalingDetaljerPage() {
 
   return (
     <VStack>
-      <HStack justify="end" className="pb-6">
+      <HStack justify="end">
         <Endringshistorikk id={utbetaling.id} type={EndringshistorikkType.UTBETALING} />
         <Handlinger
           handlinger={handlinger}
@@ -162,135 +169,164 @@ export function UtbetalingDetaljerPage() {
           ]}
         />
       </HStack>
+      <Separator />
       <VStack gap="space-12">
         <TotrinnskontrollUtbetalingAvbrytelse utbetaling={utbetaling} />
-        <HGrid columns="1fr auto" align="start">
-          <TwoColumnGrid separator>
-            <Box>
-              <Heading size="medium" spacing level="3" data-testid="utbetaling-til-utbetaling">
-                Detaljer
-              </Heading>
-              <VStack gap="space-16">
-                <MetadataVStack
-                  label={utbetalingTekster.metadata.status}
-                  value={<UtbetalingStatusTag status={utbetaling.status} />}
+        <TwoColumnGrid separator>
+          <Box>
+            <Heading size="medium" spacing level="3" data-testid="utbetaling-til-utbetaling">
+              Detaljer
+            </Heading>
+            <VStack gap="space-16">
+              <MetadataVStack
+                label={utbetalingTekster.metadata.status}
+                value={<UtbetalingStatusTag status={utbetaling.status} />}
+              />
+              {utbetaling.avbruttBegrunnelse && (
+                <MetadataFritekstfelt
+                  label={utbetalingTekster.metadata.avbruttBegrunnelse}
+                  value={utbetaling.avbruttBegrunnelse}
                 />
-                {utbetaling.avbruttBegrunnelse && (
-                  <MetadataFritekstfelt
-                    label={utbetalingTekster.metadata.avbruttBegrunnelse}
-                    value={utbetaling.avbruttBegrunnelse}
+              )}
+              <MetadataVStack
+                label={utbetalingTekster.metadata.periode}
+                value={formaterPeriode(utbetaling.periode)}
+              />
+              <MetadataVStack
+                label={utbetalingTekster.beregning.belop.label}
+                value={formaterValutaBelop(utbetaling.beregning)}
+              />
+              {utbetaling.type.tagName && (
+                <HGrid columns="1fr 1fr" gap="space-24">
+                  <MetadataVStack
+                    label={utbetalingTekster.metadata.type}
+                    value={
+                      <HStack gap="space-4">
+                        {utbetaling.type.displayName}
+                        <UtbetalingTypeTag type={utbetaling.type.displayName} />
+                      </HStack>
+                    }
                   />
-                )}
-                <MetadataVStack
-                  label={utbetalingTekster.metadata.periode}
-                  value={formaterPeriode(utbetaling.periode)}
-                />
-                <MetadataVStack
-                  label={utbetalingTekster.beregning.belop.label}
-                  value={formaterValutaBelop(utbetaling.beregning)}
-                />
-                {utbetaling.type.tagName && (
-                  <HGrid columns="1fr 1fr" gap="space-24">
+                  {utbetaling.korreksjon?.opprinneligUtbetaling && (
                     <MetadataVStack
-                      label={utbetalingTekster.metadata.type}
+                      label={utbetalingTekster.korreksjon.gjelderUtbetaling}
                       value={
-                        <HStack gap="space-4">
-                          {utbetaling.type.displayName}
-                          <UtbetalingTypeTag type={utbetaling.type.displayName} />
+                        <Link
+                          as={ReactRouterLink}
+                          to={`/gjennomforinger/${utbetaling.gjennomforingId}/utbetalinger/${utbetaling.korreksjon.opprinneligUtbetaling}`}
+                        >
+                          Opprinnelig utbetaling
+                        </Link>
+                      }
+                    />
+                  )}
+                </HGrid>
+              )}
+              {utbetaling.korreksjon && (
+                <MetadataFritekstfelt
+                  label={utbetalingTekster.korreksjon.begrunnelse}
+                  value={utbetaling.korreksjon.begrunnelse}
+                />
+              )}
+              {utbetaling.utbetalesTidligstDato && (
+                <MetadataVStack
+                  label={
+                    <HStack align="center" gap="space-4">
+                      {utbetalingTekster.metadata.utbetalesTidligstDato}
+                      <HelpText>
+                        {utbetalingTekster.metadata.utbetalesTidligstDatoHelpText}
+                      </HelpText>
+                    </HStack>
+                  }
+                  value={formaterDato(utbetaling.utbetalesTidligstDato)}
+                />
+              )}
+            </VStack>
+          </Box>
+          <Box>
+            <Heading size="medium" level="3" spacing>
+              Betalingsinformasjon
+            </Heading>
+            <VStack gap="space-16">
+              {utbetaling.betalingsinformasjon && (
+                <BetalingsinformasjonDetaljer
+                  betalingsinformasjon={utbetaling.betalingsinformasjon}
+                />
+              )}
+              {utbetaling.begrunnelseMindreBetalt && (
+                <MetadataFritekstfelt
+                  label={utbetalingTekster.metadata.begrunnelseMindreBetalt}
+                  value={utbetaling.begrunnelseMindreBetalt}
+                />
+              )}
+              {utbetaling.kommentar && (
+                <MetadataFritekstfelt
+                  label={utbetalingTekster.metadata.kommentar}
+                  value={utbetaling.kommentar}
+                />
+              )}
+              {utbetaling.status.type === UtbetalingStatusDtoType.AVBRUTT_AV_NAV &&
+                utbetaling.avbrytelse && (
+                  <>
+                    <Separator />
+                    <TotrinnsBegrunnelse
+                      title="Begrunnelse for avbrytelse"
+                      aarsaker={utbetaling.avbrytelse.behandling.aarsaker.map((arsak) =>
+                        aarsakTilTekst(arsak as UtbetalingStatusAarsak),
+                      )}
+                      begrunnelse={utbetaling.avbrytelse.behandling.begrunnelse}
+                    />
+                  </>
+                )}
+
+              <Box>
+                <Heading size="medium" level="3" spacing>
+                  Journalpost i Gosys
+                </Heading>
+                <HGrid gap="space-16" columns={2}>
+                  <MetadataVStack
+                    label="Dokumenter"
+                    value={
+                      vedlegg.length > 0 ? (
+                        <VStack gap="space-4">
+                          {vedlegg.map((vedlegg) => (
+                            <Button
+                              type="button"
+                              variant="tertiary"
+                              size="small"
+                              onClick={() => setValgtVedlegg(vedlegg)}
+                              className="self-start"
+                              icon={<FilePdfIcon aria-hidden />}
+                            >
+                              {vedlegg.tittel || "Vedlegg"}
+                            </Button>
+                          ))}
+                        </VStack>
+                      ) : (
+                        <BodyShort>Fant ingen tilgjengelige dokumenter</BodyShort>
+                      )
+                    }
+                  />
+                  {utbetaling.journalpostId && (
+                    <MetadataVStack
+                      label="Journalpost-ID"
+                      value={
+                        <HStack align="center">
+                          <CopyButton
+                            size="small"
+                            copyText={utbetaling.journalpostId}
+                            title="Kopier journalpost-ID"
+                          />
+                          {utbetaling.journalpostId}
                         </HStack>
                       }
                     />
-                    {utbetaling.korreksjon?.opprinneligUtbetaling && (
-                      <MetadataVStack
-                        label={utbetalingTekster.korreksjon.gjelderUtbetaling}
-                        value={
-                          <Link
-                            as={ReactRouterLink}
-                            to={`/gjennomforinger/${utbetaling.gjennomforingId}/utbetalinger/${utbetaling.korreksjon.opprinneligUtbetaling}`}
-                          >
-                            Opprinnelig utbetaling
-                          </Link>
-                        }
-                      />
-                    )}
-                  </HGrid>
-                )}
-                {utbetaling.korreksjon && (
-                  <MetadataFritekstfelt
-                    label={utbetalingTekster.korreksjon.begrunnelse}
-                    value={utbetaling.korreksjon.begrunnelse}
-                  />
-                )}
-                {utbetaling.utbetalesTidligstDato && (
-                  <MetadataVStack
-                    label={
-                      <HStack align="center" gap="space-4">
-                        {utbetalingTekster.metadata.utbetalesTidligstDato}
-                        <HelpText>
-                          {utbetalingTekster.metadata.utbetalesTidligstDatoHelpText}
-                        </HelpText>
-                      </HStack>
-                    }
-                    value={formaterDato(utbetaling.utbetalesTidligstDato)}
-                  />
-                )}
-              </VStack>
-            </Box>
-            <Box>
-              <Heading size="medium" level="3" spacing>
-                Betalingsinformasjon
-              </Heading>
-              <VStack gap="space-16">
-                {utbetaling.betalingsinformasjon && (
-                  <BetalingsinformasjonDetaljer
-                    betalingsinformasjon={utbetaling.betalingsinformasjon}
-                  />
-                )}
-                {utbetaling.journalpostId && (
-                  <MetadataVStack
-                    label="Journalpost-ID i Gosys"
-                    value={
-                      <HStack align="center">
-                        <CopyButton
-                          size="small"
-                          copyText={utbetaling.journalpostId}
-                          title="Kopier journalpost-ID"
-                        />
-                        {utbetaling.journalpostId}
-                      </HStack>
-                    }
-                  />
-                )}
-
-                {utbetaling.begrunnelseMindreBetalt && (
-                  <MetadataFritekstfelt
-                    label={utbetalingTekster.metadata.begrunnelseMindreBetalt}
-                    value={utbetaling.begrunnelseMindreBetalt}
-                  />
-                )}
-                {utbetaling.kommentar && (
-                  <MetadataFritekstfelt
-                    label={utbetalingTekster.metadata.kommentar}
-                    value={utbetaling.kommentar}
-                  />
-                )}
-              </VStack>
-            </Box>
-            {utbetaling.status.type === UtbetalingStatusDtoType.AVBRUTT_AV_NAV &&
-              utbetaling.avbrytelse && (
-                <>
-                  <Separator />
-                  <TotrinnsBegrunnelse
-                    title="Begrunnelse for avbrytelse"
-                    aarsaker={utbetaling.avbrytelse.behandling.aarsaker.map((arsak) =>
-                      aarsakTilTekst(arsak as UtbetalingStatusAarsak),
-                    )}
-                    begrunnelse={utbetaling.avbrytelse.behandling.begrunnelse}
-                  />
-                </>
-              )}
-          </TwoColumnGrid>
-        </HGrid>
+                  )}
+                </HGrid>
+              </Box>
+            </VStack>
+          </Box>
+        </TwoColumnGrid>
         <UtbetalingBeregningView
           utbetalingId={utbetaling.id}
           beregning={beregning}
@@ -350,6 +386,13 @@ export function UtbetalingDetaljerPage() {
             utbetalingId={utbetaling.id}
             open={modalVariant === UtbetalingHandling.SLETT}
             onClose={() => setModalVariant(null)}
+          />
+          <UtbetalingVedleggModal
+            open={valgtVedlegg !== null}
+            onClose={() => setValgtVedlegg(null)}
+            dokumentInfoId={valgtVedlegg?.dokumentInfoId ?? ""}
+            utbetalingId={utbetaling.id}
+            title={valgtVedlegg?.tittel || "Vedlegg"}
           />
         </HStack>
       </VStack>

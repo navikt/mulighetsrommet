@@ -3,7 +3,7 @@ import { TilskuddBehandlingRequest, ValidationError } from "@tiltaksadministrasj
 import { useEffect } from "react";
 import { useFormContext } from "react-hook-form";
 import { applyValidationErrors } from "@/components/skjema/helpers";
-import { VedtaksbrevPdf } from "@/components/tilskudd-behandling/VedtaksbrevPdf";
+import { ForhandsvisningPdf } from "@/components/tilskudd-behandling/ForhandsvisningPdf";
 
 export function Vedtaksbrev() {
   const vedtaksbrevMutation = useVedtaksbrevPdfBlobPost();
@@ -15,7 +15,8 @@ export function Vedtaksbrev() {
     });
   }, []);
   return (
-    <VedtaksbrevPdf
+    <ForhandsvisningPdf
+      title="Forhåndsvisning av vedtaksbrev"
       blob={vedtaksbrevMutation.data}
       isLoading={vedtaksbrevMutation.isPending}
       isError={vedtaksbrevMutation.isError}

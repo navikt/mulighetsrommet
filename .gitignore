@@ -42,6 +42,7 @@ docker-compose.override.yml
 
 # For å unngå genererte test-pdf'er
 *.pdf
+!mulighetsrommet-api/server/src/main/resources/local-saf.pdf
 
 # Mise-en-place files in subdirectories
 **/mise.toml
