@@ -10,6 +10,7 @@ resource "google_bigquery_table_iam_member" "mr_api_views_all_users_data_viewer"
     utdanning_view                                  = module.mr_api_utdanning_view.bigquery_view_id
     gjennomforing_utdanningsprogram_view            = module.mr_api_gjennomforing_utdanningsprogram_view.bigquery_view_id
     gjennomforing_enkeltplass_godkjenn_okonomi_view = module.mr_api_gjennomforing_enkeltplass_godkjenn_okonomi_view.bigquery_view_id
+    tilsagn_enkeltplass_view                        = module.mr_api_tilsagn_enkeltplass_view.bigquery_view_id
   }
 
   project    = var.gcp_project["project"]
@@ -599,5 +600,111 @@ inner join `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}
 inner join siste_totrinnskontroll tk on tk.entity_id = g.id
 where g.gjennomforing_type = 'ENKELTPLASS'
 order by g.id, tk.behandlet_tidspunkt desc;
+EOF
+}
+
+module "mr_api_tilsagn_enkeltplass_view" {
+  view_id             = "tilsagn_enkeltplass_view"
+  source              = "../modules/google-bigquery-view"
+  deletion_protection = false
+  dataset_id          = module.mr_api_datastream.dataset_id
+  view_schema = jsonencode(
+    [
+      {
+        mode        = "NULLABLE"
+        name        = "gjennomforing_id"
+        type        = "STRING"
+        description = "ID for gjennomføring"
+      },
+      {
+        mode        = "NULLABLE"
+        name        = "gjennomforing_status"
+        type        = "STRING"
+        description = "Status for gjennomføring"
+      },
+      {
+        mode        = "NULLABLE"
+        name        = "prismodell_type"
+        type        = "STRING"
+        description = "Type prismodell"
+      },
+      {
+        mode        = "NULLABLE"
+        name        = "tilsagn_id"
+        type        = "STRING"
+        description = "ID for tilsagn"
+      },
+      {
+        mode        = "NULLABLE"
+        name        = "tilsagn_status"
+        type        = "STRING"
+        description = "Status for tilsagn"
+      },
+      {
+        mode        = "NULLABLE"
+        name        = "tilsagn_belop_beregnet"
+        type        = "INT64"
+        description = "Beregnet beløp for tilsagn"
+      },
+      {
+        mode        = "NULLABLE"
+        name        = "tilsagn_belop_brukt"
+        type        = "INT64"
+        description = "Brukt beløp for tilsagn"
+      },
+      {
+        mode        = "NULLABLE"
+        name        = "totrinnskontroll_type"
+        type        = "STRING"
+        description = "Type totrinnskontroll"
+      },
+
+      {
+        mode        = "NULLABLE"
+        name        = "totrinnskontroll_status"
+        type        = "STRING"
+        description = "Totrinnskontroll status"
+      },
+      {
+        mode        = "NULLABLE"
+        name        = "totrinnskontroll_behandlet_tidspunkt"
+        type        = "TIMESTAMP"
+        description = "Totrinnskontroll behandlet tidspunkt"
+      },
+      {
+        mode        = "NULLABLE"
+        name        = "totrinnskontroll_besluttet_tidspunkt"
+        type        = "TIMESTAMP"
+        description = "Totrinnskontroll besluttet tidspunkt"
+      },
+    ]
+  )
+  view_query = <<EOF
+SELECT
+    t.gjennomforing_id,
+    g.status as gjennomforing_status,
+    p.prismodell_type,
+    t.id AS tilsagn_id,
+    t.status AS tilsagn_status,
+    t.belop_beregnet AS tilsagn_belop_beregnet,
+    t.belop_brukt AS tilsagn_belop_brukt,
+    tk.type AS totrinnskontroll_type,
+    tk.status AS totrinnskontroll_status,
+    tk.behandlet_tidspunkt AS totrinnskontroll_behandlet_tidspunkt,
+    tk.besluttet_tidspunkt AS totrinnskontroll_besluttet_tidspunkt
+FROM `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_tilsagn` AS t
+INNER JOIN `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_gjennomforing` AS g
+    ON t.gjennomforing_id = g.id
+INNER JOIN `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_prismodell` AS p
+    ON p.id = g.prismodell_id
+INNER JOIN `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_totrinnskontroll` AS tk
+    ON tk.entity_id = t.id
+WHERE g.gjennomforing_type = 'ENKELTPLASS'
+ORDER BY
+    t.gjennomforing_id,
+    p.prismodell_type,
+    t.status,
+    tk.type,
+    tk.status;
 EOF
 }
