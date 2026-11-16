@@ -162,6 +162,14 @@ module "mr_api_datastream" {
           ]
         },
         {
+          table = "tilskudd",
+          columns = [
+            "id",
+            "tilskudd_opplaering_id",
+            "gjennomforing_id",
+          ]
+        },
+        {
           table = "tilskudd_opplaering",
           columns = [
             "id",
@@ -173,7 +181,7 @@ module "mr_api_datastream" {
         },
         {
           table = "tilskudd_vedtak",
-          columnds = [
+          columns = [
             "id",
             "tilskudd_id",
             "tilskudd_behandling_id",
