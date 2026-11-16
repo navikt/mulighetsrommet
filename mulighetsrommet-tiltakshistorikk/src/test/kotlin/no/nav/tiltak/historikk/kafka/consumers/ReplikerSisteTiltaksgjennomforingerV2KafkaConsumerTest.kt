@@ -23,6 +23,7 @@ import no.nav.tiltak.historikk.model.Gjennomforing
 import no.nav.tiltak.historikk.model.Virksomhet
 import no.nav.tiltak.historikk.replikering.GjennomforingReplikering
 import no.nav.tiltak.historikk.replikering.VirksomhetReplikering
+import java.time.Instant
 
 class ReplikerSisteTiltaksgjennomforingerV2KafkaConsumerTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))
@@ -45,7 +46,10 @@ class ReplikerSisteTiltaksgjennomforingerV2KafkaConsumerTest : FunSpec({
             GjennomforingReplikering(db, mockk(relaxed = true)),
         )
 
-        val gruppe: TiltaksgjennomforingV2Dto = TestFixtures.Gjennomforing.gruppeAmo
+        val gruppe: TiltaksgjennomforingV2Dto = TestFixtures.Gjennomforing.gruppeAmo.copy(
+            opprettetTidspunkt = Instant.parse("2025-01-01T00:00:00.123456789Z"),
+            oppdatertTidspunkt = Instant.parse("2025-01-02T00:00:00.987654789Z"),
+        )
         val enkeltplass: TiltaksgjennomforingV2Dto = TestFixtures.Gjennomforing.enkelAmo
 
         beforeEach {
@@ -66,6 +70,8 @@ class ReplikerSisteTiltaksgjennomforingerV2KafkaConsumerTest : FunSpec({
                     arrangorOrganisasjonsnummer = "987654321",
                     navn = "Gruppe AMO",
                     deltidsprosent = 80.0,
+                    opprettetTidspunkt = Instant.parse("2025-01-01T00:00:00.123456Z"),
+                    oppdatertTidspunkt = Instant.parse("2025-01-02T00:00:00.987654Z"),
                 )
                 queries.gjennomforing.get(enkeltplass.id) shouldBe Gjennomforing(
                     id = enkeltplass.id,
@@ -74,14 +80,23 @@ class ReplikerSisteTiltaksgjennomforingerV2KafkaConsumerTest : FunSpec({
                     arrangorOrganisasjonsnummer = "987654321",
                     navn = null,
                     deltidsprosent = null,
+                    opprettetTidspunkt = Instant.parse("2025-01-01T00:00:00Z"),
+                    oppdatertTidspunkt = Instant.parse("2025-01-02T00:00:00Z"),
                 )
             }
 
-            var updatedGruppe: TiltaksgjennomforingV2Dto = TestFixtures.Gjennomforing.gruppeAmo.copy(navn = "Nytt navn")
+            var updatedGruppe: TiltaksgjennomforingV2Dto = TestFixtures.Gjennomforing.gruppeAmo.copy(
+                navn = "Nytt navn",
+                opprettetTidspunkt = gruppe.opprettetTidspunkt,
+                oppdatertTidspunkt = Instant.parse("2025-01-03T12:34:56.123456789Z"),
+            )
             consumer.consume(gruppe.id, Json.encodeToJsonElement(updatedGruppe))
 
             db.session {
-                queries.gjennomforing.get(gruppe.id)?.navn shouldBe "Nytt navn"
+                val lagret = queries.gjennomforing.get(gruppe.id).shouldNotBeNull()
+                lagret.navn shouldBe "Nytt navn"
+                lagret.opprettetTidspunkt shouldBe Instant.parse("2025-01-01T00:00:00.123456Z")
+                lagret.oppdatertTidspunkt shouldBe Instant.parse("2025-01-03T12:34:56.123456Z")
             }
         }
 
@@ -103,6 +118,28 @@ class ReplikerSisteTiltaksgjennomforingerV2KafkaConsumerTest : FunSpec({
             db.session {
                 queries.gjennomforing.get(gruppe.id).shouldBeNull()
                 queries.gjennomforing.get(enkeltplass.id).shouldBeNull()
+            }
+        }
+
+        test("gjennomføringer uten kjente kildetidsstempler kan leses og fylles ut ved replikering") {
+            db.session {
+                queries.gjennomforing.upsert(
+                    gruppe.toGjennomforing().copy(
+                        opprettetTidspunkt = null,
+                        oppdatertTidspunkt = null,
+                    ),
+                )
+                val lagret = queries.gjennomforing.get(gruppe.id).shouldNotBeNull()
+                lagret.opprettetTidspunkt.shouldBeNull()
+                lagret.oppdatertTidspunkt.shouldBeNull()
+            }
+
+            consumer.consume(gruppe.id, Json.encodeToJsonElement(gruppe))
+
+            db.session {
+                val lagret = queries.gjennomforing.get(gruppe.id).shouldNotBeNull()
+                lagret.opprettetTidspunkt shouldBe Instant.parse("2025-01-01T00:00:00.123456Z")
+                lagret.oppdatertTidspunkt shouldBe Instant.parse("2025-01-02T00:00:00.987654Z")
             }
         }
     }

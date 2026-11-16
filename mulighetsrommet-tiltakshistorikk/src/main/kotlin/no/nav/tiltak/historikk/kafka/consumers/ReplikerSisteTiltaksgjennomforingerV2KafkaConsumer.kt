@@ -33,6 +33,8 @@ fun TiltaksgjennomforingV2Dto.toGjennomforing(): Gjennomforing {
             arrangorOrganisasjonsnummer = arrangor.organisasjonsnummer.value,
             navn = navn,
             deltidsprosent = deltidsprosent,
+            opprettetTidspunkt = opprettetTidspunkt,
+            oppdatertTidspunkt = oppdatertTidspunkt,
         )
 
         is TiltaksgjennomforingV2Dto.Enkeltplass -> Gjennomforing(
@@ -42,6 +44,8 @@ fun TiltaksgjennomforingV2Dto.toGjennomforing(): Gjennomforing {
             arrangorOrganisasjonsnummer = arrangor.organisasjonsnummer.value,
             navn = null,
             deltidsprosent = null,
+            opprettetTidspunkt = opprettetTidspunkt,
+            oppdatertTidspunkt = oppdatertTidspunkt,
         )
     }
 }

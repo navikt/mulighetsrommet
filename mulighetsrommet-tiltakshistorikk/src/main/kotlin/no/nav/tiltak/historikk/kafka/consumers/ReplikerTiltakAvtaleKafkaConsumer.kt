@@ -13,7 +13,6 @@ import no.nav.tiltak.historikk.model.ArbeidsgiverAvtale
 import no.nav.tiltak.historikk.replikering.ArbeidsgiverAvtaleReplikering
 import org.slf4j.LoggerFactory
 import java.time.ZoneId
-import java.time.temporal.ChronoUnit
 import java.util.UUID
 
 class ReplikerTiltakAvtaleKafkaConsumer(
@@ -50,8 +49,8 @@ fun TiltakAvtaleHendelseDto.toArbeidsgiverAvtale(organisasjonsnummer: Organisasj
     status = avtaleStatus.toArbeidsgiverAvtaleStatus(),
     stillingsprosent = stillingprosent,
     dagerPerUke = antallDagerPerUke,
-    opprettetTidspunkt = opprettetTidspunkt.atZone(ZoneId.of("Europe/Oslo")).toInstant().truncatedTo(ChronoUnit.MICROS),
-    oppdatertTidspunkt = sistEndret.truncatedTo(ChronoUnit.MICROS),
+    opprettetTidspunkt = opprettetTidspunkt.atZone(ZoneId.of("Europe/Oslo")).toInstant(),
+    oppdatertTidspunkt = sistEndret,
 )
 
 private fun TiltakAvtaleHendelseDto.Tiltakstype.toArbeidsgiverAvtaleTiltakstype() = when (this) {

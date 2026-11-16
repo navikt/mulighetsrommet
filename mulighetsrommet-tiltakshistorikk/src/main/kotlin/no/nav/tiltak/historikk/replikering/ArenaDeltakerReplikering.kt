@@ -7,7 +7,11 @@ import java.util.UUID
 class ArenaDeltakerReplikering(
     private val db: TiltakshistorikkDatabase,
 ) {
-    fun upsert(deltaker: TiltakshistorikkArenaDeltaker): Unit = db.session {
+    fun upsert(input: TiltakshistorikkArenaDeltaker): Unit = db.session {
+        val deltaker = input.copy(
+            arenaRegDato = input.arenaRegDato.truncatedToMicros(),
+            arenaModDato = input.arenaModDato.truncatedToMicros(),
+        )
         queries.arenaDeltaker.upsertArenaDeltaker(deltaker)
     }
 

@@ -11,7 +11,12 @@ class KometDeltakerReplikering(
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    fun upsert(deltaker: KometDeltaker) {
+    fun upsert(input: KometDeltaker) {
+        val deltaker = input.copy(
+            statusOpprettetTidspunkt = input.statusOpprettetTidspunkt.truncatedToMicros(),
+            opprettetTidspunkt = input.opprettetTidspunkt.truncatedToMicros(),
+            oppdatertTidspunkt = input.oppdatertTidspunkt.truncatedToMicros(),
+        )
         val id = deltaker.id
         if (deltaker.statusType == DeltakerStatusType.FEILREGISTRERT) {
             logger.info("Sletter deltaker med id=$id fordi den var feilregistrert")

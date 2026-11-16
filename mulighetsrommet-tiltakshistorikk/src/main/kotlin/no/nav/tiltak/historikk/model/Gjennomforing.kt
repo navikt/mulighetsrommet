@@ -1,6 +1,7 @@
 package no.nav.tiltak.historikk.model
 
 import no.nav.mulighetsrommet.model.Tiltakskode
+import java.time.Instant
 import java.util.UUID
 
 data class Gjennomforing(
@@ -10,6 +11,8 @@ data class Gjennomforing(
     val arrangorOrganisasjonsnummer: String,
     val navn: String?,
     val deltidsprosent: Double?,
+    val opprettetTidspunkt: Instant?,
+    val oppdatertTidspunkt: Instant?,
 ) {
     enum class Type {
         GRUPPE,

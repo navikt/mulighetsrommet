@@ -11,12 +11,27 @@ class TiltakstypeQueries(private val session: Session) {
     fun upsert(tiltakstype: Tiltakstype) {
         @Language("PostgreSQL")
         val query = """
-            insert into tiltakstype(arena_tiltakskode, tiltakskode, navn, tiltakstype_id)
-            values (:arena_tiltakskode, :tiltakskode, :navn, :tiltakstype_id::uuid)
+            insert into tiltakstype(
+                arena_tiltakskode,
+                tiltakskode,
+                navn,
+                tiltakstype_id,
+                opprettet_tidspunkt,
+                oppdatert_tidspunkt
+            ) values (
+                :arena_tiltakskode,
+                :tiltakskode,
+                :navn,
+                :tiltakstype_id::uuid,
+                :opprettet_tidspunkt,
+                :oppdatert_tidspunkt
+            )
             on conflict (tiltakstype_id) do update
                 set arena_tiltakskode = excluded.arena_tiltakskode,
                     navn = excluded.navn,
-                    tiltakskode = excluded.tiltakskode
+                    tiltakskode = excluded.tiltakskode,
+                    opprettet_tidspunkt = excluded.opprettet_tidspunkt,
+                    oppdatert_tidspunkt = excluded.oppdatert_tidspunkt
         """.trimIndent()
         session.execute(
             queryOf(
@@ -26,6 +41,8 @@ class TiltakstypeQueries(private val session: Session) {
                     "tiltakskode" to tiltakstype.tiltakskode?.name,
                     "navn" to tiltakstype.navn,
                     "tiltakstype_id" to tiltakstype.tiltakstypeId,
+                    "opprettet_tidspunkt" to tiltakstype.opprettetTidspunkt,
+                    "oppdatert_tidspunkt" to tiltakstype.oppdatertTidspunkt,
                 ),
             ),
         )
@@ -34,7 +51,7 @@ class TiltakstypeQueries(private val session: Session) {
     fun getByTiltakskode(tiltakstype: Tiltakskode): Tiltakstype {
         @Language("PostgreSQL")
         val query = """
-            select navn, tiltakskode, arena_tiltakskode, tiltakstype_id
+            select navn, tiltakskode, arena_tiltakskode, tiltakstype_id, opprettet_tidspunkt, oppdatert_tidspunkt
             from tiltakstype
             where tiltakskode = ?
         """.trimIndent()
@@ -44,6 +61,8 @@ class TiltakstypeQueries(private val session: Session) {
                 tiltakskode = Tiltakskode.valueOf(row.string("tiltakskode")),
                 arenaTiltakskode = row.stringOrNull("arena_tiltakskode"),
                 tiltakstypeId = row.uuid("tiltakstype_id"),
+                opprettetTidspunkt = row.instantOrNull("opprettet_tidspunkt"),
+                oppdatertTidspunkt = row.instantOrNull("oppdatert_tidspunkt"),
             )
         }
     }

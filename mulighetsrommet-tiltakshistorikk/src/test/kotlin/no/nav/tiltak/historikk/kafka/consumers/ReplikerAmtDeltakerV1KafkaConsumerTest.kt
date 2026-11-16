@@ -2,6 +2,7 @@ package no.nav.tiltak.historikk.kafka.consumers
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonNull
@@ -38,11 +39,31 @@ class ReplikerAmtDeltakerV1KafkaConsumerTest : FunSpec({
             database.truncateAll()
         }
 
-        test("upsert deltakere from topic") {
-            deltakerConsumer.consume(amtDeltaker1.id, Json.encodeToJsonElement(amtDeltaker1))
+        test("normaliserer deltakerens tidsstempler før lagring og sammenligning") {
+            val deltaker = amtDeltaker1.copy(
+                status = amtDeltaker1.status.copy(
+                    opprettetDato = LocalDateTime.parse("2025-01-01T10:00:00.123456789"),
+                ),
+                registrertDato = LocalDateTime.parse("2025-01-01T10:00:00.123456789"),
+                endretDato = LocalDateTime.parse("2025-01-02T11:00:00.987654789"),
+            )
+            deltakerConsumer.consume(deltaker.id, Json.encodeToJsonElement(deltaker))
 
             db.session {
-                queries.kometDeltaker.get(amtDeltaker1.id)?.id shouldBe amtDeltaker1.id
+                val lagret = queries.kometDeltaker.get(deltaker.id).shouldNotBeNull()
+                lagret.statusOpprettetTidspunkt shouldBe LocalDateTime.parse("2025-01-01T10:00:00.123456")
+                lagret.opprettetTidspunkt shouldBe LocalDateTime.parse("2025-01-01T10:00:00.123456")
+                lagret.oppdatertTidspunkt shouldBe LocalDateTime.parse("2025-01-02T11:00:00.987654")
+            }
+
+            val oppdatertDeltaker = deltaker.copy(
+                startDato = LocalDate.of(2025, 2, 1),
+                endretDato = LocalDateTime.parse("2025-01-02T11:00:00.987654001"),
+            )
+            deltakerConsumer.consume(deltaker.id, Json.encodeToJsonElement(oppdatertDeltaker))
+
+            db.session {
+                queries.kometDeltaker.get(deltaker.id)?.startDato shouldBe LocalDate.of(2025, 2, 1)
             }
         }
 

@@ -24,6 +24,8 @@ object TestFixtures {
             tiltakstypeId = UUID.fromString(
                 "9b52265c-914c-413d-bca4-e9d7b3f1bd8d",
             ),
+            opprettetTidspunkt = Instant.parse("2024-12-31T23:00:00Z"),
+            oppdatertTidspunkt = Instant.parse("2025-01-01T23:00:00Z"),
         )
 
         val enkelAmo = Tiltakstype(
@@ -33,6 +35,8 @@ object TestFixtures {
             tiltakstypeId = UUID.fromString(
                 "156f003f-e391-4b0d-9dba-ce398bf5fdde",
             ),
+            opprettetTidspunkt = Instant.parse("2024-12-31T23:00:00Z"),
+            oppdatertTidspunkt = Instant.parse("2025-01-01T23:00:00Z"),
         )
 
         val amo = Tiltakstype(
@@ -42,6 +46,8 @@ object TestFixtures {
             tiltakstypeId = UUID.fromString(
                 "d5f724d6-4779-41f8-b9e6-e54cb6486b93",
             ),
+            opprettetTidspunkt = Instant.parse("2024-12-31T23:00:00Z"),
+            oppdatertTidspunkt = Instant.parse("2025-01-01T23:00:00Z"),
         )
 
         val mentor = Tiltakstype(
@@ -51,6 +57,8 @@ object TestFixtures {
             tiltakstypeId = UUID.fromString(
                 "5d48aa11-b394-40ba-ae22-2b62f68f4191",
             ),
+            opprettetTidspunkt = Instant.parse("2024-12-31T23:00:00Z"),
+            oppdatertTidspunkt = Instant.parse("2025-01-01T23:00:00Z"),
         )
 
         val arbeidstrening = Tiltakstype(
@@ -60,6 +68,8 @@ object TestFixtures {
             tiltakstypeId = UUID.fromString(
                 "c1cdf1ea-6d47-40f6-9787-d64670b5ae08",
             ),
+            opprettetTidspunkt = Instant.parse("2024-12-31T23:00:00Z"),
+            oppdatertTidspunkt = Instant.parse("2025-01-01T23:00:00Z"),
         )
     }
 
@@ -106,8 +116,8 @@ object TestFixtures {
             apentForPamelding = true,
             antallPlasser = 10,
             deltidsprosent = 80.0,
-            opprettetTidspunkt = Instant.now(),
-            oppdatertTidspunkt = Instant.now(),
+            opprettetTidspunkt = Instant.parse("2025-01-01T00:00:00Z"),
+            oppdatertTidspunkt = Instant.parse("2025-01-02T00:00:00Z"),
             oppmoteSted = null,
             pameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,
         )
@@ -120,8 +130,8 @@ object TestFixtures {
                 organisasjonsnummer = Organisasjonsnummer("987654321"),
             ),
             status = TiltaksgjennomforingV2Dto.Status.GJENNOMFORES,
-            opprettetTidspunkt = Instant.now(),
-            oppdatertTidspunkt = Instant.now(),
+            opprettetTidspunkt = Instant.parse("2025-01-01T00:00:00Z"),
+            oppdatertTidspunkt = Instant.parse("2025-01-02T00:00:00Z"),
             oppstart = GjennomforingOppstartstype.ENKELTPLASS,
             pameldingType = GjennomforingPameldingType.TRENGER_GODKJENNING,
         )

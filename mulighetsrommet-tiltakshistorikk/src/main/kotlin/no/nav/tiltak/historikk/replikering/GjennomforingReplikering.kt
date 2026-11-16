@@ -9,7 +9,11 @@ class GjennomforingReplikering(
     private val db: TiltakshistorikkDatabase,
     private val virksomheter: VirksomhetReplikering,
 ) {
-    suspend fun upsert(gjennomforing: Gjennomforing) {
+    suspend fun upsert(input: Gjennomforing) {
+        val gjennomforing = input.copy(
+            opprettetTidspunkt = input.opprettetTidspunkt?.truncatedToMicros(),
+            oppdatertTidspunkt = input.oppdatertTidspunkt?.truncatedToMicros(),
+        )
         val organisasjonsnummer = Organisasjonsnummer(gjennomforing.arrangorOrganisasjonsnummer)
         virksomheter.getOrSyncVirksomhetIfNotExists(organisasjonsnummer).onLeft { error ->
             throw IllegalStateException("Forventet å finne virksomhet med orgnr=$organisasjonsnummer i Brreg. Er orgnr gyldig? Error: $error")
