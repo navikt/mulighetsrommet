@@ -407,6 +407,13 @@ module "mr_api_datastream" {
         table_id   = "tilsagn_enkeltplass_view"
       }
     },
+    {
+      view = {
+        dataset_id = "mulighetsrommet_api_datastream"
+        project_id = var.gcp_project["project"]
+        table_id   = "utbetaling_enkeltplass_view"
+      }
+    },
     # Grafana dataset read access:
     {
       view = {
