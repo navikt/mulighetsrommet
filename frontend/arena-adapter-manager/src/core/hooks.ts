@@ -1,25 +1,25 @@
 import { useEffect, useState } from "react";
-import { KafkaConsumerRecord, ScheduledTask, Topic } from "../domain";
+import { KafkaConsumerRecord, ScheduledTask, KafkaTopicConsumer } from "../domain";
 import {
   ApiBase,
   getArenaTables,
   getFailedKafkaConsumerRecords,
   getFailedScheduledTasks,
-  getTopics,
+  getKafkaConsumers,
 } from "./api";
 
-export function useTopics(base: ApiBase) {
-  const [topics, setTopics] = useState<Topic[]>([]);
+export function useKafkaConsumers(base: ApiBase) {
+  const [consumers, setConsumers] = useState<KafkaTopicConsumer[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   useEffect(() => {
-    const fetchTopics = async () => {
-      const t = await getTopics(base);
-      setTopics(t ?? []);
+    const fetchConsumers = async () => {
+      const consumers = await getKafkaConsumers(base);
+      setConsumers(consumers ?? []);
       setIsLoading(false);
     };
-    fetchTopics();
+    fetchConsumers();
   }, [base]);
-  return { topics, isTopicsLoading: isLoading, setTopics };
+  return { consumers, isConsumersLoading: isLoading, setConsumers };
 }
 
 export function useArenaTables() {

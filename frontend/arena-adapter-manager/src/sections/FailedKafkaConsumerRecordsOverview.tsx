@@ -1,11 +1,12 @@
 import { KafkaConsumerRecord } from "src/domain";
 import { JsonOrTextValue } from "../components/JsonOrTextValue";
 import { Section } from "../components/Section";
-import { ApiBase, putRetryFailedKafkaRecord } from "../core/api";
+import { ApiBase, deleteFailedKafkaRecord, putRetryFailedKafkaRecord } from "../core/api";
 import { useFailedKafkaConsumerRecords } from "../core/hooks";
 import { BodyShort, Box, Button, HStack, Label, Table, VStack } from "@navikt/ds-react";
-import { formatUTCDate } from "../utils";
-import { PencilIcon } from "@navikt/aksel-icons";
+import { formatUTCDate, isDevelopment } from "../utils";
+import { PencilIcon, TrashIcon } from "@navikt/aksel-icons";
+import { DeleteConfirmationModal } from "../components/DeleteConfirmationModal";
 import { ExecutionTimeModalForm } from "../components/forms/ExecutionTimeModalForm";
 import { useState } from "react";
 
@@ -22,6 +23,7 @@ interface ExecutionTimeData {
 function FailedKafkaConsumerRecordsOverview({ base }: Props) {
   const { records, isLoading, refetch } = useFailedKafkaConsumerRecords(base);
   const [data, setData] = useState<ExecutionTimeData | null>(null);
+  const [recordToDelete, setRecordToDelete] = useState<KafkaConsumerRecord | null>(null);
 
   async function handleSubmit(previousData: ExecutionTimeData, newTime: Date) {
     setData(null);
@@ -51,7 +53,7 @@ function FailedKafkaConsumerRecordsOverview({ base }: Props) {
               <Table.HeaderCell>Topic</Table.HeaderCell>
               <Table.HeaderCell>Retries</Table.HeaderCell>
               <Table.HeaderCell>Last retry</Table.HeaderCell>
-              <Table.HeaderCell></Table.HeaderCell>
+              <Table.HeaderCell>Delete</Table.HeaderCell>
             </Table.Row>
           </Table.Header>
           <Table.Body>
@@ -79,6 +81,15 @@ function FailedKafkaConsumerRecordsOverview({ base }: Props) {
                   <Table.DataCell>{record.topic}</Table.DataCell>
                   <Table.DataCell>{record.retries}</Table.DataCell>
                   <Table.DataCell>{lastRetry}</Table.DataCell>
+                  <Table.DataCell>
+                    <Button
+                      variant="secondary"
+                      data-color="danger"
+                      disabled={!isDevelopment()}
+                      icon={<TrashIcon title="Delete Kafka record" />}
+                      onClick={() => setRecordToDelete(record)}
+                    />
+                  </Table.DataCell>
                 </Table.ExpandableRow>
               );
             })}
@@ -91,6 +102,18 @@ function FailedKafkaConsumerRecordsOverview({ base }: Props) {
           onSubmit={(executionTime) => handleSubmit(data, executionTime)}
           onClose={() => setData(null)}
           displayData={{ Id: data.id.toString(), Topic: data.topic }}
+        />
+      )}
+      {recordToDelete && (
+        <DeleteConfirmationModal
+          title="Delete Kafka record?"
+          description={`Delete record ${recordToDelete.id} from ${recordToDelete.topic}?`}
+          onConfirm={async () => {
+            const deleted = await deleteFailedKafkaRecord(base, recordToDelete);
+            if (deleted) refetch();
+            return deleted;
+          }}
+          onClose={() => setRecordToDelete(null)}
         />
       )}
     </Section>

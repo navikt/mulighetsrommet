@@ -1,10 +1,10 @@
-import TopicOverview from "../sections/TopicOverview";
+import KafkaConsumersOverview from "../sections/KafkaConsumersOverview";
 import { ApiBase } from "../core/api.tsx";
 
 export function Tiltakshistorikk() {
   return (
     <>
-      <TopicOverview base={ApiBase.TILTAKSHISTORIKK} />
+      <KafkaConsumersOverview base={ApiBase.TILTAKSHISTORIKK} />
     </>
   );
 }

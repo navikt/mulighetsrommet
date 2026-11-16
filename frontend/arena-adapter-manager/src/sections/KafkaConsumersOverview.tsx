@@ -1,62 +1,60 @@
 import { ChangeEvent, useState } from "react";
 import { Section } from "../components/Section";
-import { ApiBase, putTopicRunningState } from "../core/api";
-import { useTopics } from "../core/hooks";
+import { ApiBase, putKafkaConsumerRunningState } from "../core/api";
+import { useKafkaConsumers } from "../core/hooks";
 import { Table, Switch, Button, HStack } from "@navikt/ds-react";
 
 interface Props {
   base: ApiBase;
 }
 
-function TopicOverview({ base }: Props) {
-  const { topics, isTopicsLoading, setTopics } = useTopics(base);
+function KafkaConsumersOverview({ base }: Props) {
+  const { consumers, isConsumersLoading, setConsumers } = useKafkaConsumers(base);
   const [isSaveLoading, setIsSaveLoading] = useState(false);
 
   const setRunningState = (event: ChangeEvent<HTMLInputElement>) => {
-    const changedTopics = [...topics];
-    changedTopics[changedTopics.map((t) => t.id).indexOf(event.currentTarget.name)].running =
+    const changedConsumers = [...consumers];
+    changedConsumers[changedConsumers.map((c) => c.id).indexOf(event.currentTarget.name)].running =
       event.currentTarget.checked;
-    setTopics(changedTopics);
+    setConsumers(changedConsumers);
   };
 
   const saveRunningState = async () => {
     setIsSaveLoading(true);
-    await putTopicRunningState(base, topics);
+    await putKafkaConsumerRunningState(base, consumers);
     setIsSaveLoading(false);
   };
 
   return (
     <Section
-      headerText="Topic overview"
-      isLoading={isTopicsLoading}
-      loadingText="Fetching topics..."
+      headerText="Kafka consumers"
+      isLoading={isConsumersLoading}
+      loadingText="Fetching Kafka consumers..."
     >
       <Table>
         <Table.Header>
           <Table.Row>
-            <Table.HeaderCell>Key</Table.HeaderCell>
-            <Table.HeaderCell>Type</Table.HeaderCell>
+            <Table.HeaderCell>Consumer ID</Table.HeaderCell>
             <Table.HeaderCell>Topic</Table.HeaderCell>
             <Table.HeaderCell>Running</Table.HeaderCell>
           </Table.Row>
         </Table.Header>
         <Table.Body>
-          {topics.map((topic) => (
-            <Table.Row key={topic.id}>
-              <Table.DataCell>{topic.id}</Table.DataCell>
-              <Table.DataCell>{topic.type}</Table.DataCell>
+          {consumers.map((consumer) => (
+            <Table.Row key={consumer.id}>
+              <Table.DataCell>{consumer.id}</Table.DataCell>
               <Table.DataCell>
-                <strong>{topic.topic}</strong>
+                <strong>{consumer.topic}</strong>
               </Table.DataCell>
               <Table.DataCell>
                 <Switch
-                  name={topic.id}
-                  defaultChecked={topic.running}
+                  name={consumer.id}
+                  defaultChecked={consumer.running}
                   onChange={setRunningState}
                   size="medium"
                   hideLabel
                 >
-                  Topic running
+                  Consumer running
                 </Switch>
               </Table.DataCell>
             </Table.Row>
@@ -72,4 +70,4 @@ function TopicOverview({ base }: Props) {
   );
 }
 
-export default TopicOverview;
+export default KafkaConsumersOverview;

@@ -1,5 +1,5 @@
 import ReplayEvents from "../sections/ReplayEvents";
-import TopicOverview from "../sections/TopicOverview";
+import KafkaConsumersOverview from "../sections/KafkaConsumersOverview";
 import ReplayEvent from "../sections/ReplayEvent";
 import DeleteEvents from "../sections/DeleteEvents";
 import { ApiBase } from "../core/api.tsx";
@@ -7,7 +7,7 @@ import { ApiBase } from "../core/api.tsx";
 export function ArenaAdapter() {
   return (
     <>
-      <TopicOverview base={ApiBase.ARENA_ADAPTER} />
+      <KafkaConsumersOverview base={ApiBase.ARENA_ADAPTER} />
       <ReplayEvents />
       <ReplayEvent />
       <DeleteEvents />

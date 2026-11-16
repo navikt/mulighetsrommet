@@ -15,6 +15,7 @@ dependencies {
     implementation(projects.common.database)
     implementation(projects.common.slack)
     implementation(projects.common.kafka)
+    implementation(projects.common.maam)
     implementation(projects.common.tokenProvider)
     testImplementation(testFixtures(projects.common.database))
     implementation(projects.common.ktor)

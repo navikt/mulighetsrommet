@@ -1,5 +1,5 @@
 import { RunTask } from "../sections/RunTask";
-import TopicOverview from "../sections/TopicOverview.tsx";
+import KafkaConsumersOverview from "../sections/KafkaConsumersOverview.tsx";
 import { ApiBase } from "../core/api.tsx";
 import { BodyShort, Link } from "@navikt/ds-react";
 import { TiltakstyperOrIdsForm } from "../components/forms/TiltakstyperOrIdsForm";
@@ -11,7 +11,7 @@ import FailedKafkaConsumerRecordsOverview from "../sections/FailedKafkaConsumerR
 export function MrApi() {
   return (
     <>
-      <TopicOverview base={ApiBase.MR_API} />
+      <KafkaConsumersOverview base={ApiBase.MR_API} />
       <FailedKafkaConsumerRecordsOverview base={ApiBase.MR_API} />
       <FailedScheduledTasksOverview base={ApiBase.MR_API} />
 
@@ -128,16 +128,6 @@ export function MrApi() {
         </BodyShort>
       </RunTask>
 
-      <RunTask
-        base={ApiBase.MR_API}
-        task={"send-bekreftelsesbrev"}
-        form={(props) => <TextInputForm {...props} label="Tilsagn id" name="tilsagnId" />}
-      >
-        <BodyShort>
-          Lager et bekreftelsesbrev for gitt tilsagn id, journalfører det i Joark og sender det til
-          arrangøren via Altinn.
-        </BodyShort>
-      </RunTask>
       <RunTask base={ApiBase.MR_API} task={"hel-ved-utbetaling"}>
         <BodyShort>Produser fiktiv utbetaling record mot Hel Ved i Dev</BodyShort>
       </RunTask>

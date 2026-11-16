@@ -12,6 +12,7 @@ include(
     "common:ktor",
     "common:ktor-clients",
     "common:logging",
+    "common:maam",
     "common:cache",
     "common:serialization",
     "common:metrics",

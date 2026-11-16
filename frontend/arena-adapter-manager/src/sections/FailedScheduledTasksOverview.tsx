@@ -1,13 +1,14 @@
 import { ScheduledTask } from "src/domain";
 import { JsonOrTextValue } from "../components/JsonOrTextValue";
 import { Section } from "../components/Section";
-import { ApiBase, putRetryScheduledTask } from "../core/api";
+import { ApiBase, deleteFailedScheduledTask, postRetryScheduledTask } from "../core/api";
 import { useFailedScheduledTasks } from "../core/hooks";
 import { BodyShort, Box, Button, HStack, Label, Table, VStack } from "@navikt/ds-react";
-import { formatUTCDate } from "../utils";
+import { formatUTCDate, isDevelopment } from "../utils";
 import { useState } from "react";
 import { ExecutionTimeModalForm } from "../components/forms/ExecutionTimeModalForm";
-import { PencilIcon } from "@navikt/aksel-icons";
+import { PencilIcon, TrashIcon } from "@navikt/aksel-icons";
+import { DeleteConfirmationModal } from "../components/DeleteConfirmationModal";
 
 interface Props {
   base: ApiBase;
@@ -22,10 +23,11 @@ interface ExecutionTimeData {
 function FailedScheduledTasksOverview({ base }: Props) {
   const { tasks, isLoading, refetch } = useFailedScheduledTasks(base);
   const [data, setData] = useState<ExecutionTimeData | null>(null);
+  const [taskToDelete, setTaskToDelete] = useState<ScheduledTask | null>(null);
 
   async function handleSubmit(previousData: ExecutionTimeData, newTime: Date) {
     setData(null);
-    await putRetryScheduledTask(base, {
+    await postRetryScheduledTask(base, {
       taskName: previousData.taskName,
       taskInstance: previousData.taskInstance,
       executionTime: newTime,
@@ -51,6 +53,7 @@ function FailedScheduledTasksOverview({ base }: Props) {
               <Table.HeaderCell>Instance</Table.HeaderCell>
               <Table.HeaderCell>Consecutive failures</Table.HeaderCell>
               <Table.HeaderCell>Next execution time</Table.HeaderCell>
+              <Table.HeaderCell>Delete</Table.HeaderCell>
             </Table.Row>
           </Table.Header>
           <Table.Body>
@@ -59,7 +62,7 @@ function FailedScheduledTasksOverview({ base }: Props) {
               return (
                 <Table.ExpandableRow
                   togglePlacement="left"
-                  key={task.taskInstance}
+                  key={`${task.taskName}:${task.taskInstance}`}
                   content={<ExpandedRow task={task} />}
                 >
                   <Table.DataCell>
@@ -78,6 +81,15 @@ function FailedScheduledTasksOverview({ base }: Props) {
                   <Table.DataCell>{task.taskInstance}</Table.DataCell>
                   <Table.DataCell>{task.consecutiveFailures}</Table.DataCell>
                   <Table.DataCell>{formatUTCDate(task.executionTime)}</Table.DataCell>
+                  <Table.DataCell>
+                    <Button
+                      variant="secondary"
+                      data-color="danger"
+                      disabled={!isDevelopment() || task.picked}
+                      icon={<TrashIcon title="Delete scheduled task" />}
+                      onClick={() => setTaskToDelete(task)}
+                    />
+                  </Table.DataCell>
                 </Table.ExpandableRow>
               );
             })}
@@ -90,6 +102,18 @@ function FailedScheduledTasksOverview({ base }: Props) {
           onSubmit={(executionTime) => handleSubmit(data, executionTime)}
           onClose={() => setData(null)}
           displayData={{ "Task name": data.taskName, "Task instance": data.taskInstance }}
+        />
+      )}
+      {taskToDelete && (
+        <DeleteConfirmationModal
+          title="Delete scheduled task?"
+          description={`Delete ${taskToDelete.taskName} (${taskToDelete.taskInstance})?`}
+          onConfirm={async () => {
+            const deleted = await deleteFailedScheduledTask(base, taskToDelete);
+            if (deleted) refetch();
+            return deleted;
+          }}
+          onClose={() => setTaskToDelete(null)}
         />
       )}
     </Section>
