@@ -92,6 +92,7 @@ val ApplicationConfigProd = AppConfig(
                 Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING to Periode(LocalDate.of(2026, 1, 1), slutt),
                 Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING to Periode(LocalDate.of(2026, 1, 1), slutt),
                 Tiltakskode.JOBBKLUBB to Periode(LocalDate.of(2026, 1, 1), slutt),
+                Tiltakskode.TILRETTELAGT_ARBEID_ORDINAER to Periode(LocalDate.of(2026, 1, 1), slutt),
 
                 Tiltakskode.ARBEIDSMARKEDSOPPLAERING to Periode(LocalDate.of(2026, 1, 1), slutt),
                 Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV to Periode(LocalDate.of(2026, 1, 1), slutt),
