@@ -237,7 +237,6 @@ class TiltakgjennomforingEventProcessor(
     private fun ArenaTiltaksgjennomforing.toTiltakshistorikk(id: UUID, tiltaktypeId: UUID, virksomhetsnummer: String) = TiltakshistorikkArenaGjennomforing(
         id = id,
         navn = requireNotNull(LOKALTNAVN),
-        arenaTiltakskode = TILTAKSKODE,
         tiltakstypeId = tiltaktypeId,
         arenaRegDato = ArenaUtils.parseTimestampAsInstant(REG_DATO),
         arenaModDato = ArenaUtils.parseTimestampAsInstant(MOD_DATO),

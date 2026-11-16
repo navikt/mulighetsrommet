@@ -13,6 +13,7 @@ import no.nav.tiltak.historikk.databaseConfig
 import no.nav.tiltak.historikk.db.TiltakshistorikkDatabase
 import no.nav.tiltak.historikk.kafka.dto.TiltakAvtaleHendelseDto
 import no.nav.tiltak.historikk.model.ArbeidsgiverAvtale
+import no.nav.tiltak.historikk.replikering.ArbeidsgiverAvtaleReplikering
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -23,7 +24,7 @@ class ReplikerTiltakAvtaleKafkaConsumerTest : FunSpec({
 
     context("consume tiltak-avtale-hendelser") {
         val db = TiltakshistorikkDatabase(database.db)
-        val consumer = ReplikerTiltakAvtaleKafkaConsumer(db)
+        val consumer = ReplikerTiltakAvtaleKafkaConsumer(ArbeidsgiverAvtaleReplikering(db))
 
         val avtaleId = UUID.randomUUID()
         val sistEndret = Instant.parse("2024-10-03T08:14:07.989329Z")

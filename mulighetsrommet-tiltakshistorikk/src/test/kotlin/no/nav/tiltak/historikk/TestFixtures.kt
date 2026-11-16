@@ -128,7 +128,6 @@ object TestFixtures {
 
         val arenaArbeidstrening = TiltakshistorikkArenaGjennomforing(
             id = UUID.randomUUID(),
-            arenaTiltakskode = "ARBTREN",
             arenaRegDato = Instant.parse("2025-01-01T00:00:00Z"),
             arenaModDato = Instant.parse("2025-01-02T00:00:00Z"),
             arrangorOrganisasjonsnummer = Organisasjonsnummer("987654321"),
@@ -139,7 +138,6 @@ object TestFixtures {
 
         val arenaMentor = TiltakshistorikkArenaGjennomforing(
             id = UUID.randomUUID(),
-            arenaTiltakskode = "MENTOR",
             arenaRegDato = Instant.parse("2025-01-01T00:00:00Z"),
             arenaModDato = Instant.parse("2025-01-02T00:00:00Z"),
             arrangorOrganisasjonsnummer = Organisasjonsnummer("987654321"),
@@ -150,7 +148,6 @@ object TestFixtures {
 
         val arenaAmo = TiltakshistorikkArenaGjennomforing(
             id = UUID.randomUUID(),
-            arenaTiltakskode = "AMO",
             arenaRegDato = Instant.parse("2024-01-01T00:00:00Z"),
             arenaModDato = Instant.parse("2024-01-01T00:00:00Z"),
             arrangorOrganisasjonsnummer = Organisasjonsnummer("987654321"),

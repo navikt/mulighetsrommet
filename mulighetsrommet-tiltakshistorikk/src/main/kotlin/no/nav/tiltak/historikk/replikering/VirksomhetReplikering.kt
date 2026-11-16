@@ -1,4 +1,4 @@
-package no.nav.tiltak.historikk.service
+package no.nav.tiltak.historikk.replikering
 
 import arrow.core.Either
 import arrow.core.flatMap
@@ -16,21 +16,35 @@ import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.tiltak.historikk.db.QueryContext
 import no.nav.tiltak.historikk.db.TiltakshistorikkDatabase
 import no.nav.tiltak.historikk.model.Virksomhet
+import org.slf4j.LoggerFactory
 
-class VirksomhetService(
+class VirksomhetReplikering(
     private val db: TiltakshistorikkDatabase,
     private val brreg: BrregClient,
 ) {
+    private val logger = LoggerFactory.getLogger(javaClass)
+
     fun getVirksomhet(organisasjonsnummer: Organisasjonsnummer): Virksomhet? = db.session {
         queries.virksomhet.get(organisasjonsnummer)
     }
 
     fun deleteVirksomhet(organisasjonsnummer: Organisasjonsnummer): Unit = db.session {
+        logger.info("Sletter virksomhet med orgnr=$organisasjonsnummer")
         queries.virksomhet.delete(organisasjonsnummer)
     }
 
+    suspend fun syncVirksomhetIfExists(organisasjonsnummer: Organisasjonsnummer) {
+        if (getVirksomhet(organisasjonsnummer) == null) {
+            return
+        }
+
+        getAndSyncVirksomhet(organisasjonsnummer).onLeft { error ->
+            throw IllegalStateException("Forventet å finne virksomhet med orgnr=$organisasjonsnummer i Brreg. Er orgnr gyldig? Error: $error")
+        }
+    }
+
     suspend fun getOrSyncVirksomhetIfNotExists(organisasjonsnummer: Organisasjonsnummer): Either<BrregError, Virksomhet> {
-        return getVirksomhet(organisasjonsnummer)?.right() ?: return getAndSyncVirksomhet(organisasjonsnummer)
+        return getVirksomhet(organisasjonsnummer)?.right() ?: getAndSyncVirksomhet(organisasjonsnummer)
     }
 
     suspend fun getAndSyncVirksomhet(organisasjonsnummer: Organisasjonsnummer): Either<BrregError, Virksomhet> = db.session {
@@ -44,6 +58,7 @@ class VirksomhetService(
     }
 
     /**
+     * TODO: bedre løsning for utenlandske virksomheter
      * Arena oppretter fiktive organisasjonsnummer for utenlandske virksomheter, og disse kan vi identifisere ved at de starter med '1'.
      * Foreløpig lagrer vi disse på samme måte, men unngår å gjøre oppslag mot Brreg. Dette bør forbedres på sikt.
      */

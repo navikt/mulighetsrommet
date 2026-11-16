@@ -7,19 +7,19 @@ import no.nav.common.kafka.consumer.util.deserializer.Deserializers.uuidDeserial
 import no.nav.mulighetsrommet.api.contracts.tiltakstype.TiltakstypeV3Dto
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
-import no.nav.tiltak.historikk.db.TiltakshistorikkDatabase
 import no.nav.tiltak.historikk.model.Tiltakstype
+import no.nav.tiltak.historikk.replikering.TiltakstypeReplikering
 import java.util.UUID
 
 class ReplikerSisteTiltakstyperV3KafkaConsumer(
-    private val db: TiltakshistorikkDatabase,
+    private val replikering: TiltakstypeReplikering,
 ) : KafkaTopicConsumer<UUID, JsonElement>(
     uuidDeserializer(),
     JsonElementDeserializer(),
 ) {
-    override suspend fun consume(key: UUID, message: JsonElement): Unit = db.session {
+    override suspend fun consume(key: UUID, message: JsonElement) {
         val tiltakstype = Json.decodeFromJsonElement<TiltakstypeV3Dto>(message)
-        queries.tiltakstype.upsert(tiltakstype.toTiltakstype())
+        replikering.upsert(tiltakstype.toTiltakstype())
     }
 }
 

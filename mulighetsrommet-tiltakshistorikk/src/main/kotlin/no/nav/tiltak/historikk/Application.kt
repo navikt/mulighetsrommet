@@ -25,8 +25,14 @@ import no.nav.tiltak.historikk.kafka.consumers.ReplikerTiltakAvtaleKafkaConsumer
 import no.nav.tiltak.historikk.plugins.configureAuthentication
 import no.nav.tiltak.historikk.plugins.configureHTTP
 import no.nav.tiltak.historikk.plugins.configureSerialization
+import no.nav.tiltak.historikk.replikering.ArbeidsgiverAvtaleReplikering
+import no.nav.tiltak.historikk.replikering.ArenaDeltakerReplikering
+import no.nav.tiltak.historikk.replikering.ArenaGjennomforingReplikering
+import no.nav.tiltak.historikk.replikering.GjennomforingReplikering
+import no.nav.tiltak.historikk.replikering.KometDeltakerReplikering
+import no.nav.tiltak.historikk.replikering.TiltakstypeReplikering
+import no.nav.tiltak.historikk.replikering.VirksomhetReplikering
 import no.nav.tiltak.historikk.service.TiltakshistorikkService
-import no.nav.tiltak.historikk.service.VirksomhetService
 import kotlin.time.Duration.Companion.seconds
 
 fun main() {
@@ -62,10 +68,7 @@ fun Application.configure(config: AppConfig) {
 
     val db = TiltakshistorikkDatabase(database)
 
-    val virksomheter = VirksomhetService(
-        db,
-        BrregClient(config.httpClientEngine),
-    )
+    val virksomheter = VirksomhetReplikering(db, BrregClient(config.httpClientEngine))
 
     val kafka = configureKafka(config.kafka, db, virksomheter)
 
@@ -78,7 +81,12 @@ fun Application.configure(config: AppConfig) {
     )
 
     routing {
-        tiltakshistorikkRoutes(kafka, db, tiltakshistorikk, virksomheter)
+        tiltakshistorikkRoutes(
+            kafka,
+            tiltakshistorikk,
+            ArenaDeltakerReplikering(db),
+            ArenaGjennomforingReplikering(db, virksomheter),
+        )
     }
 }
 
@@ -98,17 +106,22 @@ fun Application.configureDatabase(config: AppConfig): Database {
 fun Application.configureKafka(
     config: KafkaConfig,
     db: TiltakshistorikkDatabase,
-    virksomheter: VirksomhetService,
+    virksomheter: VirksomhetReplikering,
 ): KafkaConsumerOrchestrator {
     val consumers = mapOf(
-        config.consumers.replikerSisteTiltakstyper to ReplikerSisteTiltakstyperV3KafkaConsumer(db),
-        config.consumers.replikerSisteTiltaksgjennomforinger to ReplikerSisteTiltaksgjennomforingerV2KafkaConsumer(
-            db,
-            virksomheter,
+        config.consumers.replikerSisteTiltakstyper to ReplikerSisteTiltakstyperV3KafkaConsumer(
+            TiltakstypeReplikering(db),
         ),
-        config.consumers.replikerAmtDeltaker to ReplikerAmtDeltakerV1KafkaConsumer(db),
+        config.consumers.replikerSisteTiltaksgjennomforinger to ReplikerSisteTiltaksgjennomforingerV2KafkaConsumer(
+            GjennomforingReplikering(db, virksomheter),
+        ),
+        config.consumers.replikerAmtDeltaker to ReplikerAmtDeltakerV1KafkaConsumer(
+            KometDeltakerReplikering(db),
+        ),
         config.consumers.replikerAmtVirksomhet to ReplikerAmtVirksomheterV1KafkaConsumer(virksomheter),
-        config.consumers.replikerTiltakAvtale to ReplikerTiltakAvtaleKafkaConsumer(db),
+        config.consumers.replikerTiltakAvtale to ReplikerTiltakAvtaleKafkaConsumer(
+            ArbeidsgiverAvtaleReplikering(db),
+        ),
     )
 
     val kafka = KafkaConsumerOrchestrator(

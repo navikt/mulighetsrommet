@@ -21,19 +21,19 @@ import io.ktor.server.util.getValue
 import io.ktor.utils.io.ExperimentalKtorApi
 import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.maam.Maam
-import no.nav.tiltak.historikk.db.TiltakshistorikkDatabase
 import no.nav.tiltak.historikk.plugins.AuthProvider
 import no.nav.tiltak.historikk.plugins.authenticate
+import no.nav.tiltak.historikk.replikering.ArenaDeltakerReplikering
+import no.nav.tiltak.historikk.replikering.ArenaGjennomforingReplikering
 import no.nav.tiltak.historikk.service.TiltakshistorikkService
-import no.nav.tiltak.historikk.service.VirksomhetService
 import java.util.UUID
 
 @OptIn(ExperimentalKtorApi::class)
 fun Route.tiltakshistorikkRoutes(
     kafka: KafkaConsumerOrchestrator,
-    db: TiltakshistorikkDatabase,
     tiltakshistorikk: TiltakshistorikkService,
-    virksomheter: VirksomhetService,
+    arenaDeltakere: ArenaDeltakerReplikering,
+    arenaGjennomforinger: ArenaGjennomforingReplikering,
 ) {
     val api = authenticate(AuthProvider.TILTAKSHISTORIKK_READ) {
         route("/api/v1/historikk") {
@@ -74,9 +74,8 @@ fun Route.tiltakshistorikkRoutes(
             put("/gjennomforing") {
                 val dbo = call.receive<TiltakshistorikkArenaGjennomforing>()
 
-                virksomheter.getOrSyncVirksomhetIfNotExists(dbo.arrangorOrganisasjonsnummer)
+                arenaGjennomforinger.upsert(dbo)
                     .onRight {
-                        db.session { queries.arenaGjennomforing.upsert(dbo) }
                         call.respond(HttpStatusCode.OK)
                     }
                     .onLeft {
@@ -90,7 +89,7 @@ fun Route.tiltakshistorikkRoutes(
             delete("/gjennomforing/{id}") {
                 val id: UUID by call.parameters
 
-                db.session { queries.arenaGjennomforing.delete(id) }
+                arenaGjennomforinger.delete(id)
 
                 call.respond(HttpStatusCode.OK)
             }
@@ -98,7 +97,7 @@ fun Route.tiltakshistorikkRoutes(
             put("/deltaker") {
                 val dbo = call.receive<TiltakshistorikkArenaDeltaker>()
 
-                db.session { queries.arenaDeltaker.upsertArenaDeltaker(dbo) }
+                arenaDeltakere.upsert(dbo)
 
                 call.respond(HttpStatusCode.OK)
             }
@@ -106,7 +105,7 @@ fun Route.tiltakshistorikkRoutes(
             delete("/deltaker/{id}") {
                 val id: UUID by call.parameters
 
-                db.session { queries.arenaDeltaker.deleteArenaDeltaker(id) }
+                arenaDeltakere.delete(id)
 
                 call.respond(HttpStatusCode.OK)
             }

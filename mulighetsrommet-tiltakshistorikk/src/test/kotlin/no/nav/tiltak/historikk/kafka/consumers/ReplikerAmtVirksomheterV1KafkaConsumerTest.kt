@@ -5,9 +5,10 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.mockk
-import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonNull
-import kotlinx.serialization.json.encodeToJsonElement
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 import no.nav.mulighetsrommet.brreg.BrregClient
 import no.nav.mulighetsrommet.brreg.BrregUnderenhetDto
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
@@ -15,18 +16,18 @@ import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.tiltak.historikk.databaseConfig
 import no.nav.tiltak.historikk.db.TiltakshistorikkDatabase
 import no.nav.tiltak.historikk.model.Virksomhet
-import no.nav.tiltak.historikk.service.VirksomhetService
+import no.nav.tiltak.historikk.replikering.VirksomhetReplikering
 
 class ReplikerAmtVirksomheterV1KafkaConsumerTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))
 
     val organisasjonsnummer = Organisasjonsnummer("876543210")
     var overordnetEnhetOrganisasjonsnummer = Organisasjonsnummer("987654321")
-    val virksomhetDto = AmtVirksomhetV1Dto(
-        organisasjonsnummer = organisasjonsnummer,
-        navn = "Gammelt navn",
-        overordnetEnhetOrganisasjonsnummer = overordnetEnhetOrganisasjonsnummer,
-    )
+    val melding = buildJsonObject {
+        put("organisasjonsnummer", organisasjonsnummer.value)
+        put("navn", "Gammelt navn")
+        put("overordnetEnhetOrganisasjonsnummer", overordnetEnhetOrganisasjonsnummer.value)
+    }
 
     var virksomhetOverordnetEnhet = Virksomhet(
         organisasjonsnummer = overordnetEnhetOrganisasjonsnummer,
@@ -54,7 +55,7 @@ class ReplikerAmtVirksomheterV1KafkaConsumerTest : FunSpec({
             overordnetEnhet = overordnetEnhetOrganisasjonsnummer,
         ).right()
 
-        val virksomheter = VirksomhetService(db, brreg)
+        val virksomheter = VirksomhetReplikering(db, brreg)
 
         val consumer = ReplikerAmtVirksomheterV1KafkaConsumer(virksomheter)
 
@@ -63,7 +64,13 @@ class ReplikerAmtVirksomheterV1KafkaConsumerTest : FunSpec({
         }
 
         test("skal ignorere melding hvis virksomheten ikke finnes i databasen") {
-            consumer.consume(organisasjonsnummer.value, Json.encodeToJsonElement(virksomhetDto))
+            consumer.consume(organisasjonsnummer.value, melding)
+
+            virksomheter.getVirksomhet(organisasjonsnummer) shouldBe null
+        }
+
+        test("skal ignorere ukjent virksomhet uavhengig av meldingsinnhold") {
+            consumer.consume(organisasjonsnummer.value, JsonObject(emptyMap()))
 
             virksomheter.getVirksomhet(organisasjonsnummer) shouldBe null
         }
@@ -74,7 +81,7 @@ class ReplikerAmtVirksomheterV1KafkaConsumerTest : FunSpec({
                 queries.virksomhet.upsert(virksomhet)
             }
 
-            consumer.consume(organisasjonsnummer.value, Json.encodeToJsonElement(virksomhetDto))
+            consumer.consume(organisasjonsnummer.value, melding)
 
             virksomheter.getVirksomhet(organisasjonsnummer)?.navn shouldBe "Nytt navn"
         }

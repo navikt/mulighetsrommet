@@ -295,7 +295,6 @@ data class TiltakshistorikkV1Response(
 @Serializable
 data class TiltakshistorikkArenaGjennomforing(
     val id: UUID,
-    val arenaTiltakskode: String,
     val tiltakstypeId: UUID,
     val arenaRegDato: Instant,
     val arenaModDato: Instant,

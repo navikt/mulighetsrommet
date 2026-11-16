@@ -7,39 +7,20 @@ import no.nav.common.kafka.consumer.util.deserializer.Deserializers.uuidDeserial
 import no.nav.mulighetsrommet.api.contracts.gjennomforing.TiltaksgjennomforingV2Dto
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
-import no.nav.mulighetsrommet.model.Organisasjonsnummer
-import no.nav.tiltak.historikk.db.TiltakshistorikkDatabase
 import no.nav.tiltak.historikk.model.Gjennomforing
-import no.nav.tiltak.historikk.service.VirksomhetService
+import no.nav.tiltak.historikk.replikering.GjennomforingReplikering
 import java.util.UUID
 
 class ReplikerSisteTiltaksgjennomforingerV2KafkaConsumer(
-    private val db: TiltakshistorikkDatabase,
-    private val virksomheter: VirksomhetService,
+    private val replikering: GjennomforingReplikering,
 ) : KafkaTopicConsumer<UUID, JsonElement>(
     uuidDeserializer(),
     JsonElementDeserializer(),
 ) {
     override suspend fun consume(key: UUID, message: JsonElement) {
         val gjennomforing = Json.decodeFromJsonElement<TiltaksgjennomforingV2Dto?>(message)
-            ?: return deleteGjennomforing(key)
-        syncVirksomhet(gjennomforing.arrangor.organisasjonsnummer)
-        upsertGjennomforing(gjennomforing)
-    }
-
-    private fun deleteGjennomforing(id: UUID): Unit = db.session {
-        queries.gjennomforing.delete(id)
-    }
-
-    private suspend fun syncVirksomhet(organisasjonsnummer: Organisasjonsnummer) {
-        virksomheter.getOrSyncVirksomhetIfNotExists(organisasjonsnummer).onLeft { error ->
-            throw IllegalStateException("Forventet å finne virksomhet med orgnr=$organisasjonsnummer i Brreg. Er orgnr gyldig? Error: $error")
-        }
-    }
-
-    private fun upsertGjennomforing(gjennomforing: TiltaksgjennomforingV2Dto): Unit = db.session {
-        val dbo = gjennomforing.toGjennomforing()
-        queries.gjennomforing.upsert(dbo)
+            ?: return replikering.delete(key)
+        replikering.upsert(gjennomforing.toGjennomforing())
     }
 }
 
