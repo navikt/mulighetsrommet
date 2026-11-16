@@ -685,3 +685,77 @@ ORDER BY
     tk.status;
 EOF
 }
+
+module "mr_api_utbetaling_enkeltplass_view" {
+  view_id             = "utbetaling_enkeltplass_view"
+  source              = "../modules/google-bigquery-view"
+  deletion_protection = false
+  dataset_id          = module.mr_api_datastream.dataset_id
+  view_schema = jsonencode(
+    [
+      {
+        mode        = "NULLABLE"
+        name        = "gjennomforing_id"
+        type        = "STRING"
+        description = "ID for gjennomføring"
+      },
+      {
+        mode        = "NULLABLE"
+        name        = "gjennomforing_status"
+        type        = "STRING"
+        description = "Status for gjennomføring"
+      },
+      {
+        mode        = "NULLABLE"
+        name        = "prismodell_type"
+        type        = "STRING"
+        description = "Type prismodell"
+      },
+      {
+        mode        = "NULLABLE"
+        name        = "utbetaling_id"
+        type        = "STRING"
+        description = "ID for utbetaling"
+      },
+      {
+        mode        = "NULLABLE"
+        name        = "utbetaling_status"
+        type        = "STRING"
+        description = "Status for utbetaling"
+      },
+      {
+        mode        = "NULLABLE"
+        name        = "utbetaling_tilskuddstype"
+        type        = "STRING"
+        description = "Tilskuddstype for utbetaling"
+      },
+      {
+        mode        = "NULLABLE"
+        name        = "utbetaling_beregning_type"
+        type        = "STRING"
+        description = "Beregningstype for utbetaling"
+      },
+    ]
+  )
+  view_query = <<EOF
+SELECT
+g.id AS gjennomforing_id,
+g.status AS gjennomforing_status,
+p.prismodell_type,
+u.id AS utbetaling_id,
+u.status AS utbetaling_status,
+u.tilskuddstype AS utbetaling_tilskuddstype,
+u.beregning_type AS utbetaling_beregning_type
+FROM `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_utbetaling` AS u
+INNER JOIN `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_gjennomforing` AS g
+    ON u.gjennomforing_id = g.id
+INNER JOIN `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_prismodell` AS p
+    ON p.id = g.prismodell_id
+WHERE g.gjennomforing_type = 'ENKELTPLASS'
+ORDER BY
+g.id,
+p.prismodell_type,
+u.status,
+u.tilskuddstype;
+EOF
+}
