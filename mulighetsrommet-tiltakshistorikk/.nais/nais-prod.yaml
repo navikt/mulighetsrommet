@@ -120,6 +120,12 @@ spec:
           permissions:
             roles:
               - tiltakshistorikk-read
+        - application: syfoperson
+          namespace: teamsykefravr
+          cluster: prod-gcp
+          permissions:
+            roles:
+              - tiltakshistorikk-read
     outbound:
       external:
         - host: data.brreg.no
