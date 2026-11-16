@@ -38,6 +38,7 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.domain.gjennomforing.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingAvtaleDetaljer
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
+import no.nav.mulighetsrommet.api.navansatt.ktor.NavAnsattManglerTilgang
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.parameters.getPaginationParams
 import no.nav.mulighetsrommet.api.plugins.getAccessType
@@ -49,7 +50,6 @@ import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.utbetaling.service.ManglerTilgangTilPerson
 import no.nav.mulighetsrommet.api.utils.DatoUtils.parseOrNull
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
-import no.nav.mulighetsrommet.ktor.exception.Forbidden
 import no.nav.mulighetsrommet.ktor.exception.NotFound
 import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
@@ -653,7 +653,7 @@ private suspend fun RoutingCall.respondUkjentGjennomforing(id: UUID) {
 
 fun toProblemDetail(error: GjennomforingDetaljerError): ProblemDetail = when (error) {
     is GjennomforingDetaljerError.IkkeFunnet -> NotFound(error.message)
-    is GjennomforingDetaljerError.ManglerTilgang -> Forbidden(error.message)
+    is GjennomforingDetaljerError.ManglerTilgang -> NavAnsattManglerTilgang(error.navIdent, error.roller, error.message)
     is GjennomforingDetaljerError.PersonaliaSjekkAvvist -> ManglerTilgangTilPerson.fromAvvistGrunn(error.avvistGrunn)
 }
 
