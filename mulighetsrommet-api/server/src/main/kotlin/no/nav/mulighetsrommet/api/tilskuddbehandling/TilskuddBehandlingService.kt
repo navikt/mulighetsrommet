@@ -116,7 +116,9 @@ class TilskuddBehandlingService(
         )
     }
 
-    private suspend fun hentValideringsContext(gjennomforingId: UUID): TilskuddBehandlingValidator.Ctx {
+    private suspend fun hentValideringsContext(
+        gjennomforingId: UUID,
+    ): TilskuddBehandlingValidator.Ctx {
         val gjennomforing = db.session { queries.gjennomforing.getGjennomforing(gjennomforingId) }
             ?: throw IllegalStateException("Fant ikke gjennomføring for tilskuddsbehandling")
         val forventetBruker = hentDeltakerNorskIdentOrError(gjennomforing.id).let {

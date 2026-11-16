@@ -265,9 +265,9 @@ class GjennomforingDetaljerService(
         val okonomiKanBehandlesAvNavAnsatt = okonomi?.kanBehandlesAv(ansatt.navIdent) == true
         val prisendringKanBehandlesAvNavAnsatt = prisendring?.kanBehandlesAv(ansatt.navIdent) == true
         return setOfNotNull(
-            GjennomforingHandling.OPPRETT_TILSAGN,
-            GjennomforingHandling.OPPRETT_UTBETALING,
-            GjennomforingHandling.OPPRETT_TILSKUDDSBEHANDLING,
+            GjennomforingHandling.OPPRETT_TILSAGN.takeIf { !gjennomforing.status.sperrerOkonomi() },
+            GjennomforingHandling.OPPRETT_UTBETALING.takeIf { !gjennomforing.status.sperrerOkonomi() },
+            GjennomforingHandling.OPPRETT_TILSKUDDSBEHANDLING.takeIf { !gjennomforing.status.sperrerOkonomi() },
             GjennomforingHandling.SETT_PA_VENT_ENKELTPLASS_OKONOMI.takeIf {
                 okonomiKanBehandlesAvNavAnsatt && okonomi.kanSettesPaVent()
             },

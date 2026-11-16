@@ -81,6 +81,11 @@ sealed class GjennomforingAvtaleStatus {
 sealed class GjennomforingEnkeltplassStatus {
     abstract val type: GjennomforingStatusType
 
+    fun sperrerOkonomi(): Boolean = when (this) {
+        IkkeAktuell, Feilregistrert -> true
+        UtkastTilPamelding, SoktInn, VenterPaOppstart, Deltar, Fullfort, Avbrutt, AvbruttUtkast -> false
+    }
+
     @Serializable
     @SerialName("ENKELTPLASS_UTKAST_TIL_PAMELDING")
     data object UtkastTilPamelding : GjennomforingEnkeltplassStatus() {
@@ -172,3 +177,5 @@ sealed class GjennomforingEnkeltplassStatus {
         }
     }
 }
+
+fun Gjennomforing.statusSperrerOkonomi(): GjennomforingEnkeltplassStatus? = (this as? GjennomforingEnkeltplass)?.status?.takeIf { it.sperrerOkonomi() }

@@ -34,10 +34,12 @@ import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddVedtakRequest
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
 import no.nav.mulighetsrommet.api.utbetaling.api.ValutaBelopRequest
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
+import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Valuta
+import no.nav.mulighetsrommet.validation.FieldError
 import java.time.LocalDate
 import java.util.UUID
 
@@ -164,6 +166,29 @@ class TilskuddBehandlingServiceTest : FunSpec({
                 it shouldHaveSize 1
                 it.first().pointer shouldBe "/tilskuddVedtak/0/soknadJournalpostId"
             }
+        }
+    }
+
+    context("status som sperrer ny økonomi") {
+        test("upsert sperres for ikke aktuell enkeltplass med deltaker") {
+            val enkeltplass = GjennomforingDboFixtures.EnkelAmo.copy(
+                status = GjennomforingStatusType.ENKELTPLASS_IKKE_AKTUELL,
+            )
+            val deltaker = DeltakerFixtures.createDeltaker(
+                id = UUID.randomUUID(),
+                gjennomforingId = enkeltplass.id,
+            )
+            MulighetsrommetTestDomain(
+                gjennomforinger = listOf(enkeltplass),
+                deltakere = listOf(deltaker),
+            ).initialize(database.api)
+
+            createService().upsert(request.copy(gjennomforingId = enkeltplass.id), ansatt1)
+                .shouldBeLeft() shouldBe listOf(
+                FieldError.of(
+                    "Kan ikke opprette tilskuddsbehandling fordi deltakelsen har status IkkeAktuell",
+                ),
+            )
         }
     }
 

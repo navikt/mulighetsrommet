@@ -3,6 +3,8 @@ package no.nav.mulighetsrommet.api.tilsagn
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.data.forAll
+import io.kotest.data.row
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
@@ -49,6 +51,7 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
+import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NOK
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
@@ -159,6 +162,37 @@ class TilsagnServiceTest : FunSpec({
 
     context("opprett tilsagn") {
         val service = createTilsagnService()
+
+        forAll(
+            row(GjennomforingStatusType.ENKELTPLASS_IKKE_AKTUELL to "Ikke aktuell"),
+            row(GjennomforingStatusType.ENKELTPLASS_FEILREGISTRERT to "Feilregistrert"),
+        ) { entry: Pair<GjennomforingStatusType, String> ->
+            test("oppretter ikke tilsagn for enkeltplass med status ${entry.second}") {
+                database.run {
+                    queries.gjennomforing.setStatus(
+                        id = GjennomforingDboFixtures.EnkelAmo.id,
+                        status = entry.first,
+                        sluttDato = null,
+                        aarsaker = null,
+                        forklaring = null,
+                    )
+                    setRoller(
+                        ansatt1,
+                        setOf(NavAnsattRolle.generell(Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS)),
+                    )
+                }
+
+                service.upsert(
+                    request.copy(
+                        id = UUID.randomUUID(),
+                        gjennomforingId = GjennomforingDboFixtures.EnkelAmo.id,
+                    ),
+                    ansatt1,
+                ) shouldBeLeft TilsagnError.Valideringsfeil(
+                    listOf(FieldError.of("Kan ikke opprette tilsagn fordi deltakelsen har status ${entry.second}")),
+                )
+            }
+        }
 
         test("oppretter tilsagn med riktig periode og totrinnskontroll") {
             service.upsert(request, ansatt1).shouldBeRight().should {

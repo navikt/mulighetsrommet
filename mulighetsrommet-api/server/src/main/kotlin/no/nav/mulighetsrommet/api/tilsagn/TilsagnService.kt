@@ -20,6 +20,7 @@ import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingTiltaksadministrasjon
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingType
+import no.nav.mulighetsrommet.api.domain.gjennomforing.statusSperrerOkonomi
 import no.nav.mulighetsrommet.api.domain.navansatt.OkonomiAuthorization
 import no.nav.mulighetsrommet.api.domain.navansatt.OkonomiBeslutningContext
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.Totrinnskontroll
@@ -93,6 +94,12 @@ class TilsagnService(
                 else -> "$agent kan ikke opprette tilsagn"
             }
             return TilsagnError.ManglerTilgang(message).left()
+        }
+
+        gjennomforing.statusSperrerOkonomi()?.let { status ->
+            return TilsagnError.Valideringsfeil(
+                FieldError.of("Kan ikke opprette tilsagn fordi deltakelsen har status ${status.type.beskrivelse}").nel(),
+            ).left()
         }
 
         val previous = queries.tilsagn.getAndAcquireLockOrNull(request.id)

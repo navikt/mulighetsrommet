@@ -128,7 +128,7 @@ class TilskuddArrangorUtbetalingConsumer(
                 tilsagnService.godkjennTilsagnInTx(it.id, Tiltaksadministrasjon)
             }
             .getOrElse {
-                throw IllegalStateException("Feil under opprettelse av tilsagn for tilskudd. Errors: $it")
+                throw IllegalStateException("Feil under opprettelse av tilsagn for tilskudd på gjennomføring id=$gjennomforingId. Errors: $it")
             }
     }
 
