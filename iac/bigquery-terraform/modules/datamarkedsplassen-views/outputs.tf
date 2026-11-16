@@ -12,5 +12,6 @@ output "view_ids" {
     gjennomforing_enkeltplass_godkjenn_okonomi_view = module.mr_api_gjennomforing_enkeltplass_godkjenn_okonomi_view.bigquery_view_id
     tilsagn_enkeltplass_view                        = module.mr_api_tilsagn_enkeltplass_view.bigquery_view_id
     utbetaling_enkeltplass_view                     = module.mr_api_utbetaling_enkeltplass_view.bigquery_view_id
+    tilskudd_behandling_view                        = module.mr_api_tilskudd_behandling_view.bigquery_view_id
   }
 }
