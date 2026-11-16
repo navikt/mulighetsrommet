@@ -5,8 +5,17 @@ import {
   TiltakstypeKompaktDto,
 } from "@tiltaksadministrasjon/api-client";
 
+const UTGATTE_TILTAKSTYPER_FOR_TILTAKSBESKRIVELSE: Tiltakskode[] = [
+  Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
+  Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING,
+];
+
 export function erUtfaset(tiltakstype: TiltakstypeKompaktDto) {
   return harFeature(tiltakstype, TiltakstypeFeature.UTFASET);
+}
+
+export function kanOppretteTiltakBeskrivelse(tiltakstype: TiltakstypeKompaktDto): boolean {
+  return !UTGATTE_TILTAKSTYPER_FOR_TILTAKSBESKRIVELSE.includes(tiltakstype.tiltakskode);
 }
 
 export function kreverDirekteVedtak(tiltakstype: TiltakstypeKompaktDto) {
