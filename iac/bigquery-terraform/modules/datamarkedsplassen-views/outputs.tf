@@ -13,5 +13,6 @@ output "view_ids" {
     tilsagn_enkeltplass_view                        = module.mr_api_tilsagn_enkeltplass_view.bigquery_view_id
     utbetaling_enkeltplass_view                     = module.mr_api_utbetaling_enkeltplass_view.bigquery_view_id
     tilskudd_behandling_view                        = module.mr_api_tilskudd_behandling_view.bigquery_view_id
+    tilskudd_vedtak_view                            = module.mr_api_tilskudd_vedtak_view.bigquery_view_id
   }
 }
