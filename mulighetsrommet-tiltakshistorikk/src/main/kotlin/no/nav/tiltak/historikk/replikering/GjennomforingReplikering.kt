@@ -11,8 +11,8 @@ class GjennomforingReplikering(
 ) {
     suspend fun upsert(input: Gjennomforing) {
         val gjennomforing = input.copy(
-            opprettetTidspunkt = input.opprettetTidspunkt?.truncatedToMicros(),
-            oppdatertTidspunkt = input.oppdatertTidspunkt?.truncatedToMicros(),
+            opprettetTidspunkt = input.opprettetTidspunkt.truncatedToMicros(),
+            oppdatertTidspunkt = input.oppdatertTidspunkt.truncatedToMicros(),
         )
         val organisasjonsnummer = Organisasjonsnummer(gjennomforing.arrangorOrganisasjonsnummer)
         virksomheter.getOrSyncVirksomhetIfNotExists(organisasjonsnummer).onLeft { error ->

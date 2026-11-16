@@ -11,8 +11,8 @@ data class Gjennomforing(
     val arrangorOrganisasjonsnummer: String,
     val navn: String?,
     val deltidsprosent: Double?,
-    val opprettetTidspunkt: Instant?,
-    val oppdatertTidspunkt: Instant?,
+    val opprettetTidspunkt: Instant,
+    val oppdatertTidspunkt: Instant,
 ) {
     enum class Type {
         GRUPPE,

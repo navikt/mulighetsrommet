@@ -61,8 +61,8 @@ class TiltakstypeQueries(private val session: Session) {
                 tiltakskode = Tiltakskode.valueOf(row.string("tiltakskode")),
                 arenaTiltakskode = row.stringOrNull("arena_tiltakskode"),
                 tiltakstypeId = row.uuid("tiltakstype_id"),
-                opprettetTidspunkt = row.instantOrNull("opprettet_tidspunkt"),
-                oppdatertTidspunkt = row.instantOrNull("oppdatert_tidspunkt"),
+                opprettetTidspunkt = row.instant("opprettet_tidspunkt"),
+                oppdatertTidspunkt = row.instant("oppdatert_tidspunkt"),
             )
         }
     }

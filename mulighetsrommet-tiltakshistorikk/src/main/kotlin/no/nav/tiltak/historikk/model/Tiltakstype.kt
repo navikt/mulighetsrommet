@@ -9,6 +9,6 @@ data class Tiltakstype(
     val navn: String,
     val tiltakskode: Tiltakskode?,
     val arenaTiltakskode: String?,
-    val opprettetTidspunkt: Instant?,
-    val oppdatertTidspunkt: Instant?,
+    val opprettetTidspunkt: Instant,
+    val oppdatertTidspunkt: Instant,
 )
