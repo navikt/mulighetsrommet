@@ -12,6 +12,7 @@ import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.tiltak.historikk.TestFixtures
 import no.nav.tiltak.historikk.databaseConfig
 import no.nav.tiltak.historikk.db.TiltakshistorikkDatabase
+import no.nav.tiltak.historikk.replikering.KometDeltakerReplikering
 import java.time.LocalDate
 import java.time.LocalDateTime
 
@@ -21,7 +22,7 @@ class ReplikerAmtDeltakerV1KafkaConsumerTest : FunSpec({
     context("consume deltakere") {
         val db = TiltakshistorikkDatabase(database.db)
 
-        val deltakerConsumer = ReplikerAmtDeltakerV1KafkaConsumer(db)
+        val deltakerConsumer = ReplikerAmtDeltakerV1KafkaConsumer(KometDeltakerReplikering(db))
 
         val amtDeltaker1 = TestFixtures.Deltaker.gruppeAmo
 
@@ -89,12 +90,13 @@ class ReplikerAmtDeltakerV1KafkaConsumerTest : FunSpec({
             }
         }
 
-        test("delete deltakere that have status FEILREGISTRERT") {
+        test("sletter feilregistrert deltaker selv om meldingen er eldre enn lagret") {
             db.session {
                 queries.kometDeltaker.upsertKometDeltaker(amtDeltaker1.toKometDeltaker())
             }
 
             val feilregistrertDeltaker1 = amtDeltaker1.copy(
+                endretDato = amtDeltaker1.endretDato.minusDays(1),
                 status = AmtDeltakerV1Dto.DeltakerStatusDto(
                     type = DeltakerStatusType.FEILREGISTRERT,
                     aarsak = null,

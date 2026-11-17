@@ -1,12 +1,25 @@
 package no.nav.tiltak.historikk.db.queries
 
+import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
+import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.tiltak.historikk.TiltakshistorikkArenaGjennomforing
 import org.intellij.lang.annotations.Language
 import java.util.UUID
 
 class ArenaGjennomforingQueries(private val session: Session) {
+
+    fun get(id: UUID): TiltakshistorikkArenaGjennomforing? {
+        @Language("PostgreSQL")
+        val query = """
+            select *
+            from arena_gjennomforing
+            where id = ?::uuid
+        """.trimIndent()
+
+        return session.single(queryOf(query, id)) { it.toArenaGjennomforing() }
+    }
 
     fun upsert(gjennomforing: TiltakshistorikkArenaGjennomforing) {
         @Language("PostgreSQL")
@@ -56,4 +69,14 @@ class ArenaGjennomforingQueries(private val session: Session) {
 
         session.execute(queryOf(query, id))
     }
+
+    private fun Row.toArenaGjennomforing() = TiltakshistorikkArenaGjennomforing(
+        id = uuid("id"),
+        tiltakstypeId = uuid("tiltakstype_id"),
+        arenaRegDato = instant("arena_reg_dato"),
+        arenaModDato = instant("arena_mod_dato"),
+        navn = string("navn"),
+        arrangorOrganisasjonsnummer = Organisasjonsnummer(string("arrangor_organisasjonsnummer")),
+        deltidsprosent = double("deltidsprosent"),
+    )
 }

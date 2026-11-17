@@ -12,6 +12,7 @@ import no.nav.tiltak.historikk.db.TiltakshistorikkDatabase
 import no.nav.tiltak.historikk.model.ArbeidsgiverAvtale
 import no.nav.tiltak.historikk.model.Tiltakstype
 import no.nav.tiltak.historikk.model.Virksomhet
+import no.nav.tiltak.historikk.replikering.VirksomhetReplikering
 import no.nav.tiltak.historikk.util.Tiltaksnavn
 import org.slf4j.LoggerFactory
 import java.time.LocalDate
@@ -19,7 +20,7 @@ import java.time.LocalDate
 class TiltakshistorikkService(
     private val config: Config,
     private val db: TiltakshistorikkDatabase,
-    private val virksomheter: VirksomhetService,
+    private val virksomheter: VirksomhetReplikering,
 ) {
     data class Config(
         val cutOffDatoMapping: Map<Tiltakskode, LocalDate>,

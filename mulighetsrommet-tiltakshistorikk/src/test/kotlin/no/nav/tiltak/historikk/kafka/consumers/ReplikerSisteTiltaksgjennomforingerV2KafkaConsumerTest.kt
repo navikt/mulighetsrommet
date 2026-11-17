@@ -21,7 +21,8 @@ import no.nav.tiltak.historikk.databaseConfig
 import no.nav.tiltak.historikk.db.TiltakshistorikkDatabase
 import no.nav.tiltak.historikk.model.Gjennomforing
 import no.nav.tiltak.historikk.model.Virksomhet
-import no.nav.tiltak.historikk.service.VirksomhetService
+import no.nav.tiltak.historikk.replikering.GjennomforingReplikering
+import no.nav.tiltak.historikk.replikering.VirksomhetReplikering
 
 class ReplikerSisteTiltaksgjennomforingerV2KafkaConsumerTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))
@@ -40,7 +41,9 @@ class ReplikerSisteTiltaksgjennomforingerV2KafkaConsumerTest : FunSpec({
     context("konsumer gjennomføringer") {
         val db = TiltakshistorikkDatabase(database.db)
 
-        val consumer = ReplikerSisteTiltaksgjennomforingerV2KafkaConsumer(db, mockk(relaxed = true))
+        val consumer = ReplikerSisteTiltaksgjennomforingerV2KafkaConsumer(
+            GjennomforingReplikering(db, mockk(relaxed = true)),
+        )
 
         val gruppe: TiltaksgjennomforingV2Dto = TestFixtures.Gjennomforing.gruppeAmo
         val enkeltplass: TiltaksgjennomforingV2Dto = TestFixtures.Gjennomforing.enkelAmo
@@ -119,9 +122,9 @@ class ReplikerSisteTiltaksgjennomforingerV2KafkaConsumerTest : FunSpec({
                 forretningsadresse = null,
                 overordnetEnhet = null,
             ).right()
-            var virksomheter = VirksomhetService(db, brreg)
+            var virksomheter = VirksomhetReplikering(db, brreg)
 
-            val consumer = ReplikerSisteTiltaksgjennomforingerV2KafkaConsumer(db, virksomheter)
+            val consumer = ReplikerSisteTiltaksgjennomforingerV2KafkaConsumer(GjennomforingReplikering(db, virksomheter))
             consumer.consume(gruppe.id, Json.encodeToJsonElement(gruppe))
 
             db.session {
@@ -133,13 +136,13 @@ class ReplikerSisteTiltaksgjennomforingerV2KafkaConsumerTest : FunSpec({
 
         test("lagrer utenlandsk virksomhet uten navn") {
             var brreg = mockk<BrregClient>()
-            var virksomheter = VirksomhetService(db, brreg)
+            var virksomheter = VirksomhetReplikering(db, brreg)
 
             var gjennomforing: TiltaksgjennomforingV2Dto = TestFixtures.Gjennomforing.gruppeAmo.copy(
                 arrangor = TiltaksgjennomforingV2Dto.Arrangor(Organisasjonsnummer("111222333")),
             )
 
-            val consumer = ReplikerSisteTiltaksgjennomforingerV2KafkaConsumer(db, virksomheter)
+            val consumer = ReplikerSisteTiltaksgjennomforingerV2KafkaConsumer(GjennomforingReplikering(db, virksomheter))
             consumer.consume(gjennomforing.id, Json.encodeToJsonElement(gjennomforing))
 
             db.session {
