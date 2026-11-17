@@ -95,7 +95,7 @@ const SPORING_WEBSITE_ID = isProduction()
   : "7b4a1f84-e34c-46d9-ae4a-de244d3c9ea9";
 
 const SPORING_DATA_DOMAINS = isProduction()
-  ? "tiltaksadministrasjon.intern.nav.no, tiltaksadministrasjon.ansatt.nav.no"
+  ? "tiltaksadministrasjon.intern.nav.no"
   : "tiltaksadministrasjon.intern.dev.nav.no, tiltaksadministrasjon.ansatt.dev.nav.no";
 
 export function App() {
