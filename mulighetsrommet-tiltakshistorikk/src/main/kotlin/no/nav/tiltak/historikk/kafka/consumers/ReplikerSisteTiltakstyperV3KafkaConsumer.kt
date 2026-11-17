@@ -9,6 +9,7 @@ import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
 import no.nav.tiltak.historikk.model.Tiltakstype
 import no.nav.tiltak.historikk.replikering.TiltakstypeReplikering
+import java.time.ZoneId
 import java.util.UUID
 
 class ReplikerSisteTiltakstyperV3KafkaConsumer(
@@ -28,4 +29,6 @@ private fun TiltakstypeV3Dto.toTiltakstype(): Tiltakstype = Tiltakstype(
     tiltakskode = tiltakskode,
     arenaTiltakskode = tiltakskode.arenakode,
     tiltakstypeId = id,
+    opprettetTidspunkt = opprettetTidspunkt.atZone(ZoneId.of("Europe/Oslo")).toInstant(),
+    oppdatertTidspunkt = oppdatertTidspunkt.atZone(ZoneId.of("Europe/Oslo")).toInstant(),
 )

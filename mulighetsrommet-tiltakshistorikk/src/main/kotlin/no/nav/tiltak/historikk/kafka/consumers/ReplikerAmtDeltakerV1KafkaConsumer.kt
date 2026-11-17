@@ -10,7 +10,6 @@ import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import no.nav.tiltak.historikk.model.KometDeltaker
 import no.nav.tiltak.historikk.replikering.KometDeltakerReplikering
 import org.slf4j.LoggerFactory
-import java.time.temporal.ChronoUnit
 import java.util.UUID
 
 class ReplikerAmtDeltakerV1KafkaConsumer(
@@ -40,8 +39,8 @@ fun AmtDeltakerV1Dto.toKometDeltaker() = KometDeltaker(
     statusType = status.type,
     statusOpprettetTidspunkt = status.opprettetDato,
     statusAarsak = status.aarsak,
-    opprettetTidspunkt = registrertDato.truncatedTo(ChronoUnit.MICROS),
-    oppdatertTidspunkt = endretDato.truncatedTo(ChronoUnit.MICROS),
+    opprettetTidspunkt = registrertDato,
+    oppdatertTidspunkt = endretDato,
     dagerPerUke = dagerPerUke,
     prosentStilling = prosentStilling,
 )

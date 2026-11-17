@@ -50,11 +50,13 @@ class ArenaReplikeringTest : FunSpec({
     test("replikerer og sletter Arena-deltaker og gjennomføring gjennom HTTP") {
         val gjennomforing = TestFixtures.Gjennomforing.arenaArbeidstrening.copy(
             arrangorOrganisasjonsnummer = Organisasjonsnummer("111222333"),
+            arenaRegDato = Instant.parse("2025-01-01T10:00:00.123456789Z"),
+            arenaModDato = Instant.parse("2025-01-02T11:00:00.987654789Z"),
         )
         val deltaker = TiltakshistorikkArenaDeltaker(
             id = UUID.randomUUID(),
-            arenaRegDato = Instant.parse("2025-01-01T00:00:00Z"),
-            arenaModDato = Instant.parse("2025-01-02T00:00:00Z"),
+            arenaRegDato = Instant.parse("2025-01-01T10:00:00.123456789Z"),
+            arenaModDato = Instant.parse("2025-01-02T11:00:00.987654789Z"),
             arenaGjennomforingId = gjennomforing.id,
             arenaDeltakerId = 1,
             norskIdent = NorskIdent("12345678910"),
@@ -74,7 +76,10 @@ class ArenaReplikeringTest : FunSpec({
             }.status shouldBe HttpStatusCode.OK
 
             db.session {
-                queries.arenaGjennomforing.get(gjennomforing.id) shouldBe gjennomforing
+                queries.arenaGjennomforing.get(gjennomforing.id) shouldBe gjennomforing.copy(
+                    arenaRegDato = Instant.parse("2025-01-01T10:00:00.123456Z"),
+                    arenaModDato = Instant.parse("2025-01-02T11:00:00.987654Z"),
+                )
             }
 
             client.put("/api/v1/intern/arena/deltaker") {
@@ -88,6 +93,8 @@ class ArenaReplikeringTest : FunSpec({
                 historikk.single().gjennomforing.navn shouldBe "Arbeidstrening hos Fretex"
                 historikk.single().startDato shouldBe LocalDate.of(2025, 1, 1)
                 historikk.single().arrangor.underenhet.organisasjonsnummer shouldBe Organisasjonsnummer("111222333")
+                historikk.single().opprettetTidspunkt shouldBe Instant.parse("2025-01-01T10:00:00.123456Z")
+                historikk.single().oppdatertTidspunkt shouldBe Instant.parse("2025-01-02T11:00:00.987654Z")
             }
 
             client.put("/api/v1/intern/arena/deltaker") {

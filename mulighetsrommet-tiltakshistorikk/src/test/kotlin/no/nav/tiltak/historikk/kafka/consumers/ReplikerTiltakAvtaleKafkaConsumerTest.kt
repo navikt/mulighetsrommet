@@ -2,6 +2,7 @@ package no.nav.tiltak.historikk.kafka.consumers
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonNull
@@ -48,13 +49,29 @@ class ReplikerTiltakAvtaleKafkaConsumerTest : FunSpec({
             database.truncateAll()
         }
 
-        test("lagrer ny avtale fra topic") {
+        test("normaliserer avtalens tidsstempler før lagring og sammenligning") {
+            val hendelse = hendelse.copy(
+                opprettetTidspunkt = LocalDateTime.parse("2025-01-01T11:00:00.123456789"),
+                sistEndret = Instant.parse("2025-01-02T11:00:00.987654789Z"),
+            )
             consumer.consume(avtaleId, Json.encodeToJsonElement(hendelse))
 
             db.session {
-                val lagret = queries.arbeidsgiverAvtale.get(avtaleId)
-                lagret?.avtaleId shouldBe avtaleId
-                lagret?.status shouldBe ArbeidsgiverAvtale.Status.GJENNOMFORES
+                val lagret = queries.arbeidsgiverAvtale.get(avtaleId).shouldNotBeNull()
+                lagret.avtaleId shouldBe avtaleId
+                lagret.status shouldBe ArbeidsgiverAvtale.Status.GJENNOMFORES
+                lagret.opprettetTidspunkt shouldBe Instant.parse("2025-01-01T10:00:00.123456Z")
+                lagret.oppdatertTidspunkt shouldBe Instant.parse("2025-01-02T11:00:00.987654Z")
+            }
+
+            val oppdatertHendelse = hendelse.copy(
+                avtaleStatus = TiltakAvtaleHendelseDto.Status.AVSLUTTET,
+                sistEndret = Instant.parse("2025-01-02T11:00:00.987654001Z"),
+            )
+            consumer.consume(avtaleId, Json.encodeToJsonElement(oppdatertHendelse))
+
+            db.session {
+                queries.arbeidsgiverAvtale.get(avtaleId)?.status shouldBe ArbeidsgiverAvtale.Status.AVSLUTTET
             }
         }
 

@@ -10,7 +10,11 @@ class ArbeidsgiverAvtaleReplikering(
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    fun upsert(avtale: ArbeidsgiverAvtale): Unit = db.session {
+    fun upsert(input: ArbeidsgiverAvtale): Unit = db.session {
+        val avtale = input.copy(
+            opprettetTidspunkt = input.opprettetTidspunkt.truncatedToMicros(),
+            oppdatertTidspunkt = input.oppdatertTidspunkt.truncatedToMicros(),
+        )
         val id = avtale.avtaleId
         val stored = queries.arbeidsgiverAvtale.get(id)
 

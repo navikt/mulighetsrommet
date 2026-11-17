@@ -19,21 +19,27 @@ class GjennomforingQueries(private val session: Session) {
                 tiltakskode,
                 arrangor_organisasjonsnummer,
                 navn,
-                deltidsprosent
+                deltidsprosent,
+                opprettet_tidspunkt,
+                oppdatert_tidspunkt
             ) values (
                 :id::uuid,
                 :gjennomforing_type::gjennomforing_type,
                 :tiltakskode,
                 :arrangor_organisasjonsnummer,
                 :navn,
-                :deltidsprosent
+                :deltidsprosent,
+                :opprettet_tidspunkt,
+                :oppdatert_tidspunkt
             )
             on conflict (id) do update set
                 gjennomforing_type = excluded.gjennomforing_type,
                 tiltakskode = excluded.tiltakskode,
                 arrangor_organisasjonsnummer = excluded.arrangor_organisasjonsnummer,
                 navn = excluded.navn,
-                deltidsprosent = excluded.deltidsprosent
+                deltidsprosent = excluded.deltidsprosent,
+                opprettet_tidspunkt = excluded.opprettet_tidspunkt,
+                oppdatert_tidspunkt = excluded.oppdatert_tidspunkt
         """.trimIndent()
 
         val params = mapOf(
@@ -43,6 +49,8 @@ class GjennomforingQueries(private val session: Session) {
             "arrangor_organisasjonsnummer" to gjennomforing.arrangorOrganisasjonsnummer,
             "navn" to gjennomforing.navn,
             "deltidsprosent" to gjennomforing.deltidsprosent,
+            "opprettet_tidspunkt" to gjennomforing.opprettetTidspunkt,
+            "oppdatert_tidspunkt" to gjennomforing.oppdatertTidspunkt,
         )
 
         session.execute(queryOf(query, params))
@@ -77,4 +85,6 @@ private fun Row.toGjennomforing() = Gjennomforing(
     arrangorOrganisasjonsnummer = string("arrangor_organisasjonsnummer"),
     navn = stringOrNull("navn"),
     deltidsprosent = doubleOrNull("deltidsprosent"),
+    opprettetTidspunkt = instantOrNull("opprettet_tidspunkt"),
+    oppdatertTidspunkt = instantOrNull("oppdatert_tidspunkt"),
 )

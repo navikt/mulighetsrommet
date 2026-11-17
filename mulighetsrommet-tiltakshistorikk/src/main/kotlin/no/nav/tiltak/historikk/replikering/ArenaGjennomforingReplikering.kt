@@ -10,7 +10,11 @@ class ArenaGjennomforingReplikering(
     private val db: TiltakshistorikkDatabase,
     private val virksomheter: VirksomhetReplikering,
 ) {
-    suspend fun upsert(gjennomforing: TiltakshistorikkArenaGjennomforing): Either<BrregError, Unit> {
+    suspend fun upsert(input: TiltakshistorikkArenaGjennomforing): Either<BrregError, Unit> {
+        val gjennomforing = input.copy(
+            arenaRegDato = input.arenaRegDato.truncatedToMicros(),
+            arenaModDato = input.arenaModDato.truncatedToMicros(),
+        )
         return virksomheter.getOrSyncVirksomhetIfNotExists(gjennomforing.arrangorOrganisasjonsnummer)
             .map {
                 db.session {
