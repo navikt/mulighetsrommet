@@ -1,10 +1,11 @@
 package no.nav.mulighetsrommet.api.domain.navansatt
 
+import arrow.core.Either
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingType
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 
 object OkonomiAuthorization {
-    fun kanLeseEnkeltplass(ansatt: NavAnsatt): Boolean {
+    fun kanLeseEnkeltplass(ansatt: NavAnsatt): Either<ManglerTilgang, HarTilgang> {
         return hasAnyRole(
             ansatt,
             Rolle.OKONOMI_LES,
@@ -20,14 +21,14 @@ object OkonomiAuthorization {
             Rolle.OKONOMI_SAKSBEHANDLER_GRUPPETILTAK,
             Rolle.OKONOMI_BESLUTTER_GRUPPETILTAK,
             Rolle.OKONOMI_ATTESTANT_GRUPPETILTAK,
-        )
+        ).isRight()
 
         GjennomforingType.ENKELTPLASS -> hasAnyRole(
             ansatt,
             Rolle.OKONOMI_LES,
             Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS,
             Rolle.OKONOMI_BESLUTTER_ENKELTPLASS,
-        )
+        ).isRight()
 
         GjennomforingType.ARENA -> false
     }
@@ -39,14 +40,14 @@ object OkonomiAuthorization {
             Rolle.OKONOMI_SAKSBEHANDLER_GRUPPETILTAK,
             Rolle.OKONOMI_BESLUTTER_GRUPPETILTAK,
             Rolle.OKONOMI_ATTESTANT_GRUPPETILTAK,
-        )
+        ).isRight()
 
         GjennomforingType.ENKELTPLASS -> hasAnyRole(
             ansatt,
             Rolle.OKONOMI_LES,
             Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS,
             Rolle.OKONOMI_BESLUTTER_ENKELTPLASS,
-        )
+        ).isRight()
 
         GjennomforingType.ARENA -> false
     }
@@ -91,7 +92,20 @@ object OkonomiAuthorization {
         return ansatt.hasKontorspesifikkRolle(Rolle.OKONOMI_BESLUTTER_ENKELTPLASS, ansvarligeEnheter)
     }
 
-    private fun hasAnyRole(ansatt: NavAnsatt, vararg requiredRoles: Rolle): Boolean {
-        return ansatt.roller.any { it.rolle in requiredRoles }
+    private fun hasAnyRole(ansatt: NavAnsatt, vararg requiredRoles: Rolle): Either<ManglerTilgang, HarTilgang> {
+        val roller = ansatt.roller.filter { it.rolle in requiredRoles }.map { it.rolle }.toSet()
+        return if (roller.isEmpty()) {
+            Either.Left(ManglerTilgang(requiredRoles.toSet()))
+        } else {
+            Either.Right(HarTilgang(roller))
+        }
     }
 }
+
+data class ManglerTilgang(
+    val roller: Set<Rolle>,
+)
+
+data class HarTilgang(
+    val roller: Set<Rolle>,
+)

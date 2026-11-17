@@ -5,9 +5,7 @@ import { ProblemDetail } from "@tiltaksadministrasjon/api-client";
 
 export interface NavAnsattManglerTilgangError extends ProblemDetail {
   type: "mangler-tilgang";
-  extensions: {
-    missingRoles: string[];
-  };
+  missingRoles: string[];
 }
 
 interface IngenTilgangProps {
@@ -25,7 +23,7 @@ export function IngenTilgang({ error }: IngenTilgangProps) {
         <div className="text-left">
           <Box marginBlock="space-16" asChild>
             <List>
-              {error.extensions.missingRoles.map((rolle) => (
+              {error.missingRoles.map((rolle) => (
                 <List.Item key={rolle}>
                   <strong>{rolle}</strong>
                 </List.Item>

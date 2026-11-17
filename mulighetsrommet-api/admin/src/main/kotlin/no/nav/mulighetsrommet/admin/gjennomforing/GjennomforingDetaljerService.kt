@@ -90,9 +90,11 @@ class GjennomforingDetaljerService(
 
             is GjennomforingEnkeltplass -> {
                 val ansatt = db.session { repository.navAnsatt.getOrError(navIdent) }
-                if (!OkonomiAuthorization.kanLeseEnkeltplass(ansatt)) {
-                    return GjennomforingDetaljerError.ManglerTilgang("Du mangler lesetilgang til enkeltplass").left()
+
+                OkonomiAuthorization.kanLeseEnkeltplass(ansatt).onLeft { manglerTilgang ->
+                    return GjennomforingDetaljerError.ManglerTilgang("Du mangler lesetilgang til enkeltplass", ansatt.navIdent, manglerTilgang.roller).left()
                 }
+
                 val enkeltplass = enkeltplassService.get(gjennomforing.id)
                     ?: error("Fant ikke enkeltplass med id=${gjennomforing.id}")
 
@@ -398,6 +400,6 @@ private fun ExcelWorkbookBuilder.createGjennomforingerSheet(
 
 sealed class GjennomforingDetaljerError {
     data class IkkeFunnet(val message: String) : GjennomforingDetaljerError()
-    data class ManglerTilgang(val message: String) : GjennomforingDetaljerError()
+    data class ManglerTilgang(val message: String, val navIdent: NavIdent, val roller: Set<Rolle>) : GjennomforingDetaljerError()
     data class PersonaliaSjekkAvvist(val avvistGrunn: AvvistGrunn) : GjennomforingDetaljerError()
 }
