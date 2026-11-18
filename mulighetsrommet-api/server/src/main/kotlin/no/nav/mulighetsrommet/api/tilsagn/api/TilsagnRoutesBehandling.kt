@@ -10,6 +10,7 @@ import io.ktor.server.routing.Route
 import io.ktor.server.util.getOrFail
 import no.nav.mulighetsrommet.admin.aarsakerbegrunnelse.AarsakerOgBegrunnelseRequest
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
+import no.nav.mulighetsrommet.api.navansatt.ktor.NavAnsattManglerTilgang
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
@@ -215,6 +216,7 @@ fun Route.tilsagnRoutesBehandling() {
 }
 
 private fun toProblemDetail(error: TilsagnError): ProblemDetail = when (error) {
-    is TilsagnError.ManglerTilgang -> Forbidden(error.message)
+    is TilsagnError.ManglerTilgang -> NavAnsattManglerTilgang(error.navIdent, error.roller, error.message)
     is TilsagnError.Valideringsfeil -> ValidationError("Valideringsfeil", error.errors)
+    is TilsagnError.AgentUgyldigHandling -> Forbidden(error.message)
 }
