@@ -285,7 +285,7 @@ private fun QueryContext.toOppgave(data: TilsagnOppgaveData, ansatt: NavAnsatt):
             data.gjennomforing.type,
             nonEmptySetOf(data.kostnadssted.nummer),
         ),
-    )
+    ).isRight()
     val title = getOkonomiOppgaveTitle(data.tiltakstype, data.gjennomforing)
     return when (data.status) {
         TilsagnStatus.TIL_GODKJENNING -> {
@@ -319,7 +319,7 @@ private fun QueryContext.toOppgave(data: TilsagnOppgaveData, ansatt: NavAnsatt):
                 createdAt = besluttetTidspunkt.tilNorskLocalDateTime(),
                 arrangor = data.arrangor,
             ).takeIf {
-                OkonomiAuthorization.erSaksbehandler(ansatt, data.gjennomforing.type)
+                OkonomiAuthorization.erSaksbehandler(ansatt, data.gjennomforing.type).isRight()
             }
         }
 
@@ -383,13 +383,14 @@ private fun toOppgave(data: UtbetalingLinjeOppgaveData, ansatt: NavAnsatt): Oppg
                 createdAt = data.opprettelse.behandletTidspunkt,
                 arrangor = data.arrangor,
             ).takeIf {
-                OkonomiAuthorization.erAttestantUtbetaling(
+                val erAttestant = OkonomiAuthorization.erAttestantUtbetaling(
                     ansatt,
                     OkonomiBeslutningContext(
                         data.gjennomforing.type,
                         nonEmptySetOf(data.kostnadssted.nummer),
                     ),
-                ) && data.opprettelse.behandletAv != ansatt.navIdent
+                ).isRight()
+                erAttestant && data.opprettelse.behandletAv != ansatt.navIdent
             }
         }
 
@@ -406,7 +407,7 @@ private fun toOppgave(data: UtbetalingLinjeOppgaveData, ansatt: NavAnsatt): Oppg
                 createdAt = requireNotNull(data.opprettelse.besluttetTidspunkt),
                 arrangor = data.arrangor,
             ).takeIf {
-                OkonomiAuthorization.erSaksbehandler(ansatt, data.gjennomforing.type)
+                OkonomiAuthorization.erSaksbehandler(ansatt, data.gjennomforing.type).isRight()
             }
         }
 
@@ -444,7 +445,7 @@ private fun toOppgave(data: UtbetalingBehandlingOppgaveData, ansatt: NavAnsatt):
                 createdAt = data.godkjentAvArrangorTidspunkt ?: data.createdAt,
                 arrangor = data.arrangor,
             ).takeIf {
-                OkonomiAuthorization.erSaksbehandler(ansatt, data.gjennomforing.type)
+                OkonomiAuthorization.erSaksbehandler(ansatt, data.gjennomforing.type).isRight()
             }
     }
 }
@@ -464,7 +465,7 @@ private fun toOppgave(data: UtbetalingManglerTilsagnOppgaveData, ansatt: NavAnsa
     createdAt = data.godkjentAvArrangorTidspunkt ?: data.createdAt,
     arrangor = data.arrangor,
 ).takeIf {
-    OkonomiAuthorization.erSaksbehandler(ansatt, data.gjennomforing.type)
+    OkonomiAuthorization.erSaksbehandler(ansatt, data.gjennomforing.type).isRight()
 }
 
 private fun tilAvbrytelseOppgave(data: UtbetalingBehandlingOppgaveData, ansatt: NavAnsatt): Oppgave? = Oppgave(
@@ -489,7 +490,7 @@ private fun tilAvbrytelseOppgave(data: UtbetalingBehandlingOppgaveData, ansatt: 
                 gjennomforingType = data.gjennomforing.type,
                 kostnadssteder = setOf(data.ansvarligEnhet.nummer).toNonEmptySetOrThrow(),
             ),
-        )
+        ).isRight()
     } else {
         data.kostnadssteder
             .any {
@@ -499,7 +500,7 @@ private fun tilAvbrytelseOppgave(data: UtbetalingBehandlingOppgaveData, ansatt: 
                         gjennomforingType = data.gjennomforing.type,
                         kostnadssteder = setOf(it).toNonEmptySetOrThrow(),
                     ),
-                )
+                ).isRight()
             } && data.avbrytelseBehandletAv != ansatt.navIdent
     }
 }
@@ -623,7 +624,7 @@ private fun toTilskuddBehandlingOppgave(data: TilskuddBehandlingOppgaveData, ans
                         data.gjennomforing.type,
                         data.kostnadssteder.map { it.nummer }.toNonEmptySetOrThrow(),
                     ),
-                )
+                ).isRight()
             }
         }
 
@@ -641,7 +642,7 @@ private fun toTilskuddBehandlingOppgave(data: TilskuddBehandlingOppgaveData, ans
                 createdAt = data.opprettelse.besluttetTidspunkt,
                 arrangor = data.arrangor,
             ).takeIf {
-                OkonomiAuthorization.erSaksbehandler(ansatt, data.gjennomforing.type)
+                OkonomiAuthorization.erSaksbehandler(ansatt, data.gjennomforing.type).isRight()
             }
         }
 

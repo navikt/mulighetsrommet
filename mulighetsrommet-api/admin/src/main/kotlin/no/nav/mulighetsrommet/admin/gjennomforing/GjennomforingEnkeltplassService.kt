@@ -451,7 +451,7 @@ class GjennomforingEnkeltplassService(
             GjennomforingType.ENKELTPLASS,
             nonEmptySetOf(enkeltplass.gjennomforing.ansvarligEnhet.enhetsnummer),
         )
-        return OkonomiAuthorization.erOkonomiBeslutter(ansatt, kontekst)
+        return OkonomiAuthorization.erOkonomiBeslutter(ansatt, kontekst).isRight()
     }
 
     private fun QueryContext.getDeltaker(gjennomforingId: UUID): Deltaker? {

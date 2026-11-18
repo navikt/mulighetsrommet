@@ -194,7 +194,7 @@ class AdminUtbetalingService(
                 gjennomforingType = utbetaling.gjennomforing.type,
                 kostnadssteder = nonEmptySetOf(gjennomforing.ansvarligEnhet.enhetsnummer),
             ),
-        )
+        ).isRight()
         if (!erAttestant) {
             return UtbetalingError.ManglerTilgang("Du mangler attestantrollen som kreves for å godkjenne avbrytelsen")
                 .left()
@@ -354,12 +354,12 @@ class AdminUtbetalingService(
             is GjennomforingEnkeltplass -> GjennomforingType.ENKELTPLASS
         }
         val ansatt = queries.ansatt.getOrError(navIdent)
-        return OkonomiAuthorization.erSaksbehandler(ansatt, type)
+        return OkonomiAuthorization.erSaksbehandler(ansatt, type).isRight()
     }
 
     private fun QueryContext.erSaksbehandler(navIdent: NavIdent, utbetaling: Utbetaling): Boolean {
         val ansatt = queries.ansatt.getOrError(navIdent)
-        return OkonomiAuthorization.erSaksbehandler(ansatt, utbetaling.gjennomforing.type)
+        return OkonomiAuthorization.erSaksbehandler(ansatt, utbetaling.gjennomforing.type).isRight()
     }
 
     private fun QueryContext.erAttestant(
@@ -372,6 +372,6 @@ class AdminUtbetalingService(
             gjennomforingType = utbetaling.gjennomforing.type,
             kostnadssteder = nonEmptySetOf(tilsagn.kostnadssted.enhetsnummer),
         )
-        return OkonomiAuthorization.erAttestantUtbetaling(ansatt, kontekst)
+        return OkonomiAuthorization.erAttestantUtbetaling(ansatt, kontekst).isRight()
     }
 }
