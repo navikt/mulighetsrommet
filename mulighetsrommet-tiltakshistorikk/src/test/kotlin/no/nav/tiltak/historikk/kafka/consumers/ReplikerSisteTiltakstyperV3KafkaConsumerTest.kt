@@ -61,23 +61,4 @@ class ReplikerSisteTiltakstyperV3KafkaConsumerTest : FunSpec({
             lagret.oppdatertTidspunkt shouldBe Instant.parse("2025-07-03T10:00:00.123456Z")
         }
     }
-
-    test("tiltakstyper uten kjente kildetidsstempler kan leses og fylles ut ved replikering") {
-        db.session {
-            queries.tiltakstype.upsert(
-                TestFixtures.Tiltakstype.arbeidstrening.copy(
-                    opprettetTidspunkt = null,
-                    oppdatertTidspunkt = null,
-                ),
-            )
-        }
-
-        consumer.consume(melding.id, Json.encodeToJsonElement(melding))
-
-        db.session {
-            val lagret = queries.tiltakstype.getByTiltakskode(Tiltakskode.ARBEIDSTRENING)
-            lagret.opprettetTidspunkt shouldBe Instant.parse("2025-01-01T09:00:00.123456Z")
-            lagret.oppdatertTidspunkt shouldBe Instant.parse("2025-01-02T10:00:00.654321Z")
-        }
-    }
 })

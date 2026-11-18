@@ -120,28 +120,6 @@ class ReplikerSisteTiltaksgjennomforingerV2KafkaConsumerTest : FunSpec({
                 queries.gjennomforing.get(enkeltplass.id).shouldBeNull()
             }
         }
-
-        test("gjennomføringer uten kjente kildetidsstempler kan leses og fylles ut ved replikering") {
-            db.session {
-                queries.gjennomforing.upsert(
-                    gruppe.toGjennomforing().copy(
-                        opprettetTidspunkt = null,
-                        oppdatertTidspunkt = null,
-                    ),
-                )
-                val lagret = queries.gjennomforing.get(gruppe.id).shouldNotBeNull()
-                lagret.opprettetTidspunkt.shouldBeNull()
-                lagret.oppdatertTidspunkt.shouldBeNull()
-            }
-
-            consumer.consume(gruppe.id, Json.encodeToJsonElement(gruppe))
-
-            db.session {
-                val lagret = queries.gjennomforing.get(gruppe.id).shouldNotBeNull()
-                lagret.opprettetTidspunkt shouldBe Instant.parse("2025-01-01T00:00:00.123456Z")
-                lagret.oppdatertTidspunkt shouldBe Instant.parse("2025-01-02T00:00:00.987654Z")
-            }
-        }
     }
 
     context("synkroniserer virksomhet hvis den ikke finnes") {

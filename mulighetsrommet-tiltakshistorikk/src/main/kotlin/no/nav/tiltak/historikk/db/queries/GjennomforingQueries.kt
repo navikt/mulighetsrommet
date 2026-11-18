@@ -85,6 +85,6 @@ private fun Row.toGjennomforing() = Gjennomforing(
     arrangorOrganisasjonsnummer = string("arrangor_organisasjonsnummer"),
     navn = stringOrNull("navn"),
     deltidsprosent = doubleOrNull("deltidsprosent"),
-    opprettetTidspunkt = instantOrNull("opprettet_tidspunkt"),
-    oppdatertTidspunkt = instantOrNull("oppdatert_tidspunkt"),
+    opprettetTidspunkt = instant("opprettet_tidspunkt"),
+    oppdatertTidspunkt = instant("oppdatert_tidspunkt"),
 )
