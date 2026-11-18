@@ -1,4 +1,4 @@
-FROM europe-north1-docker.pkg.dev/cgr-nav/pull-through/nav.no/jre:openjdk-21@sha256:ed0912daf3c28130e190f316c04153800bbcf95e50f74ba0345f8aae9c359fa7
+FROM europe-north1-docker.pkg.dev/cgr-nav/pull-through/nav.no/jre:openjdk-21@sha256:c33bf41fe071380c651e5ea7831a27086ba48a5a9114330016d2343a1e800e51
 LABEL org.opencontainers.image.source="https://github.com/navikt/mulighetsrommet"
 
 ENV JAVA_OPTS="${JAVA_OPTS} -Xms512m -Xmx1500m"
