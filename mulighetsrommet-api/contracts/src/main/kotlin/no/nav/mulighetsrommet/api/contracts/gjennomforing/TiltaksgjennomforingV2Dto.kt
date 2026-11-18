@@ -4,6 +4,7 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonClassDiscriminator
+import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
@@ -78,7 +79,30 @@ sealed class TiltaksgjennomforingV2Dto {
         override val status: Status,
         override val oppstart: GjennomforingOppstartstype,
         override val pameldingType: GjennomforingPameldingType,
+        val prisinformasjon: EnkeltplassPrisinformasjon? = null,
     ) : TiltaksgjennomforingV2Dto()
+
+    @Serializable
+    sealed interface EnkeltplassPrisinformasjon {
+        @Serializable
+        @SerialName("Anskaffelse")
+        data class Anskaffelse(
+            val pris: Int,
+        ) : EnkeltplassPrisinformasjon
+
+        @Serializable
+        @SerialName("Tilskudd")
+        data class Tilskudd(
+            val tilskudd: Map<Opplaeringtilskudd.Kode, Int>,
+            val tilleggsopplysninger: String?,
+        ) : EnkeltplassPrisinformasjon
+
+        @Serializable
+        @SerialName("IngenKostnader")
+        data class IngenKostnader(
+            val tilleggsopplysninger: String,
+        ) : EnkeltplassPrisinformasjon
+    }
 
     enum class Status {
         GJENNOMFORES,

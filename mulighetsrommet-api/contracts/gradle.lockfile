@@ -4,6 +4,10 @@
 # To regenerate this file, run: ./gradlew :mulighetsrommet-api:contracts:dependencies --write-locks
 ch.qos.logback:logback-classic:1.3.16=ktlint
 ch.qos.logback:logback-core:1.3.16=ktlint
+com.diffplug.selfie:selfie-lib-jvm:3.1.2=testCompileClasspath,testRuntimeClasspath
+com.diffplug.selfie:selfie-lib:3.1.2=testCompileClasspath,testRuntimeClasspath
+com.diffplug.selfie:selfie-runner-kotest-jvm:3.1.2=testCompileClasspath,testRuntimeClasspath
+com.diffplug.selfie:selfie-runner-kotest:3.1.2=testCompileClasspath,testRuntimeClasspath
 com.github.ajalt.clikt:clikt-jvm:5.0.3=ktlint
 com.github.ajalt.clikt:clikt:5.0.3=ktlint
 com.pinterest.ktlint:ktlint-cli-reporter-baseline:1.8.0=ktlint,ktlintBaselineReporter
@@ -21,6 +25,8 @@ com.pinterest.ktlint:ktlint-logger:1.8.0=ktlint,ktlintBaselineReporter,ktlintRul
 com.pinterest.ktlint:ktlint-rule-engine-core:1.8.0=ktlint,ktlintBaselineReporter,ktlintRuleset
 com.pinterest.ktlint:ktlint-rule-engine:1.8.0=ktlint
 com.pinterest.ktlint:ktlint-ruleset-standard:1.8.0=ktlint,ktlintRuleset
+com.squareup.okio:okio-jvm:3.16.0=testRuntimeClasspath
+com.squareup.okio:okio:3.16.0=testRuntimeClasspath
 dev.drewhamilton.poko:poko-annotations-jvm:0.20.1=ktlint,ktlintBaselineReporter,ktlintRuleset
 dev.drewhamilton.poko:poko-annotations:0.20.1=ktlint,ktlintBaselineReporter,ktlintRuleset
 io.arrow-kt:arrow-annotations-jvm:2.3.0.1=runtimeClasspath,testRuntimeClasspath
