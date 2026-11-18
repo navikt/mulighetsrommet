@@ -95,7 +95,7 @@ class GjennomforingDetaljerService(
                 OkonomiAuthorization.kanLeseEnkeltplass(ansatt).onLeft { error ->
                     when (error) {
                         is OkonomiAuthorizationError.InvalidState -> error(error.message)
-                        is OkonomiAuthorizationError.ManglerKontorspesifikkTilgang -> GjennomforingDetaljerError.ManglerTilgang("Du mangler lesetilgang til enkeltplass", ansatt.navIdent, error.requiredRoles).left()
+                        is OkonomiAuthorizationError.ManglerKontorspesifikkTilgang -> GjennomforingDetaljerError.ManglerTilgang("Du mangler kontorspesifikk lesetilgang til enkeltplass", ansatt.navIdent, error.requiredRoles).left()
                         is OkonomiAuthorizationError.ManglerTilgang -> GjennomforingDetaljerError.ManglerTilgang("Du mangler lesetilgang til enkeltplass", ansatt.navIdent, error.requiredRoles).left()
                     }
                 }

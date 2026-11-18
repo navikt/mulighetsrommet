@@ -82,7 +82,7 @@ object OkonomiAuthorization {
         errorB: OkonomiAuthorizationError,
     ): OkonomiAuthorizationError = when {
         errorA is OkonomiAuthorizationError.ManglerTilgang && errorB is OkonomiAuthorizationError.ManglerTilgang -> {
-            OkonomiAuthorizationError.ManglerKontorspesifikkTilgang(errorA.requiredRoles + errorB.requiredRoles)
+            OkonomiAuthorizationError.ManglerTilgang(errorA.requiredRoles + errorB.requiredRoles)
         }
 
         errorA is OkonomiAuthorizationError.ManglerKontorspesifikkTilgang && errorB is OkonomiAuthorizationError.ManglerKontorspesifikkTilgang -> {
