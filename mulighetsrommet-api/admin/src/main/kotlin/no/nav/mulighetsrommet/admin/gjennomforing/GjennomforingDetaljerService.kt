@@ -2,7 +2,11 @@ package no.nav.mulighetsrommet.admin.gjennomforing
 
 import arrow.core.Either
 import arrow.core.left
+import arrow.core.raise.context.Raise
+import arrow.core.raise.context.bind
 import arrow.core.raise.context.either
+import arrow.core.raise.context.ensureNotNull
+import arrow.core.raise.context.raise
 import arrow.core.right
 import arrow.core.toNonEmptySetOrThrow
 import no.nav.mulighetsrommet.admin.AdminDatabase
@@ -81,65 +85,18 @@ class GjennomforingDetaljerService(
         navIdent: NavIdent,
     ): Either<GjennomforingDetaljerError, GjennomforingDetaljerDto> = either {
         val gjennomforing = getGjennomforingTiltaksadministrasjon(id)
-            ?: return GjennomforingDetaljerError.IkkeFunnet("Gjennomføring med id=$id finnes ikke").left()
+        ensureNotNull(gjennomforing) {
+            GjennomforingDetaljerError.IkkeFunnet("Gjennomføring med id=$id finnes ikke")
+        }
 
-        return when (gjennomforing) {
+        when (gjennomforing) {
             is GjennomforingAvtale -> db.session {
                 val detaljer = queries.gjennomforing.getGjennomforingAvtaleDetaljerOrError(gjennomforing.id)
-                GjennomforingDtoMapper.fromGjennomforingAvtale(gjennomforing, detaljer).right()
+                GjennomforingDtoMapper.fromGjennomforingAvtale(gjennomforing, detaljer)
             }
 
             is GjennomforingEnkeltplass -> {
-                val ansatt = db.session { repository.navAnsatt.getOrError(navIdent) }
-
-                OkonomiAuthorization.kanLeseEnkeltplass(ansatt).onLeft { error ->
-                    when (error) {
-                        is OkonomiAuthorizationError.ManglerKontorspesifikkTilgang -> GjennomforingDetaljerError.ManglerTilgang("Du mangler kontorspesifikk lesetilgang til enkeltplass", ansatt.navIdent, error.requiredRoles).left()
-                        is OkonomiAuthorizationError.ManglerTilgang -> GjennomforingDetaljerError.ManglerTilgang("Du mangler lesetilgang til enkeltplass", ansatt.navIdent, error.requiredRoles).left()
-                    }
-                }
-
-                val enkeltplass = enkeltplassService.get(gjennomforing.id)
-                    ?: error("Fant ikke enkeltplass med id=${gjennomforing.id}")
-
-                val (okonomi, prisendring, deltaker) = db.session {
-                    val okonomi = enkeltplass.okonomi?.let { queries.totrinnskontroll.getDtoByIdOrError(it.id) }
-
-                    val prisendring = enkeltplass.prisendring?.let {
-                        val totrinnskontroll = queries.totrinnskontroll.getDtoByIdOrError(it.totrinnskontroll.id)
-                        GjennomforingEnkeltplassDetaljerDto.Prisendring(
-                            totrinnskontroll,
-                            it.prismodell.toPrismodellDto(),
-                        )
-                    }
-
-                    Triple(okonomi, prisendring, getDeltaker(gjennomforing.id))
-                }
-
-                val deltakerDto = deltaker?.let { deltaker ->
-                    val personalia = personaliaPort.getPersonalia(deltaker.id, accessType)
-                    val norskIdent = personalia.norskIdent()
-                    val avvistGrunn = personalia.avvistGrunn
-                    if (avvistGrunn != null) {
-                        return GjennomforingDetaljerError.PersonaliaSjekkAvvist(avvistGrunn).left()
-                    } else if (norskIdent != null) {
-                        auditLog.visEnkeltplassDeltaker(gjennomforing.id, navIdent, norskIdent)
-                    }
-                    val veilederNavn = deltaker.navVeileder?.navIdent?.let {
-                        navAnsattService.getNavAnsattNavnFromAzure(it, AccessType.M2M)
-                    }
-                    DeltakerDto.from(deltaker, personalia, veilederNavn, dato = LocalDate.now())
-                }
-
-                val opplaringKategorisering = db.session { queries.opplaering.get(gjennomforing.id) }
-
-                GjennomforingDtoMapper.fromEnkeltplass(
-                    gjennomforing,
-                    okonomi,
-                    prisendring,
-                    deltakerDto,
-                    opplaringKategorisering,
-                ).right()
+                getGjennomforingEnkeltplassDetaljerDto(gjennomforing, accessType, navIdent).bind()
             }
         }
     }
@@ -258,6 +215,75 @@ class GjennomforingDetaljerService(
                 tilgangTilHandling(ansatt, handling, GjennomforingType.AVTALE)
             }
             .toSet()
+    }
+
+    private suspend fun getGjennomforingEnkeltplassDetaljerDto(
+        gjennomforing: GjennomforingEnkeltplass,
+        accessType: AccessType.OBO.AzureAd,
+        navIdent: NavIdent,
+    ): Either<GjennomforingDetaljerError, GjennomforingDetaljerDto> = either {
+        val ansatt = db.session { repository.navAnsatt.getOrError(navIdent) }
+
+        kanLeseEnkeltplass(ansatt)
+
+        val enkeltplass = ensureNotNull(enkeltplassService.get(gjennomforing.id)) {
+            GjennomforingDetaljerError.IkkeFunnet("Fant ikke enkeltplass med id=${gjennomforing.id}")
+        }
+
+        val (okonomi, prisendring, deltaker) = db.session {
+            val okonomi = enkeltplass.okonomi?.let { queries.totrinnskontroll.getDtoByIdOrError(it.id) }
+
+            val prisendring = enkeltplass.prisendring?.let {
+                val totrinnskontroll = queries.totrinnskontroll.getDtoByIdOrError(it.totrinnskontroll.id)
+                GjennomforingEnkeltplassDetaljerDto.Prisendring(
+                    totrinnskontroll,
+                    it.prismodell.toPrismodellDto(),
+                )
+            }
+
+            Triple(okonomi, prisendring, getDeltaker(gjennomforing.id))
+        }
+
+        val deltakerDto = deltaker?.let { deltaker ->
+            val personalia = personaliaPort.getPersonalia(deltaker.id, accessType)
+            val norskIdent = personalia.norskIdent()
+            val avvistGrunn = personalia.avvistGrunn
+
+            if (avvistGrunn != null) {
+                raise(GjennomforingDetaljerError.PersonaliaSjekkAvvist(avvistGrunn))
+            }
+
+            if (norskIdent != null) {
+                auditLog.visEnkeltplassDeltaker(gjennomforing.id, navIdent, norskIdent)
+            }
+            val veilederNavn = deltaker.navVeileder?.navIdent?.let {
+                navAnsattService.getNavAnsattNavnFromAzure(it, AccessType.M2M)
+            }
+            DeltakerDto.from(deltaker, personalia, veilederNavn, dato = LocalDate.now())
+        }
+
+        val opplaringKategorisering = db.session { queries.opplaering.get(gjennomforing.id) }
+
+        GjennomforingDtoMapper.fromEnkeltplass(
+            gjennomforing,
+            okonomi,
+            prisendring,
+            deltakerDto,
+            opplaringKategorisering,
+        )
+    }
+
+    context(errors: Raise<GjennomforingDetaljerError>)
+    private fun kanLeseEnkeltplass(ansatt: NavAnsatt) {
+        OkonomiAuthorization.kanLeseEnkeltplass(ansatt).onLeft { error ->
+            when (error) {
+                is OkonomiAuthorizationError.ManglerTilgang ->
+                    errors.raise(GjennomforingDetaljerError.ManglerTilgang("Du mangler lesetilgang til enkeltplass", ansatt.navIdent, error.requiredRoles))
+
+                is OkonomiAuthorizationError.ManglerKontorspesifikkTilgang ->
+                    errors.raise(GjennomforingDetaljerError.ManglerTilgang("Du mangler kontorspesifikk lesetilgang til enkeltplassen", ansatt.navIdent, error.requiredRoles))
+            }
+        }
     }
 
     private fun getHandlingerEnkeltplass(
