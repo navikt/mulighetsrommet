@@ -6,6 +6,12 @@ import arrow.core.getOrElse
 import arrow.core.left
 import arrow.core.nel
 import arrow.core.nonEmptySetOf
+import arrow.core.raise.context.Raise
+import arrow.core.raise.context.bind
+import arrow.core.raise.context.either
+import arrow.core.raise.context.ensure
+import arrow.core.raise.context.ensureNotNull
+import arrow.core.raise.context.raise
 import arrow.core.right
 import no.nav.mulighetsrommet.admin.aarsakerbegrunnelse.AarsakerOgBegrunnelseRequest
 import no.nav.mulighetsrommet.admin.journalpost.ForventetBruker
@@ -21,7 +27,9 @@ import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingTiltaksadministrasjon
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingType
 import no.nav.mulighetsrommet.api.domain.gjennomforing.statusSperrerOkonomi
+import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsatt
 import no.nav.mulighetsrommet.api.domain.navansatt.OkonomiAuthorization
+import no.nav.mulighetsrommet.api.domain.navansatt.OkonomiAuthorizationError
 import no.nav.mulighetsrommet.api.domain.navansatt.OkonomiBeslutningContext
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingRequest
@@ -51,32 +59,37 @@ class AdminUtbetalingService(
     suspend fun opprettUtbetaling(
         request: UtbetalingRequest,
         agent: NavIdent,
-    ): Either<UtbetalingError, Utbetaling> {
+    ): Either<UtbetalingError, Utbetaling> = either {
         val ctx = db.session {
             val gjennomforingId = when (val korrigerer = request.korrigererUtbetaling) {
                 null -> request.gjennomforingId
                 else -> queries.utbetaling.get(korrigerer)?.gjennomforing?.id
-            } ?: return UtbetalingError.Valideringsfeil(
-                FieldError.of("Utbetaling som skal korrigeres eksisterer ikke").nel(),
-            ).left()
+            }
+            ensureNotNull(gjennomforingId) {
+                UtbetalingError.Valideringsfeil(
+                    FieldError.of("Utbetaling som skal korrigeres eksisterer ikke").nel(),
+                )
+            }
 
             val gjennomforing = queries.gjennomforing.getGjennomforingTiltaksadministrasjon(gjennomforingId)
-            if (!kanOppretteUtbetaling(agent, gjennomforing)) {
-                return UtbetalingError.ManglerTilgang("Du mangler saksbehandlertilgang til utbetalingen").left()
-            }
+            kanOppretteUtbetaling(agent, gjennomforing).bind()
+
             gjennomforing.statusSperrerOkonomi()?.let { status ->
-                return UtbetalingError.Valideringsfeil(
-                    FieldError.of("Kan ikke opprette utbetaling fordi deltakelsen har status ${status.type.beskrivelse}").nel(),
-                ).left()
+                raise(
+                    UtbetalingError.Valideringsfeil(
+                        FieldError.of("Kan ikke opprette utbetaling fordi deltakelsen har status ${status.type.beskrivelse}").nel(),
+                    ),
+                )
             }
             hentValideringsContext(arrangorId = gjennomforing.arrangor.id, korrigertUtbetalingFinnes = true, gjennomforingOppstartsType = gjennomforing.oppstart)
         }
 
         val opprett = UtbetalingValidator.validateUpsertUtbetaling(request, ctx)
-            .getOrElse { return UtbetalingError.Valideringsfeil(it).left() }
+            .mapLeft { UtbetalingError.Valideringsfeil(it) }
+            .bind()
 
-        return db.transaction {
-            utbetalingService.opprettUtbetaling(opprett, agent).mapLeft(UtbetalingError::Valideringsfeil)
+        db.transaction {
+            utbetalingService.opprettUtbetaling(opprett, agent).mapLeft(UtbetalingError::Valideringsfeil).bind()
         }
     }
 
@@ -87,13 +100,13 @@ class AdminUtbetalingService(
     suspend fun redigerUtbetaling(
         request: UtbetalingRequest,
         agent: NavIdent,
-    ): Either<UtbetalingError, Utbetaling> {
+    ): Either<UtbetalingError, Utbetaling> = either {
         val ctx = db.session {
             val utbetaling = queries.utbetaling.getOrError(request.id)
-            if (!erSaksbehandler(agent, utbetaling)) {
-                return UtbetalingError.ManglerTilgang("Du mangler saksbehandlertilgang til utbetalingen").left()
-            }
-            val gjennomforing = queries.gjennomforing.getGjennomforingTiltaksadministrasjon(utbetaling.gjennomforing.id)
+            erSaksbehandler(agent, utbetaling)
+
+            val gjennomforing =
+                queries.gjennomforing.getGjennomforingTiltaksadministrasjon(utbetaling.gjennomforing.id)
             hentValideringsContext(
                 arrangorId = utbetaling.arrangor.id,
                 korrigertUtbetalingFinnes = request.korrigererUtbetaling
@@ -103,27 +116,24 @@ class AdminUtbetalingService(
             )
         }
 
-        val rediger = UtbetalingValidator.validateUpsertUtbetaling(request, ctx)
-            .getOrElse { return UtbetalingError.Valideringsfeil(it).left() }
+        val rediger = UtbetalingValidator.validateUpsertUtbetaling(request, ctx).mapLeft { UtbetalingError.Valideringsfeil(it) }.bind()
 
-        return db.transaction {
+        db.transaction {
             val utbetaling = queries.utbetaling.getAndAcquireLock(rediger.id)
-            if (!erSaksbehandler(agent, utbetaling)) {
-                return UtbetalingError.ManglerTilgang("Du mangler saksbehandlertilgang til utbetalingen").left()
-            }
+            erSaksbehandler(agent, utbetaling)
 
-            if (!utbetaling.kanRedigeres()) {
-                return UtbetalingError.Valideringsfeil(FieldError.of("Utbetalingen kan ikke redigeres").nel()).left()
+            ensure(utbetaling.kanRedigeres()) {
+                UtbetalingError.Valideringsfeil(FieldError.of("Utbetalingen kan ikke redigeres").nel())
             }
 
             val gjennomforingId = getGjennomforingId(rediger)
-            if (gjennomforingId != utbetaling.gjennomforing.id) {
-                return UtbetalingError.Valideringsfeil(
+            ensure(gjennomforingId == utbetaling.gjennomforing.id) {
+                UtbetalingError.Valideringsfeil(
                     FieldError.of("Utbetalingen kan ikke flyttes til en annen gjennomføring").nel(),
-                ).left()
+                )
             }
 
-            utbetalingService.redigerUtbetaling(rediger, agent).mapLeft(UtbetalingError::Valideringsfeil)
+            utbetalingService.redigerUtbetaling(rediger, agent).mapLeft(UtbetalingError::Valideringsfeil).bind()
         }
     }
 
@@ -153,23 +163,24 @@ class AdminUtbetalingService(
         opprett: OpprettUtbetalingLinjer,
         navIdent: NavIdent,
     ): Either<UtbetalingError, Utbetaling> = db.transaction {
-        val utbetaling = queries.utbetaling.getAndAcquireLock(opprett.utbetalingId)
-        if (!erSaksbehandler(navIdent, utbetaling)) {
-            return UtbetalingError.ManglerTilgang("Du mangler saksbehandlertilgang til utbetalingen").left()
+        either {
+            val utbetaling = queries.utbetaling.getAndAcquireLock(opprett.utbetalingId)
+            erSaksbehandler(navIdent, utbetaling)
+
+            val ctx = UtbetalingValidator.SendTilGodkjenningCtx(
+                utbetaling = utbetaling,
+                tilsagnByLinjeId = opprett.linjer.associate { it.id to queries.tilsagn.getAndAcquireLock(it.tilsagnId) },
+                eksisterendeUtbetalingIdByLinjeId = opprett.linjer
+                    .mapNotNull { linje -> queries.utbetalingLinje.get(linje.id)?.let { linje.id to it.utbetalingId } }
+                    .toMap(),
+            )
+
+            UtbetalingValidator.validerSendTilGodkjenning(opprett, ctx).flatMap {
+                queries.utbetaling.setBegrunnelseMindreBetalt(utbetaling.id, opprett.begrunnelseMindreBetalt)
+                utbetalingService.sendTilGodkjenning(utbetaling.id, opprett.linjer, navIdent)
+            }.mapLeft(UtbetalingError::Valideringsfeil)
+                .bind()
         }
-
-        val ctx = UtbetalingValidator.SendTilGodkjenningCtx(
-            utbetaling = utbetaling,
-            tilsagnByLinjeId = opprett.linjer.associate { it.id to queries.tilsagn.getAndAcquireLock(it.tilsagnId) },
-            eksisterendeUtbetalingIdByLinjeId = opprett.linjer
-                .mapNotNull { linje -> queries.utbetalingLinje.get(linje.id)?.let { linje.id to it.utbetalingId } }
-                .toMap(),
-        )
-
-        UtbetalingValidator.validerSendTilGodkjenning(opprett, ctx).flatMap {
-            queries.utbetaling.setBegrunnelseMindreBetalt(utbetaling.id, opprett.begrunnelseMindreBetalt)
-            utbetalingService.sendTilGodkjenning(utbetaling.id, opprett.linjer, navIdent)
-        }.mapLeft(UtbetalingError::Valideringsfeil)
     }
 
     fun sendTilAvbrytelse(
@@ -177,36 +188,35 @@ class AdminUtbetalingService(
         navIdent: NavIdent,
         request: AarsakerOgBegrunnelseRequest<UtbetalingStatusAarsak>,
     ): Either<UtbetalingError, Utbetaling> = db.transaction {
-        val utbetaling = queries.utbetaling.getAndAcquireLock(id)
-        if (!erSaksbehandler(navIdent, utbetaling)) {
-            return UtbetalingError.ManglerTilgang("Du mangler saksbehandlertilgang til utbetalingen").left()
-        }
+        either {
+            val utbetaling = queries.utbetaling.getAndAcquireLock(id)
+            erSaksbehandler(navIdent, utbetaling)
 
-        utbetalingService.sendTilAvbrytelse(
-            id = id,
-            agent = navIdent,
-            aarsaker = request.aarsaker.map { it.name },
-            begrunnelse = request.begrunnelse,
-        ).mapLeft(UtbetalingError::Valideringsfeil)
+            utbetalingService.sendTilAvbrytelse(
+                id = id,
+                agent = navIdent,
+                aarsaker = request.aarsaker.map { it.name },
+                begrunnelse = request.begrunnelse,
+            ).mapLeft(UtbetalingError::Valideringsfeil)
+                .bind()
+        }
     }
 
     fun godkjennAvbrytelse(id: UUID, navIdent: NavIdent): Either<UtbetalingError, Utbetaling> = db.transaction {
-        val utbetaling = queries.utbetaling.getAndAcquireLock(id)
-        val ansatt = queries.ansatt.getOrError(navIdent)
-        val gjennomforing = queries.gjennomforing.getGjennomforingTiltaksadministrasjon(utbetaling.gjennomforing.id)
-        val erAttestant = OkonomiAuthorization.erAttestantUtbetaling(
-            ansatt,
-            OkonomiBeslutningContext(
-                gjennomforingType = utbetaling.gjennomforing.type,
-                kostnadssteder = nonEmptySetOf(gjennomforing.ansvarligEnhet.enhetsnummer),
-            ),
-        ).isRight()
-        if (!erAttestant) {
-            return UtbetalingError.ManglerTilgang("Du mangler attestantrollen som kreves for å godkjenne avbrytelsen")
-                .left()
-        }
+        either {
+            val utbetaling = queries.utbetaling.getAndAcquireLock(id)
+            val ansatt = queries.ansatt.getOrError(navIdent)
+            val gjennomforing = queries.gjennomforing.getGjennomforingTiltaksadministrasjon(utbetaling.gjennomforing.id)
+            erAttestantUtbetaling(
+                ansatt,
+                OkonomiBeslutningContext(
+                    gjennomforingType = utbetaling.gjennomforing.type,
+                    kostnadssteder = nonEmptySetOf(gjennomforing.ansvarligEnhet.enhetsnummer),
+                ),
+            )
 
-        return utbetalingService.godkjennAvbrytelse(id, navIdent).mapLeft(UtbetalingError::Valideringsfeil)
+            utbetalingService.godkjennAvbrytelse(id, navIdent).mapLeft(UtbetalingError::Valideringsfeil).bind()
+        }
     }
 
     fun avslaAvbrytelse(
@@ -214,33 +224,33 @@ class AdminUtbetalingService(
         navIdent: NavIdent,
         request: AarsakerOgBegrunnelseRequest<UtbetalingStatusAarsak>,
     ): Either<UtbetalingError, Utbetaling> = db.transaction {
-        val utbetaling = queries.utbetaling.getAndAcquireLock(id)
-        if (!erSaksbehandler(navIdent, utbetaling)) {
-            return UtbetalingError.ManglerTilgang("Du mangler tilgang til å avslå avbrytelsen").left()
-        }
+        either {
+            val utbetaling = queries.utbetaling.getAndAcquireLock(id)
+            erSaksbehandler(navIdent, utbetaling)
 
-        return utbetalingService.avslaAvbrytelse(
-            id = id,
-            besluttetAv = navIdent,
-            aarsaker = request.aarsaker.map { it.name },
-            begrunnelse = request.begrunnelse,
-        ).mapLeft(UtbetalingError::Valideringsfeil)
+            utbetalingService.avslaAvbrytelse(
+                id = id,
+                besluttetAv = navIdent,
+                aarsaker = request.aarsaker.map { it.name },
+                begrunnelse = request.begrunnelse,
+            ).mapLeft(UtbetalingError::Valideringsfeil)
+                .bind()
+        }
     }
 
     fun godkjennUtbetalingLinje(
         id: UUID,
         navIdent: NavIdent,
     ): Either<UtbetalingError, Utbetaling> = db.transaction {
-        val linje = queries.utbetalingLinje.getOrError(id)
-        val utbetaling = queries.utbetaling.getAndAcquireLock(linje.utbetalingId)
-        val tilsagn = queries.tilsagn.getAndAcquireLock(linje.tilsagnId)
-        if (!erAttestant(navIdent, utbetaling, tilsagn)) {
-            return UtbetalingError.ManglerTilgang(
-                "Du kan ikke godkjenne utbetalingen fordi du ikke er beslutter ved tilsagnets kostnadssted (${tilsagn.kostnadssted.navn})",
-            ).left()
-        }
+        either {
+            val linje = queries.utbetalingLinje.getOrError(id)
+            val utbetaling = queries.utbetaling.getAndAcquireLock(linje.utbetalingId)
+            val tilsagn = queries.tilsagn.getAndAcquireLock(linje.tilsagnId)
 
-        utbetalingService.godkjennUtbetalingLinje(id, navIdent).mapLeft(UtbetalingError::Valideringsfeil)
+            erAttestantUtbetaling(navIdent, utbetaling, tilsagn)
+
+            utbetalingService.godkjennUtbetalingLinje(id, navIdent).mapLeft(UtbetalingError::Valideringsfeil).bind()
+        }
     }
 
     fun returnerUtbetalingLinje(
@@ -249,28 +259,52 @@ class AdminUtbetalingService(
         begrunnelse: String?,
         navIdent: NavIdent,
     ): Either<UtbetalingError, Utbetaling> = db.transaction {
-        val linje = queries.utbetalingLinje.getOrError(id)
-        val utbetaling = queries.utbetaling.getAndAcquireLock(linje.utbetalingId)
-        val tilsagn = queries.tilsagn.getOrError(linje.tilsagnId)
-        if (!erSaksbehandler(navIdent, utbetaling) && !erAttestant(navIdent, utbetaling, tilsagn)) {
-            return UtbetalingError.ManglerTilgang("Du kan ikke returnere utbetalingen fordi du mangler tilgang").left()
-        }
+        either {
+            val linje = queries.utbetalingLinje.getOrError(id)
+            val utbetaling = queries.utbetaling.getAndAcquireLock(linje.utbetalingId)
+            val tilsagn = queries.tilsagn.getOrError(linje.tilsagnId)
 
-        utbetalingService.returnerUtbetalingLinje(
-            id = id,
-            aarsaker = aarsaker,
-            begrunnelse = begrunnelse,
-            agent = navIdent,
-        ).mapLeft(UtbetalingError::Valideringsfeil)
+            val saksbehandlerUtbetaling = either { erSaksbehandler(navIdent, utbetaling) }
+            val attestantUtbetaling = either { erAttestantUtbetaling(navIdent, utbetaling, tilsagn) }
+
+            if (saksbehandlerUtbetaling.isLeft() && attestantUtbetaling.isLeft()) {
+                val manglendeRoller = buildSet {
+                    saksbehandlerUtbetaling.onLeft { error ->
+                        if (error is UtbetalingError.ManglerTilgang) {
+                            addAll(error.roller)
+                        }
+                    }
+                    attestantUtbetaling.onLeft { error ->
+                        if (error is UtbetalingError.ManglerTilgang) {
+                            addAll(error.roller)
+                        }
+                    }
+                }
+                raise(
+                    UtbetalingError.ManglerTilgang(
+                        "Du kan ikke returnere utbetalingen fordi du mangler tilgang",
+                        navIdent,
+                        manglendeRoller,
+                    ),
+                )
+            }
+
+            utbetalingService.returnerUtbetalingLinje(
+                id = id,
+                aarsaker = aarsaker,
+                begrunnelse = begrunnelse,
+                agent = navIdent,
+            ).mapLeft(UtbetalingError::Valideringsfeil).bind()
+        }
     }
 
     fun slettUtbetaling(id: UUID, navIdent: NavIdent): Either<UtbetalingError, Unit> = db.transaction {
-        val utbetaling = queries.utbetaling.getAndAcquireLock(id)
-        if (!erSaksbehandler(navIdent, utbetaling)) {
-            return UtbetalingError.ManglerTilgang("Du mangler saksbehandlertilgang til utbetalingen").left()
-        }
+        either {
+            val utbetaling = queries.utbetaling.getAndAcquireLock(id)
+            erSaksbehandler(navIdent, utbetaling)
 
-        utbetalingService.slettUtbetaling(id).mapLeft(UtbetalingError::Valideringsfeil)
+            utbetalingService.slettUtbetaling(id).mapLeft(UtbetalingError::Valideringsfeil).bind()
+        }
     }
 
     fun oppdaterFakturaStatus(
@@ -295,22 +329,36 @@ class AdminUtbetalingService(
         utbetalingId: UUID,
         dokumentInfoId: String,
         accessType: AccessType,
-    ): Either<UtbetalingError, ByteArray> {
-        val journalpostId = hentJournalpostId(utbetalingId).getOrElse { return it.left() }
-            ?: return UtbetalingError.NotFound("Utbetalingen har ingen journalpost").left()
-        val vedlegg = hentVedleggInfo(journalpostId, accessType)
-            .find { it.dokumentInfoId == dokumentInfoId }
-            ?: return UtbetalingError.NotFound("Fant ikke vedlegget med dokumentInfoId=$dokumentInfoId").left()
+        navIdent: NavIdent,
+    ): Either<UtbetalingError, ByteArray> = either {
+        val journalpostId = hentJournalpostId(utbetalingId).bind()
+        ensureNotNull(journalpostId) {
+            UtbetalingError.NotFound("Utbetalingen har ingen journalpost")
+        }
+        val vedlegg = ensureNotNull(
+            hentVedleggInfo(journalpostId, accessType)
+                .find { it.dokumentInfoId == dokumentInfoId },
+        ) {
+            UtbetalingError.NotFound("Fant ikke vedlegget med dokumentInfoId=$dokumentInfoId")
+        }
 
-        return safClient.hentDokument(journalpostId.value, vedlegg.dokumentInfoId, vedlegg.variantFormat, accessType)
-            .mapLeft { it.toUtbetalingError() }
+        safClient.hentDokument(
+            journalpostId.value,
+            vedlegg.dokumentInfoId,
+            vedlegg.variantFormat,
+            accessType,
+        )
+            .mapLeft { it.toUtbetalingError(navIdent) }.bind()
     }
 
     private fun hentJournalpostId(utbetalingId: UUID): Either<UtbetalingError, JournalpostId?> = db.session {
-        val utbetaling = queries.utbetaling.get(utbetalingId)
-            ?: return UtbetalingError.NotFound("Fant ikke utbetalingen").left()
+        either {
+            val utbetaling = ensureNotNull(queries.utbetaling.get(utbetalingId)) {
+                UtbetalingError.NotFound("Fant ikke utbetalingen")
+            }
 
-        utbetaling.journalpostId.right()
+            utbetaling.journalpostId
+        }
     }
 
     private suspend fun hentVedleggInfo(
@@ -338,9 +386,9 @@ class AdminUtbetalingService(
                 ?: varianter.find { it.variantformat == "ARKIV" }
         }
 
-    private fun SafError.toUtbetalingError(): UtbetalingError = when (this) {
+    private fun SafError.toUtbetalingError(navIdent: NavIdent): UtbetalingError = when (this) {
         SafError.NotFound -> UtbetalingError.NotFound("Fant ikke journalposten eller dokumentet i SAF")
-        SafError.Forbidden -> UtbetalingError.ManglerTilgang("Du mangler tilgang til journalposten i SAF")
+        SafError.Forbidden -> UtbetalingError.ManglerTilgang("Du mangler tilgang til journalposten i SAF", navIdent, emptySet())
         SafError.Error -> UtbetalingError.SafFeil
     }
 
@@ -354,30 +402,54 @@ class AdminUtbetalingService(
     private fun QueryContext.kanOppretteUtbetaling(
         navIdent: NavIdent,
         gjennomforing: GjennomforingTiltaksadministrasjon,
-    ): Boolean {
+    ): Either<UtbetalingError, Unit> = either {
         val type = when (gjennomforing) {
             is GjennomforingAvtale -> GjennomforingType.AVTALE
             is GjennomforingEnkeltplass -> GjennomforingType.ENKELTPLASS
         }
         val ansatt = queries.ansatt.getOrError(navIdent)
-        return OkonomiAuthorization.erSaksbehandler(ansatt, type).isRight()
+        erSaksbehandler(ansatt, type)
     }
 
-    private fun QueryContext.erSaksbehandler(navIdent: NavIdent, utbetaling: Utbetaling): Boolean {
+    context(errors: Raise<UtbetalingError>)
+    private fun QueryContext.erSaksbehandler(navIdent: NavIdent, utbetaling: Utbetaling) {
         val ansatt = queries.ansatt.getOrError(navIdent)
-        return OkonomiAuthorization.erSaksbehandler(ansatt, utbetaling.gjennomforing.type).isRight()
+        return erSaksbehandler(ansatt, utbetaling.gjennomforing.type)
     }
 
-    private fun QueryContext.erAttestant(
+    context(errors: Raise<UtbetalingError>)
+    private fun erSaksbehandler(ansatt: NavAnsatt, gjennomforingType: GjennomforingType) {
+        OkonomiAuthorization.erSaksbehandler(ansatt, gjennomforingType).onLeft {
+            errors.raise(it.toUtbetalingError(ansatt.navIdent))
+        }
+    }
+
+    context(errors: Raise<UtbetalingError>)
+    private fun QueryContext.erAttestantUtbetaling(
         navIdent: NavIdent,
         utbetaling: Utbetaling,
         tilsagn: Tilsagn,
-    ): Boolean {
+    ) {
         val ansatt = queries.ansatt.getOrError(navIdent)
         val kontekst = OkonomiBeslutningContext(
             gjennomforingType = utbetaling.gjennomforing.type,
             kostnadssteder = nonEmptySetOf(tilsagn.kostnadssted.enhetsnummer),
         )
-        return OkonomiAuthorization.erAttestantUtbetaling(ansatt, kontekst).isRight()
+        erAttestantUtbetaling(ansatt, kontekst)
+    }
+
+    context(errors: Raise<UtbetalingError>)
+    private fun erAttestantUtbetaling(
+        ansatt: NavAnsatt,
+        kontekst: OkonomiBeslutningContext,
+    ) {
+        OkonomiAuthorization.erAttestantUtbetaling(ansatt, kontekst).onLeft {
+            errors.raise(it.toUtbetalingError(ansatt.navIdent))
+        }
+    }
+
+    private fun OkonomiAuthorizationError.toUtbetalingError(navIdent: NavIdent): UtbetalingError = when (this) {
+        is OkonomiAuthorizationError.ManglerTilgang -> UtbetalingError.ManglerTilgang("Du mangler tilgang til utbetalingen", navIdent, requiredRoles)
+        is OkonomiAuthorizationError.ManglerKontorspesifikkTilgang -> UtbetalingError.ManglerTilgang("Du mangler kontorspesifikk tilgang til utbetalingen", navIdent, requiredRoles)
     }
 }
