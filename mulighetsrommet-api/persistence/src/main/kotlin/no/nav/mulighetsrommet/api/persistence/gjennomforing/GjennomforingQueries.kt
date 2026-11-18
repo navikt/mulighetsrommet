@@ -411,7 +411,12 @@ class GjennomforingQueries(private val session: Session) : GjennomforingReposito
                    ansvarlig_enhet_overordnet_enhetsnummer = any (:nav_enheter) or
                    exists(select true
                           from jsonb_array_elements(nav_enheter_json) as nav_enhet
-                          where nav_enhet ->> 'enhetsnummer' = any (:nav_enheter)))
+                          where nav_enhet ->> 'enhetsnummer' = any (:nav_enheter)) or
+                   (ansvarlig_enhet_type = 'FYLKE' and
+                    exists(select true
+                           from nav_enhet underenhet
+                           where underenhet.overordnet_enhet = ansvarlig_enhet_enhetsnummer
+                             and underenhet.enhetsnummer = any (:nav_enheter))))
               and ((:administrator_nav_ident::text is null and :koordinator_nav_ident::text is null)
                     or :administrator_nav_ident in (select nav_ident from gjennomforing_administrator where gjennomforing_id = id)
                     or :koordinator_nav_ident in (select nav_ident from gjennomforing_koordinator where gjennomforing_id = view_gjennomforing_kompakt.id))

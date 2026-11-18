@@ -39,6 +39,7 @@ import no.nav.mulighetsrommet.api.domain.testing.fixture.NavEnhetFixtures.Gjovik
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavEnhetFixtures.Innlandet
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavEnhetFixtures.Lillehammer
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavEnhetFixtures.Oslo
+import no.nav.mulighetsrommet.api.domain.testing.fixture.NavEnhetFixtures.Sagene
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavEnhetFixtures.Sel
 import no.nav.mulighetsrommet.api.domain.testing.fixture.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.persistence.AdminTestDomain
@@ -829,7 +830,11 @@ class GjennomforingQueriesTest : FunSpec({
             database.runAndRollback {
                 AdminTestDomain(
                     navEnheter = listOf(Innlandet, Gjovik, Lillehammer, Sel),
-                    gjennomforinger = listOf(Oppfolging1, VTA1, AFT1),
+                    gjennomforinger = listOf(
+                        Oppfolging1.copy(ansvarligEnhet = Gjovik.enhetsnummer),
+                        VTA1.copy(ansvarligEnhet = Lillehammer.enhetsnummer),
+                        AFT1.copy(ansvarligEnhet = Gjovik.enhetsnummer),
+                    ),
                 ) {
                     gjennomforing.setNavEnheter(
                         Oppfolging1.id,
@@ -884,6 +889,25 @@ class GjennomforingQueriesTest : FunSpec({
                     .items shouldContainExactlyIds listOf(enkeltplass.id)
 
                 queries.gjennomforing.getAll(navEnheter = listOf(Sel.enhetsnummer))
+                    .totalCount shouldBe 0
+            }
+        }
+
+        test("filtrering på Nav-enhet treffer enkeltplass med fylke som ansvarlig enhet") {
+            database.runAndRollback {
+                val enkeltplass = EnkelAmo.copy(ansvarligEnhet = Innlandet.enhetsnummer)
+                AdminTestDomain(
+                    navEnheter = listOf(Innlandet, Gjovik, Sel, Oslo, Sagene),
+                    gjennomforinger = listOf(enkeltplass),
+                ).initialize()
+
+                queries.gjennomforing.getAll(navEnheter = listOf(Gjovik.enhetsnummer))
+                    .items shouldContainExactlyIds listOf(enkeltplass.id)
+
+                queries.gjennomforing.getAll(navEnheter = listOf(Innlandet.enhetsnummer))
+                    .items shouldContainExactlyIds listOf(enkeltplass.id)
+
+                queries.gjennomforing.getAll(navEnheter = listOf(Sagene.enhetsnummer))
                     .totalCount shouldBe 0
             }
         }
