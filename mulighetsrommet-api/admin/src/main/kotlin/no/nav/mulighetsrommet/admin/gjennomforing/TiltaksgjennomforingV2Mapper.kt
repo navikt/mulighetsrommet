@@ -11,6 +11,7 @@ import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingAvtaleDetalj
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingAvtaleStatus
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingEnkeltplassStatus
+import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 
 object TiltaksgjennomforingV2Mapper {
@@ -40,6 +41,7 @@ object TiltaksgjennomforingV2Mapper {
     }
 
     fun fromGjennomforingEnkeltplass(gjennomforing: GjennomforingEnkeltplass): TiltaksgjennomforingV2Dto {
+        val prismodell = gjennomforing.prismodell
         return Enkeltplass(
             id = gjennomforing.id,
             lopenummer = gjennomforing.lopenummer,
@@ -50,6 +52,29 @@ object TiltaksgjennomforingV2Mapper {
             status = gjennomforing.status.toTiltaksgjennomforingV2Status(),
             oppstart = gjennomforing.oppstart,
             pameldingType = gjennomforing.pameldingType,
+            prisinformasjon = when (prismodell) {
+                is Prismodell.AnskaffetEnkeltplass -> TiltaksgjennomforingV2Dto.EnkeltplassPrisinformasjon.Anskaffelse(
+                    pris = prismodell.totalbelop.belop,
+                )
+
+                is Prismodell.IngenKostnader -> TiltaksgjennomforingV2Dto.EnkeltplassPrisinformasjon.IngenKostnader(
+                    tilleggsopplysninger = prismodell.prisbetingelser,
+                )
+
+                is Prismodell.TilskuddTilOpplaering -> TiltaksgjennomforingV2Dto.EnkeltplassPrisinformasjon.Tilskudd(
+                    tilskudd = prismodell.tilskudd.mapValues { it.value.belop },
+                    tilleggsopplysninger = prismodell.prisbetingelser,
+                )
+
+                is Prismodell.AnnenAvtaltPris,
+                is Prismodell.AvtaltPrisPerBenyttetPlassPerHeleUke,
+                is Prismodell.AvtaltPrisPerBenyttetPlassPerManed,
+                is Prismodell.AvtaltPrisPerBenyttetPlassPerUke,
+                is Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker,
+                is Prismodell.FastSatsPerAvtaltPlassPerManed,
+                is Prismodell.FastSatsPerBenyttetPlassPerManed,
+                -> error("uventet prismodell ${prismodell.type} for enkeltplass ${gjennomforing.id}")
+            },
         )
     }
 
@@ -85,6 +110,7 @@ object TiltaksgjennomforingV2Mapper {
                 status = gjennomforing.status.toTiltaksgjennomforingV2Status(),
                 oppstart = gjennomforing.oppstart,
                 pameldingType = gjennomforing.pameldingType,
+                prisinformasjon = null,
             )
         }
     }

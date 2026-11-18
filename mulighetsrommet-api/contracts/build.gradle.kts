@@ -14,6 +14,7 @@ dependencies {
 
     testImplementation(libs.kotest.junit)
     testImplementation(libs.kotest.assertions.core)
+    testImplementation(libs.selfie.kotest)
 }
 
 tasks.test {
