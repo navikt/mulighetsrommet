@@ -15,6 +15,7 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonPrimitive
 import no.nav.mulighetsrommet.admin.aarsakerbegrunnelse.AarsakerOgBegrunnelseRequest
 import no.nav.mulighetsrommet.admin.navansatt.EntraGroupNavAnsattRolleMapping
@@ -145,6 +146,12 @@ class UtbetalingRoutesTest : FunSpec({
                 val id = UUID.randomUUID()
                 val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, enkeltplassSaksbehandlerRolle))
 
+                val expected = NavAnsattManglerTilgang(
+                    navIdent = ansatt.navIdent,
+                    missingRoles = setOf(Rolle.OKONOMI_SAKSBEHANDLER_GRUPPETILTAK),
+                    title = "Du mangler tilgang til utbetalingen",
+                )
+
                 val response = client.post("/api/tiltaksadministrasjon/utbetaling/opprett") {
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                     contentType(ContentType.Application.Json)
@@ -161,7 +168,11 @@ class UtbetalingRoutesTest : FunSpec({
                 }
 
                 response.status shouldBe HttpStatusCode.Forbidden
-                response.body<JsonObject>()["detail"]?.jsonPrimitive?.content shouldBe "Du mangler saksbehandlertilgang til utbetalingen"
+                val body = response.body<JsonObject>()
+                body["type"]?.jsonPrimitive?.content shouldBe expected.type
+                body["title"]?.jsonPrimitive?.content shouldBe expected.title
+                body["instance"]?.jsonPrimitive?.content shouldBe expected.navIdent.value
+                body["missingRoles"]?.jsonArray?.get(0)?.jsonPrimitive?.content shouldBe expected.missingRoles.first().visningsnavn
             }
         }
 
