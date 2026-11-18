@@ -5,6 +5,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.server.routing.Route
 import io.ktor.server.util.getOrFail
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
+import no.nav.mulighetsrommet.api.navansatt.ktor.NavAnsattManglerTilgang
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.plugins.getAccessType
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
@@ -13,7 +14,6 @@ import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnDtoQuery
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnDtoQueryError
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
-import no.nav.mulighetsrommet.ktor.exception.Forbidden
 import no.nav.mulighetsrommet.ktor.exception.NotFound
 import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.tokenprovider.requireAzureAd
@@ -65,5 +65,5 @@ fun Route.tilsagnRoutesGet() {
 
 private fun toProblemDetail(error: TilsagnDtoQueryError): ProblemDetail = when (error) {
     is TilsagnDtoQueryError.IkkeFunnet -> NotFound(error.message)
-    is TilsagnDtoQueryError.ManglerTilgang -> Forbidden(error.message)
+    is TilsagnDtoQueryError.ManglerTilgang -> NavAnsattManglerTilgang(error.navIdent, error.roller, title = error.message)
 }

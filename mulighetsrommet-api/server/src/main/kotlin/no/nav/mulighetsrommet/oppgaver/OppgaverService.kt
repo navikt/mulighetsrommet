@@ -390,6 +390,7 @@ private fun toOppgave(data: UtbetalingLinjeOppgaveData, ansatt: NavAnsatt): Oppg
                         nonEmptySetOf(data.kostnadssted.nummer),
                     ),
                 ).isRight()
+
                 erAttestant && data.opprettelse.behandletAv != ansatt.navIdent
             }
         }
