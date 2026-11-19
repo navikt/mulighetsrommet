@@ -10,6 +10,11 @@ import {
 } from "@tiltaksadministrasjon/api-client";
 
 export const gjennomforingHandlers = [
+  http.get<PathParams, undefined, GjennomforingHandling[]>(
+    "/api/tiltaksadministrasjon/enkeltplasser/handlinger",
+    () => HttpResponse.json([]),
+  ),
+
   http.get<{ id: string }, undefined, GjennomforingHandling[]>(
     "/api/tiltaksadministrasjon/gjennomforinger/:id/handlinger",
     () => {

@@ -4,7 +4,8 @@ import { TabellWrapper } from "@/components/tabell/TabellWrapper";
 import { formaterNavEnheter } from "@/utils/Utils";
 import { ToolbarContainer } from "@mr/frontend-common/components/toolbar/toolbarContainer/ToolbarContainer";
 import { ToolbarMeny } from "@mr/frontend-common/components/toolbar/toolbarMeny/ToolbarMeny";
-import { Alert, BodyShort, Link, Pagination, Table, Tag, VStack } from "@navikt/ds-react";
+import { BodyShort, InfoCard, Link, Pagination, Table, Tag, VStack } from "@navikt/ds-react";
+import { InformationSquareIcon } from "@navikt/aksel-icons";
 import React from "react";
 import { PagineringsOversikt } from "@/components/paginering/PagineringOversikt";
 import { PagineringContainer } from "@/components/paginering/PagineringContainer";
@@ -14,6 +15,8 @@ import { GjennomforingStatusTag } from "@/components/statuselementer/Gjennomfori
 import { formaterDato } from "@mr/frontend-common/utils/date";
 import { Link as ReactRouterLink } from "react-router";
 import { isEnkeltplassKompakt } from "@/api/gjennomforing/utils";
+import { ArenaEnkeltplassSok } from "./ArenaEnkeltplassSok";
+import { erArenaEnkeltplassSok } from "@/api/gjennomforing/useMigrerEnkeltplass";
 
 const SkjulKolonne = ({ children, skjul }: { children: React.ReactNode; skjul: boolean }) => {
   return skjul ? null : <>{children}</>;
@@ -25,6 +28,7 @@ interface Props {
   updateFilter: (values: Partial<GjennomforingFilterType>) => void;
   tagsHeight: number;
   filterOpen: boolean;
+  tilbyMigrering?: boolean;
 }
 
 export function GjennomforingTable({
@@ -33,10 +37,12 @@ export function GjennomforingTable({
   updateFilter,
   tagsHeight,
   filterOpen,
+  tilbyMigrering = false,
 }: Props) {
   const sort = filter.sortering.tableSort;
   const {
     data: { pagination, data: gjennomforinger },
+    debouncedSearch,
   } = useGjennomforinger(filter);
 
   const [lasterExcel, lastNedExcel] = useDownloadGjennomforingerAsExcel(filter);
@@ -79,9 +85,18 @@ export function GjennomforingTable({
           <EksporterTabellKnapp lastNedExcel={lastNedExcel} lasterExcel={lasterExcel} />
         </ToolbarMeny>
       </ToolbarContainer>
+      {tilbyMigrering &&
+        debouncedSearch === filter.search.trim() &&
+        erArenaEnkeltplassSok(debouncedSearch) && (
+          <ArenaEnkeltplassSok key={debouncedSearch} search={debouncedSearch} />
+        )}
       <TabellWrapper>
         {gjennomforinger.length === 0 ? (
-          <Alert variant="info">Fant ingen tiltaksgjennomføringer</Alert>
+          <InfoCard data-color="info">
+            <InfoCard.Message icon={<InformationSquareIcon aria-hidden />}>
+              Fant ingen tiltaksgjennomføringer
+            </InfoCard.Message>
+          </InfoCard>
         ) : (
           <Table
             sort={sort}

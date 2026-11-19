@@ -72,6 +72,7 @@ export function GjennomforingerPage() {
               <ManglerTilgangTilPersonErrorBoundary resetKeys={[filter.values.search]}>
                 <Suspense fallback={<ListSkeleton />}>
                   <GjennomforingTable
+                    tilbyMigrering
                     filter={filter.values}
                     updateFilter={updateFilter}
                     tagsHeight={tagsHeight}

@@ -50,7 +50,7 @@ export function GjennomforingFilter({
         label="Søk etter tiltaksgjennomføring"
         size="small"
         variant="secondary"
-        placeholder="Navn, tiltaksnr., tiltaksarrangør"
+        placeholder="Navn, tiltaksnr., fødselsnr., arrangør"
         onChange={(search: string) => {
           updateFilter({
             search,
