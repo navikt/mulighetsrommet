@@ -1,3 +1,5 @@
+@file:UseSerializers(LocalDateSerializer::class, UUIDSerializer::class)
+
 package no.nav.mulighetsrommet.api.clients.amtDeltaker
 
 import arrow.core.Either
@@ -15,6 +17,7 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.UseSerializers
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
@@ -56,7 +59,7 @@ class AmtDeltakerClient(
         return when (response.status) {
             HttpStatusCode.OK -> Either.Right(response.body<DeltakelserResponse>())
 
-            HttpStatusCode.NotFound -> AmtDeltakerError.Error.left()
+            HttpStatusCode.NotFound -> AmtDeltakerError.NotFound.left()
 
             HttpStatusCode.BadRequest -> AmtDeltakerError.BadRequest.left()
 
@@ -138,16 +141,12 @@ data class DeltakelserResponse(
 
 @Serializable
 data class DeltakelseFraKomet(
-    @Serializable(with = UUIDSerializer::class)
     val deltakerId: UUID,
-    @Serializable(with = UUIDSerializer::class)
     val deltakerlisteId: UUID,
     val tittel: String,
     val tiltakstype: DeltakelserResponse.Tiltakstype,
     val status: Status,
-    @Serializable(with = LocalDateSerializer::class)
     val innsoktDato: LocalDate? = null,
-    @Serializable(with = LocalDateSerializer::class)
     val sistEndretDato: LocalDate? = null,
     val periode: Periode? = null,
     val oppstartstype: GjennomforingOppstartstype,
@@ -161,16 +160,13 @@ data class DeltakelseFraKomet(
 
     @Serializable
     data class Periode(
-        @Serializable(with = LocalDateSerializer::class)
         val startdato: LocalDate?,
-        @Serializable(with = LocalDateSerializer::class)
         val sluttdato: LocalDate?,
     )
 }
 
 @Serializable
 data class DeltakerPersonaliaResponse(
-    @Serializable(with = UUIDSerializer::class)
     val deltakerId: UUID,
     val personident: String,
     val fornavn: String,
