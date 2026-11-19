@@ -126,7 +126,9 @@ function PrisOgBetalingsbetingelserTilskudd({ prismodell }: PrismodellDetaljerPr
         ))}
       </List>
       <BodyShort size="small" weight="semibold" className="ml-auto">
-        {`Estimert totalsum: ${formaterValutaBelop(totalt)}`}
+        {prismodell.tilskudd.length > 0
+          ? `Estimert totalsum: ${formaterValutaBelop(totalt)}`
+          : "Estimerte kostnader er ikke registrert."}
       </BodyShort>
       <InfoCard data-color="warning">
         <InfoCard.Message icon={<ExclamationmarkTriangleIcon aria-hidden />}>
