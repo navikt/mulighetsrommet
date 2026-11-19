@@ -8,6 +8,7 @@ import no.nav.tiltak.okonomi.Bestillingsnummer
 import no.nav.tiltak.okonomi.FakturaStatusType
 import no.nav.tiltak.okonomi.Fakturanummer
 import no.nav.tiltak.okonomi.GjorOppBestilling
+import no.nav.tiltak.okonomi.OebsFeil
 import no.nav.tiltak.okonomi.OkonomiPart
 import no.nav.tiltak.okonomi.OpprettFaktura
 import no.nav.tiltak.okonomi.oebs.OebsBetalingskanal
@@ -21,6 +22,7 @@ data class Faktura(
     val periode: Periode,
     val status: FakturaStatusType,
     val statusSistOppdatert: Instant,
+    val feil: OebsFeil? = null,
     val behandletAv: OkonomiPart,
     val behandletTidspunkt: Instant,
     val besluttetAv: OkonomiPart,
