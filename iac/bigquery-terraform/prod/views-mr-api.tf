@@ -13,6 +13,7 @@ resource "google_bigquery_table_iam_member" "mr_api_views_all_users_data_viewer"
     tilsagn_enkeltplass_view                        = module.mr_api_tilsagn_enkeltplass_view.bigquery_view_id
     utbetaling_enkeltplass_view                     = module.mr_api_utbetaling_enkeltplass_view.bigquery_view_id
     tilskudd_behandling_view                        = module.mr_api_tilskudd_behandling_view.bigquery_view_id
+    tilskudd_vedtak_view                            = module.mr_api_tilskudd_vedtak_view.bigquery_view_id
   }
 
   project    = var.gcp_project["project"]
@@ -841,6 +842,98 @@ SELECT
 FROM `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_tilskudd_behandling` AS tu
 INNER JOIN `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_totrinnskontroll` AS tk
   ON tk.entity_id = tu.id
+EOF
+}
 
+module "mr_api_tilskudd_vedtak_view" {
+  view_id             = "tilskudd_vedtak_view"
+  source              = "../modules/google-bigquery-view"
+  deletion_protection = false
+  dataset_id          = module.mr_api_datastream.dataset_id
+  view_schema = jsonencode(
+    [
+      {
+        mode        = "NULLABLE"
+        name        = "tilskudd_behandling_id"
+        type        = "STRING"
+        description = "ID for tilskudd behandling"
+      },
+      {
+        mode        = "NULLABLE"
+        name        = "tilskudd_behandling_status"
+        type        = "STRING"
+        description = "Status for tilskudd behandling"
+      },
+      {
+        mode        = "NULLABLE"
+        name        = "tilskudd_vedtak_id"
+        type        = "STRING"
+        description = "ID for tilskudd vedtak"
+      },
+      {
+        mode        = "NULLABLE"
+        name        = "tilskudd_type"
+        type        = "STRING"
+        description = "Type tilskudd"
+      },
+      {
+        mode        = "NULLABLE"
+        name        = "tilskudd_soknad_belop"
+        type        = "INT64"
+        description = "Søknadsbeløp for tilskudd"
+      },
+      {
+        mode        = "NULLABLE"
+        name        = "vedtak_resultat"
+        type        = "STRING"
+        description = "Resultat av vedtak"
+      },
+      {
+        mode        = "NULLABLE"
+        name        = "utbetaling_belop"
+        type        = "INT64"
+        description = "Utbetalt beløp for tilskudd"
+      },
+      {
+        mode        = "NULLABLE"
+        name        = "utbetaling_mottaker"
+        type        = "STRING"
+        description = "Mottaker av utbetaling for tilskudd"
+      },
+      {
+        mode        = "NULLABLE"
+        name        = "bruker_utbetaling_type"
+        type        = "STRING"
+        description = "Type utbetaling for bruker"
+      }
+    ]
+  )
+  view_query = <<EOF
+SELECT
+  tv.tilskudd_behandling_id,
+  tb.status AS tilskudd_behandling_status,
+  tv.id AS tilskudd_vedtak_id,
+  tso.kode tilskudd_type,
+  tv.soknad_belop AS tilskudd_soknad_belop,
+  tv.vedtak_resultat,
+  tv.belop AS utbetaling_belop,
+  tv.utbetaling_mottaker,
+  tv.bruker_utbetaling_type
+FROM
+  `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_tilskudd_vedtak`
+    tv
+INNER JOIN
+  `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_tilskudd_behandling`
+    tb
+  ON tb.id = tv.tilskudd_behandling_id
+INNER JOIN
+  `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_tilskudd`
+    t
+  ON t.id = tv.tilskudd_id
+INNER JOIN
+  `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_tilskudd_opplaering`
+    tso
+  ON tso.id = t.tilskudd_opplaering_id
+ORDER BY tv.tilskudd_behandling_id
 EOF
 }
