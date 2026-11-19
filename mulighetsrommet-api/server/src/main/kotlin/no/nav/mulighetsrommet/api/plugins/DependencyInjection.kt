@@ -23,6 +23,7 @@ import no.nav.mulighetsrommet.admin.deltaker.ReplikerDeltakerForslagUseCase
 import no.nav.mulighetsrommet.admin.deltaker.ReplikerDeltakerUseCase
 import no.nav.mulighetsrommet.admin.enhetsregister.EnhetsregisterGateway
 import no.nav.mulighetsrommet.admin.enhetsregister.EnhetsregisterQuery
+import no.nav.mulighetsrommet.admin.gjennomforing.FinnArenaEnkeltplassQuery
 import no.nav.mulighetsrommet.admin.gjennomforing.GjennomforingAvtaleService
 import no.nav.mulighetsrommet.admin.gjennomforing.GjennomforingDetaljerService
 import no.nav.mulighetsrommet.admin.gjennomforing.GjennomforingEnkeltplassService
@@ -87,6 +88,7 @@ import no.nav.mulighetsrommet.api.enhetsregister.BrregEnhetsregisterGateway
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.AmtKoordinatorGjennomforingV1KafkaConsumer
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.ArenaMigreringGjennomforingKafkaProducer
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.GjennomforingRequestKafkaConsumer
+import no.nav.mulighetsrommet.api.gjennomforing.service.AmtDeltakelserPort
 import no.nav.mulighetsrommet.api.gjennomforing.service.CefGjennomforingAuditLog
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingArenaService
 import no.nav.mulighetsrommet.api.gjennomforing.service.PersonaliaServicePort
@@ -545,6 +547,7 @@ private fun services(appConfig: AppConfig) = module {
         )
     }
     single { TiltakBeskrivelseAdminService(get(), get()) }
+    single { FinnArenaEnkeltplassQuery(get(), get(), get(), AmtDeltakelserPort(get(), get())) }
     single {
         GjennomforingEnkeltplassService(
             db = get(),
