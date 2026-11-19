@@ -12,6 +12,7 @@ resource "google_bigquery_table_iam_member" "mr_api_views_all_users_data_viewer"
     gjennomforing_enkeltplass_godkjenn_okonomi_view = module.mr_api_gjennomforing_enkeltplass_godkjenn_okonomi_view.bigquery_view_id
     tilsagn_enkeltplass_view                        = module.mr_api_tilsagn_enkeltplass_view.bigquery_view_id
     utbetaling_enkeltplass_view                     = module.mr_api_utbetaling_enkeltplass_view.bigquery_view_id
+    tilskudd_behandling_view                        = module.mr_api_tilskudd_behandling_view.bigquery_view_id
   }
 
   project    = var.gcp_project["project"]
@@ -781,5 +782,65 @@ g.id,
 p.prismodell_type,
 u.status,
 u.tilskuddstype;
+EOF
+}
+
+module "mr_api_tilskudd_behandling_view" {
+  view_id             = "tilskudd_behandling_view"
+  source              = "../modules/google-bigquery-view"
+  deletion_protection = false
+  dataset_id          = module.mr_api_datastream.dataset_id
+  view_schema = jsonencode(
+    [
+      {
+        mode        = "NULLABLE"
+        name        = "id"
+        type        = "STRING"
+        description = "ID for tilskudd behandling"
+      },
+      {
+        mode        = "NULLABLE"
+        name        = "gjennomforing_id"
+        type        = "STRING"
+        description = "ID for gjennomføring"
+      },
+      {
+        mode        = "NULLABLE"
+        name        = "totrinnskontroll_type"
+        type        = "STRING"
+        description = "Type totrinnskontroll"
+      },
+      {
+        mode        = "NULLABLE"
+        name        = "totrinnskontroll_status"
+        type        = "STRING"
+        description = "Totrinnskontroll status"
+      },
+      {
+        mode        = "NULLABLE"
+        name        = "totrinnskontroll_behandlet_tidspunkt"
+        type        = "TIMESTAMP"
+        description = "Totrinnskontroll behandlet tidspunkt"
+      },
+      {
+        mode        = "NULLABLE"
+        name        = "totrinnskontroll_besluttet_tidspunkt"
+        type        = "TIMESTAMP"
+        description = "Totrinnskontroll besluttet tidspunkt"
+      },
+    ]
+  )
+  view_query = <<EOF
+SELECT
+  tu.id,
+  tu.gjennomforing_id,
+  tk.status AS totrinnskontroll_status,
+  tk.type AS totrinnskontroll_type,
+  tk.behandlet_tidspunkt AS totrinnskontroll_behandlet_tidspunkt,
+  tk.besluttet_tidspunkt AS totrinnskontroll_besluttet_tidspunkt
+FROM `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_tilskudd_behandling` AS tu
+INNER JOIN `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_totrinnskontroll` AS tk
+  ON tk.entity_id = tu.id
+
 EOF
 }
