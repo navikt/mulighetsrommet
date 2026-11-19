@@ -36,17 +36,19 @@ object OpplaringKategoriseringMapper {
         Tiltakskode.STUDIESPESIALISERING, // Vil bli mappet med kurstype Studiespesialisering
         -> ingenValg(tiltakskode)
 
+        Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
+        Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING,
+        -> ingenValg(tiltakskode)
+
         Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
         -> tx.arenaGruppeAmo()
 
-        Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
         Tiltakskode.ARBEIDSMARKEDSOPPLAERING,
         -> tx.arbeidsmarkedsopplaring(tiltakskode)
 
         Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV,
         -> tx.norskOpplaringGrunnleggendeFerdigheterFov()
 
-        Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING,
         Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
         Tiltakskode.FAG_OG_YRKESOPPLAERING,
         -> tx.fagOgYrkesOpplaring(tiltakskode)
