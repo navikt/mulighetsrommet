@@ -225,6 +225,10 @@ components:
           $ref: "#/components/schemas/GjennomforingOppstartstype"
         pameldingType:
           $ref: "#/components/schemas/GjennomforingPameldingType"
+        prisinformasjon:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/TiltaksgjennomforingV2Dto.EnkeltplassPrisinformasjon"
       required:
       - arrangor
       - id
@@ -233,6 +237,7 @@ components:
       - opprettetTidspunkt
       - oppstart
       - pameldingType
+      - prisinformasjon
       - status
       - tiltakskode
     Tiltakskode:
@@ -293,6 +298,41 @@ components:
       enum:
       - DIREKTE_VEDTAK
       - TRENGER_GODKJENNING
+    TiltaksgjennomforingV2Dto.EnkeltplassPrisinformasjon:
+      anyOf:
+      - $ref: "#/components/schemas/Anskaffelse"
+      - $ref: "#/components/schemas/IngenKostnader"
+      - $ref: "#/components/schemas/Tilskudd"
+    Anskaffelse:
+      type: object
+      properties:
+        pris:
+          type: integer
+          format: int32
+      required:
+      - pris
+    IngenKostnader:
+      type: object
+      properties:
+        tilleggsopplysninger:
+          type: string
+      required:
+      - tilleggsopplysninger
+    Tilskudd:
+      type: object
+      properties:
+        tilskudd:
+          type: object
+          additionalProperties:
+            type: integer
+            format: int32
+        tilleggsopplysninger:
+          type:
+          - "null"
+          - string
+      required:
+      - tilleggsopplysninger
+      - tilskudd
     TiltaksgjennomforingV2.Gruppe:
       type: object
       properties:
