@@ -313,42 +313,6 @@ class TilsagnService(
         }
     }
 
-    private data class TilsagnBeregningFallbackResolver(
-        val sats: ValutaBelop,
-        val periode: Periode,
-        val antallPlasser: Int,
-        val antallTimerOppfolgingPerDeltaker: Int,
-        val prisbetingelser: String?,
-        val stengt: Set<StengtPeriode>,
-    )
-
-    private fun beregnTilsagnFallbackResolver(request: BeregnTilsagnRequest): TilsagnBeregningFallbackResolver? = db.session {
-        if (request.periodeStart == null || request.periodeSlutt == null || !request.periodeStart.isBefore(request.periodeSlutt)) {
-            return null
-        }
-
-        val gjennomforing = queries.gjennomforing.getGjennomforingTiltaksadministrasjon(request.gjennomforingId)
-        val avtaltSats = gjennomforing.prismodell.findAvtaltSats(request.periodeStart)
-
-        val antallPlasserFallback = request.beregning.antallPlasser ?: 0
-        val antallTimerOppfolgingPerDeltakerFallback = request.beregning.antallTimerOppfolgingPerDeltaker ?: 0
-        val periode = Periode.fromInclusiveDates(request.periodeStart, request.periodeSlutt)
-
-        val stengt = when (gjennomforing) {
-            is GjennomforingAvtale -> UtbetalingInputHelper.resolveStengtHosArrangor(periode, gjennomforing.stengt)
-            is GjennomforingEnkeltplass -> setOf()
-        }
-
-        return TilsagnBeregningFallbackResolver(
-            sats = avtaltSats?.sats ?: ValutaBelop(0, Valuta.NOK),
-            periode = periode,
-            antallPlasser = antallPlasserFallback,
-            antallTimerOppfolgingPerDeltaker = antallTimerOppfolgingPerDeltakerFallback,
-            prisbetingelser = request.beregning.prisbetingelser,
-            stengt = stengt,
-        )
-    }
-
     fun godkjennTilsagn(
         id: UUID,
         agent: Agent,
@@ -419,6 +383,91 @@ class TilsagnService(
         val tilsagn = queries.tilsagn.getOrError(bestillingsnummer)
         publishOpprettBestilling(tilsagn)
         tilsagn
+    }
+
+    context(tx: TransactionalQueryContext)
+    fun setTilOppgjor(
+        tilsagn: Tilsagn,
+        agent: Agent,
+        aarsaker: List<String>,
+        begrunnelse: String?,
+        operation: String,
+    ): Tilsagn = with(tx) {
+        require(tilsagn.status == TilsagnStatus.GODKJENT) {
+            "Kan bare gjøre opp godkjente tilsagn"
+        }
+
+        val oppgjor = Totrinnskontroll.opprett(
+            id = UUID.randomUUID(),
+            entityId = tilsagn.id,
+            type = TotrinnskontrollType.TILSAGN_OPPGJOR,
+            behandletAv = agent,
+            behandletBegrunnelse = begrunnelse,
+            behandletAarsaker = aarsaker,
+        )
+        queries.totrinnskontroll.upsert(oppgjor)
+        outbox.publish(oppgjor)
+        queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.TIL_OPPGJOR)
+
+        return logEndring(operation, tilsagn.id, agent)
+    }
+
+    context(tx: TransactionalQueryContext)
+    fun gjorOppTilsagn(
+        tilsagn: Tilsagn,
+        besluttetAv: Agent,
+        operation: String,
+    ): Either<List<FieldError>, Tilsagn> = with(tx) {
+        if (tilsagn.status != TilsagnStatus.TIL_OPPGJOR) {
+            return FieldError.of("Tilsagnet må ha status ${TilsagnStatus.TIL_OPPGJOR} for at oppgjør skal godkjennes")
+                .nel()
+                .left()
+        }
+
+        val oppgjor = queries.totrinnskontroll.getOrError(tilsagn.id, TotrinnskontrollType.TILSAGN_OPPGJOR)
+        oppgjor.godkjenn(besluttetAv).mapLeft { it.toFieldErrors() }.map { godkjent ->
+            queries.totrinnskontroll.upsert(godkjent)
+            outbox.publish(godkjent)
+            queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.OPPGJORT)
+            logEndring(operation, tilsagn.id, besluttetAv)
+        }
+    }
+
+    private data class TilsagnBeregningFallbackResolver(
+        val sats: ValutaBelop,
+        val periode: Periode,
+        val antallPlasser: Int,
+        val antallTimerOppfolgingPerDeltaker: Int,
+        val prisbetingelser: String?,
+        val stengt: Set<StengtPeriode>,
+    )
+
+    private fun beregnTilsagnFallbackResolver(request: BeregnTilsagnRequest): TilsagnBeregningFallbackResolver? = db.session {
+        if (request.periodeStart == null || request.periodeSlutt == null || !request.periodeStart.isBefore(request.periodeSlutt)) {
+            return null
+        }
+
+        val gjennomforing = queries.gjennomforing.getGjennomforingTiltaksadministrasjon(request.gjennomforingId)
+        val prismodell = gjennomforing.prismodell
+        val avtaltSats = prismodell.findAvtaltSats(request.periodeStart)
+
+        val antallPlasserFallback = request.beregning.antallPlasser ?: 0
+        val antallTimerOppfolgingPerDeltakerFallback = request.beregning.antallTimerOppfolgingPerDeltaker ?: 0
+        val periode = Periode.fromInclusiveDates(request.periodeStart, request.periodeSlutt)
+
+        val stengt = when (gjennomforing) {
+            is GjennomforingAvtale -> UtbetalingInputHelper.resolveStengtHosArrangor(periode, gjennomforing.stengt)
+            is GjennomforingEnkeltplass -> setOf()
+        }
+
+        return TilsagnBeregningFallbackResolver(
+            sats = avtaltSats?.sats ?: ValutaBelop(0, Valuta.NOK),
+            periode = periode,
+            antallPlasser = antallPlasserFallback,
+            antallTimerOppfolgingPerDeltaker = antallTimerOppfolgingPerDeltakerFallback,
+            prisbetingelser = request.beregning.prisbetingelser,
+            stengt = stengt,
+        )
     }
 
     private fun TransactionalQueryContext.godkjennTilsagn(
@@ -548,54 +597,6 @@ class TilsagnService(
 
                 logEndring("Annullering avvist", tilsagn.id, besluttetAv)
             }
-    }
-
-    context(tx: TransactionalQueryContext)
-    fun setTilOppgjor(
-        tilsagn: Tilsagn,
-        agent: Agent,
-        aarsaker: List<String>,
-        begrunnelse: String?,
-        operation: String,
-    ): Tilsagn = with(tx) {
-        require(tilsagn.status == TilsagnStatus.GODKJENT) {
-            "Kan bare gjøre opp godkjente tilsagn"
-        }
-
-        val oppgjor = Totrinnskontroll.opprett(
-            id = UUID.randomUUID(),
-            entityId = tilsagn.id,
-            type = TotrinnskontrollType.TILSAGN_OPPGJOR,
-            behandletAv = agent,
-            behandletBegrunnelse = begrunnelse,
-            behandletAarsaker = aarsaker,
-        )
-        queries.totrinnskontroll.upsert(oppgjor)
-        outbox.publish(oppgjor)
-        queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.TIL_OPPGJOR)
-
-        return logEndring(operation, tilsagn.id, agent)
-    }
-
-    context(tx: TransactionalQueryContext)
-    fun gjorOppTilsagn(
-        tilsagn: Tilsagn,
-        besluttetAv: Agent,
-        operation: String,
-    ): Either<List<FieldError>, Tilsagn> = with(tx) {
-        if (tilsagn.status != TilsagnStatus.TIL_OPPGJOR) {
-            return FieldError.of("Tilsagnet må ha status ${TilsagnStatus.TIL_OPPGJOR} for at oppgjør skal godkjennes")
-                .nel()
-                .left()
-        }
-
-        val oppgjor = queries.totrinnskontroll.getOrError(tilsagn.id, TotrinnskontrollType.TILSAGN_OPPGJOR)
-        oppgjor.godkjenn(besluttetAv).mapLeft { it.toFieldErrors() }.map { godkjent ->
-            queries.totrinnskontroll.upsert(godkjent)
-            outbox.publish(godkjent)
-            queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.OPPGJORT)
-            logEndring(operation, tilsagn.id, besluttetAv)
-        }
     }
 
     private fun TransactionalQueryContext.avvisOppgjor(
