@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.domain.navansatt
 import arrow.core.left
 import arrow.core.nonEmptySetOf
 import arrow.core.right
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.data.blocking.forAll
 import io.kotest.data.row
@@ -16,7 +17,6 @@ class OkonomiAuthorizationTest : FunSpec({
     val annetKostnadssted = NavEnhetNummer("0500")
     val manglerTilgangEnkeltplass = OkonomiAuthorizationError.ManglerTilgang(setOf(Rolle.OKONOMI_LES, Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS, Rolle.OKONOMI_BESLUTTER_ENKELTPLASS)).left()
     val manglerTilgangGruppe = OkonomiAuthorizationError.ManglerTilgang(setOf(Rolle.OKONOMI_LES, Rolle.OKONOMI_SAKSBEHANDLER_GRUPPETILTAK, Rolle.OKONOMI_BESLUTTER_GRUPPETILTAK, Rolle.OKONOMI_ATTESTANT_GRUPPETILTAK)).left()
-    val invalidState = OkonomiAuthorizationError.InvalidState().left()
 
     fun harTilgang(vararg roller: Rolle) = HarTilgang(setOf(*roller)).right()
     fun manglerTilgang(vararg roller: Rolle) = OkonomiAuthorizationError.ManglerTilgang(setOf(*roller)).left()
@@ -99,15 +99,12 @@ class OkonomiAuthorizationTest : FunSpec({
             row(Rolle.OKONOMI_BESLUTTER_ENKELTPLASS, GjennomforingType.ENKELTPLASS, kostnadssted, harTilgang(Rolle.OKONOMI_BESLUTTER_ENKELTPLASS)),
             row(Rolle.OKONOMI_BESLUTTER_ENKELTPLASS, GjennomforingType.ENKELTPLASS, annetKostnadssted, manglerKontorspesifikkTilgang(Rolle.OKONOMI_BESLUTTER_ENKELTPLASS)),
             row(Rolle.OKONOMI_BESLUTTER_ENKELTPLASS, GjennomforingType.AVTALE, kostnadssted, manglerKontorspesifikkTilgang(Rolle.OKONOMI_BESLUTTER_GRUPPETILTAK, Rolle.OKONOMI_ATTESTANT_GRUPPETILTAK)),
-            row(Rolle.OKONOMI_BESLUTTER_ENKELTPLASS, GjennomforingType.ARENA, kostnadssted, invalidState),
             row(Rolle.OKONOMI_BESLUTTER_GRUPPETILTAK, GjennomforingType.AVTALE, kostnadssted, harTilgang(Rolle.OKONOMI_BESLUTTER_GRUPPETILTAK)),
             row(Rolle.OKONOMI_BESLUTTER_GRUPPETILTAK, GjennomforingType.AVTALE, annetKostnadssted, manglerKontorspesifikkTilgang(Rolle.OKONOMI_BESLUTTER_GRUPPETILTAK, Rolle.OKONOMI_ATTESTANT_GRUPPETILTAK)),
             row(Rolle.OKONOMI_BESLUTTER_GRUPPETILTAK, GjennomforingType.ENKELTPLASS, kostnadssted, manglerKontorspesifikkTilgang(Rolle.OKONOMI_BESLUTTER_ENKELTPLASS)),
-            row(Rolle.OKONOMI_BESLUTTER_GRUPPETILTAK, GjennomforingType.ARENA, kostnadssted, invalidState),
             row(Rolle.OKONOMI_ATTESTANT_GRUPPETILTAK, GjennomforingType.AVTALE, kostnadssted, harTilgang(Rolle.OKONOMI_ATTESTANT_GRUPPETILTAK)),
             row(Rolle.OKONOMI_ATTESTANT_GRUPPETILTAK, GjennomforingType.AVTALE, annetKostnadssted, manglerKontorspesifikkTilgang(Rolle.OKONOMI_BESLUTTER_GRUPPETILTAK, Rolle.OKONOMI_ATTESTANT_GRUPPETILTAK)),
             row(Rolle.OKONOMI_ATTESTANT_GRUPPETILTAK, GjennomforingType.ENKELTPLASS, kostnadssted, manglerKontorspesifikkTilgang(Rolle.OKONOMI_BESLUTTER_ENKELTPLASS)),
-            row(Rolle.OKONOMI_ATTESTANT_GRUPPETILTAK, GjennomforingType.ARENA, kostnadssted, invalidState),
         ) { rolle, type, enhet, forventet ->
             OkonomiAuthorization.erOkonomiBeslutter(
                 medKontorspesifikkRolle(rolle, kostnadssted),
@@ -116,19 +113,31 @@ class OkonomiAuthorizationTest : FunSpec({
         }
     }
 
+    test("økonomi beslutter - kaster exception uansett rolle når gjennomføringstype er Arena") {
+        forAll(
+            row(Rolle.OKONOMI_BESLUTTER_ENKELTPLASS, GjennomforingType.ARENA, kostnadssted),
+            row(Rolle.OKONOMI_BESLUTTER_GRUPPETILTAK, GjennomforingType.ARENA, kostnadssted),
+            row(Rolle.OKONOMI_ATTESTANT_GRUPPETILTAK, GjennomforingType.ARENA, kostnadssted),
+        ) { rolle, type, enhet ->
+            shouldThrow<IllegalStateException> {
+                OkonomiAuthorization.erOkonomiBeslutter(
+                    medKontorspesifikkRolle(rolle, kostnadssted),
+                    OkonomiBeslutningContext(type, nonEmptySetOf(enhet)),
+                )
+            }
+        }
+    }
+
     test("tilsagnsbeslutter krever riktig rolle og kostnadssted for gjennomføringstypen") {
         forAll(
             row(Rolle.OKONOMI_BESLUTTER_ENKELTPLASS, GjennomforingType.ENKELTPLASS, kostnadssted, harTilgang(Rolle.OKONOMI_BESLUTTER_ENKELTPLASS)),
             row(Rolle.OKONOMI_BESLUTTER_ENKELTPLASS, GjennomforingType.ENKELTPLASS, annetKostnadssted, manglerKontorspesifikkTilgang(Rolle.OKONOMI_BESLUTTER_ENKELTPLASS)),
             row(Rolle.OKONOMI_BESLUTTER_ENKELTPLASS, GjennomforingType.AVTALE, kostnadssted, manglerKontorspesifikkTilgang(Rolle.OKONOMI_BESLUTTER_GRUPPETILTAK)),
-            row(Rolle.OKONOMI_BESLUTTER_ENKELTPLASS, GjennomforingType.ARENA, kostnadssted, invalidState),
             row(Rolle.OKONOMI_BESLUTTER_GRUPPETILTAK, GjennomforingType.AVTALE, kostnadssted, harTilgang(Rolle.OKONOMI_BESLUTTER_GRUPPETILTAK)),
             row(Rolle.OKONOMI_BESLUTTER_GRUPPETILTAK, GjennomforingType.AVTALE, annetKostnadssted, manglerKontorspesifikkTilgang(Rolle.OKONOMI_BESLUTTER_GRUPPETILTAK)),
             row(Rolle.OKONOMI_BESLUTTER_GRUPPETILTAK, GjennomforingType.ENKELTPLASS, kostnadssted, manglerKontorspesifikkTilgang(Rolle.OKONOMI_BESLUTTER_ENKELTPLASS)),
-            row(Rolle.OKONOMI_BESLUTTER_GRUPPETILTAK, GjennomforingType.ARENA, kostnadssted, invalidState),
             row(Rolle.OKONOMI_ATTESTANT_GRUPPETILTAK, GjennomforingType.AVTALE, kostnadssted, manglerKontorspesifikkTilgang(Rolle.OKONOMI_BESLUTTER_GRUPPETILTAK)),
             row(Rolle.OKONOMI_ATTESTANT_GRUPPETILTAK, GjennomforingType.ENKELTPLASS, kostnadssted, manglerKontorspesifikkTilgang(Rolle.OKONOMI_BESLUTTER_ENKELTPLASS)),
-            row(Rolle.OKONOMI_ATTESTANT_GRUPPETILTAK, GjennomforingType.ARENA, kostnadssted, invalidState),
         ) { rolle, type, enhet, forventet ->
             OkonomiAuthorization.erBeslutterTilsagn(
                 medKontorspesifikkRolle(rolle, kostnadssted),
@@ -137,24 +146,52 @@ class OkonomiAuthorizationTest : FunSpec({
         }
     }
 
+    test("tilsagn beslutter - kaster exception uansett rolle når gjennomføringstype er Arena") {
+        forAll(
+            row(Rolle.OKONOMI_BESLUTTER_ENKELTPLASS, GjennomforingType.ARENA, kostnadssted),
+
+            row(Rolle.OKONOMI_ATTESTANT_GRUPPETILTAK, GjennomforingType.ARENA, kostnadssted),
+            row(Rolle.OKONOMI_BESLUTTER_GRUPPETILTAK, GjennomforingType.ARENA, kostnadssted),
+        ) { rolle, type, enhet ->
+            shouldThrow<IllegalStateException> {
+                OkonomiAuthorization.erBeslutterTilsagn(
+                    medKontorspesifikkRolle(rolle, kostnadssted),
+                    OkonomiBeslutningContext(type, nonEmptySetOf(enhet)),
+                )
+            }
+        }
+    }
+
     test("utbetalingsattestant krever riktig rolle og kostnadssted for gjennomføringstypen") {
         forAll(
             row(Rolle.OKONOMI_BESLUTTER_ENKELTPLASS, GjennomforingType.ENKELTPLASS, kostnadssted, harTilgang(Rolle.OKONOMI_BESLUTTER_ENKELTPLASS)),
             row(Rolle.OKONOMI_BESLUTTER_ENKELTPLASS, GjennomforingType.ENKELTPLASS, annetKostnadssted, manglerKontorspesifikkTilgang(Rolle.OKONOMI_BESLUTTER_ENKELTPLASS)),
             row(Rolle.OKONOMI_BESLUTTER_ENKELTPLASS, GjennomforingType.AVTALE, kostnadssted, manglerKontorspesifikkTilgang(Rolle.OKONOMI_ATTESTANT_GRUPPETILTAK)),
-            row(Rolle.OKONOMI_BESLUTTER_ENKELTPLASS, GjennomforingType.ARENA, kostnadssted, invalidState),
             row(Rolle.OKONOMI_BESLUTTER_GRUPPETILTAK, GjennomforingType.AVTALE, kostnadssted, manglerKontorspesifikkTilgang(Rolle.OKONOMI_ATTESTANT_GRUPPETILTAK)),
             row(Rolle.OKONOMI_BESLUTTER_GRUPPETILTAK, GjennomforingType.ENKELTPLASS, kostnadssted, manglerKontorspesifikkTilgang(Rolle.OKONOMI_BESLUTTER_ENKELTPLASS)),
-            row(Rolle.OKONOMI_BESLUTTER_GRUPPETILTAK, GjennomforingType.ARENA, kostnadssted, invalidState),
             row(Rolle.OKONOMI_ATTESTANT_GRUPPETILTAK, GjennomforingType.AVTALE, kostnadssted, harTilgang(Rolle.OKONOMI_ATTESTANT_GRUPPETILTAK)),
             row(Rolle.OKONOMI_ATTESTANT_GRUPPETILTAK, GjennomforingType.AVTALE, annetKostnadssted, manglerKontorspesifikkTilgang(Rolle.OKONOMI_ATTESTANT_GRUPPETILTAK)),
             row(Rolle.OKONOMI_ATTESTANT_GRUPPETILTAK, GjennomforingType.ENKELTPLASS, kostnadssted, manglerKontorspesifikkTilgang(Rolle.OKONOMI_BESLUTTER_ENKELTPLASS)),
-            row(Rolle.OKONOMI_ATTESTANT_GRUPPETILTAK, GjennomforingType.ARENA, kostnadssted, invalidState),
         ) { rolle, type, enhet, forventet ->
             OkonomiAuthorization.erAttestantUtbetaling(
                 medKontorspesifikkRolle(rolle, kostnadssted),
                 OkonomiBeslutningContext(type, nonEmptySetOf(enhet)),
             ) shouldBe forventet
+        }
+    }
+
+    test("attestant utbetaling - kaster exception uansett rolle når gjennomføringstype er Arena") {
+        forAll(
+            row(Rolle.OKONOMI_BESLUTTER_ENKELTPLASS, GjennomforingType.ARENA, kostnadssted),
+            row(Rolle.OKONOMI_ATTESTANT_GRUPPETILTAK, GjennomforingType.ARENA, kostnadssted),
+            row(Rolle.OKONOMI_BESLUTTER_GRUPPETILTAK, GjennomforingType.ARENA, kostnadssted),
+        ) { rolle, type, enhet ->
+            shouldThrow<IllegalStateException> {
+                OkonomiAuthorization.erAttestantUtbetaling(
+                    medKontorspesifikkRolle(rolle, kostnadssted),
+                    OkonomiBeslutningContext(type, nonEmptySetOf(enhet)),
+                )
+            }
         }
     }
 
@@ -202,14 +239,27 @@ class OkonomiAuthorizationTest : FunSpec({
             ),
         )
 
-        OkonomiAuthorization.kanLeseTilsagn(ansatt, GjennomforingType.ARENA) shouldBe invalidState
-        OkonomiAuthorization.kanLeseUtbetaling(ansatt, GjennomforingType.ARENA) shouldBe invalidState
-        OkonomiAuthorization.erSaksbehandler(ansatt, GjennomforingType.ARENA) shouldBe invalidState
+        shouldThrow<IllegalStateException> {
+            OkonomiAuthorization.kanLeseTilsagn(ansatt, GjennomforingType.ARENA)
+        }
+
+        shouldThrow<IllegalStateException> {
+            OkonomiAuthorization.kanLeseUtbetaling(ansatt, GjennomforingType.ARENA)
+        }
+        shouldThrow<IllegalStateException> {
+            OkonomiAuthorization.erSaksbehandler(ansatt, GjennomforingType.ARENA)
+        }
 
         val kontekst = OkonomiBeslutningContext(GjennomforingType.ARENA, nonEmptySetOf(kostnadssted))
-        OkonomiAuthorization.erOkonomiBeslutter(ansatt, kontekst) shouldBe invalidState
-        OkonomiAuthorization.erBeslutterTilsagn(ansatt, kontekst) shouldBe invalidState
-        OkonomiAuthorization.erAttestantUtbetaling(ansatt, kontekst) shouldBe invalidState
+        shouldThrow<IllegalStateException> {
+            OkonomiAuthorization.erOkonomiBeslutter(ansatt, kontekst)
+        }
+        shouldThrow<IllegalStateException> {
+            OkonomiAuthorization.erBeslutterTilsagn(ansatt, kontekst)
+        }
+        shouldThrow<IllegalStateException> {
+            OkonomiAuthorization.erAttestantUtbetaling(ansatt, kontekst)
+        }
     }
 
     test("beslutter for enkeltplass må ha riktig rolle ved ansvarlig enhet") {

@@ -7,6 +7,8 @@ import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingType
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 
 object OkonomiAuthorization {
+    private const val INVALID_STATE = "Kan ikke behandle tilsagn, utbetaling eller gjennomføringer fra Arena i Tiltaksadministrasjon"
+
     fun kanLeseEnkeltplass(ansatt: NavAnsatt): Either<OkonomiAuthorizationError, HarTilgang> = hasAnyRole(
         ansatt,
         Rolle.OKONOMI_LES,
@@ -30,8 +32,7 @@ object OkonomiAuthorization {
             Rolle.OKONOMI_BESLUTTER_ENKELTPLASS,
         )
 
-        GjennomforingType.ARENA -> OkonomiAuthorizationError.InvalidState()
-            .left()
+        GjennomforingType.ARENA -> error(INVALID_STATE)
     }
 
     fun kanLeseUtbetaling(ansatt: NavAnsatt, type: GjennomforingType): Either<OkonomiAuthorizationError, HarTilgang> = when (type) {
@@ -50,17 +51,13 @@ object OkonomiAuthorization {
             Rolle.OKONOMI_BESLUTTER_ENKELTPLASS,
         )
 
-        GjennomforingType.ARENA -> OkonomiAuthorizationError.InvalidState()
-            .left()
+        GjennomforingType.ARENA -> error(INVALID_STATE)
     }
 
     fun erSaksbehandler(ansatt: NavAnsatt, type: GjennomforingType): Either<OkonomiAuthorizationError, HarTilgang> = when (type) {
         GjennomforingType.AVTALE -> harGenerellRolle(ansatt, Rolle.OKONOMI_SAKSBEHANDLER_GRUPPETILTAK)
-
         GjennomforingType.ENKELTPLASS -> erSaksbehandlerEnkeltplass(ansatt)
-
-        GjennomforingType.ARENA -> OkonomiAuthorizationError.InvalidState()
-            .left()
+        GjennomforingType.ARENA -> error(INVALID_STATE)
     }
 
     fun erOkonomiBeslutter(
@@ -97,7 +94,7 @@ object OkonomiAuthorization {
 
         errorB is OkonomiAuthorizationError.ManglerKontorspesifikkTilgang -> errorB
 
-        else -> OkonomiAuthorizationError.InvalidState()
+        else -> error(INVALID_STATE)
     }
 
     fun erBeslutterTilsagn(
@@ -112,8 +109,7 @@ object OkonomiAuthorization {
 
         GjennomforingType.ENKELTPLASS -> erBeslutterEnkeltplass(ansatt, kontekst.kostnadssteder)
 
-        GjennomforingType.ARENA -> OkonomiAuthorizationError.InvalidState()
-            .left()
+        GjennomforingType.ARENA -> error(INVALID_STATE)
     }
 
     fun erAttestantUtbetaling(
@@ -128,8 +124,7 @@ object OkonomiAuthorization {
 
         GjennomforingType.ENKELTPLASS -> erBeslutterEnkeltplass(ansatt, kontekst.kostnadssteder)
 
-        GjennomforingType.ARENA -> OkonomiAuthorizationError.InvalidState()
-            .left()
+        GjennomforingType.ARENA -> error(INVALID_STATE)
     }
 
     fun erSaksbehandlerEnkeltplass(ansatt: NavAnsatt): Either<OkonomiAuthorizationError, HarTilgang> = harGenerellRolle(ansatt, Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS)
@@ -174,7 +169,6 @@ object OkonomiAuthorization {
 sealed class OkonomiAuthorizationError {
     data class ManglerTilgang(val requiredRoles: Set<Rolle>) : OkonomiAuthorizationError()
     data class ManglerKontorspesifikkTilgang(val requiredRoles: Set<Rolle>) : OkonomiAuthorizationError()
-    data class InvalidState(val message: String = "Kan ikke behandle tilsagn, utbetaling eller gjennomføringer fra Arena i Tiltaksadministrasjon") : OkonomiAuthorizationError()
 }
 
 data class HarTilgang(
