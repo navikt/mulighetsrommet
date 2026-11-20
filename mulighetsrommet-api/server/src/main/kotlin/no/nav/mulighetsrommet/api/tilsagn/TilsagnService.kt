@@ -896,9 +896,9 @@ class TilsagnService(
             raise(it.toTilsagnError(ansatt.navIdent))
         }
     }
-}
 
-fun OkonomiAuthorizationError.toTilsagnError(navIdent: NavIdent): TilsagnError = when (this) {
-    is OkonomiAuthorizationError.ManglerTilgang -> TilsagnError.ManglerTilgang("Du mangler tilgang til tilsagnet", navIdent, requiredRoles)
-    is OkonomiAuthorizationError.ManglerKontorspesifikkTilgang -> TilsagnError.ManglerTilgang("Du mangler kontorspesifikk tilgang til tilsagnet", navIdent, requiredRoles)
+    private fun OkonomiAuthorizationError.toTilsagnError(navIdent: NavIdent): TilsagnError = when (this) {
+        is OkonomiAuthorizationError.ManglerTilgang -> TilsagnError.ManglerTilgang("Du mangler tilgang til tilsagnet", navIdent, requiredRoles)
+        is OkonomiAuthorizationError.ManglerKontorspesifikkTilgang -> TilsagnError.ManglerTilgang("Du mangler kontorspesifikk tilgang til tilsagnet", navIdent, requiredRoles)
+    }
 }
