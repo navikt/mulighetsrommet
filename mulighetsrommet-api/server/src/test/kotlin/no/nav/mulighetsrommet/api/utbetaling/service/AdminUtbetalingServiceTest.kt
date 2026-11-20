@@ -78,6 +78,7 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusAarsak
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.kafka.KAFKA_CONSUMER_RECORD_PROCESSOR_SCHEDULED_AT
+import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.JournalpostId
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.NOK
@@ -608,6 +609,26 @@ class AdminUtbetalingServiceTest : FunSpec({
             service.opprettUtbetaling(enkeltplassUpsert, enkeltplassSaksbehandler.navIdent).shouldBeRight()
         }
 
+        test("opprettelse sperres for enkeltplass med status som sperrer ny økonomi") {
+            listOf(
+                GjennomforingStatusType.ENKELTPLASS_IKKE_AKTUELL to "Ikke aktuell",
+                GjennomforingStatusType.ENKELTPLASS_FEILREGISTRERT to "Feilregistrert",
+            ).forEach { (status, beskrivelse) ->
+                database.truncateAll()
+                MulighetsrommetTestDomain(
+                    ansatte = listOf(enkeltplassSaksbehandler),
+                    gjennomforinger = listOf(GjennomforingDboFixtures.EnkelAmo.copy(status = status)),
+                ).initialize(database.api)
+
+                val enkeltplassUpsert = upsert.copy(gjennomforingId = GjennomforingDboFixtures.EnkelAmo.id)
+                val service = createUtbetalingService()
+                service.opprettUtbetaling(enkeltplassUpsert, enkeltplassSaksbehandler.navIdent)
+                    .shouldBeLeft() shouldBe UtbetalingError.Valideringsfeil(
+                    listOf(FieldError.of("Kan ikke opprette utbetaling fordi deltakelsen har status $beskrivelse")),
+                )
+            }
+        }
+
         test("enkeltplass-saksbehandler kan ikke opprette avtaleutbetaling") {
             MulighetsrommetTestDomain(
                 ansatte = listOf(enkeltplassSaksbehandler),
@@ -701,6 +722,27 @@ class AdminUtbetalingServiceTest : FunSpec({
                 .shouldBeLeft().shouldBeTypeOf<UtbetalingError.ManglerTilgang>()
 
             service.opprettUtbetaling(korreksjon, enkeltplassSaksbehandler.navIdent).shouldBeRight()
+        }
+
+        test("korreksjon sperres for feilregistrert enkeltplass") {
+            val feilregistrertEnkeltplass = GjennomforingDboFixtures.EnkelAmo.copy(
+                status = GjennomforingStatusType.ENKELTPLASS_FEILREGISTRERT,
+            )
+            val originalutbetaling = enkeltplassUtbetaling.copy(status = UtbetalingStatusType.FERDIG_BEHANDLET)
+            MulighetsrommetTestDomain(
+                ansatte = listOf(enkeltplassSaksbehandler),
+                gjennomforinger = listOf(feilregistrertEnkeltplass),
+                utbetalinger = listOf(originalutbetaling),
+            ).initialize(database.api)
+
+            val korreksjon = upsert.copy(
+                gjennomforingId = feilregistrertEnkeltplass.id,
+                korrigererUtbetaling = originalutbetaling.id,
+            )
+            createUtbetalingService().opprettUtbetaling(korreksjon, enkeltplassSaksbehandler.navIdent)
+                .shouldBeLeft() shouldBe UtbetalingError.Valideringsfeil(
+                listOf(FieldError.of("Kan ikke opprette utbetaling fordi deltakelsen har status Feilregistrert")),
+            )
         }
 
         test("korreksjon må gjelde for en eksisterende utbetaling") {

@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.tilskuddbehandling.kafka
 
 import io.kotest.assertions.arrow.core.shouldBeRight
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldNotBeNull
@@ -35,6 +36,7 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.api.utbetaling.service.UtbetalingService
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
+import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Periode
@@ -223,6 +225,40 @@ class TilskuddArrangorUtbetalingConsumerTest : FunSpec({
             val utbetaling = queries.utbetaling.getByTilskuddVedtak(tilskuddVedtakId).shouldNotBeNull()
             utbetaling.id shouldBe existingUtbetaling.id
             queries.utbetaling.getByGjennomforing(request.gjennomforingId).shouldHaveSize(1)
+        }
+    }
+
+    test("tilsagn og utbetaling feiler når enkeltplass har status Feilregistrert") {
+        val service = TilskuddBehandlingService(
+            gyldigTilsagnPeriode = gyldigTilsagnPeriode,
+            database.api,
+            journalforVedtaksbrev,
+            mockk(relaxed = true),
+            journalpostValidator = gyldigJournalpostValidator(),
+            personaliaService = mockk(relaxed = true),
+            betalingsinformasjon = betalingsinformasjon,
+        )
+        service.upsert(request, NavAnsattFixture.DonaldDuck.navIdent).shouldBeRight()
+
+        database.run {
+            queries.gjennomforing.setStatus(
+                id = request.gjennomforingId,
+                status = GjennomforingStatusType.ENKELTPLASS_FEILREGISTRERT,
+                sluttDato = null,
+                aarsaker = null,
+                forklaring = null,
+            )
+        }
+
+        val exception = shouldThrow<IllegalStateException> {
+            createConsumer().consume(behandlingId, godkjentHendelse)
+        }
+        exception.message!!.contains("gjennomføring id=${request.gjennomforingId}") shouldBe true
+        exception.message!!.contains("Feilregistrert") shouldBe true
+
+        database.run {
+            queries.tilsagn.getAll().shouldHaveSize(0)
+            queries.utbetaling.getByGjennomforing(request.gjennomforingId).shouldHaveSize(0)
         }
     }
 })

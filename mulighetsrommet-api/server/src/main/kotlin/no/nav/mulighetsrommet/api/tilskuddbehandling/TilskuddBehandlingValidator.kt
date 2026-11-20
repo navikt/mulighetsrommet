@@ -6,6 +6,7 @@ import no.nav.mulighetsrommet.admin.journalpost.ForventetBruker
 import no.nav.mulighetsrommet.admin.journalpost.JournalpostValidator
 import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.domain.gjennomforing.Gjennomforing
+import no.nav.mulighetsrommet.api.domain.gjennomforing.statusSperrerOkonomi
 import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandlingStatus
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandlingType
@@ -56,6 +57,10 @@ object TilskuddBehandlingValidator {
         behandlendeEnhet: NavEnhetNummer,
         ctx: Ctx,
     ): Validated<TilskuddBehandling> = validation {
+        val statusSperrerOkonomi = ctx.gjennomforing.statusSperrerOkonomi()
+        validate(statusSperrerOkonomi == null) {
+            FieldError.of("Kan ikke opprette tilskuddsbehandling fordi deltakelsen har status $statusSperrerOkonomi")
+        }
         val tilskudd = request.tilskuddVedtak.mapIndexed { index, v ->
             validateTilskuddRequest(
                 req = v,
@@ -132,6 +137,10 @@ object TilskuddBehandlingValidator {
         request: TilskuddBehandlingRequest,
         ctx: Ctx,
     ): Validated<Unit> = validation {
+        val statusSperrerOkonomi = ctx.gjennomforing.statusSperrerOkonomi()
+        validate(statusSperrerOkonomi == null) {
+            FieldError.of("Kan ikke opprette tilskuddsbehandling fordi deltakelsen har status $statusSperrerOkonomi")
+        }
         request.tilskuddVedtak.forEachIndexed { index, req ->
             validateSaksopplysningTilskuddVedtak(
                 req = req,

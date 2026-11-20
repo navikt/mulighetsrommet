@@ -13,12 +13,14 @@ import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import no.nav.mulighetsrommet.admin.navansatt.service.NavAnsattService
 import no.nav.mulighetsrommet.admin.personalia.PersonaliaPort
 import no.nav.mulighetsrommet.admin.testing.GjennomforingFixtures
 import no.nav.mulighetsrommet.admin.testing.TestAdminDatabase
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
 import no.nav.mulighetsrommet.api.domain.deltaker.Deltaker
 import no.nav.mulighetsrommet.api.domain.gjennomforing.Enkeltplass
+import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingEnkeltplassStatus
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingType
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsattRolle
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
@@ -46,10 +48,11 @@ class GjennomforingDetaljerServiceTest : FunSpec({
         personaliaPort: PersonaliaPort = mockk(),
         enkeltplassService: GjennomforingEnkeltplassService = mockk(),
         auditLog: GjennomforingAuditLog = mockk(relaxed = true),
+        navAnsattService: NavAnsattService = mockk(relaxed = true),
     ) = GjennomforingDetaljerService(
         db = db,
         tiltakstypeService = TiltakstypeService(db = db),
-        navAnsattService = mockk(),
+        navAnsattService = navAnsattService,
         personaliaPort = personaliaPort,
         enkeltplassService = enkeltplassService,
         auditLog = auditLog,
@@ -99,6 +102,38 @@ class GjennomforingDetaljerServiceTest : FunSpec({
                 setOf(kostnadssted),
             ) shouldBe false
         }
+    }
+
+    test("skjuler handlinger for å opprette ny økonomi når enkeltplass er ikke aktuell eller feilregistrert") {
+        val db = TestAdminDatabase()
+        val ansatt = NavAnsattFixture.DonaldDuck.medRoller(
+            setOf(NavAnsattRolle.generell(Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS)),
+        )
+        val navAnsattService = mockk<NavAnsattService>()
+        val enkeltplassService = mockk<GjennomforingEnkeltplassService>()
+        every { navAnsattService.getNavAnsattByNavIdent(ansatt.navIdent) } returns ansatt
+        every { enkeltplassService.get(any()) } returns null
+        val service = createService(db, navAnsattService = navAnsattService, enkeltplassService = enkeltplassService)
+        val opprettHandlinger = setOf(
+            GjennomforingHandling.OPPRETT_TILSAGN,
+            GjennomforingHandling.OPPRETT_UTBETALING,
+            GjennomforingHandling.OPPRETT_TILSKUDDSBEHANDLING,
+        )
+
+        listOf(
+            GjennomforingEnkeltplassStatus.IkkeAktuell,
+            GjennomforingEnkeltplassStatus.Feilregistrert,
+        ).forEach { status ->
+            val gjennomforing = GjennomforingFixtures.createGjennomforingEnkeltplass().copy(status = status)
+            every { db.repository.gjennomforing.getGjennomforing(gjennomforing.id) } returns gjennomforing
+
+            service.getHandlinger(gjennomforing.id, ansatt.navIdent).intersect(opprettHandlinger) shouldBe emptySet()
+        }
+
+        val deltar = GjennomforingFixtures.createGjennomforingEnkeltplass().copy(status = GjennomforingEnkeltplassStatus.Deltar)
+        every { db.repository.gjennomforing.getGjennomforing(deltar.id) } returns deltar
+
+        service.getHandlinger(deltar.id, ansatt.navIdent).intersect(opprettHandlinger) shouldBe opprettHandlinger
     }
 
     context("getGjennomforingDetaljerDto") {

@@ -20,6 +20,7 @@ import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingTiltaksadministrasjon
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingType
+import no.nav.mulighetsrommet.api.domain.gjennomforing.statusSperrerOkonomi
 import no.nav.mulighetsrommet.api.domain.navansatt.OkonomiAuthorization
 import no.nav.mulighetsrommet.api.domain.navansatt.OkonomiBeslutningContext
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
@@ -62,6 +63,11 @@ class AdminUtbetalingService(
             val gjennomforing = queries.gjennomforing.getGjennomforingTiltaksadministrasjon(gjennomforingId)
             if (!kanOppretteUtbetaling(agent, gjennomforing)) {
                 return UtbetalingError.ManglerTilgang("Du mangler saksbehandlertilgang til utbetalingen").left()
+            }
+            gjennomforing.statusSperrerOkonomi()?.let { status ->
+                return UtbetalingError.Valideringsfeil(
+                    FieldError.of("Kan ikke opprette utbetaling fordi deltakelsen har status ${status.type.beskrivelse}").nel(),
+                ).left()
             }
             hentValideringsContext(arrangorId = gjennomforing.arrangor.id, korrigertUtbetalingFinnes = true, gjennomforingOppstartsType = gjennomforing.oppstart)
         }
