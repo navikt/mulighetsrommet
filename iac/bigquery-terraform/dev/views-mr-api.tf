@@ -525,6 +525,12 @@ module "mr_api_gjennomforing_enkeltplass_godkjenn_okonomi_view" {
       },
       {
         mode        = "NULLABLE"
+        name        = "tiltakstype_id"
+        type        = "STRING"
+        description = "ID til tiltakstypen."
+      },
+      {
+        mode        = "NULLABLE"
         name        = "prismodell_type"
         type        = "STRING"
         description = "Type prismodell"
@@ -568,6 +574,7 @@ with siste_totrinnskontroll as (
 select
     g.id as gjennomforing_id,
     g.status as gjennomforing_status,
+    g.tiltakstype_id,
     p.prismodell_type,
     tk.type as totrinnskontroll_type,
     tk.status as totrinnskontroll_status,
@@ -599,6 +606,12 @@ module "mr_api_tilsagn_enkeltplass_view" {
         name        = "gjennomforing_status"
         type        = "STRING"
         description = "Status for gjennomføring"
+      },
+      {
+        mode        = "NULLABLE"
+        name        = "tiltakstype_id"
+        type        = "STRING"
+        description = "ID til tiltakstypen."
       },
       {
         mode        = "NULLABLE"
@@ -636,6 +649,7 @@ module "mr_api_tilsagn_enkeltplass_view" {
         type        = "STRING"
         description = "Type totrinnskontroll"
       },
+
       {
         mode        = "NULLABLE"
         name        = "totrinnskontroll_status"
@@ -660,6 +674,7 @@ module "mr_api_tilsagn_enkeltplass_view" {
 SELECT
     t.gjennomforing_id,
     g.status as gjennomforing_status,
+    g.tiltakstype_id,
     p.prismodell_type,
     t.id AS tilsagn_id,
     t.status AS tilsagn_status,
@@ -707,6 +722,12 @@ module "mr_api_utbetaling_enkeltplass_view" {
       },
       {
         mode        = "NULLABLE"
+        name        = "tiltakstype_id"
+        type        = "STRING"
+        description = "ID til tiltakstypen."
+      },
+      {
+        mode        = "NULLABLE"
         name        = "prismodell_type"
         type        = "STRING"
         description = "Type prismodell"
@@ -741,6 +762,7 @@ module "mr_api_utbetaling_enkeltplass_view" {
 SELECT
 g.id AS gjennomforing_id,
 g.status AS gjennomforing_status,
+g.tiltakstype_id,
 p.prismodell_type,
 u.id AS utbetaling_id,
 u.status AS utbetaling_status,
