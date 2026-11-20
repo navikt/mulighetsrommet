@@ -52,6 +52,7 @@ import no.nav.tiltak.okonomi.FakturaStatusType
 import no.nav.tiltak.okonomi.Fakturanummer
 import no.nav.tiltak.okonomi.GjorOppBestilling
 import no.nav.tiltak.okonomi.KafkaTopics
+import no.nav.tiltak.okonomi.OebsFeil
 import no.nav.tiltak.okonomi.OkonomiFagsystem
 import no.nav.tiltak.okonomi.OkonomiPart
 import no.nav.tiltak.okonomi.OpprettBestilling
@@ -62,6 +63,7 @@ import no.nav.tiltak.okonomi.db.OkonomiDatabase
 import no.nav.tiltak.okonomi.db.QueryContext
 import no.nav.tiltak.okonomi.model.Bestilling
 import no.nav.tiltak.okonomi.model.Faktura
+import no.nav.tiltak.okonomi.oebs.OebsBestillingKvittering
 import no.nav.tiltak.okonomi.oebs.OebsBestillingMelding
 import no.nav.tiltak.okonomi.oebs.OebsFakturaKvittering
 import no.nav.tiltak.okonomi.oebs.OebsFakturaMelding
@@ -827,6 +829,104 @@ class TiltaksokonomiServiceTest : FunSpec({
                 .filter { it.fakturanummer == faktura.fakturanummer }
                 .shouldHaveSize(0)
         }
+    }
+
+    test("bestillingsfeil lagres og publiseres") {
+        val bestilling = createBestilling(Bestillingsnummer("K-1-1"))
+        db.session { queries.bestilling.insertBestilling(bestilling) }
+        val service = createOkonomiService(oebsClient(oebsRespondOk()))
+        val kvittering = OebsBestillingKvittering(
+            bestillingsNummer = bestilling.bestillingsnummer.value,
+            opprettelsesTidspunkt = LocalDateTime.of(2025, 1, 1, 12, 0),
+            statusOebs = "Avvist",
+            feilKode = "FEILKODE",
+            feilMelding = "Bestillingen ble avvist",
+        )
+
+        service.mottaBestillingKvittering(bestilling, kvittering)
+
+        service.hentBestilling(bestilling.bestillingsnummer).shouldNotBeNull().feil shouldBe
+            OebsFeil(kode = "FEILKODE", melding = "Bestillingen ble avvist")
+        val record = db.session { getLatestRecord("bestilling-status") }
+        val melding = Json.decodeFromString<BestillingStatus>(record.value.toString(Charsets.UTF_8))
+        melding.feil shouldBe OebsFeil(kode = "FEILKODE", melding = "Bestillingen ble avvist")
+    }
+
+    test("godkjent bestillingskvittering fjerner tidligere feil fra modellen og statusmeldingen") {
+        val bestilling = createBestilling(Bestillingsnummer("K-2-1"), status = BestillingStatusType.FEILET).copy(
+            feil = OebsFeil(kode = "FEILKODE", melding = "Bestillingen ble avvist"),
+        )
+        db.session { queries.bestilling.insertBestilling(bestilling) }
+        val service = createOkonomiService(oebsClient(oebsRespondOk()))
+        val kvittering = OebsBestillingKvittering(
+            bestillingsNummer = bestilling.bestillingsnummer.value,
+            opprettelsesTidspunkt = LocalDateTime.of(2025, 1, 1, 12, 0),
+            statusOebs = "Godkjent",
+        )
+
+        service.mottaBestillingKvittering(bestilling, kvittering)
+
+        service.hentBestilling(bestilling.bestillingsnummer).shouldNotBeNull().feil shouldBe null
+        val record = db.session { getLatestRecord("bestilling-status") }
+        val melding = Json.decodeFromString<BestillingStatus>(record.value.toString(Charsets.UTF_8))
+        melding.feil shouldBe null
+    }
+
+    test("fakturafeil lagres og publiseres") {
+        val bestilling = createBestilling(Bestillingsnummer("L-1-1"))
+        val faktura = Faktura.fromOpprettFaktura(
+            createOpprettFaktura(bestilling.bestillingsnummer, Fakturanummer("L-1-1-1")),
+            bestilling.linjer,
+        )
+        db.session {
+            queries.bestilling.insertBestilling(bestilling)
+            queries.faktura.insertFaktura(faktura)
+        }
+        val service = createOkonomiService(oebsClient(oebsRespondOk()))
+        val kvittering = OebsFakturaKvittering(
+            fakturaNummer = faktura.fakturanummer.value,
+            opprettelsesTidspunkt = LocalDateTime.of(2025, 1, 1, 12, 0),
+            statusOpprettet = "Avvist",
+            feilKode = "FEILKODE",
+            feilMelding = "Fakturaen ble avvist",
+        )
+
+        service.mottaFakturaKvittering(faktura, kvittering)
+
+        service.hentFaktura(faktura.fakturanummer).shouldNotBeNull().feil shouldBe
+            OebsFeil(kode = "FEILKODE", melding = "Fakturaen ble avvist")
+        val record = db.session { getLatestRecord("faktura-status") }
+        val melding = Json.decodeFromString<FakturaStatus>(record.value.toString(Charsets.UTF_8))
+        melding.feil shouldBe OebsFeil(kode = "FEILKODE", melding = "Fakturaen ble avvist")
+    }
+
+    test("godkjent fakturakvittering fjerner tidligere feil fra modellen og statusmeldingen") {
+        val bestilling = createBestilling(Bestillingsnummer("L-2-1"))
+        val faktura = Faktura.fromOpprettFaktura(
+            createOpprettFaktura(bestilling.bestillingsnummer, Fakturanummer("L-2-1-1")),
+            bestilling.linjer,
+        ).copy(
+            status = FakturaStatusType.FEILET,
+            feil = OebsFeil(kode = "FEILKODE", melding = "Fakturaen ble avvist"),
+        )
+        db.session {
+            queries.bestilling.insertBestilling(bestilling)
+            queries.faktura.insertFaktura(faktura)
+        }
+        val service = createOkonomiService(oebsClient(oebsRespondOk()))
+        val kvittering = OebsFakturaKvittering(
+            fakturaNummer = faktura.fakturanummer.value,
+            opprettelsesTidspunkt = LocalDateTime.of(2025, 1, 1, 12, 0),
+            statusOpprettet = "Suksess",
+            statusBetalt = OebsFakturaKvittering.StatusBetalt.FulltBetalt,
+        )
+
+        service.mottaFakturaKvittering(faktura, kvittering)
+
+        service.hentFaktura(faktura.fakturanummer).shouldNotBeNull().feil shouldBe null
+        val record = db.session { getLatestRecord("faktura-status") }
+        val melding = Json.decodeFromString<FakturaStatus>(record.value.toString(Charsets.UTF_8))
+        melding.feil shouldBe null
     }
 })
 

@@ -10,6 +10,7 @@ data class BestillingStatus(
     val status: BestillingStatusType,
     @Serializable(with = InstantSerializer::class)
     val statusSistOppdatert: Instant,
+    val feil: OebsFeil? = null,
 )
 
 enum class BestillingStatusType {

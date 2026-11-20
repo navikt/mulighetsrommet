@@ -7,6 +7,7 @@ import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.tiltak.okonomi.BestillingStatusType
+import no.nav.tiltak.okonomi.OebsFeil
 import no.nav.tiltak.okonomi.OkonomiFagsystem
 import no.nav.tiltak.okonomi.OkonomiPart
 import no.nav.tiltak.okonomi.Regnskapskonto
@@ -46,6 +47,23 @@ class BestillingQueriesTest : FunSpec({
             queries.getByBestillingsnummer(bestillingsnummer).shouldNotBeNull().should {
                 it.status shouldBe BestillingStatusType.ANNULLERT
             }
+        }
+    }
+
+    test("bevarer OeBS-feil ved lagring og uthenting") {
+        database.runAndRollback { session ->
+            val queries = BestillingQueries(session)
+            val feilet = bestilling.copy(
+                status = BestillingStatusType.FEILET,
+                feil = OebsFeil(kode = "FEILKODE", melding = "Bestillingen ble avvist"),
+            )
+
+            queries.insertBestilling(feilet)
+
+            queries.getByBestillingsnummer(bestillingsnummer).shouldNotBeNull().feil shouldBe
+                OebsFeil(kode = "FEILKODE", melding = "Bestillingen ble avvist")
+            queries.getNotAvstemt().single().feil shouldBe
+                OebsFeil(kode = "FEILKODE", melding = "Bestillingen ble avvist")
         }
     }
 

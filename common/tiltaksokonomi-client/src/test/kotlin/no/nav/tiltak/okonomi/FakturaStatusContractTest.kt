@@ -14,4 +14,15 @@ class FakturaStatusContractTest : FunSpec({
             ),
         )
     }
+
+    test("FAKTURA_STATUS_FEILET") {
+        assertContract(
+            FakturaStatus(
+                fakturanummer = Fakturanummer("A-1-1-1"),
+                status = FakturaStatusType.FEILET,
+                statusSistOppdatert = Instant.parse("2025-01-01T00:00:00Z"),
+                feil = OebsFeil(kode = "FEILKODE", melding = "Fakturaen ble avvist"),
+            ),
+        )
+    }
 })

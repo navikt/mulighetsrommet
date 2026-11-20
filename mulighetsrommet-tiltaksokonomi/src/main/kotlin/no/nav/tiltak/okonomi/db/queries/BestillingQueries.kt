@@ -13,6 +13,7 @@ import no.nav.mulighetsrommet.model.Valuta
 import no.nav.tiltak.okonomi.Artskonto
 import no.nav.tiltak.okonomi.BestillingStatusType
 import no.nav.tiltak.okonomi.Bestillingsnummer
+import no.nav.tiltak.okonomi.OebsFeil
 import no.nav.tiltak.okonomi.OkonomiFagsystem
 import no.nav.tiltak.okonomi.OkonomiPart
 import no.nav.tiltak.okonomi.Regnskapskonto
@@ -38,6 +39,8 @@ class BestillingQueries(private val session: Session) {
                 periode,
                 status,
                 status_sist_oppdatert,
+                feil_kode,
+                feil_melding,
                 opprettelse_behandlet_av,
                 opprettelse_behandlet_tidspunkt,
                 opprettelse_besluttet_av,
@@ -60,6 +63,8 @@ class BestillingQueries(private val session: Session) {
                 :periode::daterange,
                 :status,
                 :status_sist_oppdatert,
+                :feil_kode,
+                :feil_melding,
                 :opprettelse_behandlet_av,
                 :opprettelse_behandlet_tidspunkt,
                 :opprettelse_besluttet_av,
@@ -85,6 +90,8 @@ class BestillingQueries(private val session: Session) {
             "periode" to bestilling.periode.toDaterange(),
             "status" to bestilling.status.name,
             "status_sist_oppdatert" to bestilling.statusSistOppdatert,
+            "feil_kode" to bestilling.feil?.kode,
+            "feil_melding" to bestilling.feil?.melding,
             "opprettelse_behandlet_av" to bestilling.opprettelse.behandletAv.part,
             "opprettelse_behandlet_tidspunkt" to bestilling.opprettelse.behandletTidspunkt,
             "opprettelse_besluttet_av" to bestilling.opprettelse.besluttetAv.part,
@@ -200,6 +207,8 @@ class BestillingQueries(private val session: Session) {
                 periode,
                 status,
                 status_sist_oppdatert,
+                feil_kode,
+                feil_melding,
                 opprettelse_behandlet_av,
                 opprettelse_behandlet_tidspunkt,
                 opprettelse_besluttet_av,
@@ -233,6 +242,8 @@ class BestillingQueries(private val session: Session) {
                 periode,
                 status,
                 status_sist_oppdatert,
+                feil_kode,
+                feil_melding,
                 opprettelse_behandlet_av,
                 opprettelse_behandlet_tidspunkt,
                 opprettelse_besluttet_av,
@@ -280,6 +291,14 @@ class BestillingQueries(private val session: Session) {
             periode = periode("periode"),
             status = status,
             statusSistOppdatert = instant("status_sist_oppdatert"),
+            feil = if (status == BestillingStatusType.FEILET) {
+                OebsFeil(
+                    kode = stringOrNull("feil_kode"),
+                    melding = stringOrNull("feil_melding"),
+                )
+            } else {
+                null
+            },
             opprettelse = Bestilling.Totrinnskontroll(
                 behandletAv = OkonomiPart.fromString(this.string("opprettelse_behandlet_av")),
                 behandletTidspunkt = instant("opprettelse_behandlet_tidspunkt"),

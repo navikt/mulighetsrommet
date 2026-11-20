@@ -7,6 +7,7 @@ import no.nav.mulighetsrommet.model.Valuta
 import no.nav.tiltak.okonomi.Artskonto
 import no.nav.tiltak.okonomi.BestillingStatusType
 import no.nav.tiltak.okonomi.Bestillingsnummer
+import no.nav.tiltak.okonomi.OebsFeil
 import no.nav.tiltak.okonomi.OkonomiFagsystem
 import no.nav.tiltak.okonomi.OkonomiPart
 import no.nav.tiltak.okonomi.OpprettBestilling
@@ -26,6 +27,7 @@ data class Bestilling(
     val periode: Periode,
     val status: BestillingStatusType,
     val statusSistOppdatert: Instant,
+    val feil: OebsFeil? = null,
     val opprettelse: Totrinnskontroll,
     val annullering: Totrinnskontroll?,
     val linjer: List<Linje>,

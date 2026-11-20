@@ -11,6 +11,7 @@ import no.nav.mulighetsrommet.model.Valuta
 import no.nav.tiltak.okonomi.Bestillingsnummer
 import no.nav.tiltak.okonomi.FakturaStatusType
 import no.nav.tiltak.okonomi.Fakturanummer
+import no.nav.tiltak.okonomi.OebsFeil
 import no.nav.tiltak.okonomi.OkonomiPart
 import no.nav.tiltak.okonomi.model.Faktura
 import no.nav.tiltak.okonomi.oebs.OebsBetalingskanal
@@ -35,6 +36,8 @@ class FakturaQueries(private val session: Session) {
                 periode,
                 status,
                 status_sist_oppdatert,
+                feil_kode,
+                feil_melding,
                 behandlet_av,
                 behandlet_tidspunkt,
                 besluttet_av,
@@ -56,6 +59,8 @@ class FakturaQueries(private val session: Session) {
                 :periode::daterange,
                 :status,
                 :status_sist_oppdatert,
+                :feil_kode,
+                :feil_melding,
                 :behandlet_av,
                 :behandlet_tidspunkt,
                 :besluttet_av,
@@ -73,6 +78,8 @@ class FakturaQueries(private val session: Session) {
             "periode" to faktura.periode.toDaterange(),
             "status" to faktura.status.name,
             "status_sist_oppdatert" to faktura.statusSistOppdatert,
+            "feil_kode" to faktura.feil?.kode,
+            "feil_melding" to faktura.feil?.melding,
             "behandlet_av" to faktura.behandletAv.part,
             "behandlet_tidspunkt" to faktura.behandletTidspunkt,
             "besluttet_av" to faktura.besluttetAv.part,
@@ -164,6 +171,8 @@ class FakturaQueries(private val session: Session) {
                 periode,
                 status,
                 status_sist_oppdatert,
+                feil_kode,
+                feil_melding,
                 behandlet_av,
                 behandlet_tidspunkt,
                 besluttet_av,
@@ -212,14 +221,23 @@ class FakturaQueries(private val session: Session) {
                 null -> null
             }
 
+            val status = FakturaStatusType.valueOf(row.string("status"))
             Faktura(
                 bestillingsnummer = Bestillingsnummer(row.string("bestillingsnummer")),
                 fakturanummer = fakturanummer,
                 betalingsinformasjon = betalingsinformasjon,
                 belop = row.int("belop"),
                 periode = row.periode("periode"),
-                status = FakturaStatusType.valueOf(row.string("status")),
+                status = status,
                 statusSistOppdatert = row.instant("status_sist_oppdatert"),
+                feil = if (status == FakturaStatusType.FEILET) {
+                    OebsFeil(
+                        kode = row.stringOrNull("feil_kode"),
+                        melding = row.stringOrNull("feil_melding"),
+                    )
+                } else {
+                    null
+                },
                 behandletAv = OkonomiPart.fromString(row.string("behandlet_av")),
                 behandletTidspunkt = row.instant("behandlet_tidspunkt"),
                 besluttetAv = OkonomiPart.fromString(row.string("besluttet_av")),
