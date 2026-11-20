@@ -1,9 +1,9 @@
 {
   "collection": "(à la carte)",
-  "version": "2026.11.11-094753-968a115",
+  "version": "2026.11.19-222543-3363873",
   "scope": "repo",
   "source_repo": "navikt/copilot",
-  "source_sha": "e493cefdc144fb09b1824dc56fcfbc28130c2c9a",
+  "source_sha": "33638739d8fc743b3e397d32e6b04781f1c55a83",
   "installed_at": "2026-10-15T12:59:17Z",
   "files": [
     {
@@ -32,8 +32,8 @@
     },
     {
       "path": ".github/skills/security-owasp/",
-      "hash": "6c2dc64c5fe6b81e",
-      "revision": "e493cefdc144fb09b1824dc56fcfbc28130c2c9a"
+      "hash": "c020e45389dad61d",
+      "revision": "33638739d8fc743b3e397d32e6b04781f1c55a83"
     }
   ]
 }
