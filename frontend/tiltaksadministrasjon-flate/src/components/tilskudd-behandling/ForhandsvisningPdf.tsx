@@ -1,9 +1,6 @@
 import { InlineMessage, Loader, VStack } from "@navikt/ds-react";
 import { useEffect, useState } from "react";
 
-// Gjemmer pdf-toolbaren i Edge/Chrome
-const HIDE_TOOLBAR_HASH = "#toolbar=0";
-
 interface Props {
   blob: Blob | undefined;
   isLoading: boolean;
@@ -17,7 +14,7 @@ export function ForhandsvisningPdf({ blob, isLoading, isError, title }: Props) {
   useEffect(() => {
     if (!blob) return;
     const url = URL.createObjectURL(blob);
-    setBlobUrl(url + HIDE_TOOLBAR_HASH);
+    setBlobUrl(url);
     return () => {
       URL.revokeObjectURL(url);
       setBlobUrl(null);
