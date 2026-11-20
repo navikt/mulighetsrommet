@@ -239,6 +239,14 @@ class GjennomforingEnkeltplassService(
         val kandidat = db.session { finnMigreringskandidat(command.id) }
             .getOrElse { return MigrerEnkeltplassError.Valideringsfeil(it).left() }
 
+        if (kandidat.gjennomforing.tiltakstype.tiltakskode == Tiltakskode.HOYERE_UTDANNING &&
+            prismodell is UpsertEnkeltplass.Prismodell.Anskaffelse
+        ) {
+            return MigrerEnkeltplassError.Valideringsfeil(
+                FieldError("/type", "Høyere utdanning kan ikke ha prismodellen anskaffet enkeltplass").nel(),
+            ).left()
+        }
+
         val norskIdent = personaliaPort.getPersonalia(kandidat.deltaker.id, context.accessType).let { personalia ->
             personalia.avvistGrunn?.let { return MigrerEnkeltplassError.ManglerTilgang(it).left() }
             requireNotNull(personalia.norskIdent())

@@ -48,6 +48,7 @@ import no.nav.mulighetsrommet.api.domain.testing.fixture.KurstypeFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavAnsattFixture
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.PrismodellFixtures
+import no.nav.mulighetsrommet.api.domain.testing.fixture.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.UtdanningFixtures
 import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
 import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeFeature
@@ -1729,6 +1730,36 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
                 enkeltplass.gjennomforing.prismodell
                     .shouldBeTypeOf<Prismodell.AnskaffetEnkeltplass>().totalbelop shouldBe 4200.NOK
+            }
+
+            test("høyere utdanning kan ikke migreres som anskaffet enkeltplass") {
+                val hoyereUtdanning = arena.copy(id = UUID.randomUUID(), tiltakskode = Tiltakskode.HOYERE_UTDANNING)
+                database.run {
+                    tiltakstype.save(TiltakstypeFixtures.HoyereUtdanning)
+                    gjennomforing.upsert(hoyereUtdanning)
+                    this.deltaker.save(
+                        DeltakerFixtures.createDeltaker(
+                            gjennomforingId = hoyereUtdanning.id,
+                            status = DeltakerStatusType.DELTAR,
+                            startDato = LocalDate.of(2026, 1, 1),
+                            sluttDato = null,
+                            endretTidspunkt = Instant.parse("2026-01-02T10:00:00Z"),
+                        ),
+                    )
+                }
+                val hoyereUtdanningService = createService(
+                    mapOf(Tiltakskode.HOYERE_UTDANNING to setOf(TiltakstypeFeature.MIGRERT)),
+                )
+
+                hoyereUtdanningService.migrerEnkeltplass(
+                    MigrerEnkeltplass(hoyereUtdanning.id, UpsertEnkeltplass.Prismodell.Anskaffelse(4200)),
+                    ansattContext,
+                ).shouldBeLeft()
+                    .shouldBeTypeOf<MigrerEnkeltplassError.Valideringsfeil>().errors shouldContainExactly listOf(
+                    FieldError("/type", "Høyere utdanning kan ikke ha prismodellen anskaffet enkeltplass"),
+                )
+
+                database.run { gjennomforing.getGjennomforing(hoyereUtdanning.id).shouldBeTypeOf<GjennomforingArena>() }
             }
 
             test("migrerer og lagrer tilskudd til opplæring uten beløp") {

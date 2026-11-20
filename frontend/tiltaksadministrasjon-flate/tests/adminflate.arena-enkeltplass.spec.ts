@@ -388,12 +388,24 @@ test("migrering sender estimerte beløp bare for valgte tilskuddstyper", async (
 });
 
 test("tilskudd kan migreres uten estimerte beløp etter at alle typer fjernes", async ({ page }) => {
-  const { migreringer } = await mockSok(page);
+  const { migreringer } = await mockSok(page, {
+    kandidater: [
+      {
+        ...kandidat,
+        tiltakstype: {
+          ...kandidat.tiltakstype,
+          tiltakskode: Tiltakskode.HOYERE_UTDANNING,
+          navn: "Høyere utdanning",
+        },
+      },
+    ],
+  });
   await page.getByRole("searchbox", { name: "Søk etter tiltaksgjennomføring" }).fill("2026/42");
   await page.getByRole("button", { name: "Migrer 2026#42 fra Arena" }).click();
   const modal = page.getByRole("dialog");
 
-  await modal.getByLabel("Prismodell").selectOption(PrismodellType.TILSKUDD_TIL_OPPLAERING);
+  await expect(modal.getByLabel("Prismodell")).toHaveValue(PrismodellType.TILSKUDD_TIL_OPPLAERING);
+  await expect(modal.getByRole("option", { name: "Anskaffet enkeltplass" })).toHaveCount(0);
   await modal.getByRole("checkbox", { name: "Semesteravgift", exact: true }).check();
   await modal.getByLabel("Estimert totalbeløp for semesteravgift (NOK)").fill("1500");
   await modal.getByRole("checkbox", { name: "Semesteravgift", exact: true }).uncheck();

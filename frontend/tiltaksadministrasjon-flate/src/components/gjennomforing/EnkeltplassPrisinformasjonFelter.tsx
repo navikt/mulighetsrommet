@@ -1,4 +1,9 @@
-import { OpplaeringtilskuddKode, PrismodellType, Valuta } from "@tiltaksadministrasjon/api-client";
+import {
+  OpplaeringtilskuddKode,
+  PrismodellType,
+  Tiltakskode,
+  Valuta,
+} from "@tiltaksadministrasjon/api-client";
 import { useFormContext } from "react-hook-form";
 import { BodyShort, Box, Checkbox, HStack, VStack } from "@navikt/ds-react";
 import { formaterValutaBelop } from "@mr/frontend-common/utils/utils";
@@ -16,7 +21,7 @@ export interface EnkeltplassPrisinformasjonValues {
   tilskudd?: Partial<Record<OpplaeringtilskuddKode, string>>;
 }
 
-export function EnkeltplassPrisinformasjonFelter() {
+export function EnkeltplassPrisinformasjonFelter({ tiltakskode }: { tiltakskode: Tiltakskode }) {
   const { watch } = useFormContext<EnkeltplassPrisinformasjonValues>();
   const type = watch("type");
 
@@ -28,7 +33,9 @@ export function EnkeltplassPrisinformasjonFelter() {
         rules={{ required: "Velg prismodell" }}
       >
         <option value="">Velg prismodell</option>
-        <option value={PrismodellType.ANSKAFFET_ENKELTPLASS}>Anskaffet enkeltplass</option>
+        {tiltakskode !== Tiltakskode.HOYERE_UTDANNING && (
+          <option value={PrismodellType.ANSKAFFET_ENKELTPLASS}>Anskaffet enkeltplass</option>
+        )}
         <option value={PrismodellType.TILSKUDD_TIL_OPPLAERING}>Tilskudd til opplæring</option>
         <option value={PrismodellType.INGEN_KOSTNADER}>Ingen kostnader</option>
       </FormSelect>

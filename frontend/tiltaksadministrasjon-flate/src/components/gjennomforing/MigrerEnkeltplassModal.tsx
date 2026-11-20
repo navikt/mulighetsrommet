@@ -170,7 +170,9 @@ export function MigrerEnkeltplassModal({
                   </Heading>
                   <Fieldset legend="Velg prisinformasjon" hideLegend disabled={migration.isPending}>
                     <VStack gap="space-16">
-                      <EnkeltplassPrisinformasjonFelter />
+                      <EnkeltplassPrisinformasjonFelter
+                        tiltakskode={kandidat.tiltakstype.tiltakskode}
+                      />
                     </VStack>
                   </Fieldset>
                   <BodyShort>
