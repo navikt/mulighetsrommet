@@ -188,14 +188,14 @@ class UtbetalingDtoQuery(
         avbrytelse: TotrinnskontrollDto?,
         ansvarligEnhet: NavEnhetNummer,
     ): Set<UtbetalingHandling> {
-        val erSaksbehandler = OkonomiAuthorization.erSaksbehandler(ansatt, utbetaling.gjennomforing.type)
+        val erSaksbehandler = OkonomiAuthorization.erSaksbehandler(ansatt, utbetaling.gjennomforing.type).isRight()
         val erAttestant = OkonomiAuthorization.erAttestantUtbetaling(
             ansatt,
             OkonomiBeslutningContext(
                 gjennomforingType = utbetaling.gjennomforing.type,
                 kostnadssteder = nonEmptySetOf(ansvarligEnhet),
             ),
-        )
+        ).isRight()
         val tilAvbrytelse = avbrytelse is TotrinnskontrollDto.TilBeslutning
         return setOfNotNull(
             UtbetalingHandling.SEND_TIL_GODKJENNING.takeIf { erSaksbehandler && utbetaling.erTilBehandling() },
@@ -224,8 +224,8 @@ class UtbetalingDtoQuery(
             return emptySet()
         }
 
-        val erBeslutter = OkonomiAuthorization.erAttestantUtbetaling(ansatt, kontekst)
-        val erSaksbehandler = OkonomiAuthorization.erSaksbehandler(ansatt, kontekst.gjennomforingType)
+        val erBeslutter = OkonomiAuthorization.erAttestantUtbetaling(ansatt, kontekst).isRight()
+        val erSaksbehandler = OkonomiAuthorization.erSaksbehandler(ansatt, kontekst.gjennomforingType).isRight()
         return setOfNotNull(
             UtbetalingLinjeHandling.GODKJENN.takeIf { erBeslutter && behandletAv != ansatt.navIdent },
             UtbetalingLinjeHandling.RETURNER.takeIf { erBeslutter || erSaksbehandler },
@@ -233,7 +233,7 @@ class UtbetalingDtoQuery(
     }
 
     private fun harLesetilgang(utbetaling: Utbetaling, ansatt: NavAnsatt): Boolean {
-        return OkonomiAuthorization.kanLeseUtbetaling(ansatt, utbetaling.gjennomforing.type)
+        return OkonomiAuthorization.kanLeseUtbetaling(ansatt, utbetaling.gjennomforing.type).isRight()
     }
 
     private fun manglerLesetilgang() = UtbetalingDtoQueryError.ManglerTilgang("Du mangler lesetilgang til utbetalingen").left()

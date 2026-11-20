@@ -819,13 +819,13 @@ class TilsagnService(
         return when (agent) {
             Tiltaksadministrasjon -> true
             Arena, is no.nav.mulighetsrommet.model.Arrangor -> false
-            is NavIdent -> OkonomiAuthorization.erSaksbehandler(queries.ansatt.getOrError(agent), type)
+            is NavIdent -> OkonomiAuthorization.erSaksbehandler(queries.ansatt.getOrError(agent), type).isRight()
         }
     }
 
     private fun QueryContext.erSaksbehandler(navIdent: NavIdent, tilsagn: Tilsagn): Boolean {
         val ansatt = queries.ansatt.getOrError(navIdent)
-        return OkonomiAuthorization.erSaksbehandler(ansatt, tilsagn.gjennomforing.type)
+        return OkonomiAuthorization.erSaksbehandler(ansatt, tilsagn.gjennomforing.type).isRight()
     }
 
     private fun QueryContext.kanBeslutteTilsagn(agent: Agent, tilsagn: Tilsagn): Boolean = when (agent) {
@@ -843,7 +843,7 @@ class TilsagnService(
             gjennomforingType = tilsagn.gjennomforing.type,
             kostnadssteder = nonEmptySetOf(tilsagn.kostnadssted.enhetsnummer),
         )
-        return OkonomiAuthorization.erBeslutterTilsagn(ansatt, kontekst)
+        return OkonomiAuthorization.erBeslutterTilsagn(ansatt, kontekst).isRight()
     }
 
     private fun QueryContext.updateFreeTextSearch(tilsagn: TilsagnDbo) {

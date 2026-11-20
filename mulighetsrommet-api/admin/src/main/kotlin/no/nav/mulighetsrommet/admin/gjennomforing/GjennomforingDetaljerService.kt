@@ -26,6 +26,7 @@ import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingTiltaksadmin
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingType
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsatt
 import no.nav.mulighetsrommet.api.domain.navansatt.OkonomiAuthorization
+import no.nav.mulighetsrommet.api.domain.navansatt.OkonomiAuthorizationError
 import no.nav.mulighetsrommet.api.domain.navansatt.OkonomiBeslutningContext
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.domain.personalia.AvvistGrunn
@@ -91,8 +92,11 @@ class GjennomforingDetaljerService(
             is GjennomforingEnkeltplass -> {
                 val ansatt = db.session { repository.navAnsatt.getOrError(navIdent) }
 
-                OkonomiAuthorization.kanLeseEnkeltplass(ansatt).onLeft { manglerTilgang ->
-                    return GjennomforingDetaljerError.ManglerTilgang("Du mangler lesetilgang til enkeltplass", ansatt.navIdent, manglerTilgang.roller).left()
+                OkonomiAuthorization.kanLeseEnkeltplass(ansatt).onLeft { error ->
+                    when (error) {
+                        is OkonomiAuthorizationError.ManglerKontorspesifikkTilgang -> GjennomforingDetaljerError.ManglerTilgang("Du mangler kontorspesifikk lesetilgang til enkeltplass", ansatt.navIdent, error.requiredRoles).left()
+                        is OkonomiAuthorizationError.ManglerTilgang -> GjennomforingDetaljerError.ManglerTilgang("Du mangler lesetilgang til enkeltplass", ansatt.navIdent, error.requiredRoles).left()
+                    }
                 }
 
                 val enkeltplass = enkeltplassService.get(gjennomforing.id)
@@ -321,7 +325,7 @@ class GjennomforingDetaljerService(
                 GjennomforingHandling.OPPRETT_TILSAGN_FOR_INVESTERINGER,
                 GjennomforingHandling.OPPRETT_UTBETALING,
                 GjennomforingHandling.OPPRETT_TILSKUDDSBEHANDLING,
-                -> OkonomiAuthorization.erSaksbehandler(ansatt, gjennomforingType)
+                -> OkonomiAuthorization.erSaksbehandler(ansatt, gjennomforingType).isRight()
 
                 GjennomforingHandling.SETT_PA_VENT_ENKELTPLASS_OKONOMI,
                 GjennomforingHandling.GODKJENN_ENKELTPLASS_OKONOMI,
@@ -330,7 +334,7 @@ class GjennomforingDetaljerService(
                 -> OkonomiAuthorization.erOkonomiBeslutter(
                     ansatt,
                     OkonomiBeslutningContext(gjennomforingType, enheter.toNonEmptySetOrThrow()),
-                )
+                ).isRight()
             }
         }
     }
