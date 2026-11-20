@@ -280,6 +280,20 @@ class TilsagnServiceTest : FunSpec({
                 ),
             )
         }
+
+        test("tilsagn for tilskudd kan ikke opprettes manuelt") {
+            service.upsert(
+                request.copy(type = TilsagnType.TILSKUDD_TIL_OPPLAERING),
+                ansatt1,
+            ) shouldBeLeft TilsagnError.Valideringsfeil(
+                listOf(
+                    FieldError.of(
+                        "Tilskudd til opplæring kan ikke opprettes manuelt",
+                        TilsagnRequest::type,
+                    ),
+                ),
+            )
+        }
     }
 
     context("slett tilsagn") {
@@ -407,7 +421,9 @@ class TilsagnServiceTest : FunSpec({
             }
 
             service.godkjennTilsagn(id = requestId, agent = ansatt1) shouldBeLeft TilsagnError.ManglerTilgang(
-                "Du kan ikke beslutte tilsagnet fordi du mangler budsjettmyndighet ved tilsagnets kostnadssted (Nav Gjøvik)",
+                "Du mangler kontorspesifikk tilgang til tilsagnet",
+                ansatt1,
+                setOf(Rolle.OKONOMI_BESLUTTER_GRUPPETILTAK),
             )
         }
 
@@ -428,7 +444,9 @@ class TilsagnServiceTest : FunSpec({
             }
 
             service.godkjennTilsagn(id = requestId, agent = ansatt1) shouldBeLeft TilsagnError.ManglerTilgang(
-                "Du kan ikke beslutte tilsagnet fordi du mangler budsjettmyndighet ved tilsagnets kostnadssted (Nav Gjøvik)",
+                "Du mangler kontorspesifikk tilgang til tilsagnet",
+                ansatt1,
+                setOf(Rolle.OKONOMI_BESLUTTER_GRUPPETILTAK),
             )
         }
 
@@ -624,7 +642,7 @@ class TilsagnServiceTest : FunSpec({
                 navIdent = ansatt1,
                 aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
                 begrunnelse = null,
-            ) shouldBeLeft TilsagnError.ManglerTilgang("Du kan ikke returnere tilsagnet fordi du mangler tilgang")
+            ) shouldBeLeft TilsagnError.ManglerTilgang("Du kan ikke returnere tilsagnet fordi du mangler tilgang", ansatt1, setOf(Rolle.OKONOMI_SAKSBEHANDLER_GRUPPETILTAK, Rolle.OKONOMI_BESLUTTER_GRUPPETILTAK))
         }
 
         test("saksbehandler kan returnere tilsagn") {
@@ -735,7 +753,7 @@ class TilsagnServiceTest : FunSpec({
                 agent = ansatt2,
             ).shouldBeRight().status shouldBe TilsagnStatus.GODKJENT
 
-            var value = database.run { queries.kafkaProducerRecord.getRecords(50, listOf(BESTILLING_TOPIC)) }
+            val value = database.run { queries.kafkaProducerRecord.getRecords(50, listOf(BESTILLING_TOPIC)) }
                 .shouldHaveSize(1)
                 .first().value
             val bestillingsnummer = Json.decodeFromString<OkonomiBestillingMelding>(value.decodeToString())
@@ -756,9 +774,9 @@ class TilsagnServiceTest : FunSpec({
                 agent = ansatt2,
             ).shouldBeRight().status shouldBe TilsagnStatus.ANNULLERT
 
-            value = database.run { queries.kafkaProducerRecord.getRecords(50, listOf(BESTILLING_TOPIC)) }
+            val value2 = database.run { queries.kafkaProducerRecord.getRecords(50, listOf(BESTILLING_TOPIC)) }
                 .shouldHaveSize(2).elementAt(1).value
-            Json.decodeFromString<OkonomiBestillingMelding>(value.decodeToString())
+            Json.decodeFromString<OkonomiBestillingMelding>(value2.decodeToString())
                 .shouldBeTypeOf<OkonomiBestillingMelding.Annullering>()
                 .payload.should {
                     it.bestillingsnummer shouldBe bestillingsnummer

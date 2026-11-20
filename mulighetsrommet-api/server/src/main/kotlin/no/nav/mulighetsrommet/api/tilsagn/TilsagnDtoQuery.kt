@@ -1,13 +1,16 @@
 package no.nav.mulighetsrommet.api.tilsagn
 
 import arrow.core.Either
-import arrow.core.left
 import arrow.core.nonEmptySetOf
-import arrow.core.right
+import arrow.core.raise.context.Raise
+import arrow.core.raise.context.either
+import arrow.core.raise.context.ensureNotNull
 import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollDto
 import no.nav.mulighetsrommet.api.ApiDatabase
+import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingType
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsatt
 import no.nav.mulighetsrommet.api.domain.navansatt.OkonomiAuthorization
+import no.nav.mulighetsrommet.api.domain.navansatt.OkonomiAuthorizationError
 import no.nav.mulighetsrommet.api.domain.navansatt.OkonomiBeslutningContext
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnBeregningDto
@@ -29,18 +32,16 @@ class TilsagnDtoQuery(
         id: UUID,
         navIdent: NavIdent,
         onBehalfOf: PersonaliaService.OnBehalfOf.NavAnsatt,
-    ): Either<TilsagnDtoQueryError, TilsagnDetaljerDto> {
+    ): Either<TilsagnDtoQueryError, TilsagnDetaljerDto> = either {
         val tilsagn = db.session { queries.tilsagn.get(id) }
-            ?: return TilsagnDtoQueryError.IkkeFunnet("Tilsagn med id=$id finnes ikke").left()
+        ensureNotNull(tilsagn) { TilsagnDtoQueryError.IkkeFunnet("Tilsagn med id=$id finnes ikke") }
 
         val ansatt = db.session { queries.ansatt.getOrError(navIdent) }
-        if (OkonomiAuthorization.kanLeseTilsagn(ansatt, tilsagn.gjennomforing.type).isLeft()) {
-            return TilsagnDtoQueryError.ManglerTilgang("Du mangler lesetilgang til tilsagnet").left()
-        }
+        ensureTilgangLeseTilsagn(ansatt, tilsagn.gjennomforing.type)
 
         val personalia = personaliaService.getPersonalia(tilsagn.deltakere.map { it.deltakerId }, onBehalfOf)
 
-        return db.session {
+        db.session {
             val opprettelse = queries.totrinnskontroll.getDtoOrError(id, TotrinnskontrollType.TILSAGN_OPPRETTELSE)
             val annullering = queries.totrinnskontroll.getDto(id, TotrinnskontrollType.TILSAGN_ANNULLERING)
             val tilOppgjor = queries.totrinnskontroll.getDto(id, TotrinnskontrollType.TILSAGN_OPPGJOR)
@@ -54,7 +55,17 @@ class TilsagnDtoQuery(
                 deltakere = tilsagn.deltakere.map {
                     TilsagnDeltakerDto.from(it, personalia.find { p -> p.deltakerId == it.deltakerId })
                 },
-            ).right()
+            )
+        }
+    }
+
+    context(errors: Raise<TilsagnDtoQueryError>)
+    private fun ensureTilgangLeseTilsagn(ansatt: NavAnsatt, gjennomforingType: GjennomforingType) {
+        OkonomiAuthorization.kanLeseTilsagn(ansatt, gjennomforingType).onLeft { error ->
+            when (error) {
+                is OkonomiAuthorizationError.ManglerTilgang -> errors.raise(TilsagnDtoQueryError.ManglerTilgang("Du mangler lesetilgang til tilsagnet", ansatt.navIdent, error.requiredRoles))
+                is OkonomiAuthorizationError.ManglerKontorspesifikkTilgang -> errors.raise(TilsagnDtoQueryError.ManglerTilgang("Du mangler kontorspesifikk lesetilgang til tilsagnet", ansatt.navIdent, error.requiredRoles))
+            }
         }
     }
 
