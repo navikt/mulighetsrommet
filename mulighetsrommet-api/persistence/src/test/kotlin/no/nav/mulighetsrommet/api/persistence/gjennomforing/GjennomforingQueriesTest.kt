@@ -100,6 +100,23 @@ class GjennomforingQueriesTest : FunSpec({
         }
     }
 
+    test("finner gjennomføringer på Arena-tiltaksnummer med både skråstrek og hash") {
+        database.runAndRollback {
+            val medHash = ArenaEnkelAmo.copy(id = UUID.randomUUID(), arenaTiltaksnummer = Tiltaksnummer("2026#42"))
+            val medSkrastrek = ArenaEnkelAmo.copy(id = UUID.randomUUID(), arenaTiltaksnummer = Tiltaksnummer("2026/42"))
+            val annetNummer = ArenaEnkelAmo.copy(id = UUID.randomUUID(), arenaTiltaksnummer = Tiltaksnummer("2026#43"))
+            gjennomforing.upsert(medHash)
+            gjennomforing.upsert(medSkrastrek)
+            gjennomforing.upsert(annetNummer)
+
+            gjennomforing.findIdsByArenaTiltaksnummer(Tiltaksnummer("2026/42"))
+                .shouldContainExactlyInAnyOrder(medHash.id, medSkrastrek.id)
+            gjennomforing.findIdsByArenaTiltaksnummer(Tiltaksnummer("2026#42"))
+                .shouldContainExactlyInAnyOrder(medHash.id, medSkrastrek.id)
+            gjennomforing.findIdsByArenaTiltaksnummer(Tiltaksnummer("2026/999999")).shouldBeEmpty()
+        }
+    }
+
     context("avtale") {
         test("lagre gjennomføring") {
             database.runAndRollback {

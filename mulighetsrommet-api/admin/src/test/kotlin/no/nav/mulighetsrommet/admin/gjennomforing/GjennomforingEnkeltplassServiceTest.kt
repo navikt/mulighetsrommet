@@ -4,6 +4,8 @@ import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.data.forAll
+import io.kotest.data.row
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldHaveSize
@@ -12,15 +14,22 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
+import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.admin.endringshistorikk.EndringshistorikkType
+import no.nav.mulighetsrommet.admin.navansatt.NavAnsattContext
 import no.nav.mulighetsrommet.admin.opplaring.OpplaringKategoriseringRequest
+import no.nav.mulighetsrommet.admin.personalia.PersonaliaPort
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
 import no.nav.mulighetsrommet.api.contracts.gjennomforing.TiltaksgjennomforingV2Dto
+import no.nav.mulighetsrommet.api.contracts.totrinnskontroll.TotrinnskontrollAgent
+import no.nav.mulighetsrommet.api.contracts.totrinnskontroll.TotrinnskontrollHendelse
 import no.nav.mulighetsrommet.api.domain.deltaker.Deltakelsesmengde
 import no.nav.mulighetsrommet.api.domain.gjennomforing.Artskontokode
+import no.nav.mulighetsrommet.api.domain.gjennomforing.Enkeltplass
 import no.nav.mulighetsrommet.api.domain.gjennomforing.Gjennomforing
+import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingArena
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingEnkeltplassStatus
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsatt
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsattRolle
@@ -28,6 +37,10 @@ import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd
 import no.nav.mulighetsrommet.api.domain.opplaring.OpplaringKategoriseringDetaljer
 import no.nav.mulighetsrommet.api.domain.opplaring.Sertifisering
+import no.nav.mulighetsrommet.api.domain.personalia.AvvistGrunn
+import no.nav.mulighetsrommet.api.domain.personalia.Gradering
+import no.nav.mulighetsrommet.api.domain.personalia.Personalia
+import no.nav.mulighetsrommet.api.domain.testing.fixture.AvtaleFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.BransjeFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.DeltakerFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.ForerkortFixtures
@@ -35,6 +48,7 @@ import no.nav.mulighetsrommet.api.domain.testing.fixture.KurstypeFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavAnsattFixture
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.PrismodellFixtures
+import no.nav.mulighetsrommet.api.domain.testing.fixture.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.UtdanningFixtures
 import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
 import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeFeature
@@ -53,6 +67,7 @@ import no.nav.mulighetsrommet.model.NorskIdentHasher
 import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Tiltaksnummer
+import no.nav.mulighetsrommet.tokenprovider.AccessType
 import no.nav.mulighetsrommet.validation.FieldError
 import java.time.Instant
 import java.time.LocalDate
@@ -102,17 +117,33 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
         database.truncateAll()
     }
 
+    val norskIdent = NorskIdent("12345678910")
+    val ansattContext = NavAnsattContext(NavAnsattFixture.DonaldDuck.navIdent, AccessType.OBO.AzureAd("test-token"))
+
+    fun personalia(deltakerId: UUID) = Personalia(
+        deltakerId = deltakerId,
+        norskIdent = norskIdent,
+        navn = "Test Testesen",
+        oppfolgingEnhet = null,
+        geografiskEnhet = null,
+        region = null,
+        gradering = Gradering.UGRADERT,
+        avvistGrunn = null,
+    )
+
     fun createService(
         features: Map<Tiltakskode, Set<TiltakstypeFeature>> = mapOf(),
+        personaliaPort: PersonaliaPort = mockk {
+            coEvery { getPersonaliaAsSystem(any()) } answers { personalia(firstArg()) }
+            coEvery { getPersonalia(any(), ansattContext.accessType) } answers { personalia(firstArg()) }
+        },
     ): GjennomforingEnkeltplassService {
         return GjennomforingEnkeltplassService(
             db = database.admin,
-            personaliaPort = mockk(),
+            personaliaPort = personaliaPort,
             tiltakstyper = TiltakstypeService(TiltakstypeService.Config(features), database.admin),
         )
     }
-
-    val norskIdent = NorskIdent("12345678910")
 
     val migrert = mapOf(Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING to setOf(TiltakstypeFeature.MIGRERT))
 
@@ -419,60 +450,6 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
         }
     }
 
-    context("synkroniserFraArena") {
-        val service = createService()
-
-        fun createUpsert(
-            id: UUID = UUID.randomUUID(),
-            navn: String? = null,
-        ) = UpsertArenaEnkeltplass(
-            id = id,
-            tiltakskode = Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
-            arrangorId = GjennomforingFixtures.EnkelAmo.arrangorId,
-            startDato = LocalDate.of(2025, 1, 1),
-            sluttDato = LocalDate.of(2025, 6, 1),
-            status = GjennomforingEnkeltplassStatus.Deltar,
-            ansvarligEnhet = requireNotNull(GjennomforingFixtures.EnkelAmo.ansvarligEnhet),
-            prismodell = UpsertEnkeltplass.Prismodell.Anskaffelse(1000),
-            navn = navn,
-        )
-
-        test("oppretter enkeltplass uten å sende økonomi til godkjenning") {
-            val upsert = createUpsert()
-
-            service.synkroniserFraArena(upsert).shouldBeRight()
-
-            service.get(upsert.id).shouldNotBeNull().okonomi.shouldBeNull()
-        }
-
-        test("publiseres til kafka når gjennomføring opprettes") {
-            val upsert = createUpsert()
-
-            service.synkroniserFraArena(upsert).shouldBeRight()
-
-            database.run {
-                kafkaProducerRecord.getRecords(10).shouldHaveSize(1).should { (first) ->
-                    first.topic shouldBe outboxConfig.sisteTiltaksgjennomforingerV2
-                    first.key shouldBe upsert.id.toString().toByteArray()
-                    first.value.decodeToString()
-                        .let { Json.decodeFromString<TiltaksgjennomforingV2Dto>(it) }
-                        .shouldBeTypeOf<TiltaksgjennomforingV2Dto.Enkeltplass>()
-                }
-            }
-        }
-
-        test("publiserer ikke til kafka når ingenting er endret") {
-            val upsert = createUpsert(navn = "Enkeltplass AMO")
-            service.synkroniserFraArena(upsert).shouldBeRight()
-
-            service.synkroniserFraArena(upsert).shouldBeRight()
-
-            database.run {
-                kafkaProducerRecord.getRecords(10).shouldHaveSize(1)
-            }
-        }
-    }
-
     context("behandling av økonomi for enkeltplasser") {
         val service = createService()
 
@@ -756,30 +733,13 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                 service.updateFromDeltaker(deltaker, norskIdent)
 
                 database.run {
-                    kafkaProducerRecord.getRecords(10, listOf(outboxConfig.sisteTiltaksgjennomforingerV2)).shouldBeEmpty()
+                    kafkaProducerRecord.getRecords(10, listOf(outboxConfig.sisteTiltaksgjennomforingerV2))
+                        .shouldBeEmpty()
                 }
             }
         }
 
         context("når tiltakstype er migrert") {
-            test("oppdaterer gjennomføring med datoer og status fra deltaker") {
-                val startDato = LocalDate.of(2025, 3, 1)
-                val sluttDato = LocalDate.of(2025, 6, 1)
-
-                val deltaker = DeltakerFixtures.createDeltaker(
-                    gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
-                    status = DeltakerStatusType.DELTAR,
-                    startDato = startDato,
-                    sluttDato = sluttDato,
-                )
-
-                val (gjennomforing) = createService(migrert).updateFromDeltaker(deltaker, norskIdent)
-
-                gjennomforing.startDato shouldBe startDato
-                gjennomforing.sluttDato shouldBe sluttDato
-                gjennomforing.status shouldBe GjennomforingEnkeltplassStatus.Deltar
-            }
-
             test("setter status FEILREGISTRERT når deltaker er FEILREGISTRERT") {
                 val deltaker = DeltakerFixtures.createDeltaker(
                     gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
@@ -989,7 +949,8 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                 service.updateFromDeltaker(deltaker, norskIdent)
 
                 database.run {
-                    kafkaProducerRecord.getRecords(10, listOf(outboxConfig.sisteTiltaksgjennomforingerV2)).shouldHaveSize(1)
+                    kafkaProducerRecord.getRecords(10, listOf(outboxConfig.sisteTiltaksgjennomforingerV2))
+                        .shouldHaveSize(1)
                 }
             }
         }
@@ -1010,7 +971,8 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                 }
 
                 database.run {
-                    kafkaProducerRecord.getRecords(10, listOf(outboxConfig.sisteTiltaksgjennomforingerV2)).shouldHaveSize(1)
+                    kafkaProducerRecord.getRecords(10, listOf(outboxConfig.sisteTiltaksgjennomforingerV2))
+                        .shouldHaveSize(1)
                 }
 
                 val andreBehandling = behandling(opprettetAv)
@@ -1030,7 +992,8 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                 database.run {
                     totrinnskontroll.getById(forsteBehandling.id).status shouldBe TotrinnskontrollStatus.RETURNERT
                     enkeltplassPrisendring.getByGjennomforingId(soktInn.id).shouldBeNull()
-                    kafkaProducerRecord.getRecords(10, listOf(outboxConfig.sisteTiltaksgjennomforingerV2)).shouldHaveSize(2)
+                    kafkaProducerRecord.getRecords(10, listOf(outboxConfig.sisteTiltaksgjennomforingerV2))
+                        .shouldHaveSize(2)
                 }
             }
 
@@ -1454,7 +1417,8 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                 ).shouldBeRight()
 
                 database.run {
-                    kafkaProducerRecord.getRecords(100, listOf(outboxConfig.sisteTiltaksgjennomforingerV2)).shouldHaveSize(1)
+                    kafkaProducerRecord.getRecords(100, listOf(outboxConfig.sisteTiltaksgjennomforingerV2))
+                        .shouldHaveSize(1)
                 }
 
                 service.settOkonomiGodkjent(soktInn.id, prisendring.id, besluttetAv).shouldBeRight()
@@ -1466,7 +1430,8 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                 database.run {
                     enkeltplassPrisendring.getByGjennomforingId(soktInn.id).shouldBeNull()
 
-                    kafkaProducerRecord.getRecords(100, listOf(outboxConfig.sisteTiltaksgjennomforingerV2)).shouldHaveSize(2)
+                    kafkaProducerRecord.getRecords(100, listOf(outboxConfig.sisteTiltaksgjennomforingerV2))
+                        .shouldHaveSize(2)
                 }
             }
 
@@ -1648,11 +1613,11 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
             }
 
             test("returnerer ventende økonomigodkjenning når deltaker blir IKKE_AKTUELL, AVBRUTT_UTKAST eller FEILREGISTRERT") {
-                listOf(
-                    DeltakerStatusType.IKKE_AKTUELL,
-                    DeltakerStatusType.AVBRUTT_UTKAST,
-                    DeltakerStatusType.FEILREGISTRERT,
-                ).forEach { deltakerStatus ->
+                forAll(
+                    row(DeltakerStatusType.IKKE_AKTUELL),
+                    row(DeltakerStatusType.AVBRUTT_UTKAST),
+                    row(DeltakerStatusType.FEILREGISTRERT),
+                ) { deltakerStatus ->
                     val service = createService(migrert)
                     val soktInn = createRequest()
                     val behandling = behandling(opprettetAv)
@@ -1704,6 +1669,402 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                     enkeltplassPrisendring.getByGjennomforingId(soktInn.id).shouldNotBeNull()
                 }
             }
+        }
+    }
+
+    context("migrerEnkeltplass") {
+        val arena = GjennomforingFixtures.ArenaEnkelAmo.copy(
+            startDato = LocalDate.of(2020, 1, 1),
+            sluttDato = LocalDate.of(2020, 12, 31),
+            arenaTiltaksnummer = Tiltaksnummer("2020#42"),
+            arenaAnsvarligEnhet = "0400",
+            prismodellId = null,
+            ansvarligEnhet = null,
+            artskontokode = Artskontokode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
+        )
+
+        beforeEach {
+            database.run { gjennomforing.upsert(arena) }
+        }
+
+        context("manuell migrering") {
+            val deltaker = DeltakerFixtures.createDeltaker(
+                gjennomforingId = arena.id,
+                status = DeltakerStatusType.DELTAR,
+                startDato = LocalDate.of(2026, 1, 1),
+                sluttDato = LocalDate.of(2026, 12, 31),
+                endretTidspunkt = Instant.parse("2026-01-02T10:00:00Z"),
+            )
+            val service = createService(migrert)
+
+            beforeEach {
+                database.run { this.deltaker.save(deltaker) }
+            }
+
+            test("høyere utdanning kan ikke migreres som anskaffet enkeltplass") {
+                val hoyereUtdanning = arena.copy(id = UUID.randomUUID(), tiltakskode = Tiltakskode.HOYERE_UTDANNING)
+                database.run {
+                    tiltakstype.save(TiltakstypeFixtures.HoyereUtdanning)
+                    gjennomforing.upsert(hoyereUtdanning)
+                    this.deltaker.save(
+                        DeltakerFixtures.createDeltaker(
+                            gjennomforingId = hoyereUtdanning.id,
+                            status = DeltakerStatusType.DELTAR,
+                            startDato = LocalDate.of(2026, 1, 1),
+                            sluttDato = null,
+                            endretTidspunkt = Instant.parse("2026-01-02T10:00:00Z"),
+                        ),
+                    )
+                }
+                val hoyereUtdanningService = createService(
+                    mapOf(Tiltakskode.HOYERE_UTDANNING to setOf(TiltakstypeFeature.MIGRERT)),
+                )
+
+                hoyereUtdanningService.migrerEnkeltplass(
+                    MigrerEnkeltplass(hoyereUtdanning.id, UpsertEnkeltplass.Prismodell.Anskaffelse(4200)),
+                    ansattContext,
+                ).shouldBeLeft()
+                    .shouldBeTypeOf<MigrerEnkeltplassError.Valideringsfeil>().errors shouldContainExactly listOf(
+                    FieldError("/type", "Høyere utdanning kan ikke ha prismodellen anskaffet enkeltplass"),
+                )
+
+                database.run { gjennomforing.getGjennomforing(hoyereUtdanning.id).shouldBeTypeOf<GjennomforingArena>() }
+            }
+
+            test("migrerer og lagrer tilskudd til opplæring uten beløp") {
+                val command = MigrerEnkeltplass(
+                    arena.id,
+                    UpsertEnkeltplass.Prismodell.TilskuddTilOpplaering(emptyMap(), "Etter søknad"),
+                )
+                service.migrerEnkeltplass(command, ansattContext).shouldBeRight()
+
+                val prismodell = service.get(arena.id).shouldNotBeNull()
+                    .gjennomforing.prismodell.shouldBeTypeOf<Prismodell.TilskuddTilOpplaering>()
+
+                prismodell.tilskudd shouldBe emptyMap()
+                prismodell.prisbetingelser shouldBe "Etter søknad"
+            }
+
+            test("migrerer og lagrer ingen kostnader med innsendt begrunnelse") {
+                val command = MigrerEnkeltplass(arena.id, UpsertEnkeltplass.Prismodell.IngenKostnader("Ingen utgifter"))
+                service.migrerEnkeltplass(command, ansattContext).shouldBeRight()
+
+                service.get(arena.id).shouldNotBeNull().gjennomforing.prismodell
+                    .shouldBeTypeOf<Prismodell.IngenKostnader>().prisbetingelser shouldBe "Ingen utgifter"
+            }
+
+            test("lagrer og publiserer økonomi for migrert enkeltplass") {
+                val command = MigrerEnkeltplass(arena.id, UpsertEnkeltplass.Prismodell.Anskaffelse(4200))
+                val enkeltplass = service.migrerEnkeltplass(command, ansattContext).shouldBeRight()
+
+                enkeltplass.gjennomforing.prismodell
+                    .shouldBeTypeOf<Prismodell.AnskaffetEnkeltplass>().totalbelop shouldBe 4200.NOK
+
+                val okonomi = enkeltplass.okonomi.shouldNotBeNull()
+                okonomi.status shouldBe TotrinnskontrollStatus.GODKJENT
+                okonomi.behandling.utfortAv shouldBe NavAnsattFixture.DonaldDuck.navIdent
+                okonomi.beslutning.shouldNotBeNull().utfortAv shouldBe Tiltaksadministrasjon
+
+                database.run {
+                    val record = kafkaProducerRecord.getRecords(10, listOf(outboxConfig.totrinnskontrollHendelseV2))
+                        .shouldHaveSize(1).single()
+                    Json.decodeFromString<TotrinnskontrollHendelse>(record.value.decodeToString()).should {
+                        it.status shouldBe TotrinnskontrollHendelse.Status.GODKJENT
+                        it.behandletAv shouldBe TotrinnskontrollAgent.NavAnsatt(NavAnsattFixture.DonaldDuck.navIdent)
+                        it.behandletBegrunnelse shouldBe "Migrert fra Arena"
+                        it.besluttetAv shouldBe TotrinnskontrollAgent.System("Tiltaksadministrasjon")
+                    }
+                }
+            }
+
+            test("publiserer migrert gjennomføring som enkeltplass") {
+                val command = MigrerEnkeltplass(arena.id, UpsertEnkeltplass.Prismodell.Anskaffelse(4200))
+                service.migrerEnkeltplass(command, ansattContext).shouldBeRight()
+
+                database.run {
+                    val record = kafkaProducerRecord.getRecords(10, listOf(outboxConfig.sisteTiltaksgjennomforingerV2))
+                        .shouldHaveSize(1).single()
+                    Json.decodeFromString<TiltaksgjennomforingV2Dto>(record.value.decodeToString())
+                        .shouldBeTypeOf<TiltaksgjennomforingV2Dto.Enkeltplass>().id shouldBe arena.id
+                }
+            }
+
+            test("fullført gjennomføring finnes på norsk ident rett etter migrering uten nye deltakerhendelser") {
+                database.run {
+                    this.deltaker.save(
+                        deltaker.registrerStatus(
+                            DeltakerStatusType.FULLFORT,
+                            endretTidspunkt = Instant.parse("2026-12-31T12:00:00Z"),
+                        ),
+                    )
+                }
+
+                val command = MigrerEnkeltplass(arena.id, UpsertEnkeltplass.Prismodell.Anskaffelse(4200))
+                service.migrerEnkeltplass(command, ansattContext).shouldBeRight()
+
+                database.run {
+                    gjennomforing.getAll(search = "12345678910").items.shouldBeEmpty()
+                    gjennomforing.getAll(search = NorskIdentHasher.hashIfNorskIdent("12345678910"))
+                        .items.map { it.id } shouldContainExactly listOf(arena.id)
+                }
+            }
+
+            test("migrering avvises uten persontilgang og lar gjennomføringen forbli ARENA") {
+                val personaliaPort = mockk<PersonaliaPort>()
+                coEvery {
+                    personaliaPort.getPersonalia(deltaker.id, ansattContext.accessType)
+                } returns personalia(deltaker.id).copy(avvistGrunn = AvvistGrunn.AVVIST_HABILITET)
+
+                createService(migrert, personaliaPort).migrerEnkeltplass(
+                    MigrerEnkeltplass(arena.id, UpsertEnkeltplass.Prismodell.Anskaffelse(4200)),
+                    ansattContext,
+                ).shouldBeLeft() shouldBe MigrerEnkeltplassError.ManglerTilgang(AvvistGrunn.AVVIST_HABILITET)
+
+                database.run { gjennomforing.getGjennomforing(arena.id).shouldBeTypeOf<GjennomforingArena>() }
+            }
+
+            test("feil ved personaliaoppslag avbryter migreringen og lar gjennomføringen forbli ARENA") {
+                val personaliaPort = mockk<PersonaliaPort>()
+                coEvery {
+                    personaliaPort.getPersonalia(deltaker.id, ansattContext.accessType)
+                } throws IllegalArgumentException("Fant ikke personalia")
+
+                shouldThrow<IllegalArgumentException> {
+                    createService(migrert, personaliaPort).migrerEnkeltplass(
+                        MigrerEnkeltplass(arena.id, UpsertEnkeltplass.Prismodell.Anskaffelse(4200)),
+                        ansattContext,
+                    )
+                }
+
+                database.run { gjennomforing.getGjennomforing(arena.id).shouldBeTypeOf<GjennomforingArena>() }
+            }
+
+            test("ugyldig prisinformasjon fører ikke til migrering") {
+                service.migrerEnkeltplass(
+                    MigrerEnkeltplass(arena.id, UpsertEnkeltplass.Prismodell.Anskaffelse(0)),
+                    ansattContext,
+                ).shouldBeLeft()
+                    .shouldBeTypeOf<MigrerEnkeltplassError.Valideringsfeil>().errors shouldContainExactly listOf(
+                    FieldError("/totalbelop", "Totalbeløp må være større enn 0"),
+                )
+
+                service.migrerEnkeltplass(
+                    MigrerEnkeltplass(
+                        arena.id,
+                        UpsertEnkeltplass.Prismodell.TilskuddTilOpplaering(
+                            mapOf(Opplaeringtilskudd.Kode.SEMESTERAVGIFT to 0),
+                            null,
+                        ),
+                    ),
+                    ansattContext,
+                ).shouldBeLeft()
+                    .shouldBeTypeOf<MigrerEnkeltplassError.Valideringsfeil>().errors shouldContainExactly listOf(
+                    FieldError("/tilskudd/SEMESTERAVGIFT", "Tilskuddsbeløp må være større enn 0"),
+                )
+
+                service.migrerEnkeltplass(
+                    MigrerEnkeltplass(arena.id, UpsertEnkeltplass.Prismodell.IngenKostnader(" ")),
+                    ansattContext,
+                ).shouldBeLeft()
+                    .shouldBeTypeOf<MigrerEnkeltplassError.Valideringsfeil>().errors shouldContainExactly listOf(
+                    FieldError("/prisbetingelser", "Begrunnelse må fylles ut"),
+                )
+
+                database.run { gjennomforing.getGjennomforing(arena.id).shouldBeTypeOf<GjennomforingArena>() }
+            }
+
+            test("gjentatt innsending overskriver ikke prisinformasjonen eller oppretter ny økonomigodkjenning") {
+                val command = MigrerEnkeltplass(arena.id, UpsertEnkeltplass.Prismodell.Anskaffelse(4200))
+                val enkeltplass = service.migrerEnkeltplass(command, ansattContext)
+                    .shouldBeRight()
+
+                service.migrerEnkeltplass(
+                    command.copy(prismodell = UpsertEnkeltplass.Prismodell.Anskaffelse(9999)),
+                    ansattContext,
+                ).shouldBeLeft() shouldBe MigrerEnkeltplassError.Valideringsfeil(
+                    listOf(FieldError.of("Gjennomføringen er allerede migrert til enkeltplass")),
+                )
+
+                service.get(arena.id) shouldBe enkeltplass
+            }
+        }
+
+        test("migrering bruker deltakerens periode og status") {
+            val deltaker = DeltakerFixtures.createDeltaker(
+                gjennomforingId = arena.id,
+                status = DeltakerStatusType.FULLFORT,
+                startDato = LocalDate.of(2025, 6, 1),
+                sluttDato = LocalDate.of(2026, 1, 1),
+                endretTidspunkt = Instant.parse("2026-01-02T10:00:00Z"),
+            )
+            database.run { this.deltaker.save(deltaker) }
+
+            val resultat = createService(migrert).migrerEnkeltplass(
+                MigrerEnkeltplass(arena.id, UpsertEnkeltplass.Prismodell.Anskaffelse(4200)),
+                ansattContext,
+            ).shouldBeRight()
+
+            resultat.gjennomforing.should {
+                it.status shouldBe GjennomforingEnkeltplassStatus.Fullfort
+                it.startDato shouldBe LocalDate.of(2025, 6, 1)
+                it.sluttDato shouldBe LocalDate.of(2026, 1, 1)
+            }
+        }
+
+        test("migrerer ikke deltakelse avsluttet før 2026") {
+            val deltaker = DeltakerFixtures.createDeltaker(
+                gjennomforingId = arena.id,
+                status = DeltakerStatusType.FULLFORT,
+                startDato = LocalDate.of(2025, 1, 1),
+                sluttDato = LocalDate.of(2025, 12, 31),
+                endretTidspunkt = Instant.parse("2026-01-02T10:00:00Z"),
+            )
+            database.run { this.deltaker.save(deltaker) }
+
+            val error = createService(migrert).migrerEnkeltplass(
+                MigrerEnkeltplass(arena.id, UpsertEnkeltplass.Prismodell.Anskaffelse(4200)),
+                ansattContext,
+            ).shouldBeLeft().shouldBeTypeOf<MigrerEnkeltplassError.Valideringsfeil>()
+
+            error.errors shouldContainExactly listOf(
+                FieldError.of("Deltakeren har ikke en relevant status og periode for migrering fra Arena"),
+            )
+            database.run {
+                gjennomforing.getGjennomforing(arena.id).shouldBeTypeOf<GjennomforingArena>()
+            }
+        }
+
+        test("beholder ARENA når gjennomføringen ikke har noen deltakere") {
+            createService(migrert).migrerEnkeltplass(
+                MigrerEnkeltplass(arena.id, UpsertEnkeltplass.Prismodell.Anskaffelse(4200)),
+                ansattContext,
+            ).shouldBeLeft()
+                .shouldBeTypeOf<MigrerEnkeltplassError.Valideringsfeil>().errors shouldContainExactly listOf(
+                FieldError.of("Gjennomføringen må ha nøyaktig én deltaker"),
+            )
+
+            database.run {
+                gjennomforing.getGjennomforing(arena.id).shouldBeTypeOf<GjennomforingArena>()
+            }
+        }
+
+        test("beholder ARENA når gjennomføringen har flere deltakere") {
+            database.run {
+                deltaker.save(
+                    DeltakerFixtures.createDeltaker(
+                        gjennomforingId = arena.id,
+                        startDato = LocalDate.of(2026, 1, 1),
+                        sluttDato = null,
+                        endretTidspunkt = Instant.parse("2026-01-02T10:00:00Z"),
+                    ),
+                )
+                deltaker.save(
+                    DeltakerFixtures.createDeltaker(
+                        gjennomforingId = arena.id,
+                        startDato = LocalDate.of(2026, 1, 1),
+                        sluttDato = null,
+                        endretTidspunkt = Instant.parse("2026-01-02T10:00:00Z"),
+                    ),
+                )
+            }
+
+            createService(migrert).migrerEnkeltplass(
+                MigrerEnkeltplass(arena.id, UpsertEnkeltplass.Prismodell.Anskaffelse(4200)),
+                ansattContext,
+            ).shouldBeLeft()
+                .shouldBeTypeOf<MigrerEnkeltplassError.Valideringsfeil>().errors shouldContainExactly listOf(
+                FieldError.of("Gjennomføringen må ha nøyaktig én deltaker"),
+            )
+
+            database.run {
+                gjennomforing.getGjennomforing(arena.id).shouldBeTypeOf<GjennomforingArena>()
+            }
+        }
+
+        test("migrerer ikke før tiltakstypen er migrert") {
+            database.run {
+                deltaker.save(
+                    DeltakerFixtures.createDeltaker(
+                        gjennomforingId = arena.id,
+                        startDato = LocalDate.of(2026, 1, 1),
+                        sluttDato = null,
+                        endretTidspunkt = Instant.parse("2026-01-02T10:00:00Z"),
+                    ),
+                )
+            }
+
+            createService().migrerEnkeltplass(
+                MigrerEnkeltplass(arena.id, UpsertEnkeltplass.Prismodell.Anskaffelse(4200)),
+                ansattContext,
+            ).shouldBeLeft()
+                .shouldBeTypeOf<MigrerEnkeltplassError.Valideringsfeil>().errors shouldContainExactly listOf(
+                FieldError.of("Tiltakstypen er ikke migrert"),
+            )
+        }
+
+        test("returnerer valideringsfeil når gjennomføringen ikke finnes") {
+            createService(migrert).migrerEnkeltplass(
+                MigrerEnkeltplass(UUID.randomUUID(), UpsertEnkeltplass.Prismodell.Anskaffelse(4200)),
+                ansattContext,
+            ).shouldBeLeft()
+                .shouldBeTypeOf<MigrerEnkeltplassError.Valideringsfeil>().errors shouldContainExactly listOf(
+                FieldError.of("Fant ikke gjennomføringen"),
+            )
+        }
+
+        test("returnerer valideringsfeil for avtalebasert gjennomføring") {
+            database.run {
+                prismodell.upsert(PrismodellFixtures.AvtaltPrisPerTimeOppfolging)
+                avtale.save(AvtaleFixtures.oppfolging)
+                gjennomforing.upsert(GjennomforingFixtures.Oppfolging1)
+            }
+
+            createService(migrert).migrerEnkeltplass(
+                MigrerEnkeltplass(GjennomforingFixtures.Oppfolging1.id, UpsertEnkeltplass.Prismodell.Anskaffelse(4200)),
+                ansattContext,
+            )
+                .shouldBeLeft()
+                .shouldBeTypeOf<MigrerEnkeltplassError.Valideringsfeil>().errors shouldContainExactly listOf(
+                FieldError.of(
+                    "Gjennomføringen er ikke av typen Arena",
+                ),
+            )
+        }
+
+        test("returnerer valideringsfeil for tiltakstype som ikke støtter migrering") {
+            val annen = arena.copy(id = UUID.randomUUID(), tiltakskode = Tiltakskode.ARBEIDSTRENING)
+            database.run { gjennomforing.upsert(annen) }
+
+            createService(migrert).migrerEnkeltplass(
+                MigrerEnkeltplass(annen.id, UpsertEnkeltplass.Prismodell.Anskaffelse(4200)),
+                ansattContext,
+            ).shouldBeLeft()
+                .shouldBeTypeOf<MigrerEnkeltplassError.Valideringsfeil>().errors shouldContainExactly listOf(
+                FieldError.of("Tiltakstypen støtter ikke migrering fra Arena"),
+            )
+        }
+
+        test("returnerer valideringsfeil når ansvarlig Nav-enhet mangler i Arena") {
+            database.run {
+                gjennomforing.upsert(arena.copy(arenaAnsvarligEnhet = null))
+                deltaker.save(
+                    DeltakerFixtures.createDeltaker(
+                        gjennomforingId = arena.id,
+                        status = DeltakerStatusType.DELTAR,
+                        startDato = LocalDate.of(2026, 1, 1),
+                        sluttDato = null,
+                        endretTidspunkt = Instant.parse("2026-01-02T10:00:00Z"),
+                    ),
+                )
+            }
+
+            createService(migrert).migrerEnkeltplass(
+                MigrerEnkeltplass(arena.id, UpsertEnkeltplass.Prismodell.Anskaffelse(4200)),
+                ansattContext,
+            ).shouldBeLeft()
+                .shouldBeTypeOf<MigrerEnkeltplassError.Valideringsfeil>().errors shouldContainExactly listOf(
+                FieldError.of("Gjennomføringen mangler ansvarlig Nav-enhet fra Arena"),
+            )
         }
     }
 })

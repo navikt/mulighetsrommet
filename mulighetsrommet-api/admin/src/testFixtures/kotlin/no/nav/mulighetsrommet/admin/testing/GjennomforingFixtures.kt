@@ -6,6 +6,7 @@ import no.nav.mulighetsrommet.admin.gjennomforing.GjennomforingVeilederinfoReque
 import no.nav.mulighetsrommet.api.domain.avtale.Avtale
 import no.nav.mulighetsrommet.api.domain.gjennomforing.AnsvarligEnhet
 import no.nav.mulighetsrommet.api.domain.gjennomforing.Gjennomforing
+import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingArena
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingAvtaleDetaljer
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingAvtaleKompakt
@@ -30,6 +31,33 @@ import java.time.LocalDate
 import java.util.UUID
 
 object GjennomforingFixtures {
+    fun createGjennomforingArena(
+        id: UUID = UUID.randomUUID(),
+        tiltaksnummer: Tiltaksnummer = Tiltaksnummer("2020#42"),
+    ) = GjennomforingArena(
+        id = id,
+        lopenummer = Tiltaksnummer("2020/10000"),
+        tiltakstype = Gjennomforing.Tiltakstype(UUID.randomUUID(), "Enkel AMO", Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING),
+        artskontokode = null,
+        arrangor = Gjennomforing.ArrangorUnderenhet(
+            id = ArrangorFixtures.underenhet1.id,
+            organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
+            navn = ArrangorFixtures.underenhet1.navn,
+            slettet = false,
+        ),
+        arena = Gjennomforing.ArenaData(tiltaksnummer, "0400"),
+        navn = "Enkel AMO",
+        status = GjennomforingAvtaleStatus.Avsluttet,
+        startDato = LocalDate.of(2020, 1, 1),
+        sluttDato = LocalDate.of(2020, 12, 31),
+        deltidsprosent = 100.0,
+        antallPlasser = 1,
+        opprettetTidspunkt = Instant.parse("2020-01-01T00:00:00Z"),
+        oppdatertTidspunkt = Instant.parse("2020-12-31T00:00:00Z"),
+        oppstart = GjennomforingOppstartstype.ENKELTPLASS,
+        pameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,
+    )
+
     fun createGjennomforingAvtale(
         id: UUID = UUID.randomUUID(),
         navn: String = "Test gjennomføring",

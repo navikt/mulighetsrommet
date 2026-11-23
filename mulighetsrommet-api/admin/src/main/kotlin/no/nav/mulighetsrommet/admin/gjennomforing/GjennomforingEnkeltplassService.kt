@@ -11,6 +11,7 @@ import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.mulighetsrommet.admin.AdminDatabase
 import no.nav.mulighetsrommet.admin.QueryContext
 import no.nav.mulighetsrommet.admin.endringshistorikk.EndringshistorikkType
+import no.nav.mulighetsrommet.admin.navansatt.NavAnsattContext
 import no.nav.mulighetsrommet.admin.opplaring.OpplaringKategoriseringRequest
 import no.nav.mulighetsrommet.admin.personalia.PersonaliaPort
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
@@ -18,7 +19,7 @@ import no.nav.mulighetsrommet.admin.totrinnskontroll.toFieldErrors
 import no.nav.mulighetsrommet.api.domain.deltaker.Deltaker
 import no.nav.mulighetsrommet.api.domain.gjennomforing.Enkeltplass
 import no.nav.mulighetsrommet.api.domain.gjennomforing.Gjennomforing
-import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingAvtale
+import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingArena
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingEnkeltplassStatus
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingType
@@ -228,30 +229,30 @@ class GjennomforingEnkeltplassService(
         }
     }
 
-    /**
-     * TODO: kan denne slettes?
-     * Ila. høsten 2026 skal enkeltplassene (ENKELAMO, ENKFAGYRKE, HOYEREUTD) migreres fra Arena og de aktive
-     * gjennomføringene må bli tilgjengelige i Tiltadm.
-     * Det er fortsatt litt uklart hvordan vi gjør dette (f.eks. basert på status vs. cutoff-dato), så foreløpig
-     * står denne rutinen ubrukt.
-     */
-    fun synkroniserFraArena(
-        upsert: UpsertArenaEnkeltplass,
-    ): Validated<GjennomforingEnkeltplass> = db.transaction {
-        return@transaction when (val gjennomforing = repository.gjennomforing.getGjennomforing(upsert.id)) {
-            is GjennomforingAvtale -> FieldError.of("Gjennomføring er ikke av typen enkeltplass").nel().left()
+    suspend fun migrerEnkeltplass(
+        command: MigrerEnkeltplass,
+        context: NavAnsattContext,
+    ): Either<MigrerEnkeltplassError, Enkeltplass> {
+        val prismodell = validerPrisinformasjon(command.prismodell)
+            .getOrElse { return MigrerEnkeltplassError.Valideringsfeil(it).left() }
 
-            is GjennomforingEnkeltplass if (!harEnkeltplassEndringer(upsert, gjennomforing)) -> gjennomforing.right()
+        val kandidat = db.session { finnMigreringskandidat(command.id) }
+            .getOrElse { return MigrerEnkeltplassError.Valideringsfeil(it).left() }
 
-            null -> upsert(upsert)
-                .also { updateFreeTextSearch(it, norskIdent = null) }
-                .also { publishTiltaksgjennomforingV2ToKafka(it) }
-                .right()
-
-            else -> upsert(upsert)
-                .also { publishTiltaksgjennomforingV2ToKafka(it) }
-                .right()
+        if (kandidat.gjennomforing.tiltakstype.tiltakskode == Tiltakskode.HOYERE_UTDANNING &&
+            prismodell is UpsertEnkeltplass.Prismodell.Anskaffelse
+        ) {
+            return MigrerEnkeltplassError.Valideringsfeil(
+                FieldError("/type", "Høyere utdanning kan ikke ha prismodellen anskaffet enkeltplass").nel(),
+            ).left()
         }
+
+        val norskIdent = personaliaPort.getPersonalia(kandidat.deltaker.id, context.accessType).let { personalia ->
+            personalia.avvistGrunn?.let { return MigrerEnkeltplassError.ManglerTilgang(it).left() }
+            requireNotNull(personalia.norskIdent())
+        }
+
+        return migrerFraArena(kandidat, prismodell, context.navIdent, norskIdent).right()
     }
 
     suspend fun updateArenaData(
@@ -417,6 +418,101 @@ class GjennomforingEnkeltplassService(
         }
 
         settOkonomiPaVent(id, okonomi, navIdent, begrunnelse).mapLeft(EnkeltplassBeslutningError::Valideringsfeil)
+    }
+
+    private fun validerPrisinformasjon(prisinformasjon: UpsertEnkeltplass.Prismodell): Validated<UpsertEnkeltplass.Prismodell> {
+        val prismodell = when (prisinformasjon) {
+            is UpsertEnkeltplass.Prismodell.Anskaffelse -> {
+                val totalbelop = prisinformasjon.totalbelop.takeIf { it > 0 }
+                    ?: return FieldError.of(
+                        "Totalbeløp må være større enn 0",
+                        UpsertEnkeltplass.Prismodell.Anskaffelse::totalbelop,
+                    ).nel().left()
+                UpsertEnkeltplass.Prismodell.Anskaffelse(totalbelop)
+            }
+
+            is UpsertEnkeltplass.Prismodell.TilskuddTilOpplaering -> {
+                prisinformasjon.tilskudd.forEach { (type, belop) ->
+                    if (belop <= 0) {
+                        return FieldError(
+                            "/tilskudd/${type.name}",
+                            "Tilskuddsbeløp må være større enn 0",
+                        ).nel().left()
+                    }
+                }
+                prisinformasjon.copy(
+                    prisbetingelser = prisinformasjon.prisbetingelser?.trim()?.takeIf { it.isNotEmpty() },
+                )
+            }
+
+            is UpsertEnkeltplass.Prismodell.IngenKostnader -> {
+                val prisbetingelser = prisinformasjon.prisbetingelser.trim().takeIf { it.isNotEmpty() }
+                    ?: return FieldError.of(
+                        "Begrunnelse må fylles ut",
+                        UpsertEnkeltplass.Prismodell.IngenKostnader::prisbetingelser,
+                    ).nel().left()
+                UpsertEnkeltplass.Prismodell.IngenKostnader(prisbetingelser)
+            }
+        }
+        return prismodell.right()
+    }
+
+    private fun QueryContext.finnMigreringskandidat(id: UUID): Validated<Migreringskandidat> {
+        val gjennomforing = repository.gjennomforing.getGjennomforing(id)
+            ?: return FieldError.of("Fant ikke gjennomføringen").nel().left()
+
+        if (gjennomforing is GjennomforingEnkeltplass) {
+            return FieldError.of("Gjennomføringen er allerede migrert til enkeltplass").nel().left()
+        }
+
+        if (gjennomforing !is GjennomforingArena) {
+            return FieldError.of("Gjennomføringen er ikke av typen Arena").nel().left()
+        }
+
+        return validerMigreringskandidat(gjennomforing, tiltakstyper)
+    }
+
+    private fun migrerFraArena(
+        kandidat: Migreringskandidat,
+        prismodell: UpsertEnkeltplass.Prismodell,
+        navIdent: NavIdent,
+        norskIdent: NorskIdent,
+    ): Enkeltplass = db.transaction {
+        val (gjennomforing, deltaker, ansvarligEnhet) = kandidat
+        commands.gjennomforing.aquireLock(gjennomforing.id)
+
+        val upsert = UpsertArenaEnkeltplass(
+            id = gjennomforing.id,
+            tiltakskode = gjennomforing.tiltakstype.tiltakskode,
+            arrangorId = gjennomforing.arrangor.id,
+            navn = gjennomforing.navn,
+            status = toGjennomforingEnkeltplassStatus(deltaker.status.type),
+            startDato = deltaker.startDato,
+            sluttDato = deltaker.sluttDato,
+            deltidsprosent = deltaker.deltakelsesmengder.lastOrNull()?.deltakelsesprosent?.toDouble() ?: 100.0,
+            antallPlasser = gjennomforing.antallPlasser,
+            arenaTiltaksnummer = gjennomforing.arena?.tiltaksnummer,
+            arenaAnsvarligEnhet = gjennomforing.arena?.ansvarligNavEnhet,
+            ansvarligEnhet = ansvarligEnhet,
+            prismodell = prismodell,
+        )
+        upsert(upsert)
+            .also { updateFreeTextSearch(it, norskIdent) }
+            .also { publishTiltaksgjennomforingV2ToKafka(it) }
+
+        val okonomi = Totrinnskontroll.opprett(
+            id = UUID.randomUUID(),
+            entityId = gjennomforing.id,
+            type = TotrinnskontrollType.ENKELTPLASS_OKONOMI,
+            behandletAv = navIdent,
+            behandletBegrunnelse = "Migrert fra Arena",
+        ).godkjenn(Tiltaksadministrasjon).getOrElse {
+            error("Klarte ikke godkjenne økonomi ved migrering fra Arena")
+        }
+        queries.totrinnskontroll.upsert(okonomi)
+        outbox.publish(okonomi)
+
+        logEndring("Migrert fra Arena", gjennomforing.id, navIdent)
     }
 
     private fun endringsloggFraDeltakelse(

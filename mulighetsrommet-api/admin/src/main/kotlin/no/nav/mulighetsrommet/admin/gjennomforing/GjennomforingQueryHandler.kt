@@ -10,10 +10,13 @@ import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
+import no.nav.mulighetsrommet.model.Tiltaksnummer
 import java.time.LocalDate
 import java.util.UUID
 
 interface GjennomforingQueryHandler {
+    fun findIdsByArenaTiltaksnummer(tiltaksnummer: Tiltaksnummer): List<UUID>
+
     fun getAll(
         pagination: Pagination = Pagination.all(),
         search: String? = null,
