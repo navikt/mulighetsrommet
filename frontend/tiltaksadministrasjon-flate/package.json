@@ -22,7 +22,7 @@
   "dependencies": {
     "@grafana/faro-web-sdk": "2.13.0",
     "@highcharts/react": "5.4.0",
-    "@hookform/resolvers": "7.0.5",
+    "@hookform/resolvers": "7.0.6",
     "@mr/frontend-common": "workspace:*",
     "@navikt/aksel-icons": "8.22.1",
     "@navikt/ds-css": "8.22.1",
@@ -44,7 +44,7 @@
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "react-error-boundary": "6.1.6",
-    "react-hook-form": "7.91.0",
+    "react-hook-form": "7.92.0",
     "react-router": "8.5.1",
     "uuid": "14.0.3",
     "zod": "4.6.7"
@@ -61,13 +61,13 @@
     "@vitejs/plugin-react": "6.3.0",
     "axe-core": "4.14.0",
     "cross-env": "10.1.0",
-    "eslint": "10.14.0",
-    "msw": "3.0.4",
+    "eslint": "10.15.0",
+    "msw": "3.0.6",
     "playwright": "1.65.0",
-    "postcss": "8.5.32",
+    "postcss": "8.5.33",
     "tailwindcss": "4.3.5",
     "typescript": "6.0.3",
-    "vite": "8.3.6",
+    "vite": "8.3.8",
     "vitest": "5.1.0"
   },
   "msw": {

@@ -14,14 +14,14 @@
   "dependencies": {
     "@date-fns/tz": "1.5.0",
     "@date-fns/utc": "2.1.1",
-    "@hookform/resolvers": "7.0.5",
+    "@hookform/resolvers": "7.0.6",
     "@portabletext/react": "8.0.1",
     "@tanstack/react-query": "5.107.1",
     "classnames": "2.5.1",
     "date-fns": "4.4.0",
     "date-fns-tz": "^3.2.0",
     "react-error-boundary": "6.1.6",
-    "react-hook-form": "7.91.0",
+    "react-hook-form": "7.92.0",
     "zod": "4.6.7"
   },
   "peerDependencies": {
@@ -41,8 +41,8 @@
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
     "@vitejs/plugin-react": "6.3.0",
-    "eslint": "10.14.0",
-    "postcss": "8.5.32",
+    "eslint": "10.15.0",
+    "postcss": "8.5.33",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "react-router": "8.5.1",
