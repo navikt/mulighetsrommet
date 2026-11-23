@@ -50,7 +50,7 @@ export function TiltakTilgjengeligForArrangor({ gjennomforing }: Props) {
   const today = new Date();
   const tilgjengeligForArrangorDato = gjennomforing.tilgjengeligForArrangorDato
     ? new Date(gjennomforing.tilgjengeligForArrangorDato)
-    : maxOf([subDuration(gjennomforingStartDato, { days: 14 }), today]);
+    : maxOf([subDuration(gjennomforingStartDato, { days: 14 }), gjennomforing.opprettetDato]);
 
   const id = "form-tilgjengelig-for-arrangor";
 
