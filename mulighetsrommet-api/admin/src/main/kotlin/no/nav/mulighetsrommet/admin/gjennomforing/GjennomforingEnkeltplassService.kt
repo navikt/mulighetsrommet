@@ -105,7 +105,6 @@ class GjennomforingEnkeltplassService(
     private val personaliaPort: PersonaliaPort,
     private val tiltakstyper: TiltakstypeService,
 ) {
-
     fun opprettUtkast(utkast: UpsertEnkeltplass, opprettetAv: NavIdent): Validated<Enkeltplass> = db.transaction {
         val enkeltplass = getEnkeltplass(utkast.id)
         if (enkeltplass != null) {
@@ -283,7 +282,9 @@ class GjennomforingEnkeltplassService(
             getEnkeltplassOrError(id)
                 .also { updateFreeTextSearch(it.gjennomforing, personalia?.norskIdent()) }
                 .also { publishTiltaksgjennomforingV2ToKafka(it.gjennomforing) }
-                .also { logEndring("Oppdatert med tiltaksnummer fra Arena", it.gjennomforing.id, Tiltaksadministrasjon) }
+                .also {
+                    logEndring("Oppdatert med tiltaksnummer fra Arena", it.gjennomforing.id, Tiltaksadministrasjon)
+                }
         }
     }
 
@@ -316,28 +317,9 @@ class GjennomforingEnkeltplassService(
         upsert(upsert)
             .also { publishTiltaksgjennomforingV2ToKafka(it) }
             .also { haandterAvsluttendeStatus(enkeltplass, deltaker.status.type) }
-            .let { logEndring(endringsloggFraDeltakelse(upsert, enkeltplass.gjennomforing), it.id, Tiltaksadministrasjon) }
-    }
-
-    private fun endringsloggFraDeltakelse(
-        upsert: UpsertArenaEnkeltplass,
-        gjennomforing: GjennomforingEnkeltplass,
-    ): String {
-        val muligeEndringer = listOfNotNull(
-            "periode".takeIf { upsert.startDato != gjennomforing.startDato || upsert.sluttDato != gjennomforing.sluttDato },
-            "status".takeIf { upsert.status != gjennomforing.status },
-            "deltidsprosent".takeIf { upsert.deltidsprosent != gjennomforing.deltidsprosent },
-        )
-        // Vi er garantert at minst en av disser er forskjellig etter harEnkeltplassEndringer-sjekken,
-        // Hvis det ikke lengre er tilfellet, burde man se på dette på nytt
-        require(muligeEndringer.isNotEmpty())
-        val forsteEndring = muligeEndringer[0].replaceFirstChar { it.uppercase() }
-        val endringer = when (muligeEndringer.size) {
-            1 -> forsteEndring
-            2 -> "$forsteEndring og ${muligeEndringer[1]}"
-            else -> "$forsteEndring, ${muligeEndringer.drop(1).dropLast(1).joinToString(", ")} og ${muligeEndringer.last()}"
-        }
-        return "$endringer er oppdatert på deltakelsen"
+            .let {
+                logEndring(endringsloggFraDeltakelse(upsert, enkeltplass.gjennomforing), it.id, Tiltaksadministrasjon)
+            }
     }
 
     fun get(id: UUID): Enkeltplass? = db.session {
@@ -389,17 +371,9 @@ class GjennomforingEnkeltplassService(
             ).left()
         }
 
-        return@transaction settOkonomiGodkjent(id, okonomi, navIdent).mapLeft(EnkeltplassBeslutningError::Valideringsfeil)
-    }
-
-    private fun QueryContext.erPrisendringTrukketTilbake(
-        gjennomforingId: UUID,
-        totrinnskontrollId: UUID,
-    ): Boolean {
-        val historiskKontroll = queries.totrinnskontroll.findById(totrinnskontrollId) ?: return false
-        return historiskKontroll.entityId == gjennomforingId &&
-            historiskKontroll.type == TotrinnskontrollType.ENKELTPLASS_PRISENDRING &&
-            historiskKontroll.status == TotrinnskontrollStatus.RETURNERT
+        return@transaction settOkonomiGodkjent(id, okonomi, navIdent).mapLeft {
+            EnkeltplassBeslutningError.Valideringsfeil(it)
+        }
     }
 
     fun settOkonomiPaVent(
@@ -443,6 +417,42 @@ class GjennomforingEnkeltplassService(
         }
 
         settOkonomiPaVent(id, okonomi, navIdent, begrunnelse).mapLeft(EnkeltplassBeslutningError::Valideringsfeil)
+    }
+
+    private fun endringsloggFraDeltakelse(
+        upsert: UpsertArenaEnkeltplass,
+        gjennomforing: GjennomforingEnkeltplass,
+    ): String {
+        val muligeEndringer = listOfNotNull(
+            "periode".takeIf { upsert.startDato != gjennomforing.startDato || upsert.sluttDato != gjennomforing.sluttDato },
+            "status".takeIf { upsert.status != gjennomforing.status },
+            "deltidsprosent".takeIf { upsert.deltidsprosent != gjennomforing.deltidsprosent },
+        )
+        // Vi er garantert at minst en av disser er forskjellig etter harEnkeltplassEndringer-sjekken,
+        // Hvis det ikke lengre er tilfellet, burde man se på dette på nytt
+        require(muligeEndringer.isNotEmpty())
+        val forsteEndring = muligeEndringer[0].replaceFirstChar { it.uppercase() }
+        val endringer = when (muligeEndringer.size) {
+            1 -> forsteEndring
+
+            2 -> "$forsteEndring og ${muligeEndringer[1]}"
+
+            else -> {
+                val andreEndring = muligeEndringer.drop(1).dropLast(1).joinToString(", ")
+                "$forsteEndring, $andreEndring og ${muligeEndringer.last()}"
+            }
+        }
+        return "$endringer er oppdatert på deltakelsen"
+    }
+
+    private fun QueryContext.erPrisendringTrukketTilbake(
+        gjennomforingId: UUID,
+        totrinnskontrollId: UUID,
+    ): Boolean {
+        val historiskKontroll = queries.totrinnskontroll.findById(totrinnskontrollId) ?: return false
+        return historiskKontroll.entityId == gjennomforingId &&
+            historiskKontroll.type == TotrinnskontrollType.ENKELTPLASS_PRISENDRING &&
+            historiskKontroll.status == TotrinnskontrollStatus.RETURNERT
     }
 
     private fun QueryContext.kanBeslutteEnkeltplass(enkeltplass: Enkeltplass, navIdent: NavIdent): Boolean {
