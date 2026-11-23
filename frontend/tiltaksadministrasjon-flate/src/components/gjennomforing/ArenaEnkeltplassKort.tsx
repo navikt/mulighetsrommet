@@ -20,12 +20,12 @@ export function ArenaEnkeltplassKort({ kandidat }: { kandidat: ArenaEnkeltplassD
           <VStack gap="space-16" align="start">
             <VStack gap="space-4">
               <Heading level="3" size="small">
-                {kandidat.tiltaksnummer}
+                {kandidat.tiltakstype.navn} ({kandidat.tiltaksnummer})
               </Heading>
               <BodyShort textColor="subtle">
-                {kandidat.tiltakstype.navn} – {kandidat.arrangor.navn}
+                {kandidat.arrangor.navn} ({kandidat.arrangor.organisasjonsnummer})
               </BodyShort>
-              <BodyShort textColor="subtle">
+              <BodyShort>
                 Denne enkeltplassen er i Arena og må migreres for å kunne benyttes i
                 Tiltaksadministrasjon.
               </BodyShort>
