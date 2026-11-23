@@ -4,7 +4,8 @@ on:
   push:
     paths:
       - .github/workflows/check-openapi-specs.yaml
-      - mulighetsrommet-api/server/src/**
+      - mulighetsrommet-api/server/src/main/**
+      - mulighetsrommet-api/admin/src/main/**
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
