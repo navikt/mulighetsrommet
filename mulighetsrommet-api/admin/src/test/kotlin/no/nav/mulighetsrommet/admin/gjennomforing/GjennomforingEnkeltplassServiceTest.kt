@@ -958,6 +958,20 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
         context("endrePrisinformasjon") {
             val service = createService()
 
+            test("ugyldig prisinformasjon endrer ikke pris eller økonomi på en vanlig enkeltplass") {
+                val soktInn = createRequest()
+                val enkeltplass = service.soktInn(soktInn, behandling(opprettetAv)).shouldBeRight()
+                val prisBehandling = behandling(opprettetAv)
+
+                service.endrePrisinformasjon(
+                    soktInn.id,
+                    UpsertEnkeltplass.Prismodell.Anskaffelse(0),
+                    prisBehandling,
+                ).shouldBeLeft() shouldBe listOf(FieldError("/totalbelop", "Totalbeløp må være større enn 0"))
+
+                service.get(soktInn.id) shouldBe enkeltplass
+            }
+
             test("returnerer gammel okonomi og oppretter ny TIL_BEHANDLING når gammel økonomi er TIL_BEHANDLING") {
                 val soktInn = createRequest()
                 val forsteBehandling = behandling(opprettetAv)
@@ -1162,13 +1176,14 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                 }
             }
 
-            test("returnerer feil økonomi er RETURNERT") {
+            test("avviser prisendring når økonomi er RETURNERT") {
                 val soktInn = createRequest()
-                val enkeltplass = service.soktInn(soktInn, behandling(opprettetAv)).shouldBeRight()
+                val forsteBehandling = behandling(opprettetAv)
+                val enkeltplass = service.soktInn(soktInn, forsteBehandling).shouldBeRight()
 
                 // Simuler ugyldig tilstand - tjenesten tillater foreløpig ikke å sette status RETURNERT (kun SATT_PA_VENT)
                 database.run {
-                    enkeltplass.okonomi!!.returner(besluttetAv).onRight { totrinnskontroll.upsert(it) }
+                    totrinnskontroll.upsert(enkeltplass.okonomi.shouldNotBeNull().returner(besluttetAv).shouldBeRight())
                 }
 
                 service.endrePrisinformasjon(
@@ -1672,7 +1687,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
         }
     }
 
-    context("migrerEnkeltplass") {
+    context("migrering av enkeltplass") {
         val arena = GjennomforingFixtures.ArenaEnkelAmo.copy(
             startDato = LocalDate.of(2020, 1, 1),
             sluttDato = LocalDate.of(2020, 12, 31),
@@ -1687,7 +1702,89 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
             database.run { gjennomforing.upsert(arena) }
         }
 
-        context("manuell migrering") {
+        context("migrerEnkeltplassTilGodkjenning") {
+            val deltaker = DeltakerFixtures.createDeltaker(
+                gjennomforingId = arena.id,
+                status = DeltakerStatusType.DELTAR,
+                startDato = LocalDate.of(2026, 1, 1),
+                sluttDato = null,
+                endretTidspunkt = Instant.parse("2026-01-02T10:00:00Z"),
+            )
+            val service = createService(migrert)
+
+            beforeEach {
+                database.run { this.deltaker.save(deltaker) }
+            }
+
+            test("migrerer med økonomi til vanlig godkjenning") {
+                val behandling = behandling(opprettetAv, "Oppdatert pris fra veileder")
+                service.migrerEnkeltplassTilGodkjenning(
+                    MigrerEnkeltplass(arena.id, UpsertEnkeltplass.Prismodell.Anskaffelse(4200)),
+                    behandling,
+                ).shouldBeRight()
+
+                val enkeltplass = service.get(arena.id).shouldNotBeNull()
+                enkeltplass.gjennomforing.should {
+                    it.startDato shouldBe LocalDate.of(2026, 1, 1)
+                    it.sluttDato.shouldBeNull()
+                    it.status shouldBe GjennomforingEnkeltplassStatus.Deltar
+                    it.prismodell.shouldBeTypeOf<Prismodell.AnskaffetEnkeltplass>().totalbelop shouldBe 4200.NOK
+                }
+                enkeltplass.prisendring.shouldBeNull()
+                enkeltplass.okonomi.shouldNotBeNull().should {
+                    it.id shouldBe behandling.id
+                    it.type shouldBe TotrinnskontrollType.ENKELTPLASS_OKONOMI
+                    it.status shouldBe TotrinnskontrollStatus.TIL_BEHANDLING
+                    it.behandling.utfortAv shouldBe opprettetAv
+                    it.behandling.begrunnelse shouldBe "Oppdatert pris fra veileder"
+                    it.beslutning.shouldBeNull()
+                }
+                database.run {
+                    val record = kafkaProducerRecord.getRecords(10, listOf(outboxConfig.totrinnskontrollHendelseV2))
+                        .shouldHaveSize(1).single()
+                    Json.decodeFromString<TotrinnskontrollHendelse>(record.value.decodeToString()).should {
+                        it.id shouldBe behandling.id
+                        it.status shouldBe TotrinnskontrollHendelse.Status.TIL_BEHANDLING
+                        it.besluttetAv.shouldBeNull()
+                    }
+                }
+            }
+
+            test("ugyldig prisinformasjon lar gjennomføringen forbli ARENA uten økonomi eller hendelser") {
+                val prisBehandling = behandling(opprettetAv)
+
+                service.migrerEnkeltplassTilGodkjenning(
+                    MigrerEnkeltplass(arena.id, UpsertEnkeltplass.Prismodell.Anskaffelse(0)),
+                    prisBehandling,
+                ) shouldBeLeft MigrerEnkeltplassError.Valideringsfeil(
+                    listOf(FieldError("/totalbelop", "Totalbeløp må være større enn 0")),
+                )
+
+                database.run {
+                    gjennomforing.getGjennomforing(arena.id).shouldBeTypeOf<GjennomforingArena>()
+                    totrinnskontroll.findById(prisBehandling.id).shouldBeNull()
+                    kafkaProducerRecord.getRecords(10, listOf(outboxConfig.totrinnskontrollHendelseV2)).shouldBeEmpty()
+                }
+            }
+
+            test("beholder ARENA når gjennomføringen ikke har noen deltakere") {
+                database.run { this.deltaker.delete(deltaker.id) }
+                val service = createService(migrert, mockk())
+
+                service.migrerEnkeltplassTilGodkjenning(
+                    MigrerEnkeltplass(arena.id, UpsertEnkeltplass.Prismodell.Anskaffelse(4200)),
+                    behandling(opprettetAv),
+                ) shouldBeLeft MigrerEnkeltplassError.Valideringsfeil(
+                    listOf(FieldError.of("Gjennomføringen må ha nøyaktig én deltaker")),
+                )
+
+                database.run {
+                    gjennomforing.getGjennomforing(arena.id).shouldBeTypeOf<GjennomforingArena>()
+                }
+            }
+        }
+
+        context("migrerEnkeltplass") {
             val deltaker = DeltakerFixtures.createDeltaker(
                 gjennomforingId = arena.id,
                 status = DeltakerStatusType.DELTAR,
@@ -1723,9 +1820,8 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                 hoyereUtdanningService.migrerEnkeltplass(
                     MigrerEnkeltplass(hoyereUtdanning.id, UpsertEnkeltplass.Prismodell.Anskaffelse(4200)),
                     ansattContext,
-                ).shouldBeLeft()
-                    .shouldBeTypeOf<MigrerEnkeltplassError.Valideringsfeil>().errors shouldContainExactly listOf(
-                    FieldError("/type", "Høyere utdanning kan ikke ha prismodellen anskaffet enkeltplass"),
+                ) shouldBeLeft MigrerEnkeltplassError.Valideringsfeil(
+                    listOf(FieldError("/type", "Høyere utdanning kan ikke ha prismodellen anskaffet enkeltplass")),
                 )
 
                 database.run { gjennomforing.getGjennomforing(hoyereUtdanning.id).shouldBeTypeOf<GjennomforingArena>() }
@@ -1818,7 +1914,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                 createService(migrert, personaliaPort).migrerEnkeltplass(
                     MigrerEnkeltplass(arena.id, UpsertEnkeltplass.Prismodell.Anskaffelse(4200)),
                     ansattContext,
-                ).shouldBeLeft() shouldBe MigrerEnkeltplassError.ManglerTilgang(AvvistGrunn.AVVIST_HABILITET)
+                ) shouldBeLeft MigrerEnkeltplassError.ManglerTilgang(AvvistGrunn.AVVIST_HABILITET)
 
                 database.run { gjennomforing.getGjennomforing(arena.id).shouldBeTypeOf<GjennomforingArena>() }
             }
@@ -1843,9 +1939,8 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                 service.migrerEnkeltplass(
                     MigrerEnkeltplass(arena.id, UpsertEnkeltplass.Prismodell.Anskaffelse(0)),
                     ansattContext,
-                ).shouldBeLeft()
-                    .shouldBeTypeOf<MigrerEnkeltplassError.Valideringsfeil>().errors shouldContainExactly listOf(
-                    FieldError("/totalbelop", "Totalbeløp må være større enn 0"),
+                ) shouldBeLeft MigrerEnkeltplassError.Valideringsfeil(
+                    listOf(FieldError("/totalbelop", "Totalbeløp må være større enn 0")),
                 )
 
                 service.migrerEnkeltplass(
@@ -1857,17 +1952,15 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                         ),
                     ),
                     ansattContext,
-                ).shouldBeLeft()
-                    .shouldBeTypeOf<MigrerEnkeltplassError.Valideringsfeil>().errors shouldContainExactly listOf(
-                    FieldError("/tilskudd/SEMESTERAVGIFT", "Tilskuddsbeløp må være større enn 0"),
+                ) shouldBeLeft MigrerEnkeltplassError.Valideringsfeil(
+                    listOf(FieldError("/tilskudd/SEMESTERAVGIFT", "Tilskuddsbeløp må være større enn 0")),
                 )
 
                 service.migrerEnkeltplass(
                     MigrerEnkeltplass(arena.id, UpsertEnkeltplass.Prismodell.IngenKostnader(" ")),
                     ansattContext,
-                ).shouldBeLeft()
-                    .shouldBeTypeOf<MigrerEnkeltplassError.Valideringsfeil>().errors shouldContainExactly listOf(
-                    FieldError("/prisbetingelser", "Begrunnelse må fylles ut"),
+                ) shouldBeLeft MigrerEnkeltplassError.Valideringsfeil(
+                    listOf(FieldError("/prisbetingelser", "Begrunnelse må fylles ut")),
                 )
 
                 database.run { gjennomforing.getGjennomforing(arena.id).shouldBeTypeOf<GjennomforingArena>() }
@@ -1881,15 +1974,15 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                 service.migrerEnkeltplass(
                     command.copy(prismodell = UpsertEnkeltplass.Prismodell.Anskaffelse(9999)),
                     ansattContext,
-                ).shouldBeLeft() shouldBe MigrerEnkeltplassError.Valideringsfeil(
-                    listOf(FieldError.of("Gjennomføringen er allerede migrert til enkeltplass")),
+                ) shouldBeLeft MigrerEnkeltplassError.Valideringsfeil(
+                    listOf(FieldError.of("Gjennomføringen er ikke av typen Arena")),
                 )
 
                 service.get(arena.id) shouldBe enkeltplass
             }
         }
 
-        test("migrering bruker deltakerens periode og status") {
+        test("migrering bruker gjeldende deltakerperiode og status") {
             val deltaker = DeltakerFixtures.createDeltaker(
                 gjennomforingId = arena.id,
                 status = DeltakerStatusType.FULLFORT,
@@ -1921,13 +2014,11 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
             )
             database.run { this.deltaker.save(deltaker) }
 
-            val error = createService(migrert).migrerEnkeltplass(
+            createService(migrert).migrerEnkeltplass(
                 MigrerEnkeltplass(arena.id, UpsertEnkeltplass.Prismodell.Anskaffelse(4200)),
                 ansattContext,
-            ).shouldBeLeft().shouldBeTypeOf<MigrerEnkeltplassError.Valideringsfeil>()
-
-            error.errors shouldContainExactly listOf(
-                FieldError.of("Deltakeren har ikke en relevant status og periode for migrering fra Arena"),
+            ) shouldBeLeft MigrerEnkeltplassError.Valideringsfeil(
+                listOf(FieldError.of("Deltakeren har ikke en relevant status og periode for migrering fra Arena")),
             )
             database.run {
                 gjennomforing.getGjennomforing(arena.id).shouldBeTypeOf<GjennomforingArena>()
@@ -1935,12 +2026,13 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
         }
 
         test("beholder ARENA når gjennomføringen ikke har noen deltakere") {
-            createService(migrert).migrerEnkeltplass(
+            val service = createService(migrert, mockk())
+
+            service.migrerEnkeltplass(
                 MigrerEnkeltplass(arena.id, UpsertEnkeltplass.Prismodell.Anskaffelse(4200)),
                 ansattContext,
-            ).shouldBeLeft()
-                .shouldBeTypeOf<MigrerEnkeltplassError.Valideringsfeil>().errors shouldContainExactly listOf(
-                FieldError.of("Gjennomføringen må ha nøyaktig én deltaker"),
+            ) shouldBeLeft MigrerEnkeltplassError.Valideringsfeil(
+                listOf(FieldError.of("Gjennomføringen må ha nøyaktig én deltaker")),
             )
 
             database.run {
@@ -1968,12 +2060,11 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                 )
             }
 
-            createService(migrert).migrerEnkeltplass(
+            createService(migrert, mockk<PersonaliaPort>()).migrerEnkeltplass(
                 MigrerEnkeltplass(arena.id, UpsertEnkeltplass.Prismodell.Anskaffelse(4200)),
                 ansattContext,
-            ).shouldBeLeft()
-                .shouldBeTypeOf<MigrerEnkeltplassError.Valideringsfeil>().errors shouldContainExactly listOf(
-                FieldError.of("Gjennomføringen må ha nøyaktig én deltaker"),
+            ) shouldBeLeft MigrerEnkeltplassError.Valideringsfeil(
+                listOf(FieldError.of("Gjennomføringen må ha nøyaktig én deltaker")),
             )
 
             database.run {
@@ -1996,19 +2087,8 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
             createService().migrerEnkeltplass(
                 MigrerEnkeltplass(arena.id, UpsertEnkeltplass.Prismodell.Anskaffelse(4200)),
                 ansattContext,
-            ).shouldBeLeft()
-                .shouldBeTypeOf<MigrerEnkeltplassError.Valideringsfeil>().errors shouldContainExactly listOf(
-                FieldError.of("Tiltakstypen er ikke migrert"),
-            )
-        }
-
-        test("returnerer valideringsfeil når gjennomføringen ikke finnes") {
-            createService(migrert).migrerEnkeltplass(
-                MigrerEnkeltplass(UUID.randomUUID(), UpsertEnkeltplass.Prismodell.Anskaffelse(4200)),
-                ansattContext,
-            ).shouldBeLeft()
-                .shouldBeTypeOf<MigrerEnkeltplassError.Valideringsfeil>().errors shouldContainExactly listOf(
-                FieldError.of("Fant ikke gjennomføringen"),
+            ) shouldBeLeft MigrerEnkeltplassError.Valideringsfeil(
+                listOf(FieldError.of("Tiltakstypen er ikke migrert")),
             )
         }
 
@@ -2017,30 +2097,43 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                 prismodell.upsert(PrismodellFixtures.AvtaltPrisPerTimeOppfolging)
                 avtale.save(AvtaleFixtures.oppfolging)
                 gjennomforing.upsert(GjennomforingFixtures.Oppfolging1)
+                deltaker.save(
+                    DeltakerFixtures.createDeltaker(
+                        gjennomforingId = GjennomforingFixtures.Oppfolging1.id,
+                        startDato = LocalDate.of(2026, 1, 1),
+                        sluttDato = null,
+                        endretTidspunkt = Instant.parse("2026-01-02T10:00:00Z"),
+                    ),
+                )
             }
 
             createService(migrert).migrerEnkeltplass(
                 MigrerEnkeltplass(GjennomforingFixtures.Oppfolging1.id, UpsertEnkeltplass.Prismodell.Anskaffelse(4200)),
                 ansattContext,
-            )
-                .shouldBeLeft()
-                .shouldBeTypeOf<MigrerEnkeltplassError.Valideringsfeil>().errors shouldContainExactly listOf(
-                FieldError.of(
-                    "Gjennomføringen er ikke av typen Arena",
-                ),
+            ) shouldBeLeft MigrerEnkeltplassError.Valideringsfeil(
+                listOf(FieldError.of("Gjennomføringen er ikke av typen Arena")),
             )
         }
 
         test("returnerer valideringsfeil for tiltakstype som ikke støtter migrering") {
             val annen = arena.copy(id = UUID.randomUUID(), tiltakskode = Tiltakskode.ARBEIDSTRENING)
-            database.run { gjennomforing.upsert(annen) }
+            database.run {
+                gjennomforing.upsert(annen)
+                deltaker.save(
+                    DeltakerFixtures.createDeltaker(
+                        gjennomforingId = annen.id,
+                        startDato = LocalDate.of(2026, 1, 1),
+                        sluttDato = null,
+                        endretTidspunkt = Instant.parse("2026-01-02T10:00:00Z"),
+                    ),
+                )
+            }
 
             createService(migrert).migrerEnkeltplass(
                 MigrerEnkeltplass(annen.id, UpsertEnkeltplass.Prismodell.Anskaffelse(4200)),
                 ansattContext,
-            ).shouldBeLeft()
-                .shouldBeTypeOf<MigrerEnkeltplassError.Valideringsfeil>().errors shouldContainExactly listOf(
-                FieldError.of("Tiltakstypen støtter ikke migrering fra Arena"),
+            ) shouldBeLeft MigrerEnkeltplassError.Valideringsfeil(
+                listOf(FieldError.of("Tiltakstypen støtter ikke migrering fra Arena")),
             )
         }
 
@@ -2061,9 +2154,8 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
             createService(migrert).migrerEnkeltplass(
                 MigrerEnkeltplass(arena.id, UpsertEnkeltplass.Prismodell.Anskaffelse(4200)),
                 ansattContext,
-            ).shouldBeLeft()
-                .shouldBeTypeOf<MigrerEnkeltplassError.Valideringsfeil>().errors shouldContainExactly listOf(
-                FieldError.of("Gjennomføringen mangler ansvarlig Nav-enhet fra Arena"),
+            ) shouldBeLeft MigrerEnkeltplassError.Valideringsfeil(
+                listOf(FieldError.of("Gjennomføringen mangler ansvarlig Nav-enhet fra Arena")),
             )
         }
     }

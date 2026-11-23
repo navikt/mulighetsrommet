@@ -161,7 +161,7 @@ class SqlGjennomforingWriter(private val queries: GjennomforingQueries) : Gjenno
         queries.deleteStengtHosArrangor(id)
     }
 
-    override fun aquireLock(id: UUID) {
+    override fun acquireLock(id: UUID) {
         queries.aquireLock(id)
     }
 }

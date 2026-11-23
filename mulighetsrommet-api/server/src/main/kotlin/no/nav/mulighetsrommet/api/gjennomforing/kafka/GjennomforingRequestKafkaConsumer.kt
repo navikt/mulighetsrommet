@@ -4,13 +4,17 @@ import arrow.core.getOrElse
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.decodeFromJsonElement
 import no.nav.common.kafka.consumer.util.deserializer.Deserializers.uuidDeserializer
+import no.nav.mulighetsrommet.admin.AdminDatabase
 import no.nav.mulighetsrommet.admin.arrangor.SyncArrangorIfMissing
 import no.nav.mulighetsrommet.admin.arrangor.SyncArrangorUseCase
 import no.nav.mulighetsrommet.admin.gjennomforing.GjennomforingEnkeltplassService
+import no.nav.mulighetsrommet.admin.gjennomforing.MigrerEnkeltplass
 import no.nav.mulighetsrommet.admin.gjennomforing.TotrinnskontrollBehandling
 import no.nav.mulighetsrommet.admin.gjennomforing.UpsertEnkeltplass
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
 import no.nav.mulighetsrommet.api.domain.arrangor.Arrangor
+import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingArena
+import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollError
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.KategoriseringMapper
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
@@ -23,6 +27,7 @@ import org.slf4j.LoggerFactory
 import java.util.UUID
 
 class GjennomforingRequestKafkaConsumer(
+    private val db: AdminDatabase,
     private val arrangorer: SyncArrangorUseCase,
     private val tiltakstyper: TiltakstypeService,
     private val enkeltplasser: GjennomforingEnkeltplassService,
@@ -93,12 +98,27 @@ class GjennomforingRequestKafkaConsumer(
         )
     }
 
-    private fun handterEnkeltplassEndrePrisinformasjon(request: GjennomforingRequest.EnkeltplassEndrePrisinformasjon) {
-        enkeltplasser.endrePrisinformasjon(
-            gjennomforingId = request.gjennomforingId,
-            behandling = request.totrinnskontroll.toBehandling(),
-            prisinformasjon = toPrismodell(request.payload),
-        ).onLeft { errors -> error("Klarte ikke håndtere endring av prisinformasjon: $errors") }
+    private suspend fun handterEnkeltplassEndrePrisinformasjon(request: GjennomforingRequest.EnkeltplassEndrePrisinformasjon) {
+        val gjennomforing = db.session { repository.gjennomforing.getGjennomforing(request.gjennomforingId) }
+        val behandling = request.totrinnskontroll.toBehandling()
+        val prisinformasjon = toPrismodell(request.payload)
+        val result = when (gjennomforing) {
+            is GjennomforingArena -> enkeltplasser.migrerEnkeltplassTilGodkjenning(
+                MigrerEnkeltplass(request.gjennomforingId, prisinformasjon),
+                behandling,
+            )
+
+            is GjennomforingEnkeltplass -> enkeltplasser.endrePrisinformasjon(
+                request.gjennomforingId,
+                prisinformasjon,
+                behandling,
+            )
+
+            else -> error("Gjennomføring med id=${request.gjennomforingId} er ikke en enkeltplass eller et Arena-tiltak")
+        }
+        result.onLeft { errors ->
+            error("Klarte ikke håndtere endring av prisinformasjon: $errors")
+        }
     }
 
     private fun handterEnkeltplassTilbakekallPrisinformasjon(

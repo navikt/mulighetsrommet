@@ -62,7 +62,7 @@ interface GjennomforingWriter {
 
     fun deleteStengtHosArrangor(id: Int)
 
-    fun aquireLock(id: UUID)
+    fun acquireLock(id: UUID)
 }
 
 /**

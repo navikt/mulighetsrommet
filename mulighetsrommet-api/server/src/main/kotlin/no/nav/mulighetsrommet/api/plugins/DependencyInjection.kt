@@ -234,6 +234,7 @@ private fun kafka(appConfig: AppConfig) = module {
                 get(),
                 get(),
                 get(),
+                get(),
             ),
             config.clients.tilskuddArrangorUtbetaling to TilskuddArrangorUtbetalingConsumer(
                 get(),

@@ -1,7 +1,9 @@
 package no.nav.mulighetsrommet.admin.gjennomforing
 
-import arrow.core.left
 import arrow.core.nel
+import arrow.core.raise.either
+import arrow.core.raise.ensure
+import arrow.core.raise.ensureNotNull
 import arrow.core.right
 import no.nav.mulighetsrommet.admin.QueryContext
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
@@ -41,21 +43,24 @@ internal val tiltakskoderForArenaMigrering = setOf(
 internal fun QueryContext.validerMigreringskandidat(
     gjennomforing: GjennomforingArena,
     tiltakstyper: TiltakstypeService,
-): Validated<Migreringskandidat> {
+): Validated<Migreringskandidat> = either {
     val tiltakskode = gjennomforing.tiltakstype.tiltakskode
-    if (tiltakskode !in tiltakskoderForArenaMigrering) {
-        return FieldError.of("Tiltakstypen støtter ikke migrering fra Arena").nel().left()
+    ensure(tiltakskode in tiltakskoderForArenaMigrering) {
+        FieldError.of("Tiltakstypen støtter ikke migrering fra Arena").nel()
     }
-    if (!tiltakstyper.erMigrert(tiltakskode)) {
-        return FieldError.of("Tiltakstypen er ikke migrert").nel().left()
+    ensure(tiltakstyper.erMigrert(tiltakskode)) {
+        FieldError.of("Tiltakstypen er ikke migrert").nel()
     }
     val deltaker = repository.deltaker.getByGjennomforing(gjennomforing.id).singleOrNull()
-        ?: return FieldError.of("Gjennomføringen må ha nøyaktig én deltaker").nel().left()
-    if (!deltaker.erRelevantForMigrering()) {
-        return FieldError.of("Deltakeren har ikke en relevant status og periode for migrering fra Arena").nel().left()
+    ensureNotNull(deltaker) {
+        FieldError.of("Deltakeren har ikke en relevant status og periode for migrering fra Arena").nel()
     }
-    val ansvarligEnhet = gjennomforing.arena?.ansvarligNavEnhet?.let(::NavEnhetNummer)
-        ?: return FieldError.of("Gjennomføringen mangler ansvarlig Nav-enhet fra Arena").nel().left()
+    ensure(deltaker.erRelevantForMigrering()) {
+        FieldError.of("Deltakeren har ikke en relevant status og periode for migrering fra Arena").nel()
+    }
+    val ansvarligEnhet = ensureNotNull(gjennomforing.arena?.ansvarligNavEnhet?.let(::NavEnhetNummer)) {
+        FieldError.of("Gjennomføringen mangler ansvarlig Nav-enhet fra Arena").nel()
+    }
     return Migreringskandidat(gjennomforing, deltaker, ansvarligEnhet).right()
 }
 
