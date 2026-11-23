@@ -9,17 +9,7 @@
       "version": 1,
       "features": [
         {
-          "name": "mulighetsrommet-veilederflate.vis-tilbakemelding",
-          "enabled": true,
-          "strategies": []
-        },
-        {
-          "name": "tiltaksadministrasjon.avbryt-utbetaling-handling",
-          "enabled": true,
-          "strategies": []
-        },
-        {
-          "name": "tiltakskoder.opplaering2025",
+          "name": "fake.toggle",
           "enabled": true,
           "strategies": []
         }
