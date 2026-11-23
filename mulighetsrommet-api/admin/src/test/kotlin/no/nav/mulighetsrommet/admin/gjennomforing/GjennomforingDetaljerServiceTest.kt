@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.admin.gjennomforing
 
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldBeNull
@@ -95,12 +96,14 @@ class GjennomforingDetaljerServiceTest : FunSpec({
                 GjennomforingType.ENKELTPLASS,
                 setOf(NavEnhetNummer("0502")),
             ) shouldBe false
-            GjennomforingDetaljerService.tilgangTilHandling(
-                ansatt,
-                GjennomforingHandling.GODKJENN_ENKELTPLASS_OKONOMI,
-                GjennomforingType.ARENA,
-                setOf(kostnadssted),
-            ) shouldBe false
+            shouldThrow<IllegalStateException> {
+                GjennomforingDetaljerService.tilgangTilHandling(
+                    ansatt,
+                    GjennomforingHandling.GODKJENN_ENKELTPLASS_OKONOMI,
+                    GjennomforingType.ARENA,
+                    setOf(kostnadssted),
+                )
+            }
         }
     }
 

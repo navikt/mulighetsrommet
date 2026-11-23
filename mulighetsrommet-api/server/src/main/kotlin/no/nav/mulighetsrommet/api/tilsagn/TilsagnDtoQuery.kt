@@ -34,7 +34,7 @@ class TilsagnDtoQuery(
             ?: return TilsagnDtoQueryError.IkkeFunnet("Tilsagn med id=$id finnes ikke").left()
 
         val ansatt = db.session { queries.ansatt.getOrError(navIdent) }
-        if (!OkonomiAuthorization.kanLeseTilsagn(ansatt, tilsagn.gjennomforing.type)) {
+        if (OkonomiAuthorization.kanLeseTilsagn(ansatt, tilsagn.gjennomforing.type).isLeft()) {
             return TilsagnDtoQueryError.ManglerTilgang("Du mangler lesetilgang til tilsagnet").left()
         }
 
@@ -65,14 +65,14 @@ class TilsagnDtoQuery(
         annullering: TotrinnskontrollDto?,
         tilOppgjor: TotrinnskontrollDto?,
     ): Set<TilsagnHandling> {
-        val erSaksbehandler = OkonomiAuthorization.erSaksbehandler(ansatt, tilsagn.gjennomforing.type)
+        val erSaksbehandler = OkonomiAuthorization.erSaksbehandler(ansatt, tilsagn.gjennomforing.type).isRight()
         val erBeslutter = OkonomiAuthorization.erBeslutterTilsagn(
             ansatt,
             OkonomiBeslutningContext(
                 tilsagn.gjennomforing.type,
                 nonEmptySetOf(tilsagn.kostnadssted.enhetsnummer),
             ),
-        )
+        ).isRight()
         return when (tilsagn.status) {
             TilsagnStatus.RETURNERT -> setOfNotNull(
                 TilsagnHandling.REDIGER.takeIf { erSaksbehandler },

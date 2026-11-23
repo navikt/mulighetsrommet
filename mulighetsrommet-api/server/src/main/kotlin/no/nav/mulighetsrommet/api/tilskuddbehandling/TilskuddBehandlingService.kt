@@ -303,8 +303,8 @@ class TilskuddBehandlingService(
         val attestant = OkonomiAuthorization.erOkonomiBeslutter(
             ansatt,
             OkonomiBeslutningContext(gjennomforingType, kostnadssteder),
-        )
-        val saksbehandler = OkonomiAuthorization.erSaksbehandler(ansatt, gjennomforingType)
+        ).isRight()
+        val saksbehandler = OkonomiAuthorization.erSaksbehandler(ansatt, gjennomforingType).isRight()
         val erIkkeBehandletAvAnsatt = totrinnskontroll.behandling.utfortAv.agent != ansatt.navIdent
 
         return when (handling) {
