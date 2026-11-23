@@ -27,8 +27,9 @@ export function useGjennomforinger(filter: Partial<GjennomforingFilterType>) {
     },
   };
 
-  return useApiSuspenseQuery({
+  const { data } = useApiSuspenseQuery({
     queryKey: QueryKeys.gjennomforinger(request),
     queryFn: () => GjennomforingService.getGjennomforinger(request),
   });
+  return { data, debouncedSearch: debouncedSok };
 }

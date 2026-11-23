@@ -4,6 +4,7 @@ import { FormButtonsContainer } from "./FormButtonsContainer";
 import { useNavigate } from "react-router";
 
 interface Props {
+  form?: string;
   heading?: string;
   cancelLabel?: string;
   submitLabel?: string;
@@ -12,6 +13,7 @@ interface Props {
 }
 
 export function FormButtons({
+  form,
   heading,
   cancelLabel = "Avbryt",
   submitLabel = "Lagre",
@@ -46,7 +48,7 @@ export function FormButtons({
       >
         {cancelLabel}
       </Button>
-      <Button size="small" type="submit" disabled={isPending} loading={isPending}>
+      <Button size="small" type="submit" form={form} disabled={isPending} loading={isPending}>
         {submitLabel}
       </Button>
     </FormButtonsContainer>
