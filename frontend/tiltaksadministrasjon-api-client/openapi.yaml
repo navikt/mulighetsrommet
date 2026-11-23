@@ -9117,9 +9117,7 @@ components:
     FeatureToggle:
       type: string
       enum:
-      - TILTAKSHISTORIKK_VIS_KOMET_ENKELTPLASSER
-      - TILTAKSADMINISTRASJON_ENKELTPLASS_FILTER
-      - TILTAKSADMINISTRASJON_VIS_TILSKUDDSBEHANDLING
+      - FAKE_TOGGLE
     LagretFilterType:
       type: string
       enum:
