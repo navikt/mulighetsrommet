@@ -87,7 +87,7 @@ jobs:
         env:
           VITE_BASE: https://cdn.nav.no/team-mulighetsrommet/dev/tiltaksadministrasjon-flate/dist
       - name: Upload to Nav CDN
-        uses: nais/deploy/actions/cdn-upload/v2@6a9dcd6df697ec2d38edc78cadb0b9acd1232f50 # v3
+        uses: nais/deploy/actions/cdn-upload/v2@427e29c94d911626a023a76f402f6dcae1f840b7 # v3
         with:
           team: team-mulighetsrommet
           source: frontend/tiltaksadministrasjon-flate/dist
@@ -115,7 +115,7 @@ jobs:
         env:
           VITE_BASE: https://cdn.nav.no/team-mulighetsrommet/prod/tiltaksadministrasjon-flate/dist
       - name: Upload to Nav CDN
-        uses: nais/deploy/actions/cdn-upload/v2@6a9dcd6df697ec2d38edc78cadb0b9acd1232f50 # v3
+        uses: nais/deploy/actions/cdn-upload/v2@427e29c94d911626a023a76f402f6dcae1f840b7 # v3
         with:
           team: team-mulighetsrommet
           source: frontend/tiltaksadministrasjon-flate/dist

@@ -86,7 +86,7 @@ jobs:
           VITE_FARO_URL: https://telemetry.ekstern.dev.nav.no/collect
           VITE_PORTEN_URL: https://jira.adeo.no/plugins/servlet/desk/portal/541/create/1401
       - name: Upload to Nav CDN
-        uses: nais/deploy/actions/cdn-upload/v2@6a9dcd6df697ec2d38edc78cadb0b9acd1232f50 # v3
+        uses: nais/deploy/actions/cdn-upload/v2@427e29c94d911626a023a76f402f6dcae1f840b7 # v3
         with:
           team: team-mulighetsrommet
           source: frontend/arbeidsmarkedstiltak-flate/dist
@@ -114,7 +114,7 @@ jobs:
           VITE_FARO_URL: https://telemetry.nav.no/collect
           VITE_PORTEN_URL: https://jira.adeo.no/plugins/servlet/desk/portal/541/create/1401
       - name: Upload to Nav CDN
-        uses: nais/deploy/actions/cdn-upload/v2@6a9dcd6df697ec2d38edc78cadb0b9acd1232f50 # v3
+        uses: nais/deploy/actions/cdn-upload/v2@427e29c94d911626a023a76f402f6dcae1f840b7 # v3
         with:
           team: team-mulighetsrommet
           source: frontend/arbeidsmarkedstiltak-flate/dist
@@ -142,7 +142,7 @@ jobs:
           VITE_FARO_URL: https://telemetry.ekstern.dev.nav.no/collect
           VITE_PORTEN_URL: https://jira.adeo.no/plugins/servlet/desk/portal/541/create/5406
       - name: Upload to Nav CDN
-        uses: nais/deploy/actions/cdn-upload/v2@6a9dcd6df697ec2d38edc78cadb0b9acd1232f50 # v3
+        uses: nais/deploy/actions/cdn-upload/v2@427e29c94d911626a023a76f402f6dcae1f840b7 # v3
         with:
           team: team-mulighetsrommet
           source: frontend/arbeidsmarkedstiltak-flate/dist
@@ -170,7 +170,7 @@ jobs:
           VITE_FARO_URL: https://telemetry.nav.no/collect
           VITE_PORTEN_URL: https://jira.adeo.no/plugins/servlet/desk/portal/541/create/5406
       - name: Upload to Nav CDN
-        uses: nais/deploy/actions/cdn-upload/v2@6a9dcd6df697ec2d38edc78cadb0b9acd1232f50 # v3
+        uses: nais/deploy/actions/cdn-upload/v2@427e29c94d911626a023a76f402f6dcae1f840b7 # v3
         with:
           team: team-mulighetsrommet
           source: frontend/arbeidsmarkedstiltak-flate/dist
