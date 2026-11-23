@@ -1,14 +1,14 @@
 [versions]
 common-java-modules = "4.2026.11.05_07.24-dd0ce2805c16"
-flyway = "13.12.1"
+flyway = "13.12.2"
 jackson2 = "2.23.0"
 jackson3 = "3.3.0"
 koin-bom = "4.2.2"
-kotest = "6.2.6"
+kotest = "6.2.7"
 kotlin = "2.4.21"
 ktor = "3.6.1"
 netty = "4.2.20.Final"
-logback = "1.6.6"
+logback = "1.6.7"
 metrics = "4.2.40"
 arrow = "2.3.0.1"
 micrometer = "1.17.2"
@@ -65,12 +65,12 @@ schema-kenerator-swagger = "io.github.smiley4:schema-kenerator-swagger:2.7.2"
 
 caffeine = "com.github.ben-manes.caffeine:caffeine:3.3.1"
 
-dbScheduler = "com.github.kagkarlsson:db-scheduler:17.0.0"
+dbScheduler = "com.github.kagkarlsson:db-scheduler:17.1.0"
 
 flyway-core = { module = "org.flywaydb:flyway-core", version.ref = "flyway" }
 flyway-database-postgresql = { module = "org.flywaydb:flyway-database-postgresql", version.ref = "flyway" }
 
-google-cloud-postgresSocketFactory = "com.google.cloud.sql:postgres-socket-factory:1.30.2"
+google-cloud-postgresSocketFactory = "com.google.cloud.sql:postgres-socket-factory:1.31.0"
 google-cloud-storage = "com.google.cloud:google-cloud-storage:2.78.0"
 
 hikaricp = "com.zaxxer:HikariCP:7.1.0"
@@ -85,7 +85,7 @@ kotest-assertions-table = { module = "io.kotest:kotest-assertions-table", versio
 kotest-extensions-testcontainers = { module = "io.kotest:kotest-extensions-testcontainers", version.ref = "kotest" }
 kotest-junit = { module = "io.kotest:kotest-runner-junit5", version.ref = "kotest" }
 
-kotlinx-serialization-json = "org.jetbrains.kotlinx:kotlinx-serialization-json:1.12.0"
+kotlinx-serialization-json = "org.jetbrains.kotlinx:kotlinx-serialization-json:1.13.0"
 kotlinx-coroutines-core = "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.11.0"
 
 kotliquery = "com.github.seratch:kotliquery:1.9.1"
@@ -157,7 +157,7 @@ shedlock-jdbc = "net.javacrumbs.shedlock:shedlock-provider-jdbc:7.11.0"
 
 selfie-kotest = "com.diffplug.selfie:selfie-runner-kotest:3.1.2"
 
-slack-client = "com.slack.api:slack-api-client:1.54.0"
+slack-client = "com.slack.api:slack-api-client:1.55.0"
 
 slf4j = "org.slf4j:slf4j-api:2.0.20"
 
