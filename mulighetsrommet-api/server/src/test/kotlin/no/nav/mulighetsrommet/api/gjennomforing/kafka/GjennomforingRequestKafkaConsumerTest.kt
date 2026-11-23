@@ -21,22 +21,32 @@ import no.nav.mulighetsrommet.admin.endringshistorikk.EndringshistorikkDto
 import no.nav.mulighetsrommet.admin.endringshistorikk.EndringshistorikkType
 import no.nav.mulighetsrommet.admin.enhetsregister.EnhetsregisterError
 import no.nav.mulighetsrommet.admin.gjennomforing.GjennomforingEnkeltplassService
+import no.nav.mulighetsrommet.admin.personalia.PersonaliaPort
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
+import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingEnkeltplassStatus
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsattRolle
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
+import no.nav.mulighetsrommet.api.domain.personalia.Gradering
+import no.nav.mulighetsrommet.api.domain.personalia.Personalia
 import no.nav.mulighetsrommet.api.domain.testing.fixture.ArrangorFixtures
+import no.nav.mulighetsrommet.api.domain.testing.fixture.DeltakerFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavAnsattFixture
 import no.nav.mulighetsrommet.api.domain.testing.fixture.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
 import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeFeature
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollStatus
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
+import no.nav.mulighetsrommet.api.persistence.testing.fixture.GjennomforingDboFixtures
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
+import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.NOK
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
+import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Tiltakskode
+import java.time.Instant
+import java.time.LocalDate
 import java.util.UUID
 
 class GjennomforingRequestKafkaConsumerTest : FunSpec({
@@ -79,6 +89,7 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
         ),
     ): GjennomforingRequestKafkaConsumer {
         return GjennomforingRequestKafkaConsumer(
+            db = database.admin,
             arrangorer = arrangorer,
             tiltakstyper = TiltakstypeService(tiltakstypeConfig, database.admin),
             enkeltplasser = enkeltplasser,
@@ -336,6 +347,54 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
 
             shouldThrowExactly<IllegalStateException> {
                 consumer.consume(ikkeEksisterendeId, Json.encodeToJsonElement<GjennomforingRequest>(request))
+            }
+        }
+
+        test("migrerer ARENA til enkeltplass ved endring av prisinformasjon") {
+            val arena = GjennomforingDboFixtures.ArenaEnkelAmo.copy(arenaAnsvarligEnhet = "0400")
+            val deltaker = DeltakerFixtures.createDeltaker(
+                gjennomforingId = arena.id,
+                status = DeltakerStatusType.DELTAR,
+                startDato = LocalDate.of(2026, 1, 1),
+                sluttDato = null,
+                endretTidspunkt = Instant.parse("2026-01-02T10:00:00Z"),
+            )
+            database.run {
+                repository.tiltakstype.save(TiltakstypeFixtures.EnkelAmo)
+                queries.gjennomforing.upsert(arena)
+                repository.deltaker.save(deltaker)
+            }
+            val personaliaPort = mockk<PersonaliaPort> {
+                coEvery { getPersonaliaAsSystem(deltaker.id) } returns Personalia(
+                    deltakerId = deltaker.id,
+                    norskIdent = NorskIdent("12345678910"),
+                    navn = "Test Testesen",
+                    oppfolgingEnhet = null,
+                    geografiskEnhet = null,
+                    region = null,
+                    gradering = Gradering.UGRADERT,
+                    avvistGrunn = null,
+                )
+            }
+            val tiltakstyper = TiltakstypeService(
+                TiltakstypeService.Config(
+                    mapOf(Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING to setOf(TiltakstypeFeature.MIGRERT)),
+                ),
+                database.admin,
+            )
+            val enkeltplasser = GjennomforingEnkeltplassService(database.admin, personaliaPort, tiltakstyper)
+
+            val request = GjennomforingRequest.EnkeltplassEndrePrisinformasjon(
+                gjennomforingId = arena.id,
+                totrinnskontroll = GjennomforingRequest.Totrinnskontroll(UUID.randomUUID(), NavIdent("B123456")),
+                payload = GjennomforingRequest.EnkeltplassPrisinformasjon.Anskaffelse(4200),
+            )
+            createConsumer(enkeltplasser).consume(arena.id, Json.encodeToJsonElement<GjennomforingRequest>(request))
+
+            database.run {
+                queries.gjennomforing.getGjennomforing(arena.id)
+                    .shouldBeTypeOf<GjennomforingEnkeltplass>()
+                    .prismodell.shouldBeTypeOf<Prismodell.AnskaffetEnkeltplass>()
             }
         }
     }

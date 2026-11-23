@@ -1,16 +1,21 @@
 package no.nav.mulighetsrommet.admin.gjennomforing
 
 import arrow.core.Either
+import arrow.core.flatMap
 import arrow.core.getOrElse
 import arrow.core.left
 import arrow.core.nel
 import arrow.core.nonEmptySetOf
+import arrow.core.raise.either
+import arrow.core.raise.ensure
+import arrow.core.raise.ensureNotNull
 import arrow.core.right
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.mulighetsrommet.admin.AdminDatabase
 import no.nav.mulighetsrommet.admin.QueryContext
 import no.nav.mulighetsrommet.admin.endringshistorikk.EndringshistorikkType
+import no.nav.mulighetsrommet.admin.navansatt.NavAnsattContext
 import no.nav.mulighetsrommet.admin.opplaring.OpplaringKategoriseringRequest
 import no.nav.mulighetsrommet.admin.personalia.PersonaliaPort
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
@@ -18,7 +23,7 @@ import no.nav.mulighetsrommet.admin.totrinnskontroll.toFieldErrors
 import no.nav.mulighetsrommet.api.domain.deltaker.Deltaker
 import no.nav.mulighetsrommet.api.domain.gjennomforing.Enkeltplass
 import no.nav.mulighetsrommet.api.domain.gjennomforing.Gjennomforing
-import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingAvtale
+import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingArena
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingEnkeltplassStatus
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingType
@@ -47,6 +52,8 @@ import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Tiltaksnummer
 import no.nav.mulighetsrommet.model.Valuta
+import no.nav.mulighetsrommet.tokenprovider.AccessType
+import no.nav.mulighetsrommet.tokenprovider.requireAzureAd
 import no.nav.mulighetsrommet.validation.FieldError
 import no.nav.mulighetsrommet.validation.Validated
 import java.time.LocalDate
@@ -137,7 +144,7 @@ class GjennomforingEnkeltplassService(
                 .also { publishTiltaksgjennomforingV2ToKafka(it) }
         }
 
-        settOkonomiTilGodkjenning(soktInn.id, behandling).right()
+        settOkonomiTilGodkjenning(soktInn.id, behandling, operation = "Deltaker søkt inn").right()
     }
 
     fun endreInnhold(
@@ -165,7 +172,8 @@ class GjennomforingEnkeltplassService(
         }
 
         val enkeltplass = getAndAcquireLock(gjennomforingId)
-
+        val prismodell = validerPrisinformasjon(prisinformasjon, enkeltplass.gjennomforing.tiltakstype.tiltakskode)
+            .getOrElse { return@transaction it.left() }
         val okonomi = enkeltplass.okonomi
             ?: return@transaction FieldError.of("Kan ikke endre prismodell før deltaker er søkt inn").nel().left()
 
@@ -180,12 +188,12 @@ class GjennomforingEnkeltplassService(
                     outbox.publish(returnert)
                 })
 
-                endrePrismodell(gjennomforingId, prisinformasjon, behandling)
+                endrePrismodell(gjennomforingId, prismodell, behandling)
             }
 
             TotrinnskontrollStatus.GODKJENT -> {
                 val godkjentPrismodell = enkeltplass.gjennomforing.prismodell
-                if (toPrismodell(godkjentPrismodell.id, prisinformasjon).type != godkjentPrismodell.type) {
+                if (toPrismodell(godkjentPrismodell.id, prismodell).type != godkjentPrismodell.type) {
                     returnerUgyldigPrisendring(gjennomforingId, behandling)
                     return@transaction enkeltplass.right()
                 }
@@ -193,7 +201,7 @@ class GjennomforingEnkeltplassService(
                 enkeltplass.prisendring?.also {
                     slettEksisterendePrisendring(it.totrinnskontroll)
                 }
-                upsertPrisendring(gjennomforingId, prisinformasjon, behandling)
+                upsertPrisendring(gjennomforingId, prismodell, behandling)
                 logEndring("Prisendring sendt til godkjenning", gjennomforingId, behandling.behandletAv).right()
             }
 
@@ -228,29 +236,35 @@ class GjennomforingEnkeltplassService(
         }
     }
 
-    /**
-     * TODO: kan denne slettes?
-     * Ila. høsten 2026 skal enkeltplassene (ENKELAMO, ENKFAGYRKE, HOYEREUTD) migreres fra Arena og de aktive
-     * gjennomføringene må bli tilgjengelige i Tiltadm.
-     * Det er fortsatt litt uklart hvordan vi gjør dette (f.eks. basert på status vs. cutoff-dato), så foreløpig
-     * står denne rutinen ubrukt.
-     */
-    fun synkroniserFraArena(
-        upsert: UpsertArenaEnkeltplass,
-    ): Validated<GjennomforingEnkeltplass> = db.transaction {
-        return@transaction when (val gjennomforing = repository.gjennomforing.getGjennomforing(upsert.id)) {
-            is GjennomforingAvtale -> FieldError.of("Gjennomføring er ikke av typen enkeltplass").nel().left()
+    suspend fun migrerEnkeltplass(
+        command: MigrerEnkeltplass,
+        context: NavAnsattContext,
+    ): Either<MigrerEnkeltplassError, Enkeltplass> {
+        val norskIdent = hentNorskIdentForMigrering(command.id, context.accessType).getOrElse { return it.left() }
 
-            is GjennomforingEnkeltplass if (!harEnkeltplassEndringer(upsert, gjennomforing)) -> gjennomforing.right()
+        return db.transaction {
+            commands.gjennomforing.acquireLock(command.id)
+            migrerFraArena(command.id, command.prismodell, norskIdent)
+                .flatMap { gjennomforing ->
+                    opprettOgGodkjennOkonomi(gjennomforing.id, context.navIdent, endring = "Migrert fra Arena")
+                }
+                .mapLeft { MigrerEnkeltplassError.Valideringsfeil(it) }
+        }
+    }
 
-            null -> upsert(upsert)
-                .also { updateFreeTextSearch(it, norskIdent = null) }
-                .also { publishTiltaksgjennomforingV2ToKafka(it) }
-                .right()
+    suspend fun migrerEnkeltplassTilGodkjenning(
+        command: MigrerEnkeltplass,
+        behandling: TotrinnskontrollBehandling,
+    ): Either<MigrerEnkeltplassError, Enkeltplass> {
+        val norskIdent = hentNorskIdentForMigrering(command.id, AccessType.M2M).getOrElse { return it.left() }
 
-            else -> upsert(upsert)
-                .also { publishTiltaksgjennomforingV2ToKafka(it) }
-                .right()
+        return db.transaction {
+            commands.gjennomforing.acquireLock(command.id)
+            migrerFraArena(command.id, command.prismodell, norskIdent)
+                .map { gjennomforing ->
+                    settOkonomiTilGodkjenning(gjennomforing.id, behandling, operation = "Migrert fra Arena")
+                }
+                .mapLeft { MigrerEnkeltplassError.Valideringsfeil(it) }
         }
     }
 
@@ -419,6 +433,103 @@ class GjennomforingEnkeltplassService(
         settOkonomiPaVent(id, okonomi, navIdent, begrunnelse).mapLeft(EnkeltplassBeslutningError::Valideringsfeil)
     }
 
+    private fun validerPrisinformasjon(
+        prisinformasjon: UpsertEnkeltplass.Prismodell,
+        tiltakskode: Tiltakskode,
+    ): Validated<UpsertEnkeltplass.Prismodell> = either {
+        if (tiltakskode == Tiltakskode.HOYERE_UTDANNING && prisinformasjon is UpsertEnkeltplass.Prismodell.Anskaffelse) {
+            return FieldError("/type", "Høyere utdanning kan ikke ha prismodellen anskaffet enkeltplass").nel().left()
+        }
+        when (prisinformasjon) {
+            is UpsertEnkeltplass.Prismodell.Anskaffelse -> {
+                val totalbelop = prisinformasjon.totalbelop.takeIf { it > 0 } ?: raise(
+                    FieldError.of(
+                        "Totalbeløp må være større enn 0",
+                        UpsertEnkeltplass.Prismodell.Anskaffelse::totalbelop,
+                    ).nel(),
+                )
+                UpsertEnkeltplass.Prismodell.Anskaffelse(totalbelop)
+            }
+
+            is UpsertEnkeltplass.Prismodell.TilskuddTilOpplaering -> {
+                prisinformasjon.tilskudd.forEach { (type, belop) ->
+                    ensure(belop > 0) {
+                        FieldError(
+                            "/tilskudd/${type.name}",
+                            "Tilskuddsbeløp må være større enn 0",
+                        ).nel()
+                    }
+                }
+                prisinformasjon.copy(
+                    prisbetingelser = prisinformasjon.prisbetingelser?.trim()?.takeIf { it.isNotEmpty() },
+                )
+            }
+
+            is UpsertEnkeltplass.Prismodell.IngenKostnader -> {
+                val prisbetingelser = prisinformasjon.prisbetingelser.trim().takeIf { it.isNotEmpty() }
+                    ?: raise(
+                        FieldError.of(
+                            "Begrunnelse må fylles ut",
+                            UpsertEnkeltplass.Prismodell.IngenKostnader::prisbetingelser,
+                        ).nel(),
+                    )
+                UpsertEnkeltplass.Prismodell.IngenKostnader(prisbetingelser)
+            }
+        }
+    }
+
+    private suspend fun hentNorskIdentForMigrering(
+        gjennomforingId: UUID,
+        accessType: AccessType,
+    ): Either<MigrerEnkeltplassError, NorskIdent> = either {
+        val deltakerId = db.session { repository.deltaker.getByGjennomforing(gjennomforingId).singleOrNull()?.id }
+        ensureNotNull(deltakerId) {
+            MigrerEnkeltplassError.Valideringsfeil(
+                listOf(FieldError.of("Gjennomføringen må ha nøyaktig én deltaker")),
+            )
+        }
+        val personalia = when (accessType) {
+            AccessType.M2M -> personaliaPort.getPersonaliaAsSystem(deltakerId)
+            else -> personaliaPort.getPersonalia(deltakerId, accessType.requireAzureAd())
+        }
+        ensure(personalia.avvistGrunn == null) {
+            MigrerEnkeltplassError.ManglerTilgang(personalia.avvistGrunn!!)
+        }
+        requireNotNull(personalia.norskIdent())
+    }
+
+    private fun QueryContext.migrerFraArena(
+        id: UUID,
+        prisinformasjon: UpsertEnkeltplass.Prismodell,
+        norskIdent: NorskIdent,
+    ): Validated<GjennomforingEnkeltplass> = either {
+        val gjennomforing = repository.gjennomforing.getGjennomforingOrError(id)
+        ensure(gjennomforing is GjennomforingArena) {
+            FieldError.of("Gjennomføringen er ikke av typen Arena").nel()
+        }
+
+        val prismodell = validerPrisinformasjon(prisinformasjon, gjennomforing.tiltakstype.tiltakskode).bind()
+        val kandidat = validerMigreringskandidat(gjennomforing, tiltakstyper).bind()
+        val upsert = UpsertArenaEnkeltplass(
+            id = gjennomforing.id,
+            tiltakskode = gjennomforing.tiltakstype.tiltakskode,
+            arrangorId = gjennomforing.arrangor.id,
+            navn = gjennomforing.navn,
+            status = toGjennomforingEnkeltplassStatus(kandidat.deltaker.status.type),
+            startDato = kandidat.deltaker.startDato,
+            sluttDato = kandidat.deltaker.sluttDato,
+            deltidsprosent = kandidat.deltaker.deltakelsesmengder.lastOrNull()?.deltakelsesprosent?.toDouble() ?: 100.0,
+            antallPlasser = gjennomforing.antallPlasser,
+            arenaTiltaksnummer = gjennomforing.arena?.tiltaksnummer,
+            arenaAnsvarligEnhet = gjennomforing.arena?.ansvarligNavEnhet,
+            ansvarligEnhet = kandidat.ansvarligEnhet,
+            prismodell = prismodell,
+        )
+        upsert(upsert)
+            .also { updateFreeTextSearch(it, norskIdent) }
+            .also { publishTiltaksgjennomforingV2ToKafka(it) }
+    }
+
     private fun endringsloggFraDeltakelse(
         upsert: UpsertArenaEnkeltplass,
         gjennomforing: GjennomforingEnkeltplass,
@@ -516,10 +627,10 @@ class GjennomforingEnkeltplassService(
 
     private fun QueryContext.endrePrismodell(
         gjennomforingId: UUID,
-        prisinformasjon: UpsertEnkeltplass.Prismodell,
+        prismodell: UpsertEnkeltplass.Prismodell,
         behandling: TotrinnskontrollBehandling,
     ): Either<Nothing, Enkeltplass> {
-        upsertPrismodell(gjennomforingId, prisinformasjon)
+        upsertPrismodell(gjennomforingId, prismodell)
 
         val oppdatert = repository.gjennomforing.getGjennomforingEnkeltplassOrError(gjennomforingId)
         publishTiltaksgjennomforingV2ToKafka(oppdatert)
@@ -612,11 +723,11 @@ class GjennomforingEnkeltplassService(
 
     private fun QueryContext.upsertPrisendring(
         gjennomforingId: UUID,
-        prisinformasjon: UpsertEnkeltplass.Prismodell,
+        prismodell: UpsertEnkeltplass.Prismodell,
         behandling: TotrinnskontrollBehandling,
     ) {
         val prismodellId = UUID.randomUUID()
-        repository.prismodell.upsert(toPrismodell(prismodellId, prisinformasjon))
+        repository.prismodell.upsert(toPrismodell(prismodellId, prismodell))
 
         val prisendring = Totrinnskontroll.opprett(
             id = behandling.id,
@@ -660,7 +771,7 @@ class GjennomforingEnkeltplassService(
     }
 
     private fun QueryContext.getAndAcquireLock(id: UUID): Enkeltplass {
-        commands.gjennomforing.aquireLock(id)
+        commands.gjennomforing.acquireLock(id)
         return getEnkeltplassOrError(id)
     }
 
@@ -754,6 +865,7 @@ class GjennomforingEnkeltplassService(
     private fun QueryContext.settOkonomiTilGodkjenning(
         id: UUID,
         behandling: TotrinnskontrollBehandling,
+        operation: String,
     ): Enkeltplass {
         val totrinnskontroll = Totrinnskontroll.opprett(
             id = behandling.id,
@@ -764,7 +876,7 @@ class GjennomforingEnkeltplassService(
         )
         queries.totrinnskontroll.upsert(totrinnskontroll)
         outbox.publish(totrinnskontroll)
-        return logEndring("Deltaker søkt inn", id, behandling.behandletAv)
+        return logEndring(operation, id, behandling.behandletAv)
     }
 
     private fun QueryContext.settOkonomiGodkjent(
@@ -776,6 +888,24 @@ class GjennomforingEnkeltplassService(
             queries.totrinnskontroll.upsert(godkjent)
             outbox.publish(godkjent)
             logEndring("Enkeltplass ble godkjent", id, agent)
+        }
+    }
+
+    private fun QueryContext.opprettOgGodkjennOkonomi(
+        gjennomforingId: UUID,
+        behandletAv: NavIdent,
+        endring: String,
+    ): Validated<Enkeltplass> {
+        return Totrinnskontroll.opprett(
+            id = UUID.randomUUID(),
+            entityId = gjennomforingId,
+            type = TotrinnskontrollType.ENKELTPLASS_OKONOMI,
+            behandletAv = behandletAv,
+            behandletBegrunnelse = endring,
+        ).godkjenn(Tiltaksadministrasjon).mapLeft { it.toFieldErrors() }.map { godkjent ->
+            queries.totrinnskontroll.upsert(godkjent)
+            outbox.publish(godkjent)
+            logEndring(endring, gjennomforingId, behandletAv)
         }
     }
 

@@ -2,7 +2,7 @@ package no.nav.mulighetsrommet.admin.gjennomforing
 
 import arrow.core.Either
 import arrow.core.left
-import arrow.core.raise.context.either
+import arrow.core.raise.either
 import arrow.core.right
 import arrow.core.toNonEmptySetOrThrow
 import no.nav.mulighetsrommet.admin.AdminDatabase
@@ -30,6 +30,8 @@ import no.nav.mulighetsrommet.api.domain.navansatt.OkonomiAuthorizationError
 import no.nav.mulighetsrommet.api.domain.navansatt.OkonomiBeslutningContext
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.domain.personalia.AvvistGrunn
+import no.nav.mulighetsrommet.api.domain.personalia.Personalia
+import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
 import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeFeature
 import no.nav.mulighetsrommet.api.shared.PaginatedResult
 import no.nav.mulighetsrommet.api.shared.Pagination
@@ -94,8 +96,17 @@ class GjennomforingDetaljerService(
 
                 OkonomiAuthorization.kanLeseEnkeltplass(ansatt).onLeft { error ->
                     when (error) {
-                        is OkonomiAuthorizationError.ManglerKontorspesifikkTilgang -> GjennomforingDetaljerError.ManglerTilgang("Du mangler kontorspesifikk lesetilgang til enkeltplass", ansatt.navIdent, error.requiredRoles).left()
-                        is OkonomiAuthorizationError.ManglerTilgang -> GjennomforingDetaljerError.ManglerTilgang("Du mangler lesetilgang til enkeltplass", ansatt.navIdent, error.requiredRoles).left()
+                        is OkonomiAuthorizationError.ManglerKontorspesifikkTilgang -> GjennomforingDetaljerError.ManglerTilgang(
+                            "Du mangler kontorspesifikk lesetilgang til enkeltplass",
+                            ansatt.navIdent,
+                            error.requiredRoles,
+                        ).left()
+
+                        is OkonomiAuthorizationError.ManglerTilgang -> GjennomforingDetaljerError.ManglerTilgang(
+                            "Du mangler lesetilgang til enkeltplass",
+                            ansatt.navIdent,
+                            error.requiredRoles,
+                        ).left()
                     }
                 }
 
@@ -118,17 +129,7 @@ class GjennomforingDetaljerService(
 
                 val deltakerDto = deltaker?.let { deltaker ->
                     val personalia = personaliaPort.getPersonalia(deltaker.id, accessType)
-                    val norskIdent = personalia.norskIdent()
-                    val avvistGrunn = personalia.avvistGrunn
-                    if (avvistGrunn != null) {
-                        return GjennomforingDetaljerError.PersonaliaSjekkAvvist(avvistGrunn).left()
-                    } else if (norskIdent != null) {
-                        auditLog.visEnkeltplassDeltaker(gjennomforing.id, navIdent, norskIdent)
-                    }
-                    val veilederNavn = deltaker.navVeileder?.navIdent?.let {
-                        navAnsattService.getNavAnsattNavnFromAzure(it, AccessType.M2M)
-                    }
-                    DeltakerDto.from(deltaker, personalia, veilederNavn, dato = LocalDate.now())
+                    toDeltakerDto(deltaker, personalia, navIdent).bind()
                 }
 
                 val opplaringKategorisering = db.session { queries.opplaering.get(gjennomforing.id) }
@@ -142,6 +143,16 @@ class GjennomforingDetaljerService(
                 ).right()
             }
         }
+    }
+
+    suspend fun findDeltakerDto(
+        gjennomforingId: UUID,
+        accessType: AccessType.OBO.AzureAd,
+        navIdent: NavIdent,
+    ): Either<GjennomforingDetaljerError.PersonaliaSjekkAvvist, DeltakerDto?> = either {
+        val deltaker = db.session { getDeltaker(gjennomforingId) } ?: return@either null
+        val personalia = personaliaPort.getPersonalia(deltaker.id, accessType)
+        toDeltakerDto(deltaker, personalia, navIdent).bind()
     }
 
     fun getGjennomforingTiltaksadministrasjon(id: UUID): GjennomforingTiltaksadministrasjon? = db.session {
@@ -186,14 +197,6 @@ class GjennomforingDetaljerService(
         }.right()
     }
 
-    private fun QueryContext.getDeltaker(gjennomforingId: UUID): Deltaker? {
-        val deltakelser = repository.deltaker.getByGjennomforing(gjennomforingId)
-        if (deltakelser.size > 1) {
-            error("Enkeltplass med id=$gjennomforingId har ${deltakelser.size} antall deltakere (forventet kun én)")
-        }
-        return deltakelser.firstOrNull()
-    }
-
     suspend fun exportToExcel(
         filter: AdminTiltaksgjennomforingFilter,
         accessType: AccessType.OBO.AzureAd,
@@ -212,6 +215,16 @@ class GjennomforingDetaljerService(
             }
     }
 
+    fun getHandlinger(navIdent: NavIdent): Set<GjennomforingHandling> = db.session {
+        val ansatt = repository.navAnsatt.get(navIdent) ?: return@session emptySet()
+        setOfNotNull(
+            GjennomforingHandling.MIGRER_ENKELTPLASS.takeIf {
+                OkonomiAuthorization.erSaksbehandlerEnkeltplass(ansatt).isRight() &&
+                    tiltakskoderForArenaMigrering.any(tiltakstypeService::erMigrert)
+            },
+        )
+    }
+
     fun getHandlinger(id: UUID, navIdent: NavIdent): Set<GjennomforingHandling> {
         val ansatt = navAnsattService.getNavAnsattByNavIdent(navIdent) ?: return setOf()
         val gjennomforing = db.session { getGjennomforing(id) } ?: return setOf()
@@ -220,6 +233,31 @@ class GjennomforingDetaljerService(
             is GjennomforingEnkeltplass -> getHandlingerEnkeltplass(gjennomforing, ansatt)
             is GjennomforingArena -> setOf()
         }
+    }
+
+    private fun QueryContext.getDeltaker(gjennomforingId: UUID): Deltaker? {
+        val deltakelser = repository.deltaker.getByGjennomforing(gjennomforingId)
+        if (deltakelser.size > 1) {
+            error("Enkeltplass med id=$gjennomforingId har ${deltakelser.size} antall deltakere (forventet kun én)")
+        }
+        return deltakelser.firstOrNull()
+    }
+
+    private suspend fun toDeltakerDto(
+        deltaker: Deltaker,
+        personalia: Personalia,
+        navIdent: NavIdent,
+    ): Either<GjennomforingDetaljerError.PersonaliaSjekkAvvist, DeltakerDto> = either {
+        personalia.avvistGrunn?.let {
+            raise(GjennomforingDetaljerError.PersonaliaSjekkAvvist(it))
+        }
+        personalia.norskIdent()?.let {
+            auditLog.visEnkeltplassDeltaker(deltaker.gjennomforingId, navIdent, it)
+        }
+        val veilederNavn = deltaker.navVeileder?.navIdent?.let {
+            navAnsattService.getNavAnsattNavnFromAzure(it, AccessType.M2M)
+        }
+        DeltakerDto.from(deltaker, personalia, veilederNavn, dato = LocalDate.now())
     }
 
     private fun QueryContext.getGjennomforing(id: UUID): Gjennomforing? {
@@ -270,10 +308,17 @@ class GjennomforingDetaljerService(
 
         val okonomiKanBehandlesAvNavAnsatt = okonomi?.kanBehandlesAv(ansatt.navIdent) == true
         val prisendringKanBehandlesAvNavAnsatt = prisendring?.kanBehandlesAv(ansatt.navIdent) == true
+        val prismodell = gjennomforing.prismodell
         return setOfNotNull(
-            GjennomforingHandling.OPPRETT_TILSAGN.takeIf { !gjennomforing.status.sperrerOkonomi() },
-            GjennomforingHandling.OPPRETT_UTBETALING.takeIf { !gjennomforing.status.sperrerOkonomi() },
-            GjennomforingHandling.OPPRETT_TILSKUDDSBEHANDLING.takeIf { !gjennomforing.status.sperrerOkonomi() },
+            GjennomforingHandling.OPPRETT_TILSAGN.takeIf {
+                prismodell is Prismodell.AnskaffetEnkeltplass && !gjennomforing.status.sperrerOkonomi()
+            },
+            GjennomforingHandling.OPPRETT_UTBETALING.takeIf {
+                prismodell is Prismodell.AnskaffetEnkeltplass && !gjennomforing.status.sperrerOkonomi()
+            },
+            GjennomforingHandling.OPPRETT_TILSKUDDSBEHANDLING.takeIf {
+                prismodell is Prismodell.TilskuddTilOpplaering && !gjennomforing.status.sperrerOkonomi()
+            },
             GjennomforingHandling.SETT_PA_VENT_ENKELTPLASS_OKONOMI.takeIf {
                 okonomiKanBehandlesAvNavAnsatt && okonomi.kanSettesPaVent()
             },
@@ -306,6 +351,9 @@ class GjennomforingDetaljerService(
 
             return when (handling) {
                 GjennomforingHandling.FORHANDSVIS_I_MODIA -> true
+
+                GjennomforingHandling.MIGRER_ENKELTPLASS,
+                -> OkonomiAuthorization.erSaksbehandlerEnkeltplass(ansatt).isRight()
 
                 GjennomforingHandling.ENDRE_APEN_FOR_PAMELDING,
                 GjennomforingHandling.ENDRE_TILGJENGELIG_FOR_ARRANGOR,

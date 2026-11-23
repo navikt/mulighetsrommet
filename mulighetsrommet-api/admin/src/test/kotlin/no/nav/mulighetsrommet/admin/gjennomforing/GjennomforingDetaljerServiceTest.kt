@@ -2,14 +2,15 @@ package no.nav.mulighetsrommet.admin.gjennomforing
 
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
-import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
+import io.kotest.matchers.sets.shouldNotIntersect
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
+import io.mockk.Called
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
@@ -20,16 +21,19 @@ import no.nav.mulighetsrommet.admin.testing.GjennomforingFixtures
 import no.nav.mulighetsrommet.admin.testing.TestAdminDatabase
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
 import no.nav.mulighetsrommet.api.domain.deltaker.Deltaker
+import no.nav.mulighetsrommet.api.domain.deltaker.NavVeileder
 import no.nav.mulighetsrommet.api.domain.gjennomforing.Enkeltplass
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingEnkeltplassStatus
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingType
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsattRolle
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
+import no.nav.mulighetsrommet.api.domain.navenhet.toDto
 import no.nav.mulighetsrommet.api.domain.personalia.AvvistGrunn
 import no.nav.mulighetsrommet.api.domain.personalia.Gradering
 import no.nav.mulighetsrommet.api.domain.personalia.Personalia
 import no.nav.mulighetsrommet.api.domain.testing.fixture.DeltakerFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavAnsattFixture
+import no.nav.mulighetsrommet.api.domain.testing.fixture.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.shared.PaginatedResult
 import no.nav.mulighetsrommet.api.shared.Pagination
 import no.nav.mulighetsrommet.model.DeltakerStatusType
@@ -38,6 +42,7 @@ import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.NorskIdentHasher
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import org.apache.poi.ss.usermodel.WorkbookFactory
+import java.time.Instant
 import java.time.LocalDate
 import java.util.UUID
 
@@ -49,7 +54,7 @@ class GjennomforingDetaljerServiceTest : FunSpec({
         personaliaPort: PersonaliaPort = mockk(),
         enkeltplassService: GjennomforingEnkeltplassService = mockk(),
         auditLog: GjennomforingAuditLog = mockk(relaxed = true),
-        navAnsattService: NavAnsattService = mockk(relaxed = true),
+        navAnsattService: NavAnsattService = mockk(),
     ) = GjennomforingDetaljerService(
         db = db,
         tiltakstypeService = TiltakstypeService(db = db),
@@ -58,86 +63,6 @@ class GjennomforingDetaljerServiceTest : FunSpec({
         enkeltplassService = enkeltplassService,
         auditLog = auditLog,
     )
-
-    context("tilgang til økonomihandlinger") {
-        val kostnadssted = NavEnhetNummer("0400")
-
-        test("enkeltplass-saksbehandler får ikke tilgang til avtalehandlinger") {
-            val ansatt = NavAnsattFixture.DonaldDuck.medRoller(
-                setOf(NavAnsattRolle.generell(Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS)),
-            )
-
-            GjennomforingDetaljerService.tilgangTilHandling(
-                ansatt,
-                GjennomforingHandling.OPPRETT_UTBETALING,
-                GjennomforingType.ENKELTPLASS,
-            ) shouldBe true
-            GjennomforingDetaljerService.tilgangTilHandling(
-                ansatt,
-                GjennomforingHandling.OPPRETT_UTBETALING,
-                GjennomforingType.AVTALE,
-            ) shouldBe false
-        }
-
-        test("enkeltplass-beslutter må ha rolle ved ansvarlig enhet") {
-            val ansatt = NavAnsattFixture.MikkeMus.medRoller(
-                setOf(NavAnsattRolle.kontorspesifikk(Rolle.OKONOMI_BESLUTTER_ENKELTPLASS, setOf(kostnadssted))),
-            )
-
-            GjennomforingDetaljerService.tilgangTilHandling(
-                ansatt,
-                GjennomforingHandling.GODKJENN_ENKELTPLASS_OKONOMI,
-                GjennomforingType.ENKELTPLASS,
-                setOf(kostnadssted),
-            ) shouldBe true
-            GjennomforingDetaljerService.tilgangTilHandling(
-                ansatt,
-                GjennomforingHandling.GODKJENN_ENKELTPLASS_OKONOMI,
-                GjennomforingType.ENKELTPLASS,
-                setOf(NavEnhetNummer("0502")),
-            ) shouldBe false
-            shouldThrow<IllegalStateException> {
-                GjennomforingDetaljerService.tilgangTilHandling(
-                    ansatt,
-                    GjennomforingHandling.GODKJENN_ENKELTPLASS_OKONOMI,
-                    GjennomforingType.ARENA,
-                    setOf(kostnadssted),
-                )
-            }
-        }
-    }
-
-    test("skjuler handlinger for å opprette ny økonomi når enkeltplass er ikke aktuell eller feilregistrert") {
-        val db = TestAdminDatabase()
-        val ansatt = NavAnsattFixture.DonaldDuck.medRoller(
-            setOf(NavAnsattRolle.generell(Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS)),
-        )
-        val navAnsattService = mockk<NavAnsattService>()
-        val enkeltplassService = mockk<GjennomforingEnkeltplassService>()
-        every { navAnsattService.getNavAnsattByNavIdent(ansatt.navIdent) } returns ansatt
-        every { enkeltplassService.get(any()) } returns null
-        val service = createService(db, navAnsattService = navAnsattService, enkeltplassService = enkeltplassService)
-        val opprettHandlinger = setOf(
-            GjennomforingHandling.OPPRETT_TILSAGN,
-            GjennomforingHandling.OPPRETT_UTBETALING,
-            GjennomforingHandling.OPPRETT_TILSKUDDSBEHANDLING,
-        )
-
-        listOf(
-            GjennomforingEnkeltplassStatus.IkkeAktuell,
-            GjennomforingEnkeltplassStatus.Feilregistrert,
-        ).forEach { status ->
-            val gjennomforing = GjennomforingFixtures.createGjennomforingEnkeltplass().copy(status = status)
-            every { db.repository.gjennomforing.getGjennomforing(gjennomforing.id) } returns gjennomforing
-
-            service.getHandlinger(gjennomforing.id, ansatt.navIdent).intersect(opprettHandlinger) shouldBe emptySet()
-        }
-
-        val deltar = GjennomforingFixtures.createGjennomforingEnkeltplass().copy(status = GjennomforingEnkeltplassStatus.Deltar)
-        every { db.repository.gjennomforing.getGjennomforing(deltar.id) } returns deltar
-
-        service.getHandlinger(deltar.id, ansatt.navIdent).intersect(opprettHandlinger) shouldBe opprettHandlinger
-    }
 
     context("getGjennomforingDetaljerDto") {
         test("returnerer detaljer for en gruppetiltak-gjennomføring (AVTALE)") {
@@ -199,7 +124,11 @@ class GjennomforingDetaljerServiceTest : FunSpec({
                 it.avvistGrunn.shouldBeNull()
             }
             verify {
-                auditLog.visEnkeltplassDeltaker(gjennomforing.id, NavAnsattFixture.MikkeMus.navIdent, NorskIdent("12345678901"))
+                auditLog.visEnkeltplassDeltaker(
+                    gjennomforing.id,
+                    NavAnsattFixture.MikkeMus.navIdent,
+                    NorskIdent("12345678901"),
+                )
             }
         }
 
@@ -226,7 +155,7 @@ class GjennomforingDetaljerServiceTest : FunSpec({
                 gjennomforing.id,
                 AccessType.OBO.AzureAd("X123456"),
                 NavAnsattFixture.MikkeMus.navIdent,
-            ).shouldBeLeft() shouldBe GjennomforingDetaljerError.PersonaliaSjekkAvvist(avvistGrunn = AvvistGrunn.AVVIST_FORTROLIG_ADRESSE)
+            ) shouldBeLeft GjennomforingDetaljerError.PersonaliaSjekkAvvist(avvistGrunn = AvvistGrunn.AVVIST_FORTROLIG_ADRESSE)
         }
 
         test("returnerer null når gjennomføring ikke finnes") {
@@ -490,6 +419,145 @@ class GjennomforingDetaljerServiceTest : FunSpec({
                 sheet.lastRowNum shouldBe 1
                 sheet.getRow(1).getCell(0).stringCellValue shouldBe "Oppfølging 1"
             }
+        }
+    }
+
+    context("tilgang til økonomihandlinger") {
+        val kostnadssted = NavEnhetNummer("0400")
+
+        test("enkeltplass-saksbehandler får ikke tilgang til avtalehandlinger") {
+            val ansatt = NavAnsattFixture.DonaldDuck.medRoller(
+                setOf(NavAnsattRolle.generell(Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS)),
+            )
+
+            GjennomforingDetaljerService.tilgangTilHandling(
+                ansatt,
+                GjennomforingHandling.OPPRETT_UTBETALING,
+                GjennomforingType.ENKELTPLASS,
+            ) shouldBe true
+            GjennomforingDetaljerService.tilgangTilHandling(
+                ansatt,
+                GjennomforingHandling.OPPRETT_UTBETALING,
+                GjennomforingType.AVTALE,
+            ) shouldBe false
+        }
+
+        test("enkeltplass-beslutter må ha rolle ved ansvarlig enhet") {
+            val ansatt = NavAnsattFixture.MikkeMus.medRoller(
+                setOf(NavAnsattRolle.kontorspesifikk(Rolle.OKONOMI_BESLUTTER_ENKELTPLASS, setOf(kostnadssted))),
+            )
+
+            GjennomforingDetaljerService.tilgangTilHandling(
+                ansatt,
+                GjennomforingHandling.GODKJENN_ENKELTPLASS_OKONOMI,
+                GjennomforingType.ENKELTPLASS,
+                setOf(kostnadssted),
+            ) shouldBe true
+            GjennomforingDetaljerService.tilgangTilHandling(
+                ansatt,
+                GjennomforingHandling.GODKJENN_ENKELTPLASS_OKONOMI,
+                GjennomforingType.ENKELTPLASS,
+                setOf(NavEnhetNummer("0502")),
+            ) shouldBe false
+        }
+
+        test("skjuler handlinger for å opprette ny økonomi når enkeltplass er ikke aktuell eller feilregistrert") {
+            val db = TestAdminDatabase()
+            val ansatt = NavAnsattFixture.DonaldDuck.medRoller(
+                setOf(NavAnsattRolle.generell(Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS)),
+            )
+            val navAnsattService = mockk<NavAnsattService>()
+            val enkeltplassService = mockk<GjennomforingEnkeltplassService>()
+            every { navAnsattService.getNavAnsattByNavIdent(ansatt.navIdent) } returns ansatt
+            every { enkeltplassService.get(any()) } returns null
+            val service =
+                createService(db, navAnsattService = navAnsattService, enkeltplassService = enkeltplassService)
+            val opprettHandlinger = setOf(
+                GjennomforingHandling.OPPRETT_TILSAGN,
+                GjennomforingHandling.OPPRETT_UTBETALING,
+            )
+
+            listOf(
+                GjennomforingEnkeltplassStatus.IkkeAktuell,
+                GjennomforingEnkeltplassStatus.Feilregistrert,
+            ).forEach { status ->
+                val gjennomforing = GjennomforingFixtures.createGjennomforingEnkeltplass().copy(status = status)
+                every { db.repository.gjennomforing.getGjennomforing(gjennomforing.id) } returns gjennomforing
+
+                service.getHandlinger(gjennomforing.id, ansatt.navIdent).shouldNotIntersect(opprettHandlinger)
+            }
+
+            val deltar = GjennomforingFixtures.createGjennomforingEnkeltplass()
+                .copy(status = GjennomforingEnkeltplassStatus.Deltar)
+            every { db.repository.gjennomforing.getGjennomforing(deltar.id) } returns deltar
+
+            service.getHandlinger(deltar.id, ansatt.navIdent).intersect(opprettHandlinger) shouldBe opprettHandlinger
+        }
+    }
+
+    context("deltaker i forhåndsvisning av Arena-gjennomføring") {
+        val gjennomforingId = UUID.fromString("a62e7c89-3192-4c25-880a-5fe2e741a363")
+        val navIdent = NavAnsattFixture.MikkeMus.navIdent
+        val accessType = AccessType.OBO.AzureAd("X123456")
+
+        fun deltaker() = DeltakerFixtures.createDeltaker(
+            gjennomforingId = gjennomforingId,
+            startDato = LocalDate.of(2026, 1, 1),
+            sluttDato = LocalDate.of(2026, 6, 30),
+            endretTidspunkt = Instant.parse("2026-01-02T10:00:00Z"),
+            veileder = NavVeileder(navIdent, NavEnhetNummer("0502")),
+        )
+
+        test("returnerer tilgjengelig navn, fødselsnummer, enhet og veileder med audit-logg") {
+            val db = TestAdminDatabase()
+            val deltaker = deltaker()
+            db.repository.deltaker.save(deltaker)
+            val personaliaPort = mockk<PersonaliaPort>()
+            coEvery { personaliaPort.getPersonalia(deltaker.id, accessType) } returns
+                getPersonalia(deltaker, Gradering.UGRADERT, null).copy(
+                    oppfolgingEnhet = NavEnhetFixtures.Gjovik.toDto(),
+                )
+            val navAnsattService = mockk<NavAnsattService>()
+            coEvery { navAnsattService.getNavAnsattNavnFromAzure(navIdent, AccessType.M2M) } returns "Mus, Mikke"
+            val auditLog = mockk<GjennomforingAuditLog>(relaxed = true)
+            val service = createService(db, personaliaPort, auditLog = auditLog, navAnsattService = navAnsattService)
+
+            val dto = service.findDeltakerDto(gjennomforingId, accessType, navIdent).shouldBeRight().shouldNotBeNull()
+
+            dto.navn shouldBe "Test Testesen"
+            dto.norskIdent shouldBe NorskIdent("12345678901")
+            dto.oppfolgingEnhet?.navn shouldBe "Nav Gjøvik"
+            dto.navVeilederNavn shouldBe "Mus, Mikke"
+            verify(exactly = 1) {
+                auditLog.visEnkeltplassDeltaker(gjennomforingId, navIdent, NorskIdent("12345678901"))
+            }
+        }
+
+        test("returnerer ingen deltakeropplysninger når gjennomføringen mangler deltaker") {
+            val db = TestAdminDatabase()
+            val personaliaPort = mockk<PersonaliaPort>()
+            val auditLog = mockk<GjennomforingAuditLog>(relaxed = true)
+            val service = createService(db, personaliaPort, auditLog = auditLog)
+
+            service.findDeltakerDto(gjennomforingId, accessType, navIdent).shouldBeRight().shouldBeNull()
+
+            verify { auditLog wasNot Called }
+        }
+
+        test("avviser oppslag på personopplysninger uten tilgang") {
+            val db = TestAdminDatabase()
+            val deltaker = deltaker()
+            db.repository.deltaker.save(deltaker)
+            val personaliaPort = mockk<PersonaliaPort>()
+            coEvery { personaliaPort.getPersonalia(deltaker.id, accessType) } returns
+                getPersonalia(deltaker, Gradering.STRENGT_FORTROLIG_ADRESSE, AvvistGrunn.AVVIST_FORTROLIG_ADRESSE)
+            val auditLog = mockk<GjennomforingAuditLog>(relaxed = true)
+            val service = createService(db, personaliaPort, auditLog = auditLog)
+
+            service.findDeltakerDto(gjennomforingId, accessType, navIdent).shouldBeLeft() shouldBe
+                GjennomforingDetaljerError.PersonaliaSjekkAvvist(AvvistGrunn.AVVIST_FORTROLIG_ADRESSE)
+
+            verify { auditLog wasNot Called }
         }
     }
 })

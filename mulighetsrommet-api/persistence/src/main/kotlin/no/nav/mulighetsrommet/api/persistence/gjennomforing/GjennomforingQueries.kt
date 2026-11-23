@@ -244,6 +244,23 @@ class GjennomforingQueries(private val session: Session) : GjennomforingReposito
         execute(queryOf(deleteAdministratorer, id, createArrayOfValue(administratorer) { it.value }))
     }
 
+    override fun findIdsByArenaTiltaksnummer(tiltaksnummer: Tiltaksnummer): List<UUID> {
+        @Language("PostgreSQL")
+        val query = """
+            select id from gjennomforing
+            where arena_tiltaksnummer in (:med_hash, :med_skraastrek)
+        """.trimIndent()
+        return session.list(
+            queryOf(
+                query,
+                mapOf(
+                    "med_hash" to tiltaksnummer.value.replace('/', '#'),
+                    "med_skraastrek" to tiltaksnummer.value.replace('#', '/'),
+                ),
+            ),
+        ) { it.uuid("id") }
+    }
+
     override fun getAdministratorer(id: UUID): List<GjennomforingAvtaleDetaljer.Administrator>? {
         @Language("PostgreSQL")
         val query = """

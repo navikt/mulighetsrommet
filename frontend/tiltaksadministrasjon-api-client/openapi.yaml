@@ -1560,6 +1560,97 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
+  /api/tiltaksadministrasjon/enkeltplasser/handlinger:
+    get:
+      tags:
+      - Enkeltplass
+      operationId: getEnkeltplassHandlinger
+      parameters: []
+      responses:
+        "200":
+          description: Mulige handlinger på enkeltplasser for innlogget bruker
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/GjennomforingHandling"
+                uniqueItems: true
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/tiltaksadministrasjon/enkeltplasser/migrering/sok:
+    post:
+      tags:
+      - Enkeltplass
+      operationId: finnArenaEnkeltplass
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FinnArenaEnkeltplassRequest"
+        required: false
+      responses:
+        "200":
+          description: Arena-gjennomføringer som kan migreres
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ArenaEnkeltplassDto"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/tiltaksadministrasjon/enkeltplasser/{id}/migrer:
+    post:
+      tags:
+      - Enkeltplass
+      operationId: migrerEnkeltplass
+      parameters:
+      - name: id
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MigrerEnkeltplassRequest"
+        required: false
+      responses:
+        "200":
+          description: Enkeltplass migrert med prisinformasjon
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MigrerEnkeltplassResponse"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
   /api/tiltaksadministrasjon/enkeltplasser/{id}/godkjenn-okonomi:
     post:
       tags:
@@ -6829,6 +6920,121 @@ components:
       - SETT_PA_VENT_ENKELTPLASS_OKONOMI
       - GODKJENN_ENKELTPLASS_PRISENDRING
       - SETT_PA_VENT_ENKELTPLASS_PRISENDRING
+      - MIGRER_ENKELTPLASS
+    FinnArenaEnkeltplassRequest:
+      type: object
+      properties:
+        search:
+          type: string
+      required:
+      - search
+    ArenaEnkeltplassDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        tiltaksnummer:
+          type: string
+        navn:
+          type: string
+        tiltakstype:
+          $ref: "#/components/schemas/Gjennomforing.Tiltakstype"
+        arrangor:
+          $ref: "#/components/schemas/Gjennomforing.ArrangorUnderenhet"
+        ansvarligEnhet:
+          type: string
+        deltakerStatus:
+          $ref: "#/components/schemas/DeltakerStatusType"
+        startDato:
+          type:
+          - "null"
+          - string
+          format: date
+        sluttDato:
+          type:
+          - "null"
+          - string
+          format: date
+        deltaker:
+          $ref: "#/components/schemas/DeltakerDto"
+      required:
+      - ansvarligEnhet
+      - arrangor
+      - deltaker
+      - deltakerStatus
+      - id
+      - navn
+      - sluttDato
+      - startDato
+      - tiltaksnummer
+      - tiltakstype
+    Gjennomforing.ArrangorUnderenhet:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        organisasjonsnummer:
+          type: string
+        navn:
+          type: string
+        slettet:
+          type: boolean
+      required:
+      - id
+      - navn
+      - organisasjonsnummer
+      - slettet
+    DeltakerStatusType:
+      type: string
+      enum:
+      - AVBRUTT
+      - AVBRUTT_UTKAST
+      - DELTAR
+      - FEILREGISTRERT
+      - FULLFORT
+      - HAR_SLUTTET
+      - IKKE_AKTUELL
+      - KLADD
+      - PABEGYNT_REGISTRERING
+      - SOKT_INN
+      - UTKAST_TIL_PAMELDING
+      - VENTELISTE
+      - VENTER_PA_OPPSTART
+      - VURDERES
+    MigrerEnkeltplassRequest:
+      type: object
+      properties:
+        type:
+          $ref: "#/components/schemas/PrismodellType"
+        totalbelop:
+          type:
+          - "null"
+          - integer
+          format: int32
+        prisbetingelser:
+          type:
+          - "null"
+          - string
+        tilskudd:
+          type: object
+          additionalProperties:
+            type: integer
+            format: int32
+      required:
+      - prisbetingelser
+      - tilskudd
+      - totalbelop
+      - type
+    MigrerEnkeltplassResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+      required:
+      - id
     GodkjennOkonomiRequest:
       type: object
       properties:
