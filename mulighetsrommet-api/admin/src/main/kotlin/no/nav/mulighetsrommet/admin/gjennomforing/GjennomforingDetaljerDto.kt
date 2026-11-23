@@ -84,6 +84,7 @@ data class GjennomforingAvtaleDto(
     val apentForPamelding: Boolean,
     val deltidsprosent: Double,
     val tilgjengeligForArrangorDato: LocalDate?,
+    val opprettetDato: LocalDate,
     val administratorer: List<Administrator>,
     val stengt: List<StengtPeriode>,
     val avbrytelse: AvbrytelseDto?,

@@ -6228,6 +6228,9 @@ components:
           - "null"
           - string
           format: date
+        opprettetDato:
+          type: string
+          format: date
         administratorer:
           type: array
           items:
@@ -6254,6 +6257,7 @@ components:
       - id
       - lopenummer
       - navn
+      - opprettetDato
       - oppstart
       - pameldingType
       - sluttDato

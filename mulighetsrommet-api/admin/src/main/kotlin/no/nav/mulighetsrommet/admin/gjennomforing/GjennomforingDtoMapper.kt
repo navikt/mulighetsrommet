@@ -10,6 +10,7 @@ import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingEnkeltplassStatus
 import no.nav.mulighetsrommet.api.domain.opplaring.OpplaringKategoriseringDetaljer
 import no.nav.mulighetsrommet.model.DataElement
+import java.time.ZoneId
 
 object GjennomforingDtoMapper {
     fun fromGjennomforingAvtale(
@@ -42,6 +43,7 @@ object GjennomforingDtoMapper {
                 deltidsprosent = gjennomforing.deltidsprosent,
                 stengt = gjennomforing.stengt.map { it.toStengtPeriodeDto() },
                 tilgjengeligForArrangorDato = detaljer.tilgjengeligForArrangorDato,
+                opprettetDato = gjennomforing.opprettetTidspunkt.atZone(ZoneId.of("Europe/Oslo")).toLocalDate(),
                 administratorer = detaljer.administratorer.map { it.toAdministratorDto() },
                 avbrytelse = gjennomforing.status.toAvbrytelseDto(),
             ),
