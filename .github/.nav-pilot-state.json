@@ -35,5 +35,8 @@
       "hash": "a504870d7b15c9d1",
       "revision": "c9a073f63ddcf5a7378f856223f64bf92285176a"
     }
+  ],
+  "overrides": [
+    ".github/skills/test-best-practices/SKILL.md"
   ]
 }
