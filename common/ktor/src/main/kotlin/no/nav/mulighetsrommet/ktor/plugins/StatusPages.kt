@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.ktor.plugins
 
-import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
 import io.ktor.server.application.ApplicationCall
@@ -12,25 +11,20 @@ import io.ktor.server.plugins.NotFoundException
 import io.ktor.server.plugins.PayloadTooLargeException
 import io.ktor.server.plugins.UnsupportedMediaTypeException
 import io.ktor.server.plugins.statuspages.StatusPages
-import io.ktor.server.response.respondText
-import io.opentelemetry.api.trace.Span
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.JsonPrimitive
-import kotlinx.serialization.json.encodeToJsonElement
-import kotlinx.serialization.json.jsonObject
+import io.ktor.server.response.respond
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
 import no.nav.mulighetsrommet.ktor.exception.InternalServerError
 import no.nav.mulighetsrommet.ktor.exception.NotFound
 import no.nav.mulighetsrommet.ktor.exception.StatusException
-import no.nav.mulighetsrommet.ktor.exception.Unathorized
+import no.nav.mulighetsrommet.ktor.exception.Unauthorized
 import no.nav.mulighetsrommet.ktor.exception.toProblemDetail
 import no.nav.mulighetsrommet.model.ProblemDetail
 
 fun Application.configureStatusPages(logException: (HttpStatusCode, Throwable, ApplicationCall) -> Unit) {
+    install(ProblemDetailResponsePlugin)
     install(StatusPages) {
         status(HttpStatusCode.Unauthorized) {
-            val problemDetail = Unathorized(
+            val problemDetail = Unauthorized(
                 detail = "Du har ikke tilgang til denne tjenesten. Logg inn på nytt hvis du nylig har fått tilgang.",
             )
             call.respondWithProblemDetail(problemDetail)
@@ -97,16 +91,5 @@ fun Application.configureStatusPages(logException: (HttpStatusCode, Throwable, A
 }
 
 suspend fun ApplicationCall.respondWithProblemDetail(problem: ProblemDetail) {
-    val json = Json.encodeToJsonElement(problem).jsonObject
-
-    val traceId = Span.current().spanContext.traceId
-    val enriched = traceId?.let {
-        JsonObject(json + ("traceId" to JsonPrimitive(it)))
-    } ?: json
-
-    respondText(
-        text = enriched.toString(),
-        status = HttpStatusCode.fromValue(problem.status),
-        contentType = ContentType.Application.ProblemJson,
-    )
+    respond(problemDetailResponseContent(problem))
 }

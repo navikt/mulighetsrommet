@@ -83,9 +83,9 @@ fun Application.configure(config: AppConfig) {
         .register(Metrics.micrometerRegistry)
 
     configureAuthentication(config.auth)
+    configureStatusPages(this::logException)
     configureSerialization()
     configureMonitoring({ db.isHealthy() })
-    configureStatusPages(this::logException)
     configureHTTP()
 
     val texasClient = TexasClient(config.auth.texas, config.auth.texas.engine ?: config.httpClientEngine)

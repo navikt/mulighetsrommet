@@ -16,6 +16,7 @@ import no.nav.mulighetsrommet.api.domain.opplaring.UtdanningslopDetaljer
 import no.nav.mulighetsrommet.api.domain.tiltak.Prismodeller
 import no.nav.mulighetsrommet.api.janzz.PamOntologiService
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
+import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
 import no.nav.mulighetsrommet.model.Avtaletyper
 import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.model.Tiltakskode
@@ -89,9 +90,9 @@ fun Route.kodeverkRoutes() {
                     }
                 }
             }) {
-                val tiltakskode = call.queryParameters.get("tiltakskode")?.let { Tiltakskode.valueOf(it) }
+                val tiltakskode = call.queryParameters["tiltakskode"]?.let { Tiltakskode.valueOf(it) }
                 if (tiltakskode == null) {
-                    call.respond(BadRequest("Ukjent tiltakskode"))
+                    call.respondWithProblemDetail(BadRequest("Ukjent tiltakskode"))
                     return@get
                 }
                 val kategorisering = db.session { OpplaringKategoriseringMapper.from(tiltakskode) }
