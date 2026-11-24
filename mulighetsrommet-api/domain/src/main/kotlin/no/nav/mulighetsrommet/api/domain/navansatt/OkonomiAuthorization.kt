@@ -172,5 +172,5 @@ sealed class OkonomiAuthorizationError {
 }
 
 data class HarTilgang(
-    val roller: Set<Rolle>,
+    val roller: Set<Rolle> = emptySet(),
 )
