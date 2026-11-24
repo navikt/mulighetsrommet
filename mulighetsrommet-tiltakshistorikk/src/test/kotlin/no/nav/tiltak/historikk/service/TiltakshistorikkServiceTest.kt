@@ -1,18 +1,17 @@
 package no.nav.tiltak.historikk.service
 
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.mockk.mockk
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.tiltak.historikk.TestFixtures
-import no.nav.tiltak.historikk.TiltakshistorikkV1Dto
 import no.nav.tiltak.historikk.TiltakshistorikkV1Request
 import no.nav.tiltak.historikk.databaseConfig
 import no.nav.tiltak.historikk.db.TiltakshistorikkDatabase
 import no.nav.tiltak.historikk.model.ArrangorDeltakerHistorikkKilde
 import no.nav.tiltak.historikk.replikering.VirksomhetReplikering
+import no.nav.tiltak.historikk.shouldMatchExactlyIds
 import java.time.LocalDate
 import java.util.UUID
 
@@ -57,7 +56,7 @@ class TiltakshistorikkServiceTest : FunSpec({
             val config = TiltakshistorikkService.Config()
             val historikk = service(config).getTiltakshistorikk(request).historikk
 
-            historikk shouldContainExactlyIds listOf(arenaDeltakerId, kometDeltakerId, gruppeDeltakerId)
+            historikk shouldMatchExactlyIds listOf(arenaDeltakerId, kometDeltakerId, gruppeDeltakerId)
         }
 
         test("returnerer bare deltakere fra Arena for tiltakstypen når Arena er valgt") {
@@ -74,7 +73,7 @@ class TiltakshistorikkServiceTest : FunSpec({
             )
             val historikk = service(config).getTiltakshistorikk(request).historikk
 
-            historikk shouldContainExactlyIds listOf(arenaDeltakerId, gruppeDeltakerId)
+            historikk shouldMatchExactlyIds listOf(arenaDeltakerId, gruppeDeltakerId)
         }
 
         test("bytter mellom deltakere fra Komet og Arena uten å slette deltakere fra noen av kildene") {
@@ -91,7 +90,7 @@ class TiltakshistorikkServiceTest : FunSpec({
             )
             val kometHistorikk = service(config1).getTiltakshistorikk(request).historikk
 
-            kometHistorikk shouldContainExactlyIds listOf(kometDeltakerId, gruppeDeltakerId)
+            kometHistorikk shouldMatchExactlyIds listOf(kometDeltakerId, gruppeDeltakerId)
 
             val config2 = TiltakshistorikkService.Config(
                 arrangorTiltakHistorikkKilder = mapOf(
@@ -100,7 +99,7 @@ class TiltakshistorikkServiceTest : FunSpec({
             )
             val arenaHistorikk = service(config2).getTiltakshistorikk(request).historikk
 
-            arenaHistorikk shouldContainExactlyIds listOf(arenaDeltakerId, gruppeDeltakerId)
+            arenaHistorikk shouldMatchExactlyIds listOf(arenaDeltakerId, gruppeDeltakerId)
         }
 
         test("returnerer ikke deltakere fra Arena når Komet er valgt og Komet-deltakelsen mangler") {
@@ -116,7 +115,7 @@ class TiltakshistorikkServiceTest : FunSpec({
             )
             val historikk = service(config).getTiltakshistorikk(request).historikk
 
-            historikk shouldContainExactlyIds listOf(gruppeDeltakerId)
+            historikk shouldMatchExactlyIds listOf(gruppeDeltakerId)
         }
 
         test("returnerer deltakere fra valgt kilde uavhengig per tiltakstype") {
@@ -147,7 +146,7 @@ class TiltakshistorikkServiceTest : FunSpec({
             )
             val historikk = service(config).getTiltakshistorikk(request).historikk
 
-            historikk shouldContainExactlyIds listOf(kometDeltakerId, arenaGruppeDeltakerId)
+            historikk shouldMatchExactlyIds listOf(kometDeltakerId, arenaGruppeDeltakerId)
         }
     }
 
@@ -181,7 +180,7 @@ class TiltakshistorikkServiceTest : FunSpec({
             )
             val historikk = service(config).getTiltakshistorikk(request).historikk
 
-            historikk shouldContainExactlyIds listOf(arenaArbeidstreningId)
+            historikk shouldMatchExactlyIds listOf(arenaArbeidstreningId)
         }
 
         test("returnerer deltakere fra Arena når sluttdato er før cutoff-dato") {
@@ -201,7 +200,7 @@ class TiltakshistorikkServiceTest : FunSpec({
             )
             val historikk = service(config).getTiltakshistorikk(request).historikk
 
-            historikk shouldContainExactlyIds listOf(arenaArbeidstreningId)
+            historikk shouldMatchExactlyIds listOf(arenaArbeidstreningId)
         }
 
         test("returnerer deltakere fra Team Tiltak når sluttdato er på cutoff-dato") {
@@ -221,7 +220,7 @@ class TiltakshistorikkServiceTest : FunSpec({
             )
             val historikk = service(config).getTiltakshistorikk(request).historikk
 
-            historikk shouldContainExactlyIds listOf(avtaleId)
+            historikk shouldMatchExactlyIds listOf(avtaleId)
         }
 
         test("returnerer deltakere fra Team Tiltak når sluttdato er etter cutoff-dato") {
@@ -241,7 +240,7 @@ class TiltakshistorikkServiceTest : FunSpec({
             )
             val historikk = service(config).getTiltakshistorikk(request).historikk
 
-            historikk shouldContainExactlyIds listOf(avtaleId)
+            historikk shouldMatchExactlyIds listOf(avtaleId)
         }
 
         test("returnerer deltakere fra Team Tiltak når sluttdato mangler og cutoff-dato er konfigurert") {
@@ -261,11 +260,7 @@ class TiltakshistorikkServiceTest : FunSpec({
             )
             val historikk = service(config).getTiltakshistorikk(request).historikk
 
-            historikk shouldContainExactlyIds listOf(avtaleId)
+            historikk shouldMatchExactlyIds listOf(avtaleId)
         }
     }
 })
-
-private infix fun Collection<TiltakshistorikkV1Dto>.shouldContainExactlyIds(listOf: Collection<UUID>) {
-    map { it.id }.shouldContainExactlyInAnyOrder(listOf)
-}

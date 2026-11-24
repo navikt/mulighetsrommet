@@ -20,7 +20,8 @@ fun <R> withTestApplication(
     config: AppConfig = createTestApplicationConfig(oauth, httpClientEngine),
     additionalConfiguration: (Application.() -> Unit)? = null,
     test: suspend ApplicationTestBuilder.() -> R,
-) {
+): R {
+    var result: Result<R>? = null
     testApplication {
         application {
             configure(config)
@@ -34,8 +35,9 @@ fun <R> withTestApplication(
             }
         }
 
-        test()
+        result = Result.success(test())
     }
+    return checkNotNull(result).getOrThrow()
 }
 val teamMulighetsrommetTestEntraAdGroupId = UUID.fromString("a0000000-0000-0000-0000-000000000000")
 
