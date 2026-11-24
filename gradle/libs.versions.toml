@@ -1,5 +1,5 @@
 [versions]
-common-java-modules = "4.2026.11.05_07.24-dd0ce2805c16"
+common-java-modules = "4.2026.11.24_01.21-c252fd5dd64e"
 flyway = "13.12.2"
 jackson2 = "2.23.0"
 jackson3 = "3.3.0"
