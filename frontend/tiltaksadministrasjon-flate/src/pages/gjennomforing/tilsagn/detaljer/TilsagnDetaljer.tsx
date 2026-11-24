@@ -9,7 +9,6 @@ import {
 } from "@tiltaksadministrasjon/api-client";
 import { Alert, Box, Button, Heading, HGrid, HStack, Show, Spacer, VStack } from "@navikt/ds-react";
 import { useState } from "react";
-import { useNavigate } from "react-router";
 import { AarsakerOgBegrunnelse } from "@/components/totrinnskontroll/AarsakerOgBegrunnelse";
 import { TotrinnskontrollReturnert } from "@/components/totrinnskontroll/TotrinnskontrollReturnert";
 import { formaterDato, formaterPeriode } from "@mr/frontend-common/utils/date";
@@ -52,8 +51,6 @@ export function TilsagnDetaljer() {
   const godkjennTilsagnMutation = useGodkjennTilsagn();
   const returnerTilsagnMutation = useReturnerTilsagn();
 
-  const navigate = useNavigate();
-
   const [avvisModalOpen, setAvvisModalOpen] = useState(false);
   const [avvisAnnulleringModalOpen, setAvvisAnnulleringModalOpen] = useState(false);
   const [avvisOppgjorModalOpen, setAvvisOppgjorModalOpen] = useState(false);
@@ -63,7 +60,6 @@ export function TilsagnDetaljer() {
     godkjennTilsagnMutation.mutate(
       { id: tilsagn.id },
       {
-        onSuccess: () => navigate(-1),
         onValidationError: (error: ValidationError) => setErrors(error.errors),
       },
     );
@@ -73,7 +69,6 @@ export function TilsagnDetaljer() {
     returnerTilsagnMutation.mutate(
       { id: tilsagn.id, request },
       {
-        onSuccess: () => navigate(-1),
         onValidationError: (error: ValidationError) => setErrors(error.errors),
       },
     );

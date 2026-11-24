@@ -51,7 +51,6 @@ export function TilsagnHandlinger() {
     tilAnnulleringMutation.mutate(
       { id: tilsagn.tilsagn.id, request },
       {
-        onSuccess: () => navigate(-1),
         onValidationError: (error: ValidationError) => setErrors(error.errors),
       },
     );
@@ -61,7 +60,6 @@ export function TilsagnHandlinger() {
     tilOppgjorMutation.mutate(
       { id: tilsagn.tilsagn.id, request },
       {
-        onSuccess: () => navigate(-1),
         onValidationError: (error: ValidationError) => setErrors(error.errors),
       },
     );

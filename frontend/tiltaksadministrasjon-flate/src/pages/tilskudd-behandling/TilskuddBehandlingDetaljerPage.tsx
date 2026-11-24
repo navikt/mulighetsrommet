@@ -26,7 +26,6 @@ import {
   VStack,
 } from "@navikt/ds-react";
 import { useState } from "react";
-import { useNavigate } from "react-router";
 import { TilskuddBehandlingLayout } from "@/components/tilskudd-behandling/TilskuddBehandlingLayout";
 import { TotrinnskontrollReturnert } from "@/components/totrinnskontroll/TotrinnskontrollReturnert";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
@@ -61,15 +60,12 @@ export function TilskuddBehandlingDetaljerPage() {
   const [returModalOpen, setReturModalOpen] = useState(false);
   const [godkjennModalOpen, setGodkjennModalOpen] = useState(false);
   const [errors, setErrors] = useState<FieldError[]>([]);
-  const navigate = useNavigate();
 
   const godkjennMutation = useGodkjennTilskuddBehandling(gjennomforingId);
   const returnerMutation = useReturnerTilskuddBehandling(gjennomforingId);
-  const listUrl = `/gjennomforinger/${gjennomforingId}/tilskudd-behandling`;
 
   function godkjenn() {
     godkjennMutation.mutate(behandling.id, {
-      onSuccess: () => navigate(listUrl),
       onValidationError: (error: ValidationError) => setErrors(error.errors),
     });
   }
@@ -83,7 +79,6 @@ export function TilskuddBehandlingDetaljerPage() {
       {
         onSuccess: () => {
           setReturModalOpen(false);
-          navigate(listUrl);
         },
         onValidationError: (error: ValidationError) => setErrors(error.errors),
       },
