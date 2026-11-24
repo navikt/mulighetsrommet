@@ -31,7 +31,6 @@ import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
-import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
 import no.nav.mulighetsrommet.model.Innholdselement
 import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.model.TiltakstypeEgenskap
@@ -94,7 +93,7 @@ fun Route.tiltakstypeRoutes() {
             val id: UUID by call.parameters
 
             val tiltakstype = tiltakstypeDtoQuery.execute(GetTiltakstepeDto(id))
-                ?: return@get call.respondWithProblemDetail(tiltakstypeNotFound(id))
+                ?: return@get call.respond(tiltakstypeNotFound(id))
 
             call.respond(tiltakstype)
         }

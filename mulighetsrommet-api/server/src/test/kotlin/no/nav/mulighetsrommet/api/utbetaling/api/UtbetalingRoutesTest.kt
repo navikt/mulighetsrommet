@@ -15,6 +15,7 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonPrimitive
 import no.nav.mulighetsrommet.admin.aarsakerbegrunnelse.AarsakerOgBegrunnelseRequest
 import no.nav.mulighetsrommet.admin.navansatt.EntraGroupNavAnsattRolleMapping
@@ -34,7 +35,6 @@ import no.nav.mulighetsrommet.api.mockAmtDeltakerPersonalia
 import no.nav.mulighetsrommet.api.mockKontoregisterOrganisasjon
 import no.nav.mulighetsrommet.api.mockPdlEmptyResult
 import no.nav.mulighetsrommet.api.mockTilgangsmaskinenForbidden
-import no.nav.mulighetsrommet.api.navansatt.ktor.NavAnsattManglerTilgang
 import no.nav.mulighetsrommet.api.persistence.testing.fixture.GjennomforingDboFixtures.AFT1
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelseDeltakelsesprosentPerioder
@@ -133,9 +133,11 @@ class UtbetalingRoutesTest : FunSpec({
                 }
 
                 response.status shouldBe HttpStatusCode.Forbidden
-                response.body<NavAnsattManglerTilgang>().missingRoles shouldBe setOf(
-                    Rolle.OKONOMI_SAKSBEHANDLER_GRUPPETILTAK,
-                    Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS,
+                response.body<JsonObject>()["missingRoles"]!!.jsonArray
+                    .map { it.jsonPrimitive.content }
+                    .toSet() shouldBe setOf(
+                    Rolle.OKONOMI_SAKSBEHANDLER_GRUPPETILTAK.visningsnavn,
+                    Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS.visningsnavn,
                 )
             }
         }
@@ -287,9 +289,11 @@ class UtbetalingRoutesTest : FunSpec({
                 }
 
                 response.status shouldBe HttpStatusCode.Forbidden
-                response.body<NavAnsattManglerTilgang>().missingRoles shouldBe setOf(
-                    Rolle.OKONOMI_ATTESTANT_GRUPPETILTAK,
-                    Rolle.OKONOMI_BESLUTTER_ENKELTPLASS,
+                response.body<JsonObject>()["missingRoles"]!!.jsonArray
+                    .map { it.jsonPrimitive.content }
+                    .toSet() shouldBe setOf(
+                    Rolle.OKONOMI_ATTESTANT_GRUPPETILTAK.visningsnavn,
+                    Rolle.OKONOMI_BESLUTTER_ENKELTPLASS.visningsnavn,
                 )
             }
         }
@@ -307,11 +311,13 @@ class UtbetalingRoutesTest : FunSpec({
                 }
 
                 response.status shouldBe HttpStatusCode.Forbidden
-                response.body<NavAnsattManglerTilgang>().missingRoles shouldBe setOf(
-                    Rolle.OKONOMI_SAKSBEHANDLER_GRUPPETILTAK,
-                    Rolle.OKONOMI_ATTESTANT_GRUPPETILTAK,
-                    Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS,
-                    Rolle.OKONOMI_BESLUTTER_ENKELTPLASS,
+                response.body<JsonObject>()["missingRoles"]!!.jsonArray
+                    .map { it.jsonPrimitive.content }
+                    .toSet() shouldBe setOf(
+                    Rolle.OKONOMI_SAKSBEHANDLER_GRUPPETILTAK.visningsnavn,
+                    Rolle.OKONOMI_ATTESTANT_GRUPPETILTAK.visningsnavn,
+                    Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS.visningsnavn,
+                    Rolle.OKONOMI_BESLUTTER_ENKELTPLASS.visningsnavn,
                 )
             }
         }

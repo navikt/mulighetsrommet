@@ -25,7 +25,6 @@ import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
-import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
 import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.model.Valuta
 import org.koin.ktor.ext.inject
@@ -118,7 +117,7 @@ fun Route.rammedetaljerRoutes() {
                         call.respond(HttpStatusCode.OK)
                     }
                     .onLeft {
-                        call.respondWithProblemDetail(ValidationError(errors = it))
+                        call.respond(ValidationError(errors = it))
                     }
             }
 

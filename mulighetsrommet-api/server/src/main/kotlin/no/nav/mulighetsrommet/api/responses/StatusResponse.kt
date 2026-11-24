@@ -7,7 +7,6 @@ import io.ktor.server.response.respond
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
-import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
 import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.validation.FieldError
 
@@ -35,6 +34,6 @@ suspend inline fun <reified T : Any> ApplicationCall.respondWithStatusResponse(r
             respond(message)
         }
         .onLeft { error ->
-            respondWithProblemDetail(error)
+            respond(error)
         }
 }

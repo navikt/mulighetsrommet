@@ -51,7 +51,6 @@ import no.nav.mulighetsrommet.api.utbetaling.service.ManglerTilgangTilPerson
 import no.nav.mulighetsrommet.api.utils.DatoUtils.parseOrNull
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
 import no.nav.mulighetsrommet.ktor.exception.NotFound
-import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.ProblemDetail
@@ -201,7 +200,7 @@ fun Route.gjennomforingRoutes() {
                         )
                     }
                     .onLeft {
-                        call.respondWithProblemDetail(ValidationError("Klarte ikke avbryte gjennomføring", it))
+                        call.respond(ValidationError("Klarte ikke avbryte gjennomføring", it))
                     }
                     .onRight {
                         call.respond(HttpStatusCode.OK)
@@ -235,7 +234,7 @@ fun Route.gjennomforingRoutes() {
 
                 avtaleGjennomforinger.gjenapneGjennomforing(id, request.nySluttDato, navIdent)
                     .onLeft {
-                        call.respondWithProblemDetail(ValidationError("Klarte ikke gjenåpne gjennomføring", it))
+                        call.respond(ValidationError("Klarte ikke gjenåpne gjennomføring", it))
                     }
                     .onRight {
                         call.respond(HttpStatusCode.OK)
@@ -295,7 +294,7 @@ fun Route.gjennomforingRoutes() {
 
                 request.validate()
                     .onLeft {
-                        call.respondWithProblemDetail(ValidationError("Klarte ikke sette estimert ventetid", it))
+                        call.respond(ValidationError("Klarte ikke sette estimert ventetid", it))
                     }
                     .onRight { estimertVentetid ->
                         avtaleGjennomforinger.setEstimertVentetid(id, estimertVentetid, navIdent)
@@ -481,7 +480,7 @@ fun Route.gjennomforingRoutes() {
 
             gjennomforinger.getAllKompaktDto(pagination, filter, accessType)
                 .onLeft {
-                    call.respondWithProblemDetail(ManglerTilgangTilPerson.fromAvvistGrunn(it))
+                    call.respond(ManglerTilgangTilPerson.fromAvvistGrunn(it))
                 }
                 .onRight {
                     call.respond(PaginatedResponse.of(pagination, it.totalCount, it.items))
@@ -512,7 +511,7 @@ fun Route.gjennomforingRoutes() {
 
             gjennomforinger.exportToExcel(filter, accessType)
                 .onLeft {
-                    call.respondWithProblemDetail(ManglerTilgangTilPerson.fromAvvistGrunn(it))
+                    call.respond(ManglerTilgangTilPerson.fromAvvistGrunn(it))
                 }
                 .onRight {
                     call.response.header(HttpHeaders.AccessControlExposeHeaders, HttpHeaders.ContentDisposition)
@@ -648,7 +647,7 @@ fun Route.gjennomforingRoutes() {
 }
 
 private suspend fun RoutingCall.respondUkjentGjennomforing(id: UUID) {
-    respondWithProblemDetail(BadRequest("Ingen tiltaksgjennomføring med id=$id"))
+    respond(BadRequest("Ingen tiltaksgjennomføring med id=$id"))
 }
 
 fun toProblemDetail(error: GjennomforingDetaljerError): ProblemDetail = when (error) {

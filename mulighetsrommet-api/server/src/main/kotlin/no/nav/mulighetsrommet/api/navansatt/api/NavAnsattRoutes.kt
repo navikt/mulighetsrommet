@@ -15,7 +15,6 @@ import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsattRolle
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.ktor.exception.NotFound
-import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
 import no.nav.mulighetsrommet.model.ProblemDetail
 import org.koin.ktor.ext.inject
 
@@ -94,7 +93,7 @@ fun Route.navAnsattRoutes() {
             val navIdent = getNavIdent()
 
             val ansatt = navAnsattDtoQuery.get(navIdent)
-                ?: return@get call.respondWithProblemDetail(NotFound("Fant ikke ansatt med navIdent=$navIdent"))
+                ?: return@get call.respond(NotFound("Fant ikke ansatt med navIdent=$navIdent"))
 
             call.respond(ansatt)
         }

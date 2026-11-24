@@ -18,7 +18,6 @@ import no.nav.mulighetsrommet.ktor.exception.NotFound
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.ktor.exception.Unauthorized
 import no.nav.mulighetsrommet.ktor.exception.toProblemDetail
-import no.nav.mulighetsrommet.model.ProblemDetail
 
 fun Application.configureStatusPages(logException: (HttpStatusCode, Throwable, ApplicationCall) -> Unit) {
     install(ProblemDetailResponsePlugin)
@@ -27,7 +26,7 @@ fun Application.configureStatusPages(logException: (HttpStatusCode, Throwable, A
             val problemDetail = Unauthorized(
                 detail = "Du har ikke tilgang til denne tjenesten. Logg inn på nytt hvis du nylig har fått tilgang.",
             )
-            call.respondWithProblemDetail(problemDetail)
+            call.respond(problemDetail)
         }
 
         exception<IllegalArgumentException> { call, cause ->
@@ -36,13 +35,13 @@ fun Application.configureStatusPages(logException: (HttpStatusCode, Throwable, A
             val problemDetail = BadRequest(
                 detail = cause.message ?: "IllegalArgumentException",
             )
-            call.respondWithProblemDetail(problemDetail)
+            call.respond(problemDetail)
         }
 
         exception<StatusException> { call, cause ->
             logException(cause.status, cause, call)
 
-            call.respondWithProblemDetail(cause.toProblemDetail())
+            call.respond(cause.toProblemDetail())
         }
 
         exception<BadRequestException> { call, cause ->
@@ -51,7 +50,7 @@ fun Application.configureStatusPages(logException: (HttpStatusCode, Throwable, A
             val problemDetail = BadRequest(
                 detail = cause.message ?: "BadRequestException",
             )
-            call.respondWithProblemDetail(problemDetail)
+            call.respond(problemDetail)
         }
 
         exception<NotFoundException> { call, cause ->
@@ -60,7 +59,7 @@ fun Application.configureStatusPages(logException: (HttpStatusCode, Throwable, A
             val problemDetail = NotFound(
                 detail = cause.message ?: "NotFoundException",
             )
-            call.respondWithProblemDetail(problemDetail)
+            call.respond(problemDetail)
         }
 
         exception<ContentTransformationException> { call, cause ->
@@ -76,7 +75,7 @@ fun Application.configureStatusPages(logException: (HttpStatusCode, Throwable, A
                 type = "content-transformation-error",
                 detail = cause.message ?: "ContentTransformationException",
             )
-            call.respondWithProblemDetail(problemDetail)
+            call.respond(problemDetail)
         }
 
         exception<Throwable> { call, cause ->
@@ -85,11 +84,7 @@ fun Application.configureStatusPages(logException: (HttpStatusCode, Throwable, A
             val problemDetail = InternalServerError(
                 detail = "Internal Server Error",
             )
-            call.respondWithProblemDetail(problemDetail)
+            call.respond(problemDetail)
         }
     }
-}
-
-suspend fun ApplicationCall.respondWithProblemDetail(problem: ProblemDetail) {
-    respond(problemDetailResponseContent(problem))
 }

@@ -10,6 +10,9 @@ import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonPrimitive
 import no.nav.mulighetsrommet.admin.navansatt.EntraGroupNavAnsattRolleMapping
 import no.nav.mulighetsrommet.api.ApplicationConfigTest
 import no.nav.mulighetsrommet.api.createAuthConfig
@@ -18,7 +21,6 @@ import no.nav.mulighetsrommet.api.domain.testing.fixture.NavAnsattFixture
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.getAnsattClaims
-import no.nav.mulighetsrommet.api.navansatt.ktor.NavAnsattManglerTilgang
 import no.nav.mulighetsrommet.api.withTestApplication
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.security.mock.oauth2.MockOAuth2Server
@@ -109,7 +111,9 @@ class AvtaleRoutesTest : FunSpec({
                 }
 
                 response.status shouldBe HttpStatusCode.Forbidden
-                response.body<NavAnsattManglerTilgang>().missingRoles shouldBe setOf(Rolle.TILTAKADMINISTRASJON_GENERELL)
+                response.body<JsonObject>()["missingRoles"]!!.jsonArray
+                    .map { it.jsonPrimitive.content }
+                    .toSet() shouldBe setOf(Rolle.TILTAKADMINISTRASJON_GENERELL.visningsnavn)
             }
         }
 
@@ -122,7 +126,9 @@ class AvtaleRoutesTest : FunSpec({
                 }
 
                 response.status shouldBe HttpStatusCode.Forbidden
-                response.body<NavAnsattManglerTilgang>().missingRoles shouldBe setOf(Rolle.AVTALER_SKRIV)
+                response.body<JsonObject>()["missingRoles"]!!.jsonArray
+                    .map { it.jsonPrimitive.content }
+                    .toSet() shouldBe setOf(Rolle.AVTALER_SKRIV.visningsnavn)
             }
         }
 
