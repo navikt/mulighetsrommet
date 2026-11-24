@@ -779,3 +779,63 @@ u.status,
 u.tilskuddstype;
 EOF
 }
+
+module "mr_api_tilskudd_behandling_view" {
+  view_id             = "tilskudd_behandling_view"
+  source              = "../google-bigquery-view"
+  deletion_protection = false
+  dataset_id          = var.mr_api_datastream_dataset_id
+  view_schema = jsonencode(
+    [
+      {
+        mode        = "NULLABLE"
+        name        = "id"
+        type        = "STRING"
+        description = "ID for tilskudd behandling"
+      },
+      {
+        mode        = "NULLABLE"
+        name        = "gjennomforing_id"
+        type        = "STRING"
+        description = "ID for gjennomføring"
+      },
+      {
+        mode        = "NULLABLE"
+        name        = "totrinnskontroll_type"
+        type        = "STRING"
+        description = "Type totrinnskontroll"
+      },
+      {
+        mode        = "NULLABLE"
+        name        = "totrinnskontroll_status"
+        type        = "STRING"
+        description = "Totrinnskontroll status"
+      },
+      {
+        mode        = "NULLABLE"
+        name        = "totrinnskontroll_behandlet_tidspunkt"
+        type        = "TIMESTAMP"
+        description = "Totrinnskontroll behandlet tidspunkt"
+      },
+      {
+        mode        = "NULLABLE"
+        name        = "totrinnskontroll_besluttet_tidspunkt"
+        type        = "TIMESTAMP"
+        description = "Totrinnskontroll besluttet tidspunkt"
+      },
+    ]
+  )
+  view_query = <<EOF
+SELECT
+  tu.id,
+  tu.gjennomforing_id,
+  tk.status AS totrinnskontroll_status,
+  tk.type AS totrinnskontroll_type,
+  tk.behandlet_tidspunkt AS totrinnskontroll_behandlet_tidspunkt,
+  tk.besluttet_tidspunkt AS totrinnskontroll_besluttet_tidspunkt
+FROM `${var.gcp_project["project"]}.${var.mr_api_datastream_dataset_id}.public_tilskudd_behandling` AS tu
+INNER JOIN `${var.gcp_project["project"]}.${var.mr_api_datastream_dataset_id}.public_totrinnskontroll` AS tk
+  ON tk.entity_id = tu.id
+EOF
+}
+
