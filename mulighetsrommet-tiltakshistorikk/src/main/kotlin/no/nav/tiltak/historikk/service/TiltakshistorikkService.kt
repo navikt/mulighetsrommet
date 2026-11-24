@@ -10,6 +10,7 @@ import no.nav.tiltak.historikk.TiltakshistorikkV1Request
 import no.nav.tiltak.historikk.TiltakshistorikkV1Response
 import no.nav.tiltak.historikk.db.TiltakshistorikkDatabase
 import no.nav.tiltak.historikk.model.ArbeidsgiverAvtale
+import no.nav.tiltak.historikk.model.DeltakerHistorikkilde
 import no.nav.tiltak.historikk.model.Tiltakstype
 import no.nav.tiltak.historikk.model.Virksomhet
 import no.nav.tiltak.historikk.replikering.VirksomhetReplikering
@@ -24,9 +25,13 @@ class TiltakshistorikkService(
 ) {
     data class Config(
         val cutOffDatoMapping: Map<Tiltakskode, LocalDate>,
+        val deltakerHistorikkilder: Map<Tiltakskode, DeltakerHistorikkilde> = emptyMap(),
     )
 
     private val log = LoggerFactory.getLogger(javaClass)
+    private val arenaTiltakskoderFraKomet = config.deltakerHistorikkilder
+        .filterValues { it == DeltakerHistorikkilde.KOMET }
+        .keys.mapNotNull { it.arenakode }.toSet()
 
     suspend fun getTiltakshistorikk(request: TiltakshistorikkV1Request): TiltakshistorikkV1Response = coroutineScope {
         val (identer) = request
@@ -44,7 +49,10 @@ class TiltakshistorikkService(
     private fun getHistorikkTeamKomet(
         identer: List<NorskIdent>,
     ): List<TiltakshistorikkV1Dto.TeamKometDeltakelse> = db.session {
-        queries.kometDeltaker.getKometHistorikk(identer)
+        queries.kometDeltaker.getKometHistorikk(identer).filter { deltakelse ->
+            val tiltakskode = Tiltakskode.valueOf(deltakelse.tiltakstype.tiltakskode.name)
+            config.deltakerHistorikkilder[tiltakskode] != DeltakerHistorikkilde.ARENA
+        }
     }
 
     private fun getHistorikkArena(
@@ -53,6 +61,9 @@ class TiltakshistorikkService(
         val deltakelser = queries.arenaDeltaker.getArenaHistorikk(identer)
 
         deltakelser.filter { deltakelse ->
+            if (deltakelse.tiltakstype.tiltakskode in arenaTiltakskoderFraKomet) {
+                return@filter false
+            }
             val tiltakskode = arenaKodeToTeamTiltakKode(deltakelse.tiltakstype.tiltakskode) ?: return@filter true
             !belongsToTeamTiltak(tiltakskode, config.cutOffDatoMapping, deltakelse.sluttDato)
         }

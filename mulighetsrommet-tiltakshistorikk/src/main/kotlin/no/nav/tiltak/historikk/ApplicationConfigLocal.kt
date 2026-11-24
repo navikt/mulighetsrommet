@@ -73,6 +73,11 @@ val ApplicationConfigLocal = AppConfig(
                 topic = "amt-deltaker-v1",
                 consumerProperties = consumerProperties,
             ),
+            replikerAmtDeltakerEkstern = KafkaTopicConsumer.Config(
+                id = "repliker-amt-deltaker-ekstern",
+                topic = "amt-deltaker-ekstern-v1",
+                consumerProperties = consumerProperties,
+            ),
             replikerAmtVirksomhet = KafkaTopicConsumer.Config(
                 id = "repliker-amt-virksomheter",
                 topic = "amt.virksomheter-v1",

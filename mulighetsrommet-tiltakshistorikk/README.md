@@ -131,7 +131,7 @@ style API fill:#3498db,stroke:#fff,color:#fff
 For å unngå duplikater mellom Arena og nye systemer brukes to ulike strategier:
 
 - **Tiltak hos arrangør:** Alle deltakelser per tiltakstype har blitt migrert. Arena-deltakelser for disse tiltakstypene
-  filtreres derfor helt bort.
+  filtreres derfor helt bort basert på hvilken kilde som er gjeldende.
 - **Tiltak hos arbeidsgiver:** Disse har over tid vært dobbeltregistrert i både Arena og Avtale-løsningen til
   Team Tiltak. Vi bruker derfor cut-off datoer per tiltakstype som angir når migreringen skjedde.
   Deltakelser som strekker seg forbi cut-off dato hentes fra Team Tiltak, mens de som ble avsluttet før cut-off dato

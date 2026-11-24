@@ -20,7 +20,7 @@ class ReplikerSisteTiltakstyperV3KafkaConsumerTest : FunSpec({
     val db by lazy { TiltakshistorikkDatabase(database.db) }
     val consumer by lazy { ReplikerSisteTiltakstyperV3KafkaConsumer(TiltakstypeReplikering(db)) }
     val melding = TiltakstypeV3Dto(
-        id = TestFixtures.Tiltakstype.arbeidstrening.tiltakstypeId,
+        id = TestFixtures.Tiltakstype.Arbeidstrening.tiltakstypeId,
         navn = "Arbeidstrening",
         tiltakskode = Tiltakskode.ARBEIDSTRENING,
         system = TiltakstypeSystem.ARBEIDSGIVERTILTAK,
