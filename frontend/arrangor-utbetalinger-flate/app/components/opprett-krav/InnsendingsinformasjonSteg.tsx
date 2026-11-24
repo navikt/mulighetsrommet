@@ -37,7 +37,7 @@ import {
   yyyyMMddFormatting,
 } from "@mr/frontend-common/utils/date";
 import { pathTo } from "~/utils/navigation";
-import { TilgjengeligeTilsagn } from "../common/TilgjengeligeTilsagn";
+import { TilgjengeligeTilsagnDataGrid } from "../common/TilgjengeligeTilsagnDataGrid";
 
 interface InnsendingsinformasjonStepProps {
   data: OpprettKravInnsendingSteg;
@@ -127,7 +127,7 @@ export default function InnsendingsinformasjonSteg({
           />
         </Box>
         {valgtPeriode && relevanteTilsagn.length > 0 && (
-          <TilgjengeligeTilsagn tilsagn={relevanteTilsagn} />
+          <TilgjengeligeTilsagnDataGrid tilsagn={relevanteTilsagn} />
         )}
         {valgtPeriode && relevanteTilsagn.length === 0 && (
           <InfoCard data-color="warning">
