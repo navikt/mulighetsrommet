@@ -18,6 +18,15 @@ export function isProblemDetail(error: unknown): error is ProblemDetail {
   );
 }
 
+export function getProblemDetailTraceId(error: unknown): string | undefined {
+  if (!isProblemDetail(error)) {
+    return undefined;
+  }
+
+  const traceId = error.traceId;
+  return typeof traceId === "string" && traceId.trim().length > 0 ? traceId : undefined;
+}
+
 export function resolveErrorMessage(error: unknown): string {
   if (isProblemDetail(error)) {
     return error.detail;
