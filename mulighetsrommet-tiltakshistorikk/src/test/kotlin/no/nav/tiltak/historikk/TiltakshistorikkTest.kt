@@ -21,7 +21,7 @@ import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.tiltak.historikk.db.TiltakshistorikkDatabase
-import no.nav.tiltak.historikk.model.DeltakerHistorikkilde
+import no.nav.tiltak.historikk.model.ArrangorDeltakerHistorikkKilde
 import no.nav.tiltak.historikk.plugins.ACCESS_AS_APPLICATION
 import no.nav.tiltak.historikk.plugins.TiltakshistorikkReadRoles
 import java.time.Instant
@@ -94,7 +94,7 @@ class TiltakshistorikkTest : FunSpec({
 
         test("Henter arbeidsgiveravtaler fra Arena når de er avsluttet før cutoff-dato") {
             val config = createTestApplicationConfig(oauth).copy(
-                arbeidsgiverTiltakCutOffDatoMapping = mapOf(
+                arbeidsgiverTiltakCutoffDatoer = mapOf(
                     Tiltakskode.ARBEIDSTRENING to LocalDate.of(2024, 1, 1),
                 ),
             )
@@ -241,7 +241,7 @@ class TiltakshistorikkTest : FunSpec({
 
         test("Filtrerer vekk arbeidsgiveravtaler fra Arena når deltakelsene har sluttdato etter cutoff-dato") {
             val config = createTestApplicationConfig(oauth).copy(
-                arbeidsgiverTiltakCutOffDatoMapping = mapOf(
+                arbeidsgiverTiltakCutoffDatoer = mapOf(
                     Tiltakskode.ARBEIDSTRENING to LocalDate.of(2023, 1, 31),
                     Tiltakskode.MENTOR to LocalDate.of(2024, 1, 31),
                 ),
@@ -280,8 +280,8 @@ class TiltakshistorikkTest : FunSpec({
             forAll(
                 row(
                     createTestApplicationConfig(oauth).copy(
-                        deltakerHistorikkilder = mapOf(
-                            Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING to DeltakerHistorikkilde.KOMET,
+                        arrangorTiltakHistorikkKilder = mapOf(
+                            Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING to ArrangorDeltakerHistorikkKilde.KOMET,
                         ),
                     ),
                     listOf(
@@ -293,8 +293,8 @@ class TiltakshistorikkTest : FunSpec({
                 ),
                 row(
                     createTestApplicationConfig(oauth).copy(
-                        deltakerHistorikkilder = mapOf(
-                            Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING to DeltakerHistorikkilde.ARENA,
+                        arrangorTiltakHistorikkKilder = mapOf(
+                            Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING to ArrangorDeltakerHistorikkKilde.ARENA,
                         ),
                     ),
                     listOf(

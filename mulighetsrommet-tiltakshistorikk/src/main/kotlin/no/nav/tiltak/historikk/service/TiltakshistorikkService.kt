@@ -10,7 +10,7 @@ import no.nav.tiltak.historikk.TiltakshistorikkV1Request
 import no.nav.tiltak.historikk.TiltakshistorikkV1Response
 import no.nav.tiltak.historikk.db.TiltakshistorikkDatabase
 import no.nav.tiltak.historikk.model.ArbeidsgiverAvtale
-import no.nav.tiltak.historikk.model.DeltakerHistorikkilde
+import no.nav.tiltak.historikk.model.ArrangorDeltakerHistorikkKilde
 import no.nav.tiltak.historikk.model.Tiltakstype
 import no.nav.tiltak.historikk.model.Virksomhet
 import no.nav.tiltak.historikk.replikering.VirksomhetReplikering
@@ -24,13 +24,13 @@ class TiltakshistorikkService(
     private val virksomheter: VirksomhetReplikering,
 ) {
     data class Config(
-        val cutOffDatoMapping: Map<Tiltakskode, LocalDate>,
-        val deltakerHistorikkilder: Map<Tiltakskode, DeltakerHistorikkilde> = emptyMap(),
+        val arbeidsgiverTiltakCutoffDatoer: Map<Tiltakskode, LocalDate> = emptyMap(),
+        val arrangorTiltakHistorikkKilder: Map<Tiltakskode, ArrangorDeltakerHistorikkKilde> = emptyMap(),
     )
 
     private val log = LoggerFactory.getLogger(javaClass)
-    private val arenaTiltakskoderFraKomet = config.deltakerHistorikkilder
-        .filterValues { it == DeltakerHistorikkilde.KOMET }
+    private val arenaTiltakskoderFraKomet = config.arrangorTiltakHistorikkKilder
+        .filterValues { it == ArrangorDeltakerHistorikkKilde.KOMET }
         .keys.mapNotNull { it.arenakode }.toSet()
 
     suspend fun getTiltakshistorikk(request: TiltakshistorikkV1Request): TiltakshistorikkV1Response = coroutineScope {
@@ -51,7 +51,7 @@ class TiltakshistorikkService(
     ): List<TiltakshistorikkV1Dto.TeamKometDeltakelse> = db.session {
         queries.kometDeltaker.getKometHistorikk(identer).filter { deltakelse ->
             val tiltakskode = Tiltakskode.valueOf(deltakelse.tiltakstype.tiltakskode.name)
-            config.deltakerHistorikkilder[tiltakskode] != DeltakerHistorikkilde.ARENA
+            config.arrangorTiltakHistorikkKilder[tiltakskode] != ArrangorDeltakerHistorikkKilde.ARENA
         }
     }
 
@@ -65,7 +65,7 @@ class TiltakshistorikkService(
                 return@filter false
             }
             val tiltakskode = arenaKodeToTeamTiltakKode(deltakelse.tiltakstype.tiltakskode) ?: return@filter true
-            !belongsToTeamTiltak(tiltakskode, config.cutOffDatoMapping, deltakelse.sluttDato)
+            !belongsToTeamTiltak(tiltakskode, config.arbeidsgiverTiltakCutoffDatoer, deltakelse.sluttDato)
         }
     }
 
@@ -78,7 +78,7 @@ class TiltakshistorikkService(
 
         return avtaler
             .filter { avtale ->
-                belongsToTeamTiltak(avtale.tiltakstype, config.cutOffDatoMapping, avtale.sluttDato)
+                belongsToTeamTiltak(avtale.tiltakstype, config.arbeidsgiverTiltakCutoffDatoer, avtale.sluttDato)
             }
             .map { avtale ->
                 val tiltakstype = getTiltakstype(avtale.tiltakstype)

@@ -11,7 +11,7 @@ import no.nav.tiltak.historikk.TiltakshistorikkV1Dto
 import no.nav.tiltak.historikk.TiltakshistorikkV1Request
 import no.nav.tiltak.historikk.databaseConfig
 import no.nav.tiltak.historikk.db.TiltakshistorikkDatabase
-import no.nav.tiltak.historikk.model.DeltakerHistorikkilde
+import no.nav.tiltak.historikk.model.ArrangorDeltakerHistorikkKilde
 import no.nav.tiltak.historikk.replikering.VirksomhetReplikering
 import java.time.LocalDate
 import java.util.UUID
@@ -21,14 +21,8 @@ class TiltakshistorikkServiceTest : FunSpec({
     val db by lazy { TiltakshistorikkDatabase(database.db) }
     val request = TiltakshistorikkV1Request(listOf(NorskIdent("10101010100")))
 
-    fun service(
-        kilder: Map<Tiltakskode, DeltakerHistorikkilde> = emptyMap(),
-        cutOffDatoMapping: Map<Tiltakskode, LocalDate> = emptyMap(),
-    ) = TiltakshistorikkService(
-        config = TiltakshistorikkService.Config(
-            cutOffDatoMapping = cutOffDatoMapping,
-            deltakerHistorikkilder = kilder,
-        ),
+    fun service(config: TiltakshistorikkService.Config) = TiltakshistorikkService(
+        config = config,
         db = db,
         virksomheter = VirksomhetReplikering(db, mockk()),
     )
@@ -60,7 +54,8 @@ class TiltakshistorikkServiceTest : FunSpec({
                 queries.kometDeltaker.upsertKometDeltaker(TestFixtures.Deltaker.GruppeAmo)
             }
 
-            val historikk = service(emptyMap()).getTiltakshistorikk(request).historikk
+            val config = TiltakshistorikkService.Config()
+            val historikk = service(config).getTiltakshistorikk(request).historikk
 
             historikk shouldContainExactlyIds listOf(arenaDeltakerId, kometDeltakerId, gruppeDeltakerId)
         }
@@ -72,8 +67,12 @@ class TiltakshistorikkServiceTest : FunSpec({
                 queries.kometDeltaker.upsertKometDeltaker(TestFixtures.Deltaker.GruppeAmo)
             }
 
-            val kilder = mapOf(Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING to DeltakerHistorikkilde.ARENA)
-            val historikk = service(kilder).getTiltakshistorikk(request).historikk
+            val config = TiltakshistorikkService.Config(
+                arrangorTiltakHistorikkKilder = mapOf(
+                    Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING to ArrangorDeltakerHistorikkKilde.ARENA,
+                ),
+            )
+            val historikk = service(config).getTiltakshistorikk(request).historikk
 
             historikk shouldContainExactlyIds listOf(arenaDeltakerId, gruppeDeltakerId)
         }
@@ -85,13 +84,21 @@ class TiltakshistorikkServiceTest : FunSpec({
                 queries.kometDeltaker.upsertKometDeltaker(TestFixtures.Deltaker.GruppeAmo)
             }
 
-            val kometKilde = mapOf(Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING to DeltakerHistorikkilde.KOMET)
-            val kometHistorikk = service(kometKilde).getTiltakshistorikk(request).historikk
+            val config1 = TiltakshistorikkService.Config(
+                arrangorTiltakHistorikkKilder = mapOf(
+                    Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING to ArrangorDeltakerHistorikkKilde.KOMET,
+                ),
+            )
+            val kometHistorikk = service(config1).getTiltakshistorikk(request).historikk
 
             kometHistorikk shouldContainExactlyIds listOf(kometDeltakerId, gruppeDeltakerId)
 
-            val arenaKilde = mapOf(Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING to DeltakerHistorikkilde.ARENA)
-            val arenaHistorikk = service(arenaKilde).getTiltakshistorikk(request).historikk
+            val config2 = TiltakshistorikkService.Config(
+                arrangorTiltakHistorikkKilder = mapOf(
+                    Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING to ArrangorDeltakerHistorikkKilde.ARENA,
+                ),
+            )
+            val arenaHistorikk = service(config2).getTiltakshistorikk(request).historikk
 
             arenaHistorikk shouldContainExactlyIds listOf(arenaDeltakerId, gruppeDeltakerId)
         }
@@ -102,8 +109,12 @@ class TiltakshistorikkServiceTest : FunSpec({
                 queries.kometDeltaker.upsertKometDeltaker(TestFixtures.Deltaker.GruppeAmo)
             }
 
-            val kilder = mapOf(Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING to DeltakerHistorikkilde.KOMET)
-            val historikk = service(kilder).getTiltakshistorikk(request).historikk
+            val config = TiltakshistorikkService.Config(
+                arrangorTiltakHistorikkKilder = mapOf(
+                    Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING to ArrangorDeltakerHistorikkKilde.KOMET,
+                ),
+            )
+            val historikk = service(config).getTiltakshistorikk(request).historikk
 
             historikk shouldContainExactlyIds listOf(gruppeDeltakerId)
         }
@@ -128,11 +139,13 @@ class TiltakshistorikkServiceTest : FunSpec({
                 )
             }
 
-            val kilder = mapOf(
-                Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING to DeltakerHistorikkilde.KOMET,
-                Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING to DeltakerHistorikkilde.ARENA,
+            val config = TiltakshistorikkService.Config(
+                arrangorTiltakHistorikkKilder = mapOf(
+                    Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING to ArrangorDeltakerHistorikkKilde.KOMET,
+                    Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING to ArrangorDeltakerHistorikkKilde.ARENA,
+                ),
             )
-            val historikk = service(kilder).getTiltakshistorikk(request).historikk
+            val historikk = service(config).getTiltakshistorikk(request).historikk
 
             historikk shouldContainExactlyIds listOf(kometDeltakerId, arenaGruppeDeltakerId)
         }
@@ -161,8 +174,12 @@ class TiltakshistorikkServiceTest : FunSpec({
                 )
             }
 
-            val cutOffDatoMapping = mapOf(Tiltakskode.MENTOR to LocalDate.of(2025, 1, 1))
-            val historikk = service(cutOffDatoMapping = cutOffDatoMapping).getTiltakshistorikk(request).historikk
+            val config = TiltakshistorikkService.Config(
+                arbeidsgiverTiltakCutoffDatoer = mapOf(
+                    Tiltakskode.MENTOR to LocalDate.of(2025, 1, 1),
+                ),
+            )
+            val historikk = service(config).getTiltakshistorikk(request).historikk
 
             historikk shouldContainExactlyIds listOf(arenaArbeidstreningId)
         }
@@ -177,8 +194,12 @@ class TiltakshistorikkServiceTest : FunSpec({
                 )
             }
 
-            val cutOffDatoMapping = mapOf(Tiltakskode.ARBEIDSTRENING to LocalDate.of(2025, 1, 1))
-            val historikk = service(cutOffDatoMapping = cutOffDatoMapping).getTiltakshistorikk(request).historikk
+            val config = TiltakshistorikkService.Config(
+                arbeidsgiverTiltakCutoffDatoer = mapOf(
+                    Tiltakskode.ARBEIDSTRENING to LocalDate.of(2025, 1, 1),
+                ),
+            )
+            val historikk = service(config).getTiltakshistorikk(request).historikk
 
             historikk shouldContainExactlyIds listOf(arenaArbeidstreningId)
         }
@@ -193,8 +214,12 @@ class TiltakshistorikkServiceTest : FunSpec({
                 )
             }
 
-            val cutOffDatoMapping = mapOf(Tiltakskode.ARBEIDSTRENING to LocalDate.of(2025, 1, 1))
-            val historikk = service(cutOffDatoMapping = cutOffDatoMapping).getTiltakshistorikk(request).historikk
+            val config = TiltakshistorikkService.Config(
+                arbeidsgiverTiltakCutoffDatoer = mapOf(
+                    Tiltakskode.ARBEIDSTRENING to LocalDate.of(2025, 1, 1),
+                ),
+            )
+            val historikk = service(config).getTiltakshistorikk(request).historikk
 
             historikk shouldContainExactlyIds listOf(avtaleId)
         }
@@ -209,8 +234,12 @@ class TiltakshistorikkServiceTest : FunSpec({
                 )
             }
 
-            val cutOffDatoMapping = mapOf(Tiltakskode.ARBEIDSTRENING to LocalDate.of(2025, 1, 1))
-            val historikk = service(cutOffDatoMapping = cutOffDatoMapping).getTiltakshistorikk(request).historikk
+            val config = TiltakshistorikkService.Config(
+                arbeidsgiverTiltakCutoffDatoer = mapOf(
+                    Tiltakskode.ARBEIDSTRENING to LocalDate.of(2025, 1, 1),
+                ),
+            )
+            val historikk = service(config).getTiltakshistorikk(request).historikk
 
             historikk shouldContainExactlyIds listOf(avtaleId)
         }
@@ -225,8 +254,12 @@ class TiltakshistorikkServiceTest : FunSpec({
                 )
             }
 
-            val cutOffDatoMapping = mapOf(Tiltakskode.ARBEIDSTRENING to LocalDate.of(2025, 1, 1))
-            val historikk = service(cutOffDatoMapping = cutOffDatoMapping).getTiltakshistorikk(request).historikk
+            val config = TiltakshistorikkService.Config(
+                arbeidsgiverTiltakCutoffDatoer = mapOf(
+                    Tiltakskode.ARBEIDSTRENING to LocalDate.of(2025, 1, 1),
+                ),
+            )
+            val historikk = service(config).getTiltakshistorikk(request).historikk
 
             historikk shouldContainExactlyIds listOf(avtaleId)
         }

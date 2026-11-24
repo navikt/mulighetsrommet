@@ -1,6 +1,6 @@
 package no.nav.tiltak.historikk.model
 
-enum class DeltakerHistorikkilde {
+enum class ArrangorDeltakerHistorikkKilde {
     ARENA,
     KOMET,
 }

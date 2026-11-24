@@ -75,8 +75,8 @@ fun Application.configure(config: AppConfig) {
 
     val tiltakshistorikk = TiltakshistorikkService(
         config = TiltakshistorikkService.Config(
-            cutOffDatoMapping = config.arbeidsgiverTiltakCutOffDatoMapping,
-            deltakerHistorikkilder = config.deltakerHistorikkilder,
+            arbeidsgiverTiltakCutoffDatoer = config.arbeidsgiverTiltakCutoffDatoer,
+            arrangorTiltakHistorikkKilder = config.arrangorTiltakHistorikkKilder,
         ),
         db = db,
         virksomheter = virksomheter,
