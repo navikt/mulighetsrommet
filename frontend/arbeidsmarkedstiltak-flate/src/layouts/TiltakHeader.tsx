@@ -31,7 +31,7 @@ export function TiltakHeader({ tiltak }: Props) {
         )}
       </HStack>
       {beskrivelse && (
-        <BodyLong size="large" spacing>
+        <BodyLong size="large" spacing className="whitespace-pre-wrap">
           {beskrivelse}
         </BodyLong>
       )}
@@ -40,7 +40,7 @@ export function TiltakHeader({ tiltak }: Props) {
           <Heading level="2" size="small">
             Generell informasjon
           </Heading>
-          <BodyLong size="large" spacing>
+          <BodyLong size="large" spacing className="whitespace-pre-wrap">
             {tiltakstype.beskrivelse}
           </BodyLong>
         </>
