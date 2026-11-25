@@ -19,6 +19,7 @@ import io.ktor.server.routing.put
 import io.ktor.server.routing.route
 import io.ktor.server.util.getValue
 import io.ktor.utils.io.ExperimentalKtorApi
+import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.maam.Maam
 import no.nav.tiltak.historikk.plugins.AuthProvider
@@ -31,6 +32,7 @@ import java.util.UUID
 @OptIn(ExperimentalKtorApi::class)
 fun Route.tiltakshistorikkRoutes(
     kafka: KafkaConsumerOrchestrator,
+    db: Database,
     tiltakshistorikk: TiltakshistorikkService,
     arenaDeltakere: ArenaDeltakerReplikering,
     arenaGjennomforinger: ArenaGjennomforingReplikering,
@@ -115,8 +117,10 @@ fun Route.tiltakshistorikkRoutes(
     authenticate(AuthProvider.TEAM_MULIGHETSROMMET) {
         route("/maam") {
             install(Maam) {
+                database = { db }
                 kafka(orchestrator = { kafka }) {
                     consumers()
+                    failedRecords()
                 }
             }
         }

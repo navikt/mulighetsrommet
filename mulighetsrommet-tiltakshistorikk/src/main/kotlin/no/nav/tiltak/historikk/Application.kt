@@ -85,6 +85,7 @@ fun Application.configure(config: AppConfig) {
     routing {
         tiltakshistorikkRoutes(
             kafka,
+            database,
             tiltakshistorikk,
             ArenaDeltakerReplikering(db),
             ArenaGjennomforingReplikering(db, virksomheter),
