@@ -140,7 +140,7 @@ export function TilgjengeligeTilsagnDataGrid({ tilsagn }: { tilsagn: Arrangorfla
         <DataGrid columns={synligeKolonner} data={sortedData} getRowId={(row) => row.id}>
           <DataGrid.Table<ArrangorflateTilsagnDto>
             layout="auto"
-            {...(sortedData.some((row) => row.deltakere.length > 1)
+            {...(harDeltakere
               ? {
                   detailsPanel: {
                     isRowExpandable: (row) => row.deltakere.length > 1,

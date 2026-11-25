@@ -6,7 +6,6 @@ import {
   OpprettKravInnsendingSteg,
   Periode,
   PeriodeType,
-  TilsagnVisning,
 } from "@arrangor-utbetalinger/api-client";
 import {
   BodyShort,
@@ -39,7 +38,6 @@ import {
 } from "@mr/frontend-common/utils/date";
 import { pathTo } from "~/utils/navigation";
 import { TilgjengeligeTilsagnDataGrid } from "../common/TilgjengeligeTilsagnDataGrid";
-import { TilgjengeligeTilsagn } from "../common/TilgjengeligeTilsagn";
 
 interface InnsendingsinformasjonStepProps {
   data: OpprettKravInnsendingSteg;
@@ -129,7 +127,7 @@ export default function InnsendingsinformasjonSteg({
           />
         </Box>
         {valgtPeriode && relevanteTilsagn.length > 0 && (
-          <TilgjengeligeTilsagnVisning tilsagn={relevanteTilsagn} visTilsagn={data.visTilsagn} />
+          <TilgjengeligeTilsagnDataGrid tilsagn={relevanteTilsagn} />
         )}
         {valgtPeriode && relevanteTilsagn.length === 0 && (
           <InfoCard data-color="warning">
@@ -145,20 +143,6 @@ export default function InnsendingsinformasjonSteg({
       </VStack>
     </>
   );
-}
-
-interface TilgjengeligeTilsagnVisningProps {
-  tilsagn: ArrangorflateTilsagnDto[];
-  visTilsagn: TilsagnVisning;
-}
-
-function TilgjengeligeTilsagnVisning({ tilsagn, visTilsagn }: TilgjengeligeTilsagnVisningProps) {
-  switch (visTilsagn) {
-    case TilsagnVisning.KOMPAKT:
-      return <TilgjengeligeTilsagnDataGrid tilsagn={tilsagn} />;
-    case TilsagnVisning.STANDARD:
-      return <TilgjengeligeTilsagn tilsagn={tilsagn} />;
-  }
 }
 
 interface GuidePanelInformationProps {
