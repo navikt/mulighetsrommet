@@ -111,6 +111,11 @@ const columns: DataGrid.Columns<ArrangorflateTilsagnDto> = [
 ];
 
 export function TilgjengeligeTilsagnDataGrid({ tilsagn }: { tilsagn: ArrangorflateTilsagnDto[] }) {
+  const harDeltakere = tilsagn.some((row) => row.deltakere.length > 0);
+  const synligeKolonner = harDeltakere
+    ? columns
+    : columns.filter((column) => column.id !== "deltakere");
+
   const { sortedData, sortState, handleSortOrderChange } = useDataGridSort<ArrangorflateTilsagnDto>(
     tilsagn,
     sortComparators,
@@ -132,7 +137,7 @@ export function TilgjengeligeTilsagnDataGrid({ tilsagn }: { tilsagn: Arrangorfla
           Under vises informasjon om antatt forbruk. Hva som blir utbetalt avhenger imidlertid av
           faktisk forbruk i perioden.
         </InlineMessage>
-        <DataGrid columns={columns} data={sortedData} getRowId={(row) => row.id}>
+        <DataGrid columns={synligeKolonner} data={sortedData} getRowId={(row) => row.id}>
           <DataGrid.Table<ArrangorflateTilsagnDto>
             layout="auto"
             {...(sortedData.some((row) => row.deltakere.length > 1)
@@ -165,7 +170,9 @@ export function TilgjengeligeTilsagnDataGrid({ tilsagn }: { tilsagn: Arrangorfla
               : {})}
             sorting={{
               allowMultiSort: true,
-              sortOrder: sortState,
+              sortOrder: harDeltakere
+                ? sortState
+                : sortState.filter((sort) => sort.columnId !== "deltakere"),
               onSortOrderChange: handleSortOrderChange,
             }}
           />
