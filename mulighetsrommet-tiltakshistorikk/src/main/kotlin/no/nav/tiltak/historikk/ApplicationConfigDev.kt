@@ -33,9 +33,9 @@ val ApplicationConfigDev = AppConfig(
         consumers = KafkaConsumers(),
     ),
     arrangorTiltakHistorikkKilder = mapOf(
-        Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING to ArrangorDeltakerHistorikkKilde.ARENA,
-        Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING to ArrangorDeltakerHistorikkKilde.ARENA,
-        Tiltakskode.HOYERE_UTDANNING to ArrangorDeltakerHistorikkKilde.ARENA,
+        Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING to ArrangorDeltakerHistorikkKilde.KOMET,
+        Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING to ArrangorDeltakerHistorikkKilde.KOMET,
+        Tiltakskode.HOYERE_UTDANNING to ArrangorDeltakerHistorikkKilde.KOMET,
     ),
     arbeidsgiverTiltakCutoffDatoer = mapOf(
         Tiltakskode.SOMMERJOBB to LocalDate.of(2021, 1, 1),

@@ -57,9 +57,9 @@ val ApplicationConfigDev = AppConfig(
 
                 Tiltakskode.TILRETTELAGT_ARBEID_ORDINAER to admin + modia,
 
-                Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING to admin + modia,
-                Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING to admin + modia,
-                Tiltakskode.HOYERE_UTDANNING to admin + modia,
+                Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING to admin + modia + migrert,
+                Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING to admin + modia + migrert,
+                Tiltakskode.HOYERE_UTDANNING to admin + modia + migrert,
 
                 Tiltakskode.ARBEIDSTRENING to admin + modia,
                 Tiltakskode.MIDLERTIDIG_LONNSTILSKUDD to admin + modia,
