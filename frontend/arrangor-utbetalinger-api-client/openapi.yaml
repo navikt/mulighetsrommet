@@ -704,7 +704,7 @@ components:
     OpenApiVersion:
       type: number
       enum:
-        - 1
+        - 2
     ArrangorflateFilterType:
       type: string
       enum:
@@ -903,11 +903,14 @@ components:
             $ref: "#/components/schemas/ArrangorflateTilsagnDto"
         datoVelger:
           $ref: "#/components/schemas/DatoVelger"
+        visTilsagn:
+          $ref: "#/components/schemas/TilsagnVisning"
       required:
       - datoVelger
       - definisjonsListe
       - guidePanel
       - tilsagn
+      - visTilsagn
     GuidePanelType:
       type: string
       enum:
@@ -1222,6 +1225,11 @@ components:
             $ref: "#/components/schemas/Periode"
       required:
       - periodeForslag
+    TilsagnVisning:
+      type: string
+      enum:
+      - KOMPAKT
+      - STANDARD
     OpprettKravUtbetalingSteg:
       type: object
       properties:

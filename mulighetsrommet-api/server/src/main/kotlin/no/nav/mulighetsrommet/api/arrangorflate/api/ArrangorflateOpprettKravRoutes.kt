@@ -368,11 +368,18 @@ fun OpprettKravVeiviserSteg.toDto(): OpprettKravVeiviserStegDto = OpprettKravVei
 data class OpprettKravVeiviserStegDto(val type: OpprettKravVeiviserSteg, val navn: String, val order: Int)
 
 @Serializable
+enum class TilsagnVisning {
+    KOMPAKT,
+    STANDARD,
+}
+
+@Serializable
 data class OpprettKravInnsendingSteg(
     val guidePanel: GuidePanelType?,
     val definisjonsListe: List<LabeledDataElement>,
     val tilsagn: List<ArrangorflateTilsagnDto>,
     val datoVelger: DatoVelger,
+    val visTilsagn: TilsagnVisning,
 ) {
     companion object {
         fun from(
@@ -392,6 +399,11 @@ data class OpprettKravInnsendingSteg(
                 definisjonsListe = getInnsendingsInformasjon(tiltak),
                 tilsagn = tilsagn,
                 datoVelger = datoVelger,
+                visTilsagn = if (tilsagn.sumOf { it.deltakere.size } > 0) {
+                    TilsagnVisning.KOMPAKT
+                } else {
+                    TilsagnVisning.STANDARD
+                },
             )
         }
 

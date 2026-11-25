@@ -1,4 +1,4 @@
-import { Heading, InlineMessage, Box, VStack, BodyShort } from "@navikt/ds-react";
+import { Heading, InlineMessage, Box, VStack, BodyShort, HGrid } from "@navikt/ds-react";
 import { DataGrid } from "@navikt/ds-react/PREVIEW";
 import { ArrangorflateTilsagnDto } from "@arrangor-utbetalinger/api-client";
 import { tekster } from "../../tekster";
@@ -58,18 +58,15 @@ const columns: DataGrid.Columns<ArrangorflateTilsagnDto> = [
     id: "deltakere",
     header: "Deltakere",
     bodyCell: ({ deltakere }) => (
-      <ul>
-        {deltakere.map((d, index) => {
-          return (
-            <li key={index}>
-              <VStack>
-                <BodyShort>{d.navn}</BodyShort>
-                <BodyShort size="small">{d.norskIdent ?? "-"}</BodyShort>
-              </VStack>
-            </li>
-          );
-        })}
-      </ul>
+      <>
+        {deltakere.length === 1 && (
+          <VStack gap="space-2">
+            <BodyShort>{deltakere[0].navn}</BodyShort>
+            <BodyShort size="small">{deltakere[0].norskIdent ?? "-"}</BodyShort>
+          </VStack>
+        )}
+        {deltakere.length > 1 && <BodyShort>{deltakere.length} deltakere</BodyShort>}
+      </>
     ),
     width: { autoResizeOnce: true },
     isSortable: true,
@@ -136,8 +133,36 @@ export function TilgjengeligeTilsagnDataGrid({ tilsagn }: { tilsagn: Arrangorfla
           faktisk forbruk i perioden.
         </InlineMessage>
         <DataGrid columns={columns} data={sortedData} getRowId={(row) => row.id}>
-          <DataGrid.Table
+          <DataGrid.Table<ArrangorflateTilsagnDto>
             layout="auto"
+            {...(sortedData.some((row) => row.deltakere.length > 1)
+              ? {
+                  detailsPanel: {
+                    isRowExpandable: (row) => row.deltakere.length > 1,
+                    getContent: (row) => (
+                      <HGrid
+                        as="ul"
+                        columns={{ xs: 1, sm: 2, lg: 3 }}
+                        gap="space-16"
+                        padding="space-16"
+                        margin="space-0"
+                        style={{ listStyle: "none" }}
+                      >
+                        {row.deltakere
+                          .toSorted((a, b) => collator.compare(a.navn ?? "", b.navn ?? ""))
+                          .map((deltaker, index) => (
+                            <li key={index}>
+                              <VStack gap="space-2">
+                                <BodyShort>{deltaker.navn}</BodyShort>
+                                <BodyShort size="small">{deltaker.norskIdent ?? "-"}</BodyShort>
+                              </VStack>
+                            </li>
+                          ))}
+                      </HGrid>
+                    ),
+                  },
+                }
+              : {})}
             sorting={{
               allowMultiSort: true,
               sortOrder: sortState,

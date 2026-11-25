@@ -8,6 +8,7 @@ import {
   Valuta,
   Tiltakskode,
   OpprettKravInnsendingSteg,
+  TilsagnVisning,
 } from "@arrangor-utbetalinger/api-client";
 import { formaterPeriode, subDuration, yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
 import {
@@ -127,6 +128,7 @@ export const innsendingsInformasjonAFT: OpprettKravInnsendingSteg = {
     },
   ],
   datoVelger: { type: "DatoVelgerRange", maksSluttdato: yyyyMMddFormatting(new Date())! },
+  visTilsagn: TilsagnVisning.STANDARD,
 };
 
 const innsendingsInformasjonAvklaring: OpprettKravInnsendingSteg = {
@@ -219,6 +221,7 @@ const innsendingsInformasjonAvklaring: OpprettKravInnsendingSteg = {
     type: "DatoVelgerRange",
     maksSluttdato: new Date(31, 12, today.getFullYear()).toISOString().slice(0, 8),
   },
+  visTilsagn: TilsagnVisning.STANDARD,
 };
 
 const innsendingsInformasjonOppfolging: OpprettKravInnsendingSteg = {
@@ -329,6 +332,7 @@ const innsendingsInformasjonOppfolging: OpprettKravInnsendingSteg = {
     type: "DatoVelgerSelect",
     periodeForslag: utbetalingsPerioder(),
   },
+  visTilsagn: TilsagnVisning.STANDARD,
 };
 
 function tilsagnsPeriode(): Periode {
