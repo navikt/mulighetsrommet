@@ -14,8 +14,11 @@ import no.nav.mulighetsrommet.api.contracts.gjennomforing.TiltaksgjennomforingV2
 import no.nav.mulighetsrommet.brreg.BrregClient
 import no.nav.mulighetsrommet.brreg.BrregHovedenhetDto
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
+import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
+import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.model.Tiltaksnummer
 import no.nav.tiltak.historikk.TestFixtures
 import no.nav.tiltak.historikk.databaseConfig
 import no.nav.tiltak.historikk.db.TiltakshistorikkDatabase
@@ -24,14 +27,46 @@ import no.nav.tiltak.historikk.model.Virksomhet
 import no.nav.tiltak.historikk.replikering.GjennomforingReplikering
 import no.nav.tiltak.historikk.replikering.VirksomhetReplikering
 import java.time.Instant
+import java.time.LocalDate
 
 class ReplikerSisteTiltaksgjennomforingerV2KafkaConsumerTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))
 
+    val gruppeAmo = TiltaksgjennomforingV2Dto.Gruppe(
+        id = TestFixtures.Gjennomforing.GruppeAmo.id,
+        lopenummer = Tiltaksnummer("2025/1"),
+        tiltakskode = Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
+        arrangor = TiltaksgjennomforingV2Dto.Arrangor(Organisasjonsnummer("987654321")),
+        navn = "Gruppe AMO",
+        startDato = LocalDate.of(2025, 1, 1),
+        sluttDato = null,
+        status = TiltaksgjennomforingV2Dto.Status.GJENNOMFORES,
+        oppstart = GjennomforingOppstartstype.FELLES,
+        tilgjengeligForArrangorFraOgMedDato = null,
+        apentForPamelding = true,
+        antallPlasser = 10,
+        deltidsprosent = 80.0,
+        oppmoteSted = null,
+        pameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,
+        opprettetTidspunkt = Instant.parse("2025-01-01T00:00:00Z"),
+        oppdatertTidspunkt = Instant.parse("2025-01-02T00:00:00Z"),
+    )
+    val enkelAmo = TiltaksgjennomforingV2Dto.Enkeltplass(
+        id = TestFixtures.Gjennomforing.EnkelAmo.id,
+        lopenummer = Tiltaksnummer("2025/2"),
+        tiltakskode = Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
+        arrangor = TiltaksgjennomforingV2Dto.Arrangor(Organisasjonsnummer("987654321")),
+        status = TiltaksgjennomforingV2Dto.Status.GJENNOMFORES,
+        oppstart = GjennomforingOppstartstype.ENKELTPLASS,
+        pameldingType = GjennomforingPameldingType.TRENGER_GODKJENNING,
+        opprettetTidspunkt = Instant.parse("2025-01-01T00:00:00Z"),
+        oppdatertTidspunkt = Instant.parse("2025-01-02T00:00:00Z"),
+    )
+
     beforeEach {
         TiltakshistorikkDatabase(database.db).session {
-            queries.tiltakstype.upsert(TestFixtures.Tiltakstype.gruppeAmo)
-            queries.tiltakstype.upsert(TestFixtures.Tiltakstype.enkelAmo)
+            queries.tiltakstype.upsert(TestFixtures.Tiltakstype.GruppeAmo)
+            queries.tiltakstype.upsert(TestFixtures.Tiltakstype.EnkelAmo)
         }
     }
 
@@ -46,15 +81,15 @@ class ReplikerSisteTiltaksgjennomforingerV2KafkaConsumerTest : FunSpec({
             GjennomforingReplikering(db, mockk(relaxed = true)),
         )
 
-        val gruppe: TiltaksgjennomforingV2Dto = TestFixtures.Gjennomforing.gruppeAmo.copy(
+        val gruppe: TiltaksgjennomforingV2Dto = gruppeAmo.copy(
             opprettetTidspunkt = Instant.parse("2025-01-01T00:00:00.123456789Z"),
             oppdatertTidspunkt = Instant.parse("2025-01-02T00:00:00.987654789Z"),
         )
-        val enkeltplass: TiltaksgjennomforingV2Dto = TestFixtures.Gjennomforing.enkelAmo
+        val enkeltplass: TiltaksgjennomforingV2Dto = enkelAmo
 
         beforeEach {
             db.session {
-                queries.virksomhet.upsert(TestFixtures.Virksomhet.arrangor)
+                queries.virksomhet.upsert(TestFixtures.Virksomhet.Arrangor)
             }
         }
 
@@ -85,7 +120,7 @@ class ReplikerSisteTiltaksgjennomforingerV2KafkaConsumerTest : FunSpec({
                 )
             }
 
-            var updatedGruppe: TiltaksgjennomforingV2Dto = TestFixtures.Gjennomforing.gruppeAmo.copy(
+            var updatedGruppe: TiltaksgjennomforingV2Dto = gruppeAmo.copy(
                 navn = "Nytt navn",
                 opprettetTidspunkt = gruppe.opprettetTidspunkt,
                 oppdatertTidspunkt = Instant.parse("2025-01-03T12:34:56.123456789Z"),
@@ -102,8 +137,8 @@ class ReplikerSisteTiltaksgjennomforingerV2KafkaConsumerTest : FunSpec({
 
         test("delete gjennomforing for tombstone messages") {
             db.session {
-                queries.gjennomforing.upsert(gruppe.toGjennomforing())
-                queries.gjennomforing.upsert(enkeltplass.toGjennomforing())
+                queries.gjennomforing.upsert(TestFixtures.Gjennomforing.GruppeAmo)
+                queries.gjennomforing.upsert(TestFixtures.Gjennomforing.EnkelAmo)
             }
 
             consumer.consume(gruppe.id, JsonNull)
@@ -125,7 +160,7 @@ class ReplikerSisteTiltaksgjennomforingerV2KafkaConsumerTest : FunSpec({
     context("synkroniserer virksomhet hvis den ikke finnes") {
         val db = TiltakshistorikkDatabase(database.db)
 
-        val gruppe: TiltaksgjennomforingV2Dto = TestFixtures.Gjennomforing.gruppeAmo
+        val gruppe: TiltaksgjennomforingV2Dto = gruppeAmo
 
         test("lagrer virksomhet fra brreg") {
             var brreg = mockk<BrregClient>()
@@ -146,14 +181,14 @@ class ReplikerSisteTiltaksgjennomforingerV2KafkaConsumerTest : FunSpec({
                 queries.gjennomforing.get(gruppe.id)?.arrangorOrganisasjonsnummer shouldBe "987654321"
             }
 
-            virksomheter.getVirksomhet(Organisasjonsnummer("987654321")).shouldBe(TestFixtures.Virksomhet.arrangor)
+            virksomheter.getVirksomhet(Organisasjonsnummer("987654321")).shouldBe(TestFixtures.Virksomhet.Arrangor)
         }
 
         test("lagrer utenlandsk virksomhet uten navn") {
             var brreg = mockk<BrregClient>()
             var virksomheter = VirksomhetReplikering(db, brreg)
 
-            var gjennomforing: TiltaksgjennomforingV2Dto = TestFixtures.Gjennomforing.gruppeAmo.copy(
+            var gjennomforing: TiltaksgjennomforingV2Dto = gruppeAmo.copy(
                 arrangor = TiltaksgjennomforingV2Dto.Arrangor(Organisasjonsnummer("111222333")),
             )
 

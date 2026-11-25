@@ -17,6 +17,7 @@ import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.ktor.plugins.configureMetrics
 import no.nav.mulighetsrommet.ktor.plugins.configureMonitoring
 import no.nav.tiltak.historikk.db.TiltakshistorikkDatabase
+import no.nav.tiltak.historikk.kafka.consumers.ReplikerAmtDeltakerEksternV1KafkaConsumer
 import no.nav.tiltak.historikk.kafka.consumers.ReplikerAmtDeltakerV1KafkaConsumer
 import no.nav.tiltak.historikk.kafka.consumers.ReplikerAmtVirksomheterV1KafkaConsumer
 import no.nav.tiltak.historikk.kafka.consumers.ReplikerSisteTiltaksgjennomforingerV2KafkaConsumer
@@ -74,7 +75,8 @@ fun Application.configure(config: AppConfig) {
 
     val tiltakshistorikk = TiltakshistorikkService(
         config = TiltakshistorikkService.Config(
-            cutOffDatoMapping = config.arbeidsgiverTiltakCutOffDatoMapping,
+            arbeidsgiverTiltakCutoffDatoer = config.arbeidsgiverTiltakCutoffDatoer,
+            arrangorTiltakHistorikkKilder = config.arrangorTiltakHistorikkKilder,
         ),
         db = db,
         virksomheter = virksomheter,
@@ -116,6 +118,9 @@ fun Application.configureKafka(
             GjennomforingReplikering(db, virksomheter),
         ),
         config.consumers.replikerAmtDeltaker to ReplikerAmtDeltakerV1KafkaConsumer(
+            KometDeltakerReplikering(db),
+        ),
+        config.consumers.replikerAmtDeltakerEkstern to ReplikerAmtDeltakerEksternV1KafkaConsumer(
             KometDeltakerReplikering(db),
         ),
         config.consumers.replikerAmtVirksomhet to ReplikerAmtVirksomheterV1KafkaConsumer(virksomheter),

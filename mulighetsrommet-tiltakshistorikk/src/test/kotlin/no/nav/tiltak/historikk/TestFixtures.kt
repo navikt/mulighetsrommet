@@ -1,13 +1,14 @@
 package no.nav.tiltak.historikk
 
-import no.nav.amt.model.AmtDeltakerV1Dto
-import no.nav.mulighetsrommet.api.contracts.gjennomforing.TiltaksgjennomforingV2Dto
+import no.nav.mulighetsrommet.model.ArenaDeltakerStatus
 import no.nav.mulighetsrommet.model.DeltakerStatusType
-import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
-import no.nav.mulighetsrommet.model.GjennomforingPameldingType
+import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Tiltakskode
-import no.nav.mulighetsrommet.model.Tiltaksnummer
+import no.nav.tiltak.historikk.model.ArbeidsgiverAvtale
+import no.nav.tiltak.historikk.model.Gjennomforing
+import no.nav.tiltak.historikk.model.Gjennomforing.Type
+import no.nav.tiltak.historikk.model.KometDeltaker
 import no.nav.tiltak.historikk.model.Tiltakstype
 import no.nav.tiltak.historikk.model.Virksomhet
 import java.time.Instant
@@ -17,7 +18,7 @@ import java.util.UUID
 
 object TestFixtures {
     object Tiltakstype {
-        val gruppeAmo = Tiltakstype(
+        val GruppeAmo = Tiltakstype(
             navn = "Arbeidsmarkedsopplæring (gruppe)",
             tiltakskode = Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
             arenaTiltakskode = "GRUPPEAMO",
@@ -28,7 +29,7 @@ object TestFixtures {
             oppdatertTidspunkt = Instant.parse("2025-01-01T23:00:00Z"),
         )
 
-        val enkelAmo = Tiltakstype(
+        val EnkelAmo = Tiltakstype(
             navn = "Arbeidsmarkedsopplæring (enkeltplass)",
             tiltakskode = Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
             arenaTiltakskode = "ENKELAMO",
@@ -39,18 +40,7 @@ object TestFixtures {
             oppdatertTidspunkt = Instant.parse("2025-01-01T23:00:00Z"),
         )
 
-        val amo = Tiltakstype(
-            navn = "Arbeidsmarkedsopplæring (AMO)",
-            tiltakskode = null,
-            arenaTiltakskode = "AMO",
-            tiltakstypeId = UUID.fromString(
-                "d5f724d6-4779-41f8-b9e6-e54cb6486b93",
-            ),
-            opprettetTidspunkt = Instant.parse("2024-12-31T23:00:00Z"),
-            oppdatertTidspunkt = Instant.parse("2025-01-01T23:00:00Z"),
-        )
-
-        val mentor = Tiltakstype(
+        val Mentor = Tiltakstype(
             navn = "Mentor",
             tiltakskode = Tiltakskode.MENTOR,
             arenaTiltakskode = "MENTOR",
@@ -61,7 +51,7 @@ object TestFixtures {
             oppdatertTidspunkt = Instant.parse("2025-01-01T23:00:00Z"),
         )
 
-        val arbeidstrening = Tiltakstype(
+        val Arbeidstrening = Tiltakstype(
             navn = "Arbeidstrening",
             tiltakskode = Tiltakskode.ARBEIDSTRENING,
             arenaTiltakskode = "ARBTREN",
@@ -74,7 +64,7 @@ object TestFixtures {
     }
 
     object Virksomhet {
-        val arrangorHovedenhet = Virksomhet(
+        val ArrangorHovedenhet = Virksomhet(
             organisasjonsnummer = Organisasjonsnummer("912345678"),
             overordnetEnhetOrganisasjonsnummer = null,
             navn = "Arrangør Foretak",
@@ -82,7 +72,7 @@ object TestFixtures {
             slettetDato = null,
         )
 
-        val arrangor = Virksomhet(
+        val Arrangor = Virksomhet(
             organisasjonsnummer = Organisasjonsnummer("987654321"),
             overordnetEnhetOrganisasjonsnummer = null,
             navn = "Arrangør",
@@ -90,7 +80,7 @@ object TestFixtures {
             slettetDato = null,
         )
 
-        val arbeidsgiver = Virksomhet(
+        val Arbeidsgiver = Virksomhet(
             organisasjonsnummer = Organisasjonsnummer("876543210"),
             overordnetEnhetOrganisasjonsnummer = null,
             navn = "Arbeidsgiver",
@@ -100,90 +90,136 @@ object TestFixtures {
     }
 
     object Gjennomforing {
-        val gruppeAmo: TiltaksgjennomforingV2Dto.Gruppe = TiltaksgjennomforingV2Dto.Gruppe(
-            id = UUID.randomUUID(),
-            lopenummer = Tiltaksnummer("2025/1"),
+        val GruppeAmo = Gjennomforing(
+            id = UUID.fromString("86a263fa-1f30-4c0e-af64-2e7015e6daed"),
+            type = Type.GRUPPE,
             tiltakskode = Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
-            arrangor = TiltaksgjennomforingV2Dto.Arrangor(
-                organisasjonsnummer = Organisasjonsnummer("987654321"),
-            ),
+            arrangorOrganisasjonsnummer = "987654321",
             navn = "Gruppe AMO",
-            startDato = LocalDate.now(),
-            sluttDato = null,
-            status = TiltaksgjennomforingV2Dto.Status.GJENNOMFORES,
-            oppstart = GjennomforingOppstartstype.FELLES,
-            tilgjengeligForArrangorFraOgMedDato = null,
-            apentForPamelding = true,
-            antallPlasser = 10,
             deltidsprosent = 80.0,
             opprettetTidspunkt = Instant.parse("2025-01-01T00:00:00Z"),
             oppdatertTidspunkt = Instant.parse("2025-01-02T00:00:00Z"),
-            oppmoteSted = null,
-            pameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,
         )
 
-        val enkelAmo: TiltaksgjennomforingV2Dto.Enkeltplass = TiltaksgjennomforingV2Dto.Enkeltplass(
-            id = UUID.randomUUID(),
-            lopenummer = Tiltaksnummer("2025/2"),
+        val EnkelAmo = Gjennomforing(
+            id = UUID.fromString("bcd33931-0230-4b2b-a223-9dd4c140e949"),
+            type = Type.ENKELTPLASS,
             tiltakskode = Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
-            arrangor = TiltaksgjennomforingV2Dto.Arrangor(
-                organisasjonsnummer = Organisasjonsnummer("987654321"),
-            ),
-            status = TiltaksgjennomforingV2Dto.Status.GJENNOMFORES,
+            arrangorOrganisasjonsnummer = "987654321",
+            navn = null,
+            deltidsprosent = null,
             opprettetTidspunkt = Instant.parse("2025-01-01T00:00:00Z"),
             oppdatertTidspunkt = Instant.parse("2025-01-02T00:00:00Z"),
-            oppstart = GjennomforingOppstartstype.ENKELTPLASS,
-            pameldingType = GjennomforingPameldingType.TRENGER_GODKJENNING,
+        )
+    }
+
+    object Deltaker {
+        val GruppeAmo = KometDeltaker(
+            id = UUID.fromString("d702a2af-b091-41bb-b54b-c0e19312baee"),
+            gjennomforingId = Gjennomforing.GruppeAmo.id,
+            personIdent = "10101010100",
+            startDato = null,
+            sluttDato = null,
+            statusType = DeltakerStatusType.VENTER_PA_OPPSTART,
+            statusAarsak = null,
+            statusOpprettetTidspunkt = LocalDateTime.of(2022, 1, 1, 0, 0),
+            opprettetTidspunkt = LocalDateTime.of(2022, 1, 1, 0, 0),
+            oppdatertTidspunkt = LocalDateTime.of(2022, 1, 1, 0, 0),
+            dagerPerUke = 2.5f,
+            prosentStilling = 50f,
         )
 
-        val arenaArbeidstrening = TiltakshistorikkArenaGjennomforing(
+        val EnkelAmo = KometDeltaker(
+            id = UUID.fromString("9fe2abb2-569f-4bb5-b048-85b958f0470e"),
+            gjennomforingId = Gjennomforing.EnkelAmo.id,
+            personIdent = "10101010100",
+            startDato = null,
+            sluttDato = null,
+            statusType = DeltakerStatusType.VENTER_PA_OPPSTART,
+            statusAarsak = null,
+            statusOpprettetTidspunkt = LocalDateTime.of(2022, 1, 1, 0, 0),
+            opprettetTidspunkt = LocalDateTime.of(2022, 1, 1, 0, 0),
+            oppdatertTidspunkt = LocalDateTime.of(2022, 1, 1, 0, 0),
+            dagerPerUke = 2.5f,
+            prosentStilling = 50f,
+        )
+    }
+
+    object ArenaGjennomforing {
+        val Arbeidstrening = TiltakshistorikkArenaGjennomforing(
             id = UUID.randomUUID(),
             arenaRegDato = Instant.parse("2025-01-01T00:00:00Z"),
             arenaModDato = Instant.parse("2025-01-02T00:00:00Z"),
             arrangorOrganisasjonsnummer = Organisasjonsnummer("987654321"),
             navn = "Arbeidstrening hos Fretex",
             deltidsprosent = 80.0,
-            tiltakstypeId = Tiltakstype.arbeidstrening.tiltakstypeId,
+            tiltakstypeId = Tiltakstype.Arbeidstrening.tiltakstypeId,
         )
 
-        val arenaMentor = TiltakshistorikkArenaGjennomforing(
+        val Mentor = TiltakshistorikkArenaGjennomforing(
             id = UUID.randomUUID(),
             arenaRegDato = Instant.parse("2025-01-01T00:00:00Z"),
             arenaModDato = Instant.parse("2025-01-02T00:00:00Z"),
             arrangorOrganisasjonsnummer = Organisasjonsnummer("987654321"),
             navn = "Mentortiltak hos Joblearn",
             deltidsprosent = 100.0,
-            tiltakstypeId = Tiltakstype.mentor.tiltakstypeId,
+            tiltakstypeId = Tiltakstype.Mentor.tiltakstypeId,
         )
 
-        val arenaAmo = TiltakshistorikkArenaGjennomforing(
-            id = UUID.randomUUID(),
+        val EnkelAmo = TiltakshistorikkArenaGjennomforing(
+            id = UUID.fromString("169dd79f-e65c-4454-bef4-fb9b352424c8"),
             arenaRegDato = Instant.parse("2024-01-01T00:00:00Z"),
             arenaModDato = Instant.parse("2024-01-01T00:00:00Z"),
             arrangorOrganisasjonsnummer = Organisasjonsnummer("987654321"),
             navn = "Enkelt-AMO hos Joblearn",
             deltidsprosent = 100.0,
-            tiltakstypeId = Tiltakstype.amo.tiltakstypeId,
+            tiltakstypeId = Tiltakstype.EnkelAmo.tiltakstypeId,
         )
     }
 
-    object Deltaker {
-        val gruppeAmo = AmtDeltakerV1Dto(
-            id = UUID.randomUUID(),
-            gjennomforingId = Gjennomforing.gruppeAmo.id,
-            personIdent = "10101010100",
-            startDato = null,
-            sluttDato = null,
-            status = AmtDeltakerV1Dto.DeltakerStatusDto(
-                type = DeltakerStatusType.VENTER_PA_OPPSTART,
-                aarsak = null,
-                opprettetDato = LocalDateTime.of(2022, 1, 1, 0, 0),
-            ),
-            registrertDato = LocalDateTime.of(2022, 1, 1, 0, 0),
-            endretDato = LocalDateTime.of(2022, 1, 1, 0, 0),
-            dagerPerUke = 2.5f,
-            prosentStilling = 50f,
-            deltakelsesmengder = listOf(),
+    object ArenaDeltaker {
+        val Arbeidstrening = TiltakshistorikkArenaDeltaker(
+            id = UUID.fromString("970ef351-bb42-4560-b501-df1ed152fa2b"),
+            arenaRegDato = Instant.parse("2024-01-01T12:00:00Z"),
+            arenaModDato = Instant.parse("2024-02-01T12:00:00Z"),
+            arenaGjennomforingId = ArenaGjennomforing.Arbeidstrening.id,
+            arenaDeltakerId = 789,
+            norskIdent = NorskIdent("10101010100"),
+            status = ArenaDeltakerStatus.GJENNOMFORES,
+            startDato = LocalDate.of(2024, 1, 1),
+            sluttDato = LocalDate.of(2024, 12, 31),
+            dagerPerUke = 5.0,
+            deltidsprosent = 100.0,
+        )
+
+        val EnkelAmo = TiltakshistorikkArenaDeltaker(
+            id = UUID.fromString("6a7c2961-df09-420b-ab05-65d34de7c2cf"),
+            arenaRegDato = Instant.parse("2024-01-01T12:00:00Z"),
+            arenaModDato = Instant.parse("2024-02-01T12:00:00Z"),
+            arenaGjennomforingId = ArenaGjennomforing.EnkelAmo.id,
+            arenaDeltakerId = 123,
+            norskIdent = NorskIdent("10101010100"),
+            status = ArenaDeltakerStatus.GJENNOMFORES,
+            startDato = LocalDate.of(2024, 1, 1),
+            sluttDato = LocalDate.of(2024, 12, 31),
+            dagerPerUke = 5.0,
+            deltidsprosent = 100.0,
+        )
+    }
+
+    object Avtale {
+        val Arbeidstrening = ArbeidsgiverAvtale(
+            avtaleId = UUID.fromString("065e130b-5fc0-4df3-8483-165cd59c26d8"),
+            norskIdent = NorskIdent("10101010100"),
+            organisasjonsnummer = Virksomhet.Arbeidsgiver.organisasjonsnummer,
+            tiltakstype = Tiltakskode.ARBEIDSTRENING,
+            startDato = LocalDate.of(2024, 1, 1),
+            sluttDato = LocalDate.of(2024, 12, 31),
+            status = ArbeidsgiverAvtale.Status.GJENNOMFORES,
+            stillingsprosent = 100f,
+            dagerPerUke = 5f,
+            opprettetTidspunkt = Instant.parse("2024-01-01T12:00:00Z"),
+            oppdatertTidspunkt = Instant.parse("2024-02-01T12:00:00Z"),
         )
     }
 }

@@ -9,6 +9,7 @@ import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.ktor.ServerConfig
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.tokenprovider.TexasClient
+import no.nav.tiltak.historikk.model.ArrangorDeltakerHistorikkKilde
 import java.time.LocalDate
 import java.util.UUID
 
@@ -21,7 +22,12 @@ data class AppConfig(
     ),
     val auth: AuthConfig,
     val kafka: KafkaConfig,
-    val arbeidsgiverTiltakCutOffDatoMapping: Map<Tiltakskode, LocalDate> = mapOf(
+    val arrangorTiltakHistorikkKilder: Map<Tiltakskode, ArrangorDeltakerHistorikkKilde> = mapOf(
+        Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING to ArrangorDeltakerHistorikkKilde.ARENA,
+        Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING to ArrangorDeltakerHistorikkKilde.ARENA,
+        Tiltakskode.HOYERE_UTDANNING to ArrangorDeltakerHistorikkKilde.ARENA,
+    ),
+    val arbeidsgiverTiltakCutoffDatoer: Map<Tiltakskode, LocalDate> = mapOf(
         Tiltakskode.SOMMERJOBB to LocalDate.of(2021, 1, 1),
         Tiltakskode.MIDLERTIDIG_LONNSTILSKUDD to LocalDate.of(2023, 2, 1),
         Tiltakskode.VARIG_LONNSTILSKUDD to LocalDate.of(2023, 2, 1),
@@ -64,6 +70,11 @@ data class KafkaConsumers(
         id = "replilker-amt-deltaker",
         topic = "amt.deltaker-v1",
         consumerProperties = KafkaPropertiesPreset.aivenDefaultConsumerProperties("tiltakshistorikk.deltaker.v1"),
+    ),
+    val replikerAmtDeltakerEkstern: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
+        id = "repliker-amt-deltaker-ekstern",
+        topic = "amt.deltaker-ekstern-v1",
+        consumerProperties = KafkaPropertiesPreset.aivenDefaultConsumerProperties("tiltakshistorikk.deltaker-ekstern.v1"),
     ),
     val replikerAmtVirksomhet: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
         id = "repliker-amt-virksomheter",

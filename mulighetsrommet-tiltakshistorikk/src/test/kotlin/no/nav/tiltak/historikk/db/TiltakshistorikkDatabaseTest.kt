@@ -5,7 +5,6 @@ import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
-import no.nav.amt.model.AmtDeltakerV1Dto
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.model.ArenaDeltakerStatus
 import no.nav.mulighetsrommet.model.DeltakerStatusType
@@ -15,8 +14,6 @@ import no.nav.tiltak.historikk.TestFixtures
 import no.nav.tiltak.historikk.TiltakshistorikkArenaDeltaker
 import no.nav.tiltak.historikk.TiltakshistorikkV1Dto
 import no.nav.tiltak.historikk.databaseConfig
-import no.nav.tiltak.historikk.kafka.consumers.toGjennomforing
-import no.nav.tiltak.historikk.kafka.consumers.toKometDeltaker
 import no.nav.tiltak.historikk.model.Virksomhet
 import java.time.Instant
 import java.time.LocalDate
@@ -82,7 +79,7 @@ class TiltakshistorikkDatabaseTest : FunSpec({
     }
 
     context("Arena deltaker") {
-        val arenaArbeidstrening = TestFixtures.Gjennomforing.arenaArbeidstrening
+        val arenaArbeidstrening = TestFixtures.ArenaGjennomforing.Arbeidstrening
         val arbeidstreningArenaDeltakelse = TiltakshistorikkArenaDeltaker(
             id = UUID.randomUUID(),
             arenaGjennomforingId = arenaArbeidstrening.id,
@@ -97,7 +94,7 @@ class TiltakshistorikkDatabaseTest : FunSpec({
             deltidsprosent = 50.0,
         )
 
-        val arenaMentor = TestFixtures.Gjennomforing.arenaMentor
+        val arenaMentor = TestFixtures.ArenaGjennomforing.Mentor
         val mentorArenaDeltakelse = TiltakshistorikkArenaDeltaker(
             id = UUID.randomUUID(),
             arenaGjennomforingId = arenaMentor.id,
@@ -112,8 +109,8 @@ class TiltakshistorikkDatabaseTest : FunSpec({
             deltidsprosent = 100.0,
         )
 
-        var hovedenhet = TestFixtures.Virksomhet.arrangorHovedenhet
-        var underenhet = TestFixtures.Virksomhet.arrangor.copy(
+        var hovedenhet = TestFixtures.Virksomhet.ArrangorHovedenhet
+        var underenhet = TestFixtures.Virksomhet.Arrangor.copy(
             overordnetEnhetOrganisasjonsnummer = hovedenhet.organisasjonsnummer,
         )
 
@@ -123,8 +120,8 @@ class TiltakshistorikkDatabaseTest : FunSpec({
             db.session {
                 queries.virksomhet.upsert(hovedenhet)
                 queries.virksomhet.upsert(underenhet)
-                queries.tiltakstype.upsert(TestFixtures.Tiltakstype.mentor)
-                queries.tiltakstype.upsert(TestFixtures.Tiltakstype.arbeidstrening)
+                queries.tiltakstype.upsert(TestFixtures.Tiltakstype.Mentor)
+                queries.tiltakstype.upsert(TestFixtures.Tiltakstype.Arbeidstrening)
                 queries.arenaGjennomforing.upsert(arenaArbeidstrening)
                 queries.arenaGjennomforing.upsert(arenaMentor)
             }
@@ -294,13 +291,13 @@ class TiltakshistorikkDatabaseTest : FunSpec({
     }
 
     context("Komet deltaker") {
-        val gruppeAmo = TestFixtures.Gjennomforing.gruppeAmo
-        val amtDeltaker = TestFixtures.Deltaker.gruppeAmo
+        val gruppeAmo = TestFixtures.Gjennomforing.GruppeAmo
+        val kometDeltaker = TestFixtures.Deltaker.GruppeAmo
 
         val db = TiltakshistorikkDatabase(database.db)
 
-        var hovedenhet = TestFixtures.Virksomhet.arrangorHovedenhet
-        var underenhet = TestFixtures.Virksomhet.arrangor.copy(
+        var hovedenhet = TestFixtures.Virksomhet.ArrangorHovedenhet
+        var underenhet = TestFixtures.Virksomhet.Arrangor.copy(
             overordnetEnhetOrganisasjonsnummer = hovedenhet.organisasjonsnummer,
         )
 
@@ -308,20 +305,20 @@ class TiltakshistorikkDatabaseTest : FunSpec({
             db.session {
                 queries.virksomhet.upsert(hovedenhet)
                 queries.virksomhet.upsert(underenhet)
-                queries.tiltakstype.upsert(TestFixtures.Tiltakstype.gruppeAmo)
-                queries.gjennomforing.upsert(gruppeAmo.toGjennomforing())
+                queries.tiltakstype.upsert(TestFixtures.Tiltakstype.GruppeAmo)
+                queries.gjennomforing.upsert(gruppeAmo)
             }
         }
 
         test("oppretter og henter Komet-deltaker med tilhørende gjennomføring") {
             db.transaction {
-                queries.kometDeltaker.upsertKometDeltaker(amtDeltaker.toKometDeltaker())
+                queries.kometDeltaker.upsertKometDeltaker(kometDeltaker)
 
                 queries.kometDeltaker.getKometHistorikk(
-                    identer = listOf(NorskIdent(amtDeltaker.personIdent)),
+                    identer = listOf(NorskIdent(kometDeltaker.personIdent)),
                 ) shouldBe listOf(
                     TiltakshistorikkV1Dto.TeamKometDeltakelse(
-                        id = amtDeltaker.id,
+                        id = kometDeltaker.id,
                         norskIdent = NorskIdent("10101010100"),
                         startDato = null,
                         sluttDato = null,
@@ -361,25 +358,17 @@ class TiltakshistorikkDatabaseTest : FunSpec({
 
         test("sletter Komet-deltaker") {
             db.transaction {
-                val testDeltaker = AmtDeltakerV1Dto(
+                val testDeltaker = kometDeltaker.copy(
                     id = UUID.randomUUID(),
                     gjennomforingId = gruppeAmo.id,
                     personIdent = "99999999999",
                     startDato = null,
                     sluttDato = null,
-                    status = AmtDeltakerV1Dto.DeltakerStatusDto(
-                        type = DeltakerStatusType.VENTER_PA_OPPSTART,
-                        aarsak = null,
-                        opprettetDato = LocalDateTime.of(2022, 1, 1, 0, 0),
-                    ),
-                    registrertDato = LocalDateTime.of(2022, 1, 1, 0, 0),
-                    endretDato = LocalDateTime.of(2022, 1, 1, 0, 0),
-                    dagerPerUke = 2.5f,
                     prosentStilling = null,
-                    deltakelsesmengder = listOf(),
+                    dagerPerUke = null,
                 )
 
-                queries.kometDeltaker.upsertKometDeltaker(testDeltaker.toKometDeltaker())
+                queries.kometDeltaker.upsertKometDeltaker(testDeltaker)
 
                 queries.kometDeltaker.getKometHistorikk(
                     identer = listOf(NorskIdent(testDeltaker.personIdent)),

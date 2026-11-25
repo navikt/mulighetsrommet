@@ -25,13 +25,28 @@ class ReplikerAmtDeltakerV1KafkaConsumerTest : FunSpec({
 
         val deltakerConsumer = ReplikerAmtDeltakerV1KafkaConsumer(KometDeltakerReplikering(db))
 
-        val amtDeltaker1 = TestFixtures.Deltaker.gruppeAmo
+        val amtDeltakerV1 = AmtDeltakerV1Dto(
+            id = TestFixtures.Deltaker.GruppeAmo.id,
+            gjennomforingId = TestFixtures.Gjennomforing.GruppeAmo.id,
+            personIdent = "10101010100",
+            startDato = null,
+            sluttDato = null,
+            status = AmtDeltakerV1Dto.DeltakerStatusDto(
+                type = DeltakerStatusType.VENTER_PA_OPPSTART,
+                aarsak = null,
+                opprettetDato = LocalDateTime.of(2022, 1, 1, 0, 0),
+            ),
+            registrertDato = LocalDateTime.of(2022, 1, 1, 0, 0),
+            endretDato = LocalDateTime.of(2022, 1, 1, 0, 0),
+            dagerPerUke = 2.5f,
+            prosentStilling = 50f,
+        )
 
         beforeEach {
             db.session {
-                queries.tiltakstype.upsert(TestFixtures.Tiltakstype.gruppeAmo)
-                queries.virksomhet.upsert(TestFixtures.Virksomhet.arrangor)
-                queries.gjennomforing.upsert(TestFixtures.Gjennomforing.gruppeAmo.toGjennomforing())
+                queries.tiltakstype.upsert(TestFixtures.Tiltakstype.GruppeAmo)
+                queries.virksomhet.upsert(TestFixtures.Virksomhet.Arrangor)
+                queries.gjennomforing.upsert(TestFixtures.Gjennomforing.GruppeAmo)
             }
         }
 
@@ -40,8 +55,8 @@ class ReplikerAmtDeltakerV1KafkaConsumerTest : FunSpec({
         }
 
         test("normaliserer deltakerens tidsstempler før lagring og sammenligning") {
-            val deltaker = amtDeltaker1.copy(
-                status = amtDeltaker1.status.copy(
+            val deltaker = amtDeltakerV1.copy(
+                status = amtDeltakerV1.status.copy(
                     opprettetDato = LocalDateTime.parse("2025-01-01T10:00:00.123456789"),
                 ),
                 registrertDato = LocalDateTime.parse("2025-01-01T10:00:00.123456789"),
@@ -54,6 +69,8 @@ class ReplikerAmtDeltakerV1KafkaConsumerTest : FunSpec({
                 lagret.statusOpprettetTidspunkt shouldBe LocalDateTime.parse("2025-01-01T10:00:00.123456")
                 lagret.opprettetTidspunkt shouldBe LocalDateTime.parse("2025-01-01T10:00:00.123456")
                 lagret.oppdatertTidspunkt shouldBe LocalDateTime.parse("2025-01-02T11:00:00.987654")
+                lagret.dagerPerUke shouldBe 2.5f
+                lagret.prosentStilling shouldBe 50f
             }
 
             val oppdatertDeltaker = deltaker.copy(
@@ -69,59 +86,59 @@ class ReplikerAmtDeltakerV1KafkaConsumerTest : FunSpec({
 
         test("delete deltakere for tombstone messages") {
             db.session {
-                queries.kometDeltaker.upsertKometDeltaker(amtDeltaker1.toKometDeltaker())
+                queries.kometDeltaker.upsertKometDeltaker(TestFixtures.Deltaker.GruppeAmo)
             }
 
-            deltakerConsumer.consume(amtDeltaker1.id, JsonNull)
+            deltakerConsumer.consume(amtDeltakerV1.id, JsonNull)
 
             db.session {
-                queries.kometDeltaker.get(amtDeltaker1.id).shouldBeNull()
+                queries.kometDeltaker.get(amtDeltakerV1.id).shouldBeNull()
             }
         }
 
         test("hopper over deltaker hvis innkommende endretTidspunkt er eldre enn lagret") {
             db.session {
-                queries.kometDeltaker.upsertKometDeltaker(amtDeltaker1.toKometDeltaker())
+                queries.kometDeltaker.upsertKometDeltaker(TestFixtures.Deltaker.GruppeAmo)
             }
 
-            val utdatertDeltaker = amtDeltaker1.copy(
-                endretDato = amtDeltaker1.endretDato.minusDays(1),
+            val utdatertDeltaker = amtDeltakerV1.copy(
+                endretDato = LocalDateTime.parse("2021-12-31T00:00:00"),
                 startDato = LocalDate.of(2025, 1, 1),
             )
             deltakerConsumer.consume(utdatertDeltaker.id, Json.encodeToJsonElement(utdatertDeltaker))
 
             db.session {
-                queries.kometDeltaker.get(amtDeltaker1.id)?.startDato shouldBe amtDeltaker1.startDato
+                queries.kometDeltaker.get(amtDeltakerV1.id)?.startDato.shouldBeNull()
             }
         }
 
         test("oppdaterer deltaker hvis innkommende endretTidspunkt er nyere enn lagret") {
             db.session {
-                queries.kometDeltaker.upsertKometDeltaker(amtDeltaker1.toKometDeltaker())
+                queries.kometDeltaker.upsertKometDeltaker(TestFixtures.Deltaker.GruppeAmo)
             }
 
-            val oppdatertDeltaker = amtDeltaker1.copy(
-                endretDato = amtDeltaker1.endretDato.plusDays(1),
+            val oppdatertDeltaker = amtDeltakerV1.copy(
+                endretDato = LocalDateTime.parse("2022-01-02T00:00:00"),
                 startDato = LocalDate.of(2025, 1, 1),
             )
             deltakerConsumer.consume(oppdatertDeltaker.id, Json.encodeToJsonElement(oppdatertDeltaker))
 
             db.session {
-                queries.kometDeltaker.get(amtDeltaker1.id)?.startDato shouldBe oppdatertDeltaker.startDato
+                queries.kometDeltaker.get(amtDeltakerV1.id)?.startDato shouldBe LocalDate.of(2025, 1, 1)
             }
         }
 
         test("sletter feilregistrert deltaker selv om meldingen er eldre enn lagret") {
             db.session {
-                queries.kometDeltaker.upsertKometDeltaker(amtDeltaker1.toKometDeltaker())
+                queries.kometDeltaker.upsertKometDeltaker(TestFixtures.Deltaker.GruppeAmo)
             }
 
-            val feilregistrertDeltaker1 = amtDeltaker1.copy(
-                endretDato = amtDeltaker1.endretDato.minusDays(1),
+            val feilregistrertDeltaker1 = amtDeltakerV1.copy(
+                endretDato = LocalDateTime.parse("2021-12-31T00:00:00"),
                 status = AmtDeltakerV1Dto.DeltakerStatusDto(
                     type = DeltakerStatusType.FEILREGISTRERT,
                     aarsak = null,
-                    opprettetDato = LocalDateTime.now(),
+                    opprettetDato = LocalDateTime.parse("2022-01-01T00:00:00"),
                 ),
             )
             deltakerConsumer.consume(feilregistrertDeltaker1.id, Json.encodeToJsonElement(feilregistrertDeltaker1))

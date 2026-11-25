@@ -2,7 +2,9 @@ package no.nav.tiltak.historikk
 
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.metrics.Metrics
+import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.tokenprovider.TexasClient
+import no.nav.tiltak.historikk.model.ArrangorDeltakerHistorikkKilde
 import java.util.UUID
 
 val ApplicationConfigProd = AppConfig(
@@ -28,5 +30,10 @@ val ApplicationConfigProd = AppConfig(
     ),
     kafka = KafkaConfig(
         consumers = KafkaConsumers(),
+    ),
+    arrangorTiltakHistorikkKilder = mapOf(
+        Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING to ArrangorDeltakerHistorikkKilde.ARENA,
+        Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING to ArrangorDeltakerHistorikkKilde.ARENA,
+        Tiltakskode.HOYERE_UTDANNING to ArrangorDeltakerHistorikkKilde.ARENA,
     ),
 )

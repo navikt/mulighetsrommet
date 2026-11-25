@@ -39,7 +39,7 @@ class ArenaReplikeringTest : FunSpec({
 
     beforeEach {
         db.session {
-            queries.tiltakstype.upsert(TestFixtures.Tiltakstype.arbeidstrening)
+            queries.tiltakstype.upsert(TestFixtures.Tiltakstype.Arbeidstrening)
         }
     }
 
@@ -48,7 +48,7 @@ class ArenaReplikeringTest : FunSpec({
     }
 
     test("replikerer og sletter Arena-deltaker og gjennomføring gjennom HTTP") {
-        val gjennomforing = TestFixtures.Gjennomforing.arenaArbeidstrening.copy(
+        val gjennomforing = TestFixtures.ArenaGjennomforing.Arbeidstrening.copy(
             arrangorOrganisasjonsnummer = Organisasjonsnummer("111222333"),
             arenaRegDato = Instant.parse("2025-01-01T10:00:00.123456789Z"),
             arenaModDato = Instant.parse("2025-01-02T11:00:00.987654789Z"),
@@ -127,7 +127,7 @@ class ArenaReplikeringTest : FunSpec({
     }
 
     test("avviser Arena-gjennomføring når arrangør ikke kan hentes fra Brreg") {
-        val gjennomforing = TestFixtures.Gjennomforing.arenaArbeidstrening
+        val gjennomforing = TestFixtures.ArenaGjennomforing.Arbeidstrening
         val engine = MockEngine { respond("", HttpStatusCode.NotFound) }
         val token = oauth.issueToken(claims = mapOf("roles" to TiltakshistorikkWriteRoles)).serialize()
 

@@ -9,24 +9,16 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
-import kotlinx.serialization.json.Json
 
 class ApplicationTest : FunSpec({
-    val jsonPrettyPrint = Json {
-        prettyPrint = true
-        prettyPrintIndent = "  "
-    }
-
     test("OpenAPI er tilgjengelig uten autentisering og beskriver kun historikk-endepunktet") {
-        lateinit var openApiSpec: String
-        withTestApplication {
+        val openApiSpec = withTestApplication {
             val response = client.get("/openapi.json")
 
             response.status shouldBe HttpStatusCode.OK
             response.contentType()?.withoutParameters() shouldBe ContentType.Application.Json
 
-            val document = Json.parseToJsonElement(response.bodyAsText())
-            openApiSpec = jsonPrettyPrint.encodeToString(document)
+            response.bodyAsText().prettyPrintJson()
         }
         expectSelfie(openApiSpec).toMatchDisk()
     }
