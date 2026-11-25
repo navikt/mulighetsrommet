@@ -45,7 +45,6 @@ import no.nav.mulighetsrommet.api.utbetaling.service.UtbetalingError
 import no.nav.mulighetsrommet.ktor.exception.Forbidden
 import no.nav.mulighetsrommet.ktor.exception.NotFound
 import no.nav.mulighetsrommet.ktor.exception.toProblemDetail
-import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.model.Tiltakskode
@@ -368,7 +367,7 @@ fun Route.utbetalingRoutes() {
                         )
                         call.respondBytes(pdfContent, contentType = ContentType.Application.Pdf)
                     }
-                    .onLeft { call.respondWithProblemDetail(toProblemDetail(it)) }
+                    .onLeft { call.respond(toProblemDetail(it)) }
             }
         }
 

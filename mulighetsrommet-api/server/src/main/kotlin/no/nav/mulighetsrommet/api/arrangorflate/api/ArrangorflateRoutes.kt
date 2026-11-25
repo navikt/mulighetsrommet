@@ -52,7 +52,6 @@ import no.nav.mulighetsrommet.ktor.exception.Forbidden
 import no.nav.mulighetsrommet.ktor.exception.InternalServerError
 import no.nav.mulighetsrommet.ktor.exception.NotFound
 import no.nav.mulighetsrommet.ktor.exception.StatusException
-import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
@@ -67,7 +66,7 @@ import org.koin.ktor.ext.inject
 import java.time.LocalDate
 import java.util.UUID
 
-suspend fun RoutingContext.respondWithManglerTilgangHosArrangor() = call.respondWithProblemDetail(
+suspend fun RoutingContext.respondWithManglerTilgangHosArrangor() = call.respond(
     Forbidden(
         detail = """
             Du mangler tilgang til utbetalingsløsningen. Tilgang delegeres i Altinn som en
@@ -317,7 +316,7 @@ fun Route.arrangorflateRoutes() {
                     utbetalingService.godkjentAvArrangor(utbetaling.id, kid)
                 }
                 .onLeft { errors ->
-                    call.respondWithProblemDetail(ValidationError("Utbetalingen kan ikke godkjennes", errors))
+                    call.respond(ValidationError("Utbetalingen kan ikke godkjennes", errors))
                 }
                 .onRight {
                     call.respond(HttpStatusCode.OK)
@@ -345,7 +344,7 @@ fun Route.arrangorflateRoutes() {
             val utbetaling = getArrangorflateUtbetalingOrRespondWithClientError()
 
             if (utbetaling.innsending == null) {
-                return@get call.respondWithProblemDetail(NotFound("Utbetalingskravet er ikke sendt inn. Ingen kvittering tilgjengelig."))
+                return@get call.respond(NotFound("Utbetalingskravet er ikke sendt inn. Ingen kvittering tilgjengelig."))
             }
 
             val kvittering = ArrangorflateUtbetalingKvittering(
@@ -385,7 +384,7 @@ fun Route.arrangorflateRoutes() {
                     utbetalingService.avbrytUtbetaling(utbetaling.id, begrunnelse)
                 }
                 .onLeft { errors ->
-                    call.respondWithProblemDetail(ValidationError("Utbetalingen kan ikke avbrytes", errors))
+                    call.respond(ValidationError("Utbetalingen kan ikke avbrytes", errors))
                 }
                 .onRight {
                     call.respond(HttpStatusCode.OK)
@@ -414,7 +413,7 @@ fun Route.arrangorflateRoutes() {
 
             utbetalingService.regenererUtbetaling(utbetaling)
                 .onLeft {
-                    call.respondWithProblemDetail(ValidationError("Utbetalingen kan ikke regenereres", it))
+                    call.respond(ValidationError("Utbetalingen kan ikke regenereres", it))
                 }
                 .onRight {
                     call.respond(HttpStatusCode.OK)
@@ -461,7 +460,7 @@ fun Route.arrangorflateRoutes() {
                 }
                 .onLeft { error ->
                     application.log.warn("Klarte ikke lage PDF. Response fra pdfgen: $error")
-                    call.respondWithProblemDetail(InternalServerError("Klarte ikke lage PDF"))
+                    call.respond(InternalServerError("Klarte ikke lage PDF"))
                 }
         }
 
@@ -513,7 +512,7 @@ fun Route.arrangorflateRoutes() {
 
             arrangorflateService.synkroniserKontonummer(utbetaling)
                 .onLeft { error ->
-                    call.respondWithProblemDetail(
+                    call.respond(
                         when (error) {
                             KontonummerRegisterOrganisasjonError.UgyldigInput -> BadRequest("Ugyldig input")
                             KontonummerRegisterOrganisasjonError.FantIkkeKontonummer -> NotFound("Organisasjon mangler kontonummer")

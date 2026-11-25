@@ -31,7 +31,6 @@ import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingReq
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatusAarsak
 import no.nav.mulighetsrommet.env.NaisEnv
 import no.nav.mulighetsrommet.ktor.exception.InternalServerError
-import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -292,7 +291,7 @@ fun Route.tilskuddBehandlingRoutes() {
                     }
                     .onLeft { error ->
                         application.log.warn("Klarte ikke lage PDF. Response fra pdfgen: $error")
-                        call.respondWithProblemDetail(InternalServerError("Klarte ikke lage PDF"))
+                        call.respond(InternalServerError("Klarte ikke lage PDF"))
                     }
             }
 
@@ -332,7 +331,7 @@ fun Route.tilskuddBehandlingRoutes() {
                         call.respondBytes(pdfContent, contentType = ContentType.Application.Pdf)
                     }
                     .onLeft {
-                        call.respondWithProblemDetail(ValidationError(errors = it))
+                        call.respond(ValidationError(errors = it))
                     }
             }
         }
@@ -374,7 +373,7 @@ fun Route.tilskuddBehandlingRoutes() {
                     service.revurderingOpphor(tilskuddVedtakId, tilskuddBehandlingId, saksbehandler)
                         .onRight { call.respond(TilskuddBehandlingOpphorResponse(it)) }
                         .onLeft {
-                            call.respondWithProblemDetail(ValidationError(errors = it))
+                            call.respond(ValidationError(errors = it))
                         }
                 }
             }

@@ -11,7 +11,6 @@ import io.ktor.server.routing.route
 import io.ktor.server.util.getValue
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.ktor.exception.Forbidden
-import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
 import no.nav.mulighetsrommet.model.ProblemDetail
 import org.koin.ktor.ext.inject
 import java.util.UUID
@@ -43,7 +42,7 @@ fun Route.lagretFilterRoutes() {
 
             lagretFilterService.upsertFilter(brukerId = navIdent.value, request)
                 .onLeft {
-                    call.respondWithProblemDetail(toProblemDetail(it))
+                    call.respond(toProblemDetail(it))
                 }
                 .onRight {
                     call.respond(HttpStatusCode.OK)
@@ -104,7 +103,7 @@ fun Route.lagretFilterRoutes() {
 
             lagretFilterService.deleteFilter(brukerId = navIdent.value, id)
                 .onLeft {
-                    call.respondWithProblemDetail(toProblemDetail(it))
+                    call.respond(toProblemDetail(it))
                 }
                 .onRight { filterId ->
                     val status = if (filterId == null) HttpStatusCode.NoContent else HttpStatusCode.OK

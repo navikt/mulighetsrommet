@@ -61,7 +61,6 @@ import no.nav.mulighetsrommet.clamav.Status
 import no.nav.mulighetsrommet.clamav.Vedlegg
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
 import no.nav.mulighetsrommet.ktor.exception.StatusException
-import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
 import no.nav.mulighetsrommet.model.DataDetails
 import no.nav.mulighetsrommet.model.DataDrivenTableDto
 import no.nav.mulighetsrommet.model.Kontonummer
@@ -304,11 +303,11 @@ fun Route.arrangorflateOpprettKravRoutes() {
         }) {
             val tiltak = requireArrangorflateTiltak()
             receiveOpprettKravUtbetalingRequest()
-                .onLeft { return@post call.respondWithProblemDetail(ValidationError(errors = it)) }
+                .onLeft { return@post call.respond(ValidationError(errors = it)) }
                 .onRight { request ->
                     // Scan vedlegg for virus
                     if (clamAvClient.virusScanVedlegg(request.vedlegg).any { it.Result == Status.FOUND }) {
-                        return@post call.respondWithProblemDetail(BadRequest("Virus funnet i minst ett vedlegg"))
+                        return@post call.respond(BadRequest("Virus funnet i minst ett vedlegg"))
                     }
 
                     val ctx = ArrangorflateUtbetalingValidator.ValidateOpprettUtbetalingContext(
@@ -322,7 +321,7 @@ fun Route.arrangorflateOpprettKravRoutes() {
                         .validateOpprettKravArrangorflate(ctx, request)
                         .flatMap { arrangorflateUtbetalingService.opprettUtbetaling(it) }
                         .onLeft { errors ->
-                            call.respondWithProblemDetail(ValidationError("Klarte ikke opprette utbetaling", errors))
+                            call.respond(ValidationError("Klarte ikke opprette utbetaling", errors))
                         }
                         .onRight { utbetaling -> call.respond(OpprettKravOmUtbetalingResponse(utbetaling.id)) }
                 }

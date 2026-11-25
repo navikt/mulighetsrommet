@@ -8,6 +8,7 @@ import io.ktor.server.response.respond
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattMedRollerPrincipal
+import no.nav.mulighetsrommet.ktor.exception.Unauthorized
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.ProblemDetail
 
@@ -35,11 +36,14 @@ val NavAnsattAuthorizationPlugin = createRouteScopedPlugin(
         on(AuthenticationChecked) { call ->
             val principal =
                 call.principal<NavAnsattMedRollerPrincipal>()
-                    ?: return@on call.respond(HttpStatusCode.Unauthorized)
+                    ?: return@on call.respond(
+                        Unauthorized(
+                            detail = "Du må være autentisert som Nav-ansatt for å få tilgang til denne ressursen.",
+                        ),
+                    )
 
             if (principal.roller.isEmpty()) {
                 return@on call.respond(
-                    HttpStatusCode.Forbidden,
                     NavAnsattManglerTilgang(principal.navIdent, requiredRoles.roles.first().roles),
                 )
             }
@@ -48,7 +52,6 @@ val NavAnsattAuthorizationPlugin = createRouteScopedPlugin(
             requiredRoles.roles.forEach { anyOfRoles ->
                 if (anyOfRoles.roles.intersect(navAnsattRoles).isEmpty()) {
                     return@on call.respond(
-                        HttpStatusCode.Forbidden,
                         NavAnsattManglerTilgang(principal.navIdent, anyOfRoles.roles),
                     )
                 }

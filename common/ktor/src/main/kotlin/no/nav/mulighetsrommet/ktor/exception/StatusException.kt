@@ -96,7 +96,7 @@ data class Forbidden(
     override val instance = null
 }
 
-data class Unathorized(
+data class Unauthorized(
     override val detail: String,
     override val extensions: Map<String, Any?>? = null,
 ) : ProblemDetail() {

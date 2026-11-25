@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.ktor.plugins
 
-import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
 import io.ktor.server.application.ApplicationCall
@@ -12,28 +11,22 @@ import io.ktor.server.plugins.NotFoundException
 import io.ktor.server.plugins.PayloadTooLargeException
 import io.ktor.server.plugins.UnsupportedMediaTypeException
 import io.ktor.server.plugins.statuspages.StatusPages
-import io.ktor.server.response.respondText
-import io.opentelemetry.api.trace.Span
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.JsonPrimitive
-import kotlinx.serialization.json.encodeToJsonElement
-import kotlinx.serialization.json.jsonObject
+import io.ktor.server.response.respond
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
 import no.nav.mulighetsrommet.ktor.exception.InternalServerError
 import no.nav.mulighetsrommet.ktor.exception.NotFound
 import no.nav.mulighetsrommet.ktor.exception.StatusException
-import no.nav.mulighetsrommet.ktor.exception.Unathorized
+import no.nav.mulighetsrommet.ktor.exception.Unauthorized
 import no.nav.mulighetsrommet.ktor.exception.toProblemDetail
-import no.nav.mulighetsrommet.model.ProblemDetail
 
 fun Application.configureStatusPages(logException: (HttpStatusCode, Throwable, ApplicationCall) -> Unit) {
+    install(ProblemDetailResponsePlugin)
     install(StatusPages) {
         status(HttpStatusCode.Unauthorized) {
-            val problemDetail = Unathorized(
+            val problemDetail = Unauthorized(
                 detail = "Du har ikke tilgang til denne tjenesten. Logg inn på nytt hvis du nylig har fått tilgang.",
             )
-            call.respondWithProblemDetail(problemDetail)
+            call.respond(problemDetail)
         }
 
         exception<IllegalArgumentException> { call, cause ->
@@ -42,13 +35,13 @@ fun Application.configureStatusPages(logException: (HttpStatusCode, Throwable, A
             val problemDetail = BadRequest(
                 detail = cause.message ?: "IllegalArgumentException",
             )
-            call.respondWithProblemDetail(problemDetail)
+            call.respond(problemDetail)
         }
 
         exception<StatusException> { call, cause ->
             logException(cause.status, cause, call)
 
-            call.respondWithProblemDetail(cause.toProblemDetail())
+            call.respond(cause.toProblemDetail())
         }
 
         exception<BadRequestException> { call, cause ->
@@ -57,7 +50,7 @@ fun Application.configureStatusPages(logException: (HttpStatusCode, Throwable, A
             val problemDetail = BadRequest(
                 detail = cause.message ?: "BadRequestException",
             )
-            call.respondWithProblemDetail(problemDetail)
+            call.respond(problemDetail)
         }
 
         exception<NotFoundException> { call, cause ->
@@ -66,7 +59,7 @@ fun Application.configureStatusPages(logException: (HttpStatusCode, Throwable, A
             val problemDetail = NotFound(
                 detail = cause.message ?: "NotFoundException",
             )
-            call.respondWithProblemDetail(problemDetail)
+            call.respond(problemDetail)
         }
 
         exception<ContentTransformationException> { call, cause ->
@@ -82,7 +75,7 @@ fun Application.configureStatusPages(logException: (HttpStatusCode, Throwable, A
                 type = "content-transformation-error",
                 detail = cause.message ?: "ContentTransformationException",
             )
-            call.respondWithProblemDetail(problemDetail)
+            call.respond(problemDetail)
         }
 
         exception<Throwable> { call, cause ->
@@ -91,22 +84,7 @@ fun Application.configureStatusPages(logException: (HttpStatusCode, Throwable, A
             val problemDetail = InternalServerError(
                 detail = "Internal Server Error",
             )
-            call.respondWithProblemDetail(problemDetail)
+            call.respond(problemDetail)
         }
     }
-}
-
-suspend fun ApplicationCall.respondWithProblemDetail(problem: ProblemDetail) {
-    val json = Json.encodeToJsonElement(problem).jsonObject
-
-    val traceId = Span.current().spanContext.traceId
-    val enriched = traceId?.let {
-        JsonObject(json + ("traceId" to JsonPrimitive(it)))
-    } ?: json
-
-    respondText(
-        text = enriched.toString(),
-        status = HttpStatusCode.fromValue(problem.status),
-        contentType = ContentType.Application.ProblemJson,
-    )
 }

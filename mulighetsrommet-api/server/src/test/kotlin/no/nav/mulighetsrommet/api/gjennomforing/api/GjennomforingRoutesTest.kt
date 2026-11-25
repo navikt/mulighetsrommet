@@ -16,6 +16,9 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonPrimitive
 import no.nav.mulighetsrommet.admin.aarsakerbegrunnelse.AarsakerOgBegrunnelseRequest
 import no.nav.mulighetsrommet.admin.gjennomforing.GjennomforingDetaljerRequest
 import no.nav.mulighetsrommet.admin.gjennomforing.GjennomforingHandling
@@ -43,7 +46,6 @@ import no.nav.mulighetsrommet.api.getAnsattClaims
 import no.nav.mulighetsrommet.api.mockAmtDeltakerPersonalia
 import no.nav.mulighetsrommet.api.mockPdlEmptyResult
 import no.nav.mulighetsrommet.api.mockTilgangsmaskinenForbidden
-import no.nav.mulighetsrommet.api.navansatt.ktor.NavAnsattManglerTilgang
 import no.nav.mulighetsrommet.api.persistence.testing.fixture.GjennomforingDboFixtures
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.withTestApplication
@@ -121,7 +123,9 @@ class GjennomforingRoutesTest : FunSpec({
                 }
 
                 response.status shouldBe HttpStatusCode.Forbidden
-                response.body<NavAnsattManglerTilgang>().missingRoles shouldBe setOf(Rolle.TILTAKADMINISTRASJON_GENERELL)
+                response.body<JsonObject>()["missingRoles"]!!.jsonArray
+                    .map { it.jsonPrimitive.content }
+                    .toSet() shouldBe setOf(Rolle.TILTAKADMINISTRASJON_GENERELL.visningsnavn)
             }
         }
 
@@ -196,7 +200,9 @@ class GjennomforingRoutesTest : FunSpec({
                 }
 
                 response.status shouldBe HttpStatusCode.Forbidden
-                response.body<NavAnsattManglerTilgang>().missingRoles shouldBe setOf(Rolle.TILTAKADMINISTRASJON_GENERELL)
+                response.body<JsonObject>()["missingRoles"]!!.jsonArray
+                    .map { it.jsonPrimitive.content }
+                    .toSet() shouldBe setOf(Rolle.TILTAKADMINISTRASJON_GENERELL.visningsnavn)
             }
         }
 
@@ -209,7 +215,9 @@ class GjennomforingRoutesTest : FunSpec({
                 }
 
                 response.status shouldBe HttpStatusCode.Forbidden
-                response.body<NavAnsattManglerTilgang>().missingRoles shouldBe setOf(Rolle.TILTAKSGJENNOMFORINGER_SKRIV)
+                response.body<JsonObject>()["missingRoles"]!!.jsonArray
+                    .map { it.jsonPrimitive.content }
+                    .toSet() shouldBe setOf(Rolle.TILTAKSGJENNOMFORINGER_SKRIV.visningsnavn)
             }
         }
 

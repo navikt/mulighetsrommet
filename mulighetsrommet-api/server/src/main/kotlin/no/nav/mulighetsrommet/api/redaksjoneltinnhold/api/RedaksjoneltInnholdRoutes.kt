@@ -15,7 +15,6 @@ import no.nav.mulighetsrommet.api.domain.redaksjoneltinnhold.RedaksjoneltInnhold
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.responses.ValidationError
-import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
 import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.validation.FieldError
 import org.koin.ktor.ext.inject
@@ -85,7 +84,7 @@ fun Route.redaksjoneltInnholdRoutes() {
                     { referencedBy ->
                         val errors = referencedBy.map { navn -> FieldError.of("Lenken er i bruk av tiltakstypen «$navn»") }
                         val error = ValidationError("Lenken er i bruk og kan ikke slettes", errors)
-                        call.respondWithProblemDetail(error)
+                        call.respond(error)
                     },
                     { call.respond(HttpStatusCode.NoContent) },
                 )

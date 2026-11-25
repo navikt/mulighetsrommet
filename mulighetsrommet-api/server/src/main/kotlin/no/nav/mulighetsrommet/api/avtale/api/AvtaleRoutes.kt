@@ -42,7 +42,6 @@ import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.responses.PaginatedResponse
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
-import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
 import no.nav.mulighetsrommet.model.AvtaleStatusType
 import no.nav.mulighetsrommet.model.Avtaletype
 import no.nav.mulighetsrommet.model.Faneinnhold
@@ -364,7 +363,7 @@ fun Route.avtaleRoutes() {
                             aarsakerOgBegrunnelse = it,
                         )
                     }
-                    .onLeft { call.respondWithProblemDetail(ValidationError("Klarte ikke avbryte avtale", it)) }
+                    .onLeft { call.respond(ValidationError("Klarte ikke avbryte avtale", it)) }
                     .onRight { call.respond(HttpStatusCode.OK) }
             }
 

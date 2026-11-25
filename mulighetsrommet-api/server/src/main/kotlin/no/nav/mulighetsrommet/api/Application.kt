@@ -80,8 +80,8 @@ fun Application.configure(config: AppConfig) {
     configureSecurity()
     configureHTTP()
     configureMonitoring({ db.isHealthy() })
-    configureSerialization()
     configureStatusPages(this::logException)
+    configureSerialization()
     configureOpenApiGenerator()
 
     FlywayMigrationManager(config.flyway).migrate(db)

@@ -2,7 +2,7 @@ import { ErrorBoundary, FallbackProps } from "react-error-boundary";
 import { Alert, BodyShort, Heading, Link } from "@navikt/ds-react";
 import { PropsWithChildren } from "react";
 import { Link as ReactRouterLink } from "react-router";
-import { resolveErrorMessage } from "./errors";
+import { getProblemDetailTraceId, resolveErrorMessage } from "./errors";
 
 interface DefaultErrorBoundaryProps extends PropsWithChildren {
   portenUrl: string;
@@ -38,6 +38,7 @@ interface DefaultErrorFallbackProps extends FallbackProps {
 
 function InlineFallback({ error, portenUrl }: DefaultErrorFallbackProps) {
   const heading = resolveErrorMessage(error);
+  const traceId = getProblemDetailTraceId(error);
 
   return (
     <div className="error">
@@ -48,6 +49,7 @@ function InlineFallback({ error, portenUrl }: DefaultErrorFallbackProps) {
         <BodyShort>
           Hvis problemet vedvarer opprett en sak via <a href={portenUrl}>Porten</a>.
         </BodyShort>
+        {traceId && <BodyShort>Trace ID: {traceId}</BodyShort>}
       </Alert>
     </div>
   );
@@ -55,6 +57,7 @@ function InlineFallback({ error, portenUrl }: DefaultErrorFallbackProps) {
 
 function ReloadAppFallback({ error, portenUrl }: DefaultErrorFallbackProps) {
   const heading = resolveErrorMessage(error);
+  const traceId = getProblemDetailTraceId(error);
 
   return (
     <div className="error">
@@ -65,6 +68,7 @@ function ReloadAppFallback({ error, portenUrl }: DefaultErrorFallbackProps) {
         <BodyShort>
           Hvis problemet vedvarer opprett en sak via <a href={portenUrl}>Porten</a>.
         </BodyShort>
+        {traceId && <BodyShort>Trace ID: {traceId}</BodyShort>}
         <Link as={ReactRouterLink} to="/" reloadDocument className="error-link">
           Ta meg til forsiden og prøv igjen
         </Link>

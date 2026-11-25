@@ -89,7 +89,7 @@ fun Route.kodeverkRoutes() {
                     }
                 }
             }) {
-                val tiltakskode = call.queryParameters.get("tiltakskode")?.let { Tiltakskode.valueOf(it) }
+                val tiltakskode = call.queryParameters["tiltakskode"]?.let { Tiltakskode.valueOf(it) }
                 if (tiltakskode == null) {
                     call.respond(BadRequest("Ukjent tiltakskode"))
                     return@get
