@@ -2401,11 +2401,7 @@ paths:
     post:
       tags:
       - Tilsagn
-      description: "Hent standardverdier for tilsagn. Kostnadssted hentes alltid fra\
-        \ gjennomføringens ansvarlige enhet. For ordinære tilsagn beregnes perioden,\
-        \ unntatt for prismodellen Annen avtalt pris der periode fra forespørselen\
-        \ brukes. For ekstratilsagn og investering brukes periode fra forespørselen.\
-        \ Ingen tilsagn lagres."
+      description: Hent standardverdier for tilsagn utledet av systemet
       operationId: getTilsagnDefaults
       parameters: []
       requestBody:
