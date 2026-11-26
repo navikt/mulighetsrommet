@@ -14,6 +14,6 @@ fun interface DeltakelserPort {
 }
 
 sealed interface DeltakelserError {
-    data class ManglerTilgang(val avvistGrunn: AvvistGrunn) : DeltakelserError
+    data class ManglerTilgang(val avvistGrunn: AvvistGrunn? = null) : DeltakelserError
     data object OppslagFeilet : DeltakelserError
 }

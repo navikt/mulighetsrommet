@@ -39,11 +39,11 @@ class AmtDeltakelserPort(
         }
 
         val deltakelser = amtDeltakerClient.hentDeltakelser(DeltakelserRequest(norskIdent), accessType).getOrElse {
-            if (it == AmtDeltakerError.NotFound) {
-                return emptyList<UUID>().right()
+            return when (it) {
+                AmtDeltakerError.NotFound -> emptyList<UUID>().right()
+                AmtDeltakerError.Forbidden -> DeltakelserError.ManglerTilgang().left()
+                AmtDeltakerError.BadRequest, AmtDeltakerError.Error -> DeltakelserError.OppslagFeilet.left()
             }
-
-            return DeltakelserError.OppslagFeilet.left()
         }
 
         return (deltakelser.aktive + deltakelser.historikk).map { it.deltakerId }.distinct().right()

@@ -5,6 +5,8 @@ import arrow.core.right
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.data.forAll
+import io.kotest.data.row
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
@@ -270,17 +272,25 @@ class ArenaEnkeltplassDtoQueryTest : FunSpec({
     }
 
     test("identitetssøk uten persontilgang avvises før forhåndsvisning") {
-        val detaljer = mockk<GjennomforingDetaljerService>()
-        val deltakelser = mockk<DeltakelserPort>()
-        coEvery { deltakelser.finnDeltakerIds(NorskIdent("12345678901"), accessType) } answers {
-            DeltakelserError.ManglerTilgang(AvvistGrunn.AVVIST_FORTROLIG_ADRESSE).left()
+        forAll(
+            row(
+                AvvistGrunn.AVVIST_FORTROLIG_ADRESSE,
+                FinnArenaEnkeltplassError.ManglerTilgang(AvvistGrunn.AVVIST_FORTROLIG_ADRESSE),
+            ),
+            row(null, FinnArenaEnkeltplassError.ManglerTilgang()),
+        ) { avvistGrunn, forventetFeil ->
+            val detaljer = mockk<GjennomforingDetaljerService>()
+            val deltakelser = mockk<DeltakelserPort>()
+            coEvery { deltakelser.finnDeltakerIds(NorskIdent("12345678901"), accessType) } answers {
+                DeltakelserError.ManglerTilgang(avvistGrunn).left()
+            }
+
+            createQuery(db, detaljer, deltakelser)
+                .execute(FinnArenaEnkeltplassInput("12345678901"), ansattContext)
+                .shouldBeLeft(forventetFeil)
+
+            coVerify { detaljer wasNot Called }
         }
-
-        createQuery(db, detaljer, deltakelser)
-            .execute(FinnArenaEnkeltplassInput("12345678901"), ansattContext)
-            .shouldBeLeft(FinnArenaEnkeltplassError.ManglerTilgang(AvvistGrunn.AVVIST_FORTROLIG_ADRESSE))
-
-        coVerify { detaljer wasNot Called }
     }
 
     test("oppslagsfeil fra Komet returneres uten detaljer om deltaker") {

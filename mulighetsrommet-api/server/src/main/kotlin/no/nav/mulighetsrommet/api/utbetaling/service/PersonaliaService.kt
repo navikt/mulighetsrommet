@@ -5,6 +5,7 @@ import arrow.core.toNonEmptySetOrNull
 import io.ktor.http.HttpStatusCode
 import no.nav.mulighetsrommet.admin.navenhet.GetNavEnhet
 import no.nav.mulighetsrommet.admin.navenhet.NavEnhetDtoQuery
+import no.nav.mulighetsrommet.admin.personalia.tilBrukertekst
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerPersonalia
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Client
@@ -232,33 +233,8 @@ data class ManglerTilgangTilPerson(
 
     companion object {
         fun fromAvvistGrunn(avvistGrunn: AvvistGrunn) = ManglerTilgangTilPerson(
-            detail = avvistGrunnTilTekst(avvistGrunn),
+            detail = avvistGrunn.tilBrukertekst(),
             avvistGrunn = avvistGrunn,
         )
-
-        private fun avvistGrunnTilTekst(avvistGrunn: AvvistGrunn): String = when (avvistGrunn) {
-            AvvistGrunn.AVVIST_STRENGT_FORTROLIG_ADRESSE,
-            AvvistGrunn.AVVIST_STRENGT_FORTROLIG_UTLAND,
-            AvvistGrunn.AVVIST_FORTROLIG_ADRESSE,
-            -> "Du har ikke tilgang til å se informasjon om denne personen fordi personen har adressebeskyttelse."
-
-            AvvistGrunn.AVVIST_SKJERMING,
-            -> "Du har ikke tilgang til å se informasjon om denne personen fordi personen er skjermet (egen ansatt)."
-
-            AvvistGrunn.AVVIST_HABILITET,
-            -> "Du har ikke tilgang til å se informasjon om denne personen på grunn av habilitet."
-
-            AvvistGrunn.AVVIST_VERGE,
-            AvvistGrunn.AVVIST_VERGEMAAL,
-            -> "Du har ikke tilgang til å se informasjon om denne personen på grunn av vergemål."
-
-            AvvistGrunn.AVVIST_AVDOED,
-            -> "Du har ikke tilgang til å se informasjon fordi personen er død."
-
-            AvvistGrunn.AVVIST_GEOGRAFISK,
-            AvvistGrunn.AVVIST_PERSON_UTLAND,
-            AvvistGrunn.AVVIST_UKJENT_BOSTED,
-            -> "Du har ikke tilgang til å se informasjon om denne personen på grunn av geografisk tilknytning."
-        }
     }
 }

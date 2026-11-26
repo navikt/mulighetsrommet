@@ -4,9 +4,9 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldBeEmpty
-import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.types.shouldBeTypeOf
 import io.ktor.client.call.body
+import io.ktor.client.engine.mock.respond
 import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.get
 import io.ktor.client.request.post
@@ -55,6 +55,7 @@ import no.nav.mulighetsrommet.ktor.respondJson
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NOK
+import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Tiltaksnummer
 import no.nav.mulighetsrommet.validation.FieldError
@@ -493,7 +494,42 @@ class GjennomforingRoutesTest : FunSpec({
                 }
 
                 response.status shouldBe HttpStatusCode.Forbidden
-                response.bodyAsText() shouldContain "mangler-tilgang-til-person"
+                response.body<ProblemDetail>().should {
+                    it.type shouldBe "forbidden"
+                }
+            }
+        }
+
+        test("403 fra deltakelser gir 403 fra API-et ved identitetssøk") {
+            val errorConfig = config.copy(
+                engine = createMockEngine {
+                    post("/tilgangsmaskin/api/v1/bulk/obo") {
+                        respondJson(
+                            TilgangsmaskinResponse(listOf(TilgangsmaskinResponse.Resultat("12345678901", 204))),
+                            HttpStatusCode.MultiStatus,
+                        )
+                    }
+                    post("/amt-deltaker/deltakelser") {
+                        respond("Ingen tilgang", HttpStatusCode.Forbidden)
+                    }
+                },
+            )
+            withTestApplication(errorConfig) {
+                val token = oauth
+                    .issueToken(claims = getAnsattClaims(ansatt, setOf(generellRolle, enkeltplassSaksbehandler)))
+                    .serialize()
+
+                val response = client.post("$base/migrering/sok") {
+                    bearerAuth(token)
+                    contentType(ContentType.Application.Json)
+                    setBody(FinnArenaEnkeltplassRequest(search = "12345678901"))
+                }
+
+                response.status shouldBe HttpStatusCode.Forbidden
+                response.body<ProblemDetail>().should {
+                    it.type shouldBe "forbidden"
+                    it.detail shouldBe "Du har ikke tilgang til å se denne personens tiltaksdeltakelser."
+                }
             }
         }
 

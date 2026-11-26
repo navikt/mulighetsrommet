@@ -21,7 +21,7 @@ data class FinnArenaEnkeltplassInput(val search: String)
 
 sealed interface FinnArenaEnkeltplassError {
     data class Valideringsfeil(val errors: List<FieldError>) : FinnArenaEnkeltplassError
-    data class ManglerTilgang(val avvistGrunn: AvvistGrunn) : FinnArenaEnkeltplassError
+    data class ManglerTilgang(val avvistGrunn: AvvistGrunn? = null) : FinnArenaEnkeltplassError
     data object OppslagFeilet : FinnArenaEnkeltplassError
 }
 
