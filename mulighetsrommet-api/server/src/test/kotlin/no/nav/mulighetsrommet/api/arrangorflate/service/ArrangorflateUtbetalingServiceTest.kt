@@ -147,11 +147,68 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
                     kidNummer = null,
                     pris = 1000.NOK,
                     vedlegg = emptyList(),
+                    valgteTilsagn = emptyList(),
                 ),
             ).shouldBeRight()
 
             utbetaling.tilskuddstype shouldBe Tilskuddstype.TILTAK_INVESTERINGER
             utbetaling.status shouldBe UtbetalingStatusType.TIL_BEHANDLING
+        }
+
+        test("lagrer valgte tilsagn når utbetalingen opprettes") {
+            MulighetsrommetTestDomain(
+                avtaler = listOf(AvtaleFixtures.AFT),
+                gjennomforinger = listOf(AFT1),
+                tilsagn = listOf(Tilsagn1, Tilsagn2),
+            ).initialize(database.api)
+
+            val service = createUtbetalingService()
+            val valgteTilsagn = listOf(Tilsagn1.id, Tilsagn2.id)
+            val id = UUID.randomUUID()
+
+            service.opprettUtbetaling(
+                ArrangorflateOpprettUtbetaling(
+                    id = id,
+                    gjennomforingId = AFT1.id,
+                    periode = periode,
+                    kidNummer = null,
+                    pris = 1000.NOK,
+                    vedlegg = emptyList(),
+                    valgteTilsagn = valgteTilsagn,
+                ),
+            ).shouldBeRight()
+
+            database.run {
+                queries.utbetaling.getValgteTilsagn(id) shouldContainExactlyInAnyOrder valgteTilsagn
+            }
+        }
+
+        test("ruller tilbake utbetalingen hvis lagring av valgte tilsagn feiler") {
+            MulighetsrommetTestDomain(
+                avtaler = listOf(AvtaleFixtures.AFT),
+                gjennomforinger = listOf(AFT1),
+            ).initialize(database.api)
+
+            val service = createUtbetalingService()
+            val id = UUID.randomUUID()
+
+            runCatching {
+                service.opprettUtbetaling(
+                    ArrangorflateOpprettUtbetaling(
+                        id = id,
+                        gjennomforingId = AFT1.id,
+                        periode = periode,
+                        kidNummer = null,
+                        pris = 1000.NOK,
+                        vedlegg = emptyList(),
+                        valgteTilsagn = listOf(UUID.randomUUID()),
+                    ),
+                )
+            }.exceptionOrNull().shouldNotBeNull()
+
+            database.run {
+                queries.utbetaling.get(id) shouldBe null
+            }
         }
 
         test("utbetaling for AnnenAvtaltPris blir opprettet med tilskuddstype for driftstilskudd") {
@@ -170,6 +227,7 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
                     kidNummer = null,
                     pris = 500.NOK,
                     vedlegg = emptyList(),
+                    valgteTilsagn = emptyList(),
                 ),
             ).shouldBeRight()
 
@@ -193,6 +251,7 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
                     kidNummer = null,
                     pris = 750.NOK,
                     vedlegg = emptyList(),
+                    valgteTilsagn = emptyList(),
                 ),
             ).shouldBeRight()
 
@@ -237,6 +296,7 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
                         kidNummer = null,
                         pris = 100.NOK,
                         vedlegg = emptyList(),
+                        valgteTilsagn = emptyList(),
                     ),
                 ) shouldBeLeft listOf(
                     FieldError.of("Kan ikke opprette utbetaling for denne tiltaksgjennomføringen"),
@@ -265,6 +325,7 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
                     kidNummer = null,
                     pris = 1000.NOK,
                     vedlegg = vedlegg,
+                    valgteTilsagn = emptyList(),
                 ),
             ).shouldBeRight()
 
@@ -294,6 +355,7 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
                 kidNummer = null,
                 pris = 1000.NOK,
                 vedlegg = emptyList(),
+                valgteTilsagn = emptyList(),
             )
 
             service.opprettUtbetaling(opprett).shouldBeRight()

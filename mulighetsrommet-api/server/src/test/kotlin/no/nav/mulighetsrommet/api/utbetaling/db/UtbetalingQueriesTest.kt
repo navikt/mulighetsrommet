@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.utbetaling.db
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
@@ -7,6 +8,7 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
+import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsreferanse
 import no.nav.mulighetsrommet.api.domain.testing.fixture.ArrangorFixtures
@@ -120,6 +122,86 @@ class UtbetalingQueriesTest : FunSpec({
                 utbetaling.innsending shouldBe null
                 utbetaling.kommentar shouldBe "En kommentar"
             }
+        }
+    }
+
+    test("eldre utbetaling har ingen valgte tilsagn") {
+        database.runAndRollback {
+            domain.initialize()
+            queries.utbetaling.upsert(utbetaling)
+
+            queries.utbetaling.getValgteTilsagn(utbetaling.id) shouldBe emptyList()
+        }
+    }
+
+    test("legger til valgte tilsagn additivt og uten dubletter") {
+        database.runAndRollback {
+            domain.initialize()
+            queries.utbetaling.upsert(utbetaling)
+
+            queries.utbetaling.insertValgteTilsagn(utbetaling.id, listOf(Tilsagn2.id, Tilsagn1.id, Tilsagn1.id))
+            val sortedTilsagnIds = listOf(Tilsagn1.id, Tilsagn2.id).sortedBy { it.toString() }
+            queries.utbetaling.getValgteTilsagn(utbetaling.id) shouldBe sortedTilsagnIds
+
+            queries.utbetaling.insertValgteTilsagn(utbetaling.id, listOf(Tilsagn2.id))
+            queries.utbetaling.getValgteTilsagn(utbetaling.id) shouldBe sortedTilsagnIds
+
+            queries.utbetaling.insertValgteTilsagn(utbetaling.id, emptyList())
+            queries.utbetaling.getValgteTilsagn(utbetaling.id) shouldBe sortedTilsagnIds
+        }
+    }
+
+    test("upsert bevarer valgte tilsagn") {
+        database.runAndRollback {
+            domain.initialize()
+            queries.utbetaling.upsert(utbetaling)
+            queries.utbetaling.insertValgteTilsagn(utbetaling.id, listOf(Tilsagn1.id, Tilsagn2.id))
+
+            queries.utbetaling.upsert(utbetaling.copy(kommentar = "Oppdatert kommentar"))
+
+            queries.utbetaling.getValgteTilsagn(utbetaling.id) shouldBe listOf(Tilsagn1.id, Tilsagn2.id).sortedBy { it.toString() }
+        }
+    }
+
+    test("ugyldig tilsagn ruller tilbake hele innsettingen og bevarer eksisterende koblinger") {
+        database.runAndRollback {
+            domain.initialize()
+            queries.utbetaling.upsert(utbetaling)
+            queries.utbetaling.insertValgteTilsagn(utbetaling.id, listOf(Tilsagn1.id))
+
+            session.execute(queryOf("savepoint insert_valgte_tilsagn"))
+            shouldThrow<Exception> {
+                queries.utbetaling.insertValgteTilsagn(utbetaling.id, listOf(Tilsagn2.id, UUID.randomUUID()))
+            }
+            session.execute(queryOf("rollback to savepoint insert_valgte_tilsagn"))
+            queries.utbetaling.getValgteTilsagn(utbetaling.id) shouldBe listOf(Tilsagn1.id)
+        }
+    }
+
+    test("sletting av utbetaling sletter valgte tilsagn") {
+        database.runAndRollback {
+            domain.initialize()
+            queries.utbetaling.upsert(utbetaling)
+            queries.utbetaling.insertValgteTilsagn(utbetaling.id, listOf(Tilsagn1.id))
+
+            queries.utbetaling.delete(utbetaling.id)
+
+            queries.utbetaling.getValgteTilsagn(utbetaling.id) shouldBe emptyList()
+        }
+    }
+
+    test("sletting av koblet tilsagn blokkeres") {
+        database.runAndRollback {
+            domain.initialize()
+            queries.utbetaling.upsert(utbetaling)
+            queries.utbetaling.insertValgteTilsagn(utbetaling.id, listOf(Tilsagn1.id))
+
+            session.execute(queryOf("savepoint slett_koblet_tilsagn"))
+            shouldThrow<Exception> {
+                queries.tilsagn.delete(Tilsagn1.id)
+            }
+            session.execute(queryOf("rollback to savepoint slett_koblet_tilsagn"))
+            queries.utbetaling.getValgteTilsagn(utbetaling.id) shouldBe listOf(Tilsagn1.id)
         }
     }
 
