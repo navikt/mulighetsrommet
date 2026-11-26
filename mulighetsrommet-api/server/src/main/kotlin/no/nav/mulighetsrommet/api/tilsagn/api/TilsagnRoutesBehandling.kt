@@ -216,7 +216,7 @@ fun Route.tilsagnRoutesBehandling() {
 }
 
 private fun toProblemDetail(error: TilsagnError): ProblemDetail = when (error) {
-    is TilsagnError.ManglerTilgang -> NavAnsattManglerTilgang(error.navIdent, error.roller, error.message)
+    is TilsagnError.ManglerTilgang -> NavAnsattManglerTilgang(error.roller, error.message)
     is TilsagnError.Valideringsfeil -> ValidationError("Valideringsfeil", error.errors)
     is TilsagnError.AgentUgyldigHandling -> Forbidden(error.message)
 }

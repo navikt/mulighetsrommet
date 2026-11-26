@@ -353,14 +353,12 @@ fun Route.utbetalingRoutes() {
             }) {
                 val id = call.parameters.getOrFail<UUID>("id")
                 val accessType = call.getAccessType().requireAzureAd()
-                val navIdent = getNavIdent()
 
                 call.response.headers.append(HttpHeaders.CacheControl, "no-store")
                 utbetalingService.hentVedleggPdf(
                     utbetalingId = id,
                     dokumentInfoId = call.parameters.getOrFail("dokumentInfoId"),
                     accessType = accessType,
-                    navIdent = navIdent,
                 )
                     .onRight { pdfContent ->
                         call.response.headers.append(
@@ -696,11 +694,11 @@ data class UtbetalingBeregningDeltaker(
 )
 
 private fun toProblemDetail(error: UtbetalingDtoQueryError): ProblemDetail = when (error) {
-    is UtbetalingDtoQueryError.ManglerTilgang -> NavAnsattManglerTilgang(error.navIdent, error.roller, title = error.message)
+    is UtbetalingDtoQueryError.ManglerTilgang -> NavAnsattManglerTilgang(error.roller, title = error.message)
 }
 
 private fun toProblemDetail(error: UtbetalingError, title: String? = null): ProblemDetail = when (error) {
-    is UtbetalingError.ManglerTilgang -> NavAnsattManglerTilgang(error.navIdent, error.roller, error.message)
+    is UtbetalingError.ManglerTilgang -> NavAnsattManglerTilgang(error.roller, error.message)
 
     is UtbetalingError.NotFound -> NotFound(error.message)
 

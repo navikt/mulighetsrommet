@@ -456,7 +456,6 @@ class TilsagnServiceTest : FunSpec({
 
             service.godkjennTilsagn(id = requestId, agent = ansatt1) shouldBeLeft TilsagnError.ManglerTilgang(
                 "Du mangler kontorspesifikk tilgang til tilsagnet",
-                ansatt1,
                 setOf(Rolle.OKONOMI_BESLUTTER_GRUPPETILTAK),
             )
         }
@@ -479,7 +478,6 @@ class TilsagnServiceTest : FunSpec({
 
             service.godkjennTilsagn(id = requestId, agent = ansatt1) shouldBeLeft TilsagnError.ManglerTilgang(
                 "Du mangler kontorspesifikk tilgang til tilsagnet",
-                ansatt1,
                 setOf(Rolle.OKONOMI_BESLUTTER_GRUPPETILTAK),
             )
         }
@@ -676,7 +674,7 @@ class TilsagnServiceTest : FunSpec({
                 navIdent = ansatt1,
                 aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
                 begrunnelse = null,
-            ) shouldBeLeft TilsagnError.ManglerTilgang("Du kan ikke returnere tilsagnet fordi du mangler tilgang", ansatt1, setOf(Rolle.OKONOMI_SAKSBEHANDLER_GRUPPETILTAK, Rolle.OKONOMI_BESLUTTER_GRUPPETILTAK))
+            ) shouldBeLeft TilsagnError.ManglerTilgang("Du kan ikke returnere tilsagnet fordi du mangler tilgang", setOf(Rolle.OKONOMI_SAKSBEHANDLER_GRUPPETILTAK, Rolle.OKONOMI_BESLUTTER_GRUPPETILTAK))
         }
 
         test("saksbehandler kan returnere tilsagn") {

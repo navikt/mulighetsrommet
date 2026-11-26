@@ -652,7 +652,7 @@ private suspend fun RoutingCall.respondUkjentGjennomforing(id: UUID) {
 
 fun toProblemDetail(error: GjennomforingDetaljerError): ProblemDetail = when (error) {
     is GjennomforingDetaljerError.IkkeFunnet -> NotFound(error.message)
-    is GjennomforingDetaljerError.ManglerTilgang -> NavAnsattManglerTilgang(error.navIdent, error.roller, error.message)
+    is GjennomforingDetaljerError.ManglerTilgang -> NavAnsattManglerTilgang(error.roller, error.message)
     is GjennomforingDetaljerError.PersonaliaSjekkAvvist -> ManglerTilgangTilPerson.fromAvvistGrunn(error.avvistGrunn)
 }
 

@@ -9,7 +9,6 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattMedRollerPrincipal
 import no.nav.mulighetsrommet.ktor.exception.Unauthorized
-import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.ProblemDetail
 
 class NavAnsattAuthorizationPluginConfiguration {
@@ -44,7 +43,7 @@ val NavAnsattAuthorizationPlugin = createRouteScopedPlugin(
 
             if (principal.roller.isEmpty()) {
                 return@on call.respond(
-                    NavAnsattManglerTilgang(principal.navIdent, requiredRoles.roles.first().roles),
+                    NavAnsattManglerTilgang(requiredRoles.roles.first().roles),
                 )
             }
 
@@ -52,7 +51,7 @@ val NavAnsattAuthorizationPlugin = createRouteScopedPlugin(
             requiredRoles.roles.forEach { anyOfRoles ->
                 if (anyOfRoles.roles.intersect(navAnsattRoles).isEmpty()) {
                     return@on call.respond(
-                        NavAnsattManglerTilgang(principal.navIdent, anyOfRoles.roles),
+                        NavAnsattManglerTilgang(anyOfRoles.roles),
                     )
                 }
             }
@@ -62,7 +61,6 @@ val NavAnsattAuthorizationPlugin = createRouteScopedPlugin(
 
 @Serializable
 class NavAnsattManglerTilgang(
-    val navIdent: NavIdent,
     val missingRoles: Set<Rolle>,
     override val title: String = "Mangler tilgang til ressurs",
 ) : ProblemDetail() {
@@ -73,5 +71,5 @@ class NavAnsattManglerTilgang(
     override val extensions = mapOf(
         "missingRoles" to missingRoles.map { it.visningsnavn },
     )
-    override val instance = navIdent.value
+    override val instance = null
 }

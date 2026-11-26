@@ -160,9 +160,9 @@ class GjennomforingDetaljerService(
         accessType: AccessType.OBO.AzureAd,
     ): Either<AvvistGrunn, File> {
         return getAllKompaktDto(Pagination.all(), filter, accessType)
-            .map {
+            .map { paginated ->
                 val workbook = buildExcelWorkbook {
-                    createGjennomforingerSheet(it.items)
+                    createGjennomforingerSheet(paginated.items)
                 }
 
                 workbook.use {
@@ -263,7 +263,7 @@ class GjennomforingDetaljerService(
     ): Either<GjennomforingDetaljerError, GjennomforingDetaljerDto> = either {
         val ansatt = db.session { repository.navAnsatt.getOrError(navIdent) }
 
-        kanLeseEnkeltplass(ansatt)
+        ensureKanLeseEnkeltplass(ansatt)
 
         val enkeltplass = ensureNotNull(enkeltplassService.get(gjennomforing.id)) {
             GjennomforingDetaljerError.IkkeFunnet("Fant ikke enkeltplass med id=${gjennomforing.id}")
@@ -313,14 +313,14 @@ class GjennomforingDetaljerService(
     }
 
     context(errors: Raise<GjennomforingDetaljerError>)
-    private fun kanLeseEnkeltplass(ansatt: NavAnsatt) {
+    private fun ensureKanLeseEnkeltplass(ansatt: NavAnsatt) {
         OkonomiAuthorization.kanLeseEnkeltplass(ansatt).onLeft { error ->
             when (error) {
                 is OkonomiAuthorizationError.ManglerTilgang ->
-                    errors.raise(GjennomforingDetaljerError.ManglerTilgang("Du mangler lesetilgang til enkeltplass", ansatt.navIdent, error.requiredRoles))
+                    errors.raise(GjennomforingDetaljerError.ManglerTilgang("Du mangler lesetilgang til enkeltplass", error.requiredRoles))
 
                 is OkonomiAuthorizationError.ManglerKontorspesifikkTilgang ->
-                    errors.raise(GjennomforingDetaljerError.ManglerTilgang("Du mangler kontorspesifikk lesetilgang til enkeltplassen", ansatt.navIdent, error.requiredRoles))
+                    errors.raise(GjennomforingDetaljerError.ManglerTilgang("Du mangler kontorspesifikk lesetilgang til enkeltplassen", error.requiredRoles))
             }
         }
     }
@@ -479,6 +479,6 @@ private fun ExcelWorkbookBuilder.createGjennomforingerSheet(
 
 sealed class GjennomforingDetaljerError {
     data class IkkeFunnet(val message: String) : GjennomforingDetaljerError()
-    data class ManglerTilgang(val message: String, val navIdent: NavIdent, val roller: Set<Rolle>) : GjennomforingDetaljerError()
+    data class ManglerTilgang(val message: String, val roller: Set<Rolle>) : GjennomforingDetaljerError()
     data class PersonaliaSjekkAvvist(val avvistGrunn: AvvistGrunn) : GjennomforingDetaljerError()
 }
