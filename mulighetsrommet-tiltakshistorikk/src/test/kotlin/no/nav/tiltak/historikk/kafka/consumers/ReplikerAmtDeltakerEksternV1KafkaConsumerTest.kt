@@ -191,6 +191,131 @@ class ReplikerAmtDeltakerEksternV1KafkaConsumerTest : FunSpec({
                 lagret.dagerPerUke shouldBe 3f
             }
         }
+
+        test("oppdaterer deltaker når tidsstempelet er mindre enn tre sekunder eldre") {
+            db.session {
+                queries.kometDeltaker.upsertKometDeltaker(
+                    TestFixtures.Deltaker.GruppeAmo.copy(
+                        oppdatertTidspunkt = LocalDateTime.parse("2025-01-02T11:00:03"),
+                    ),
+                )
+            }
+            val deltaker = amtDeltakerEksternV1.copy(
+                endretTidspunkt = LocalDateTime.parse("2025-01-02T11:00:00.000001"),
+                startDato = LocalDate.of(2025, 1, 1),
+            )
+
+            deltakerConsumer.consume(deltaker.id, Json.encodeToJsonElement(deltaker))
+
+            db.session {
+                val lagret = queries.kometDeltaker.get(deltaker.id).shouldNotBeNull()
+                lagret.oppdatertTidspunkt shouldBe LocalDateTime.parse("2025-01-02T11:00:00.000001")
+                lagret.startDato shouldBe LocalDate.of(2025, 1, 1)
+            }
+        }
+
+        test("oppdaterer deltaker når tidsstempelet er nøyaktig tre sekunder eldre") {
+            db.session {
+                queries.kometDeltaker.upsertKometDeltaker(
+                    TestFixtures.Deltaker.GruppeAmo.copy(
+                        oppdatertTidspunkt = LocalDateTime.parse("2025-01-02T11:00:03"),
+                    ),
+                )
+            }
+            val deltaker = amtDeltakerEksternV1.copy(
+                endretTidspunkt = LocalDateTime.parse("2025-01-02T11:00:00"),
+                startDato = LocalDate.of(2025, 1, 1),
+            )
+
+            deltakerConsumer.consume(deltaker.id, Json.encodeToJsonElement(deltaker))
+
+            db.session {
+                val lagret = queries.kometDeltaker.get(deltaker.id).shouldNotBeNull()
+                lagret.oppdatertTidspunkt shouldBe LocalDateTime.parse("2025-01-02T11:00:00")
+                lagret.startDato shouldBe LocalDate.of(2025, 1, 1)
+            }
+        }
+
+        test("beholder lagret deltaker når tidsstempelet er mer enn tre sekunder eldre") {
+            db.session {
+                queries.kometDeltaker.upsertKometDeltaker(
+                    TestFixtures.Deltaker.GruppeAmo.copy(
+                        oppdatertTidspunkt = LocalDateTime.parse("2025-01-02T11:00:03.000001"),
+                    ),
+                )
+            }
+            val deltaker = amtDeltakerEksternV1.copy(
+                endretTidspunkt = LocalDateTime.parse("2025-01-02T11:00:00"),
+                startDato = LocalDate.of(2025, 1, 1),
+                deltakelsesmengder = listOf(
+                    amtDeltakerEksternV1.deltakelsesmengder.single().copy(
+                        deltakelsesprosent = 75f,
+                        dagerPerUke = 3f,
+                    ),
+                ),
+            )
+
+            deltakerConsumer.consume(deltaker.id, Json.encodeToJsonElement(deltaker))
+
+            db.session {
+                val lagret = queries.kometDeltaker.get(deltaker.id).shouldNotBeNull()
+                lagret.oppdatertTidspunkt shouldBe LocalDateTime.parse("2025-01-02T11:00:03.000001")
+                lagret.startDato.shouldBeNull()
+                lagret.prosentStilling shouldBe 50f
+                lagret.dagerPerUke shouldBe 2.5f
+            }
+        }
+
+        test("korrigerer skjevt tidsstempel og deltakelsesmengde ved replay og godtar senere oppdateringer") {
+            db.session {
+                queries.kometDeltaker.upsertKometDeltaker(
+                    TestFixtures.Deltaker.GruppeAmo.copy(
+                        oppdatertTidspunkt = LocalDateTime.parse("2025-01-02T11:00:03"),
+                    ),
+                )
+            }
+            val korrigertDeltaker = amtDeltakerEksternV1.copy(
+                endretTidspunkt = LocalDateTime.parse("2025-01-02T11:00:00"),
+                deltakelsesmengder = listOf(
+                    amtDeltakerEksternV1.deltakelsesmengder.single().copy(
+                        deltakelsesprosent = 75f,
+                        dagerPerUke = 3f,
+                    ),
+                ),
+            )
+
+            deltakerConsumer.consume(korrigertDeltaker.id, Json.encodeToJsonElement(korrigertDeltaker))
+
+            db.session {
+                val lagret = queries.kometDeltaker.get(korrigertDeltaker.id).shouldNotBeNull()
+                lagret.oppdatertTidspunkt shouldBe LocalDateTime.parse("2025-01-02T11:00:00")
+                lagret.prosentStilling shouldBe 75f
+                lagret.dagerPerUke shouldBe 3f
+            }
+
+            deltakerConsumer.consume(korrigertDeltaker.id, Json.encodeToJsonElement(korrigertDeltaker))
+
+            db.session {
+                val lagret = queries.kometDeltaker.get(korrigertDeltaker.id).shouldNotBeNull()
+                lagret.oppdatertTidspunkt shouldBe LocalDateTime.parse("2025-01-02T11:00:00")
+                lagret.prosentStilling shouldBe 75f
+                lagret.dagerPerUke shouldBe 3f
+            }
+
+            val nyereDeltaker = korrigertDeltaker.copy(
+                endretTidspunkt = LocalDateTime.parse("2025-01-02T11:00:04"),
+                startDato = LocalDate.of(2025, 1, 1),
+            )
+            deltakerConsumer.consume(nyereDeltaker.id, Json.encodeToJsonElement(nyereDeltaker))
+
+            db.session {
+                val lagret = queries.kometDeltaker.get(nyereDeltaker.id).shouldNotBeNull()
+                lagret.oppdatertTidspunkt shouldBe LocalDateTime.parse("2025-01-02T11:00:04")
+                lagret.startDato shouldBe LocalDate.of(2025, 1, 1)
+                lagret.prosentStilling shouldBe 75f
+                lagret.dagerPerUke shouldBe 3f
+            }
+        }
     }
 
     context("deltakelsesmengde") {
