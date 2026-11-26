@@ -2401,14 +2401,18 @@ paths:
     post:
       tags:
       - Tilsagn
-      description: Hent standardverdier for tilsagn utledet av systemet
+      description: "Hent standardverdier for tilsagn. Kostnadssted hentes alltid fra\
+        \ gjennomføringens ansvarlige enhet. For ordinære tilsagn beregnes perioden,\
+        \ unntatt for prismodellen Annen avtalt pris der periode fra forespørselen\
+        \ brukes. For ekstratilsagn og investering brukes periode fra forespørselen.\
+        \ Ingen tilsagn lagres."
       operationId: getTilsagnDefaults
       parameters: []
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/TilsagnRequest"
+              $ref: "#/components/schemas/TilsagnDefaultsRequest"
         required: false
       responses:
         "200":
@@ -8387,6 +8391,33 @@ components:
       required:
       - aarsaker
       - begrunnelse
+    TilsagnDefaultsRequest:
+      type: object
+      properties:
+        gjennomforingId:
+          type: string
+          format: uuid
+        type:
+          $ref: "#/components/schemas/TilsagnType"
+        periodeStart:
+          type:
+          - "null"
+          - string
+        periodeSlutt:
+          type:
+          - "null"
+          - string
+        deltaker:
+          type:
+          - "null"
+          - string
+          format: uuid
+      required:
+      - deltaker
+      - gjennomforingId
+      - periodeSlutt
+      - periodeStart
+      - type
     TilsagnDeltakereRequest:
       type: object
       properties:
@@ -9176,6 +9207,7 @@ components:
       - TILSAGN_TIL_ANNULLERING
       - TILSAGN_TIL_OPPGJOR
       - TILSAGN_RETURNERT
+      - DELTAKER_MANGLER_TILSAGN
       - UTBETALING_TIL_BEHANDLING
       - UTBETALING_TIL_GODKJENNING
       - UTBETALING_RETURNERT

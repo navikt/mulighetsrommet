@@ -23,6 +23,7 @@ import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsattRolle
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.domain.testing.fixture.ArrangorFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.AvtaleFixtures
+import no.nav.mulighetsrommet.api.domain.testing.fixture.DeltakerFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavAnsattFixture
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavEnhetFixtures.Gjovik
@@ -38,6 +39,7 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAnnenAvtaltPris
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAvtaltPrisPerBenyttetPlassPerManed
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningType
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnDeltakerRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnInputLinjeRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
@@ -285,6 +287,20 @@ class TilsagnServiceTest : FunSpec({
                     it.bestilling.bestillingsnummer shouldBe "A-${aft2.lopenummer.value}-1"
                 }
             }
+        }
+
+        test("tilsagn kan ikke opprettes for deltaker på en annen gjennomføring") {
+            val deltaker = DeltakerFixtures.createDeltaker(gjennomforingId = GjennomforingDboFixtures.EnkelAmo.id)
+            database.run {
+                repository.deltaker.save(deltaker)
+            }
+
+            service.upsert(
+                request.copy(deltakere = listOf(TilsagnDeltakerRequest(deltakerId = deltaker.id, innholdAnnet = null))),
+                ansatt1,
+            ) shouldBeLeft TilsagnError.Valideringsfeil(
+                listOf(FieldError.of("Deltakerne må tilhøre gjennomføringen", TilsagnRequest::deltakere)),
+            )
         }
 
         test("tilsagn kan ikke flyttes mellom gjennomføringer selv med begge saksbehandlerroller") {

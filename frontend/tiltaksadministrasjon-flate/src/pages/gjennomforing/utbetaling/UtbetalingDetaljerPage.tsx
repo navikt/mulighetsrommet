@@ -98,13 +98,11 @@ export function UtbetalingDetaljerPage() {
   const tilsagnsTypeFraTilskudd = tilsagnType(tilskuddstype);
 
   function opprettEkstraTilsagn() {
-    const defaultTilsagn = utbetalingLinjer.length === 1 ? utbetalingLinjer[0].tilsagn : undefined;
     return navigate(
       `/gjennomforinger/${gjennomforingId}/tilsagn/opprett-tilsagn` +
         `?type=${tilsagnsTypeFraTilskudd}` +
         `&periodeStart=${periode.start}` +
-        `&periodeSlutt=${yyyyMMddFormatting(subDuration(periode.slutt, { days: 1 }))}` +
-        `&kostnadssted=${defaultTilsagn?.kostnadssted.enhetsnummer || ""}`,
+        `&periodeSlutt=${yyyyMMddFormatting(subDuration(periode.slutt, { days: 1 }))}`,
     );
   }
 

@@ -32,6 +32,7 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFastSatsPerBenyt
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningType
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnDefaultsRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnDeltakerRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnInputLinjeRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnRequest
@@ -100,7 +101,7 @@ fun Route.tilsagnRoutesBeregning() {
             tags = setOf("Tilsagn")
             operationId = "getTilsagnDefaults"
             request {
-                body<TilsagnRequest>()
+                body<TilsagnDefaultsRequest>()
             }
             response {
                 code(HttpStatusCode.OK) {
@@ -113,7 +114,7 @@ fun Route.tilsagnRoutesBeregning() {
                 }
             }
         }) {
-            val request = call.receive<TilsagnRequest>()
+            val request = call.receive<TilsagnDefaultsRequest>()
 
             val gjennomforing = gjennomforinger.getGjennomforingTiltaksadministrasjon(request.gjennomforingId)
                 ?: return@post call.respond(
@@ -127,7 +128,15 @@ fun Route.tilsagnRoutesBeregning() {
                         .getAll(typer = listOf(TilsagnType.TILSAGN), gjennomforingId = request.gjennomforingId)
                         .firstOrNull()
 
-                    resolveTilsagnDefaults(gyldigTilsagnPeriode, gjennomforing, sisteTilsagn)
+                    val defaults = resolveTilsagnDefaults(gyldigTilsagnPeriode, gjennomforing, sisteTilsagn, deltaker = request.deltaker)
+                    if (gjennomforing.prismodell is Prismodell.AnnenAvtaltPris) {
+                        defaults.copy(
+                            periodeStart = request.periodeStart,
+                            periodeSlutt = request.periodeSlutt,
+                        )
+                    } else {
+                        defaults
+                    }
                 }
 
                 TilsagnType.INVESTERING, TilsagnType.EKSTRATILSAGN -> db.session {
@@ -288,6 +297,7 @@ fun resolveTilsagnDefaults(
     gyldigTilsagnPeriode: GyldigTilsagnPeriode,
     gjennomforing: GjennomforingTiltaksadministrasjon,
     tilsagn: Tilsagn?,
+    deltaker: UUID?,
 ): TilsagnRequest {
     val prismodell = gjennomforing.prismodell
 
@@ -332,18 +342,17 @@ fun resolveTilsagnDefaults(
         pris = getDefaultPris(prismodell),
     )
 
-    val kostnadssted = tilsagn?.kostnadssted?.enhetsnummer
-        ?: gjennomforing.ansvarligEnhet.enhetsnummer
-
     return TilsagnRequest(
         id = UUID.randomUUID(),
         gjennomforingId = gjennomforing.id,
         type = TilsagnType.TILSAGN,
         periodeStart = periode?.start?.toString(),
         periodeSlutt = periode?.getLastInclusiveDate()?.toString(),
-        kostnadssted = kostnadssted,
+        kostnadssted = gjennomforing.ansvarligEnhet.enhetsnummer,
         beregning = beregning,
-        deltakere = emptyList(),
+        deltakere = listOfNotNull(
+            deltaker?.let { TilsagnDeltakerRequest(deltakerId = it, innholdAnnet = null) },
+        ),
     )
 }
 
@@ -408,7 +417,7 @@ private fun getAnskaffetEnkeltplassPeriode(
 }
 
 private fun resolveEkstraTilsagnInvesteringDefaults(
-    request: TilsagnRequest,
+    request: TilsagnDefaultsRequest,
     gjennomforing: GjennomforingTiltaksadministrasjon,
 ): TilsagnRequest {
     val (beregningType, prisbetingelser) = resolveBeregningTypeAndPrisbetingelser(gjennomforing.prismodell)
@@ -419,7 +428,7 @@ private fun resolveEkstraTilsagnInvesteringDefaults(
         type = request.type,
         periodeStart = request.periodeStart,
         periodeSlutt = request.periodeSlutt,
-        kostnadssted = request.kostnadssted,
+        kostnadssted = gjennomforing.ansvarligEnhet.enhetsnummer,
         beregning = TilsagnBeregningRequest(
             type = beregningType,
             prisbetingelser = prisbetingelser,

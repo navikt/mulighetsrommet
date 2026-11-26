@@ -4,16 +4,15 @@ import {
   LabeledDataElementType,
   TilsagnBeregningDto,
   TilsagnBeregningType,
+  TilsagnDefaultsRequest,
   TilsagnDetaljerDto,
   TilsagnRequest,
-  TilsagnType,
   TotrinnskontrollDto,
   Valuta,
 } from "@tiltaksadministrasjon/api-client";
 import { http, HttpResponse, PathParams } from "msw";
 import { mockTilsagn, mockTilsagnTable } from "../fixtures/mock_tilsagn";
 import { v4 } from "uuid";
-import { mockGjennomforinger } from "../fixtures/mock_gjennomforinger";
 
 export const tilsagnHandlers = [
   http.get<PathParams, never, PaginatedDataDrivenTableResponse>(
@@ -30,15 +29,16 @@ export const tilsagnHandlers = [
       });
     },
   ),
-  http.get<PathParams, any, TilsagnRequest>(
+  http.post<PathParams, TilsagnDefaultsRequest, TilsagnRequest>(
     "*/api/tiltaksadministrasjon/tilsagn/defaults",
-    async () => {
+    async ({ request }) => {
+      const body = await request.json();
       return HttpResponse.json({
         id: v4(),
-        gjennomforingId: mockGjennomforinger[0].gjennomforing.id,
-        type: TilsagnType.TILSAGN,
-        periodeStart: null,
-        periodeSlutt: null,
+        gjennomforingId: body.gjennomforingId,
+        type: body.type,
+        periodeStart: body.periodeStart,
+        periodeSlutt: body.periodeSlutt,
         beregning: {
           type: TilsagnBeregningType.ANNEN_AVTALT_PRIS,
           valuta: Valuta.NOK,
