@@ -50,7 +50,8 @@ class ReplikerDeltakerUseCase(
     private fun QueryContext.harEndringer(nyDeltaker: Deltaker): Boolean {
         val eksisterende = repository.deltaker.get(nyDeltaker.id) ?: return true
 
-        if (nyDeltaker.endretTidspunkt < eksisterende.endretTidspunkt) {
+        // TODO: Fjern toleransen etter replay av deltakere med feilaktig nyere tidsstempel fra Komet.
+        if (nyDeltaker.endretTidspunkt < eksisterende.endretTidspunkt.minusSeconds(3)) {
             return false
         }
 
