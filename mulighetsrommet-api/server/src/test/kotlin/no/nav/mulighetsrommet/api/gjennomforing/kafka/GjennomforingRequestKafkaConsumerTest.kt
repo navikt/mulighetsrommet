@@ -148,6 +148,23 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
             service.get(gjennomforingId).shouldBeNull()
         }
 
+        test("kaster feil dersom arrangør er slettet i brreg") {
+            val slettetArrangor = ArrangorFixtures.underenhet1.registrerSlettet(LocalDate.now())
+            val mockSlettetArrangor = mockk<SyncArrangorUseCase> {
+                coEvery {
+                    execute(SyncArrangorIfMissing(ArrangorFixtures.underenhet1.organisasjonsnummer))
+                } returns slettetArrangor.right()
+            }
+
+            val consumer = createConsumer(service, mockSlettetArrangor)
+
+            shouldThrowExactly<IllegalStateException> {
+                consumer.consume(gjennomforingId, Json.encodeToJsonElement<GjennomforingRequest>(request))
+            }
+
+            service.get(gjennomforingId).shouldBeNull()
+        }
+
         test("kaster feil dersom tiltakskoden ikke er migrert") {
             val ikkeMigrertConfig = TiltakstypeService.Config(features = emptyMap())
             val consumer = createConsumer(service, tiltakstypeConfig = ikkeMigrertConfig)

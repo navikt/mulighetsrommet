@@ -89,6 +89,11 @@ class GjennomforingRequestKafkaConsumer(
     private suspend fun getArrangor(organisasjonsnummer: Organisasjonsnummer): Arrangor = arrangorer
         .execute(SyncArrangorIfMissing(organisasjonsnummer))
         .getOrElse { error("Klarte ikke hente arrangør fra brreg $it") }
+        .also { arrangor ->
+            if (arrangor.slettetDato != null) {
+                error("Arrangør ${arrangor.organisasjonsnummer} er slettet i brreg")
+            }
+        }
 
     private fun handterEnkeltplassEndreInnhold(request: GjennomforingRequest.EnkeltplassEndreInnhold) {
         enkeltplasser.endreInnhold(
