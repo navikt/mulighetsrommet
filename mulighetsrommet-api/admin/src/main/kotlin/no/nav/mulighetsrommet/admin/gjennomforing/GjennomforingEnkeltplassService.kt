@@ -336,7 +336,7 @@ class GjennomforingEnkeltplassService(
 
         upsert(upsert)
             .also { publishTiltaksgjennomforingV2ToKafka(it) }
-            .also { haandterAvsluttendeStatus(enkeltplass, deltaker.status.type) }
+            .also { haandterAvbrytendeStatus(enkeltplass, deltaker.status.type) }
             .let {
                 logEndring(endringsloggFraDeltakelse(upsert, enkeltplass.gjennomforing), it.id, Tiltaksadministrasjon)
             }
@@ -669,7 +669,7 @@ class GjennomforingEnkeltplassService(
         return logEndring("Pris og betalingsbetingelser endret", gjennomforingId, behandling.behandletAv)
     }
 
-    private fun QueryContext.haandterAvsluttendeStatus(
+    private fun QueryContext.haandterAvbrytendeStatus(
         enkeltplass: Enkeltplass,
         status: DeltakerStatusType,
     ) {
@@ -695,18 +695,18 @@ class GjennomforingEnkeltplassService(
                     ?.takeIf { it.kanBesluttes() }
                     ?.let { okonomi ->
                         okonomi.returner(Tiltaksadministrasjon).fold(
-                            { throw IllegalStateException("Systemet klarte ikke returnere enkeltplass okonomi") },
-                            { queries.totrinnskontroll.upsert(it) },
+                            { error("Systemet klarte ikke returnere enkeltplass okonomi") },
+                            {
+                                queries.totrinnskontroll.upsert(it)
+                                outbox.publish(it)
+                            },
                         )
                     }
 
                 enkeltplass.prisendring
                     ?.takeIf { it.totrinnskontroll.kanBesluttes() }
                     ?.let { prisendring ->
-                        prisendring.totrinnskontroll.returner(Tiltaksadministrasjon).fold(
-                            { throw IllegalStateException("Systemet klarte ikke returnere enkeltplass prisendring") },
-                            { queries.totrinnskontroll.upsert(it) },
-                        )
+                        slettEksisterendePrisendring(prisendring.totrinnskontroll)
                     }
             }
         }

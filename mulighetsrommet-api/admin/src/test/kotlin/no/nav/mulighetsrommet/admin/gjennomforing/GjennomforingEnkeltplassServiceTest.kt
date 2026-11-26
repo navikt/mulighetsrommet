@@ -1627,7 +1627,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                 gjennomforing.status shouldBe GjennomforingEnkeltplassStatus.Deltar
             }
 
-            test("returnerer ventende økonomigodkjenning når deltaker blir IKKE_AKTUELL, AVBRUTT_UTKAST eller FEILREGISTRERT") {
+            test("returnerer økonomi til behandling når deltaker får avbrytende status") {
                 forAll(
                     row(DeltakerStatusType.IKKE_AKTUELL),
                     row(DeltakerStatusType.AVBRUTT_UTKAST),
@@ -1646,42 +1646,137 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                     )
                     service.updateFromDeltaker(deltaker, norskIdent)
 
-                    service.get(soktInn.id).shouldNotBeNull().okonomi?.status shouldBe TotrinnskontrollStatus.RETURNERT
+                    service.get(soktInn.id).shouldNotBeNull().should {
+                        it.okonomi.shouldNotBeNull().status shouldBe TotrinnskontrollStatus.RETURNERT
+                    }
                     database.run {
                         totrinnskontroll.findById(behandling.id)?.status shouldBe TotrinnskontrollStatus.RETURNERT
                     }
                 }
             }
 
-            test("returnerer ventende prisendring men beholder godkjent økonomi når deltaker blir IKKE_AKTUELL") {
-                val service = createService(migrert)
-                val soktInn = createRequest()
-                val okonomiBehandling = behandling(opprettetAv)
+            test("returnerer økonomi satt på vent når deltaker får avbrytende status") {
+                forAll(
+                    row(DeltakerStatusType.IKKE_AKTUELL),
+                    row(DeltakerStatusType.AVBRUTT_UTKAST),
+                    row(DeltakerStatusType.FEILREGISTRERT),
+                ) { deltakerStatus ->
+                    val service = createService(migrert)
+                    val soktInn = createRequest()
+                    val behandling = behandling(opprettetAv)
 
-                service.soktInn(soktInn, okonomiBehandling).shouldBeRight()
-                service.settOkonomiGodkjent(soktInn.id, okonomiBehandling.id, besluttetAv).shouldBeRight()
+                    service.soktInn(soktInn, behandling).shouldBeRight().okonomi.shouldNotBeNull()
+                    service.settOkonomiPaVent(
+                        soktInn.id,
+                        behandling.id,
+                        besluttetAv,
+                        "Trenger mer informasjon",
+                    ).shouldBeRight()
 
-                val prisendringBehandling = behandling(opprettetAv)
-                service.endrePrisinformasjon(
-                    soktInn.id,
-                    UpsertEnkeltplass.Prismodell.Anskaffelse(5000),
-                    prisendringBehandling,
-                ).shouldBeRight().prisendring.shouldNotBeNull()
+                    val deltaker = DeltakerFixtures.createDeltaker(
+                        gjennomforingId = soktInn.id,
+                        status = deltakerStatus,
+                        endretTidspunkt = nyereEndretTidspunkt,
+                    )
+                    service.updateFromDeltaker(deltaker, norskIdent)
 
-                val deltaker = DeltakerFixtures.createDeltaker(
-                    gjennomforingId = soktInn.id,
-                    status = DeltakerStatusType.IKKE_AKTUELL,
-                    endretTidspunkt = nyereEndretTidspunkt,
-                )
-                service.updateFromDeltaker(deltaker, norskIdent)
-
-                service.get(soktInn.id).shouldNotBeNull().should {
-                    it.prisendring.shouldNotBeNull()
-                    it.okonomi.shouldNotBeNull().status shouldBe TotrinnskontrollStatus.GODKJENT
+                    service.get(soktInn.id).shouldNotBeNull().should {
+                        it.okonomi.shouldNotBeNull().status shouldBe TotrinnskontrollStatus.RETURNERT
+                    }
+                    database.run {
+                        totrinnskontroll.findById(behandling.id)?.status shouldBe TotrinnskontrollStatus.RETURNERT
+                    }
                 }
-                database.run {
-                    totrinnskontroll.findById(prisendringBehandling.id)?.status shouldBe TotrinnskontrollStatus.RETURNERT
-                    enkeltplassPrisendring.getByGjennomforingId(soktInn.id).shouldNotBeNull()
+            }
+
+            test("returnerer og sletter prisendring til behandling men beholder godkjent økonomi ved avbrytende status") {
+                forAll(
+                    row(DeltakerStatusType.IKKE_AKTUELL),
+                    row(DeltakerStatusType.AVBRUTT_UTKAST),
+                    row(DeltakerStatusType.FEILREGISTRERT),
+                ) { deltakerStatus ->
+                    val service = createService(migrert)
+                    val soktInn = createRequest()
+                    val okonomiBehandling = behandling(opprettetAv)
+
+                    service.soktInn(soktInn, okonomiBehandling).shouldBeRight()
+                    val godkjent = service.settOkonomiGodkjent(
+                        soktInn.id,
+                        okonomiBehandling.id,
+                        besluttetAv,
+                    ).shouldBeRight()
+
+                    val prisendringBehandling = behandling(opprettetAv)
+                    service.endrePrisinformasjon(
+                        soktInn.id,
+                        UpsertEnkeltplass.Prismodell.Anskaffelse(5000),
+                        prisendringBehandling,
+                    ).shouldBeRight().prisendring.shouldNotBeNull()
+
+                    val deltaker = DeltakerFixtures.createDeltaker(
+                        gjennomforingId = soktInn.id,
+                        status = deltakerStatus,
+                        endretTidspunkt = nyereEndretTidspunkt,
+                    )
+                    service.updateFromDeltaker(deltaker, norskIdent).should {
+                        it.prisendring.shouldBeNull()
+                        it.okonomi shouldBe godkjent.okonomi
+                        it.gjennomforing.prismodell shouldBe godkjent.gjennomforing.prismodell
+                    }
+
+                    database.run {
+                        totrinnskontroll.findById(prisendringBehandling.id)?.status shouldBe TotrinnskontrollStatus.RETURNERT
+                        enkeltplassPrisendring.getByGjennomforingId(soktInn.id).shouldBeNull()
+                    }
+                }
+            }
+
+            test("returnerer og sletter prisendring satt på vent men beholder godkjent økonomi ved avbrytende status") {
+                forAll(
+                    row(DeltakerStatusType.IKKE_AKTUELL),
+                    row(DeltakerStatusType.AVBRUTT_UTKAST),
+                    row(DeltakerStatusType.FEILREGISTRERT),
+                ) { deltakerStatus ->
+                    val service = createService(migrert)
+                    val soktInn = createRequest()
+                    val okonomiBehandling = behandling(opprettetAv)
+
+                    service.soktInn(soktInn, okonomiBehandling).shouldBeRight()
+                    val godkjent = service.settOkonomiGodkjent(
+                        soktInn.id,
+                        okonomiBehandling.id,
+                        besluttetAv,
+                    ).shouldBeRight()
+
+                    val prisendringBehandling = behandling(opprettetAv)
+                    service.endrePrisinformasjon(
+                        soktInn.id,
+                        UpsertEnkeltplass.Prismodell.Anskaffelse(5000),
+                        prisendringBehandling,
+                    ).shouldBeRight().prisendring.shouldNotBeNull()
+
+                    service.settOkonomiPaVent(
+                        soktInn.id,
+                        prisendringBehandling.id,
+                        besluttetAv,
+                        "Trenger mer informasjon",
+                    ).shouldBeRight()
+
+                    val deltaker = DeltakerFixtures.createDeltaker(
+                        gjennomforingId = soktInn.id,
+                        status = deltakerStatus,
+                        endretTidspunkt = nyereEndretTidspunkt,
+                    )
+                    service.updateFromDeltaker(deltaker, norskIdent).should {
+                        it.prisendring.shouldBeNull()
+                        it.okonomi shouldBe godkjent.okonomi
+                        it.gjennomforing.prismodell shouldBe godkjent.gjennomforing.prismodell
+                    }
+
+                    database.run {
+                        totrinnskontroll.findById(prisendringBehandling.id)?.status shouldBe TotrinnskontrollStatus.RETURNERT
+                        enkeltplassPrisendring.getByGjennomforingId(soktInn.id).shouldBeNull()
+                    }
                 }
             }
         }
