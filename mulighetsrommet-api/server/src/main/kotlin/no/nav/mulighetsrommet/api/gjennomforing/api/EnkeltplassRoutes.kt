@@ -29,6 +29,7 @@ import no.nav.mulighetsrommet.admin.gjennomforing.MigrerEnkeltplass
 import no.nav.mulighetsrommet.admin.gjennomforing.MigrerEnkeltplassError
 import no.nav.mulighetsrommet.admin.gjennomforing.UpsertEnkeltplass
 import no.nav.mulighetsrommet.admin.navansatt.NavAnsattContext
+import no.nav.mulighetsrommet.admin.personalia.tilBrukertekst
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd
 import no.nav.mulighetsrommet.api.domain.tiltak.PrismodellType
@@ -240,8 +241,8 @@ private fun toProblemDetail(error: MigrerEnkeltplassError): ProblemDetail = when
 private fun toProblemDetail(error: FinnArenaEnkeltplassError): ProblemDetail = when (error) {
     is FinnArenaEnkeltplassError.Valideringsfeil -> ValidationError(errors = error.errors)
 
-    is FinnArenaEnkeltplassError.ManglerTilgang -> toProblemDetail(
-        GjennomforingDetaljerError.PersonaliaSjekkAvvist(error.avvistGrunn),
+    is FinnArenaEnkeltplassError.ManglerTilgang -> Forbidden(
+        error.avvistGrunn?.tilBrukertekst() ?: "Du har ikke tilgang til å se denne personens tiltaksdeltakelser.",
     )
 
     FinnArenaEnkeltplassError.OppslagFeilet -> StatusException(

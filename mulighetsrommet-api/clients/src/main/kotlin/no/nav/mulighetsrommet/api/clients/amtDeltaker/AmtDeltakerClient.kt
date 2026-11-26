@@ -63,6 +63,8 @@ class AmtDeltakerClient(
 
             HttpStatusCode.BadRequest -> AmtDeltakerError.BadRequest.left()
 
+            HttpStatusCode.Forbidden -> AmtDeltakerError.Forbidden.left()
+
             else -> {
                 val bodyAsText = response.bodyAsText()
                 logger.teamLogsError("Feil ved henting av deltakelser for bruker. Response=$bodyAsText")
@@ -118,6 +120,7 @@ class AmtDeltakerClient(
 
 enum class AmtDeltakerError {
     BadRequest,
+    Forbidden,
     NotFound,
     Error,
 }
