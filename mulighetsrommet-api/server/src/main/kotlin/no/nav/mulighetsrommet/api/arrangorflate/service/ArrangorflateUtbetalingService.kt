@@ -1,9 +1,11 @@
 package no.nav.mulighetsrommet.api.arrangorflate.service
 
 import arrow.core.Either
-import arrow.core.flatMap
 import arrow.core.left
 import arrow.core.nel
+import arrow.core.raise.context.bind
+import arrow.core.raise.context.either
+import arrow.core.raise.context.raise
 import arrow.core.right
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
@@ -69,12 +71,14 @@ class ArrangorflateUtbetalingService(
     suspend fun opprettUtbetaling(
         opprett: ArrangorflateOpprettUtbetaling,
     ): Validated<Utbetaling> = db.transaction {
-        acquireAdvisoryLock("opprett-utbetaling:${opprett.id}")
-        if (queries.utbetaling.get(opprett.id) != null) {
-            return FieldError.of("Utbetalingen er allerede opprettet").nel().left()
-        }
+        either {
+            acquireAdvisoryLock("opprett-utbetaling:${opprett.id}")
+            if (queries.utbetaling.get(opprett.id) != null) {
+                raise(FieldError.of("Utbetalingen er allerede opprettet").nel())
+            }
 
-        return beregnUtbetaling(opprett).flatMap { (tilskuddstype, beregning) ->
+            val (tilskuddstype, beregning) = beregnUtbetaling(opprett).bind()
+
             val utbetaling = UpsertUtbetaling.Innsending(
                 id = opprett.id,
                 gjennomforingId = opprett.gjennomforingId,
@@ -84,7 +88,11 @@ class ArrangorflateUtbetalingService(
                 tilskuddstype = tilskuddstype,
             )
             scheduleJournalforUtbetaling(utbetaling.id, opprett.vedlegg)
-            utbetalingService.opprettUtbetaling(utbetaling, Arrangor)
+
+            val opprettetUtbetaling = utbetalingService.opprettUtbetaling(utbetaling, Arrangor).bind()
+            queries.utbetaling.insertValgteTilsagn(opprettetUtbetaling.id, opprett.valgteTilsagn)
+
+            opprettetUtbetaling
         }
     }
 

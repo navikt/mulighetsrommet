@@ -54,6 +54,7 @@ class ArrangorflateUtbetalingValidatorTest : FunSpec({
                 kidNummer = null,
                 pris = ValutaBelop(1234, Valuta.NOK),
                 vedlegg = vedlegg,
+                valgteTilsagn = emptyList(),
             )
         }
 

@@ -423,6 +423,36 @@ class UtbetalingQueries(private val session: Session) {
         return getOrError(id)
     }
 
+    fun insertValgteTilsagn(utbetalingId: UUID, tilsagnIds: List<UUID>) = withTransaction(session) {
+        @Language("PostgreSQL")
+        val insertQuery = """
+            insert into utbetaling_tilsagn_arrangor (utbetaling_id, tilsagn_id)
+            values (:utbetaling_id::uuid, :tilsagn_id::uuid)
+            on conflict do nothing
+        """.trimIndent()
+        val params = tilsagnIds.distinct().map { tilsagnId ->
+            mapOf(
+                "utbetaling_id" to utbetalingId,
+                "tilsagn_id" to tilsagnId,
+            )
+        }
+        if (params.isNotEmpty()) {
+            batchPreparedNamedStatement(insertQuery, params)
+        }
+    }
+
+    fun getValgteTilsagn(utbetalingId: UUID): List<UUID> {
+        @Language("PostgreSQL")
+        val query = """
+            select tilsagn_id
+            from utbetaling_tilsagn_arrangor
+            where utbetaling_id = :utbetaling_id::uuid
+            order by tilsagn_id
+        """.trimIndent()
+
+        return session.list(queryOf(query, mapOf("utbetaling_id" to utbetalingId))) { it.uuid("tilsagn_id") }
+    }
+
     fun setStatus(id: UUID, status: UtbetalingStatusType) {
         @Language("PostgreSQL")
         val query = """

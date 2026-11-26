@@ -138,6 +138,7 @@ object ArrangorflateUtbetalingValidator {
             pris = request.belop.withValuta(ctx.valuta),
             kidNummer = request.kidNummer?.let { Kid.parseOrThrow(it) },
             vedlegg = request.vedlegg,
+            valgteTilsagn = emptyList(),
         )
     }
 }

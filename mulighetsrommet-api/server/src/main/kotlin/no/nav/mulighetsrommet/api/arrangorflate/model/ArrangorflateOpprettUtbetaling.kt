@@ -13,4 +13,5 @@ data class ArrangorflateOpprettUtbetaling(
     val kidNummer: Kid?,
     val pris: ValutaBelop,
     val vedlegg: List<Vedlegg>,
+    val valgteTilsagn: List<UUID>,
 )
