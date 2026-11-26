@@ -23,6 +23,7 @@ import no.nav.mulighetsrommet.admin.aarsakerbegrunnelse.AarsakerOgBegrunnelseReq
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.domain.personalia.Personalia
+import no.nav.mulighetsrommet.api.navansatt.ktor.NavAnsattManglerTilgang
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.plugins.getAccessType
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
@@ -42,7 +43,6 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusAarsak
 import no.nav.mulighetsrommet.api.utbetaling.service.AdminUtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.api.utbetaling.service.UtbetalingError
-import no.nav.mulighetsrommet.ktor.exception.Forbidden
 import no.nav.mulighetsrommet.ktor.exception.NotFound
 import no.nav.mulighetsrommet.ktor.exception.toProblemDetail
 import no.nav.mulighetsrommet.model.NavEnhetNummer
@@ -353,12 +353,14 @@ fun Route.utbetalingRoutes() {
             }) {
                 val id = call.parameters.getOrFail<UUID>("id")
                 val accessType = call.getAccessType().requireAzureAd()
+                val navIdent = getNavIdent()
 
                 call.response.headers.append(HttpHeaders.CacheControl, "no-store")
                 utbetalingService.hentVedleggPdf(
                     utbetalingId = id,
                     dokumentInfoId = call.parameters.getOrFail("dokumentInfoId"),
                     accessType = accessType,
+                    navIdent = navIdent,
                 )
                     .onRight { pdfContent ->
                         call.response.headers.append(
@@ -694,11 +696,11 @@ data class UtbetalingBeregningDeltaker(
 )
 
 private fun toProblemDetail(error: UtbetalingDtoQueryError): ProblemDetail = when (error) {
-    is UtbetalingDtoQueryError.ManglerTilgang -> Forbidden(error.message)
+    is UtbetalingDtoQueryError.ManglerTilgang -> NavAnsattManglerTilgang(error.navIdent, error.roller, title = error.message)
 }
 
 private fun toProblemDetail(error: UtbetalingError, title: String? = null): ProblemDetail = when (error) {
-    is UtbetalingError.ManglerTilgang -> Forbidden(error.message)
+    is UtbetalingError.ManglerTilgang -> NavAnsattManglerTilgang(error.navIdent, error.roller, error.message)
 
     is UtbetalingError.NotFound -> NotFound(error.message)
 

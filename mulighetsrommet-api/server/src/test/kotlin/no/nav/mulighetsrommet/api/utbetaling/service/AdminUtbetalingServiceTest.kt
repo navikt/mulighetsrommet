@@ -106,7 +106,7 @@ class AdminUtbetalingServiceTest : FunSpec({
         database.truncateAll()
     }
 
-    var umiddelbarUtbetaling = TidligstTidspunktForUtbetalingCalculator { _, _ -> null }
+    val umiddelbarUtbetaling = TidligstTidspunktForUtbetalingCalculator { _, _ -> null }
     val betalingsinformasjon: BetalingsinformasjonQuery = mockk()
 
     coEvery { betalingsinformasjon.execute(any()) } returns Betalingsinformasjon.BBan(
@@ -245,7 +245,7 @@ class AdminUtbetalingServiceTest : FunSpec({
                 3,
             ).right()
 
-            service.hentVedleggPdf(utbetaling1.id, "222", AccessType.M2M)
+            service.hentVedleggPdf(utbetaling1.id, "222", AccessType.M2M, NavAnsattFixture.DonaldDuck.navIdent)
                 .shouldBeRight().toList() shouldBe listOf<Byte>(1, 2, 3)
             coVerify(exactly = 1) { safClient.hentDokument("453857496", "222", "SLADDET", AccessType.M2M) }
         }
@@ -261,7 +261,7 @@ class AdminUtbetalingServiceTest : FunSpec({
             coEvery { safClient.hentDokument("453857496", "111", "ARKIV", accessType) } returns byteArrayOf(1).right()
 
             service.hentVedleggForUtbetaling(utbetaling1.id, accessType).shouldBeRight()
-            service.hentVedleggPdf(utbetaling1.id, "111", accessType).shouldBeRight()
+            service.hentVedleggPdf(utbetaling1.id, "111", accessType, NavAnsattFixture.DonaldDuck.navIdent).shouldBeRight()
 
             coVerify(exactly = 2) { safClient.hentDokumenterForJournalpost("453857496", accessType) }
             coVerify(exactly = 1) { safClient.hentDokument("453857496", "111", "ARKIV", accessType) }
@@ -269,7 +269,7 @@ class AdminUtbetalingServiceTest : FunSpec({
 
         for (dokumentInfoId in listOf("999", "333", "444")) {
             test("avviser dokument $dokumentInfoId uten tilgjengelig PDF før filen hentes") {
-                service.hentVedleggPdf(utbetaling1.id, dokumentInfoId, AccessType.M2M)
+                service.hentVedleggPdf(utbetaling1.id, dokumentInfoId, AccessType.M2M, NavAnsattFixture.DonaldDuck.navIdent)
                     .shouldBeLeft().shouldBeTypeOf<UtbetalingError.NotFound>()
                 coVerify(exactly = 0) { safClient.hentDokument(any(), any(), any(), any()) }
             }
@@ -321,7 +321,7 @@ class AdminUtbetalingServiceTest : FunSpec({
             val id = UUID.randomUUID()
             database.api.transaction { queries.utbetaling.upsert(utbetaling1.copy(id = id)) }
 
-            service.hentVedleggPdf(id, "111", AccessType.M2M)
+            service.hentVedleggPdf(id, "111", AccessType.M2M, NavAnsattFixture.DonaldDuck.navIdent)
                 .shouldBeLeft().shouldBeTypeOf<UtbetalingError.NotFound>()
             coVerify(exactly = 0) { safClient.hentDokument(any(), any(), any(), any()) }
         }
@@ -988,7 +988,9 @@ class AdminUtbetalingServiceTest : FunSpec({
                 id = utbetalingLinje1.id,
                 navIdent = ansattUtenRoller.navIdent,
             ) shouldBeLeft UtbetalingError.ManglerTilgang(
-                "Du kan ikke godkjenne utbetalingen fordi du ikke er beslutter ved tilsagnets kostnadssted (Nav Innlandet)",
+                "Du mangler kontorspesifikk tilgang til utbetalingen",
+                ansattUtenRoller.navIdent,
+                setOf(Rolle.OKONOMI_ATTESTANT_GRUPPETILTAK),
             )
         }
 
@@ -1767,6 +1769,8 @@ class AdminUtbetalingServiceTest : FunSpec({
                 navIdent = ansattUtenRoller.navIdent,
             ) shouldBeLeft UtbetalingError.ManglerTilgang(
                 "Du kan ikke returnere utbetalingen fordi du mangler tilgang",
+                ansattUtenRoller.navIdent,
+                setOf(Rolle.OKONOMI_SAKSBEHANDLER_GRUPPETILTAK, Rolle.OKONOMI_ATTESTANT_GRUPPETILTAK),
             )
         }
     }
