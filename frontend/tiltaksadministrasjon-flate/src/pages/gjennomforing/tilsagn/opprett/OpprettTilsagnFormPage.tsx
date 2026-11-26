@@ -1,56 +1,31 @@
 import { TilsagnFormContainer } from "@/components/tilsagn/TilsagnFormContainer";
-import { TilsagnBeregningType, TilsagnType } from "@tiltaksadministrasjon/api-client";
+import { TilsagnDefaultsRequest } from "@tiltaksadministrasjon/api-client";
 import { useSearchParams } from "react-router";
-import { useGjennomforing } from "@/api/gjennomforing/useGjennomforing";
-import { useTilsagnDefaults } from "./opprettTilsagnLoader";
+import { getTilsagnDefaultsRequest, useOpprettTilsagnData } from "./opprettTilsagnLoader";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
+import { Suspense } from "react";
+import { Laster } from "@/components/laster/Laster";
 
 export function OpprettTilsagnFormPage() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
-  const { gjennomforing, prismodell, defaults } = useHentData(gjennomforingId);
+  const [searchParams] = useSearchParams();
+  const request = getTilsagnDefaultsRequest(gjennomforingId, searchParams);
 
   return (
-    <TilsagnFormContainer
-      gjennomforing={gjennomforing}
-      prismodell={prismodell}
-      defaults={defaults}
-    />
+    <Suspense key={`${gjennomforingId}?${searchParams}`} fallback={<Laster tekst="Laster..." />}>
+      <OpprettTilsagnForm request={request} />
+    </Suspense>
   );
 }
 
-function useHentData(gjennomforingId: string) {
-  const [searchParams] = useSearchParams();
-  const type = (searchParams.get("type") as TilsagnType | null) ?? TilsagnType.TILSAGN;
-  const periodeStart = searchParams.get("periodeStart");
-  const periodeSlutt = searchParams.get("periodeSlutt");
-  const kostnadssted = searchParams.get("kostnadssted");
+function OpprettTilsagnForm({ request }: { request: TilsagnDefaultsRequest }) {
+  const { detaljer, defaults } = useOpprettTilsagnData(request);
 
-  const detaljer = useGjennomforing(gjennomforingId);
-  const { data: defaults } = useTilsagnDefaults({
-    id: null,
-    gjennomforingId,
-    type,
-    periodeStart: periodeStart,
-    periodeSlutt: periodeSlutt,
-    // Denne blir bestemt av backend men er påkrevd
-    beregning: {
-      type: TilsagnBeregningType.ANNEN_AVTALT_PRIS,
-      valuta: detaljer.prismodell.valuta,
-      antallPlasser: null,
-      prisbetingelser: null,
-      antallTimerOppfolgingPerDeltaker: null,
-      linjer: [],
-      pris: null,
-    },
-    kostnadssted: kostnadssted || null,
-    kommentar: null,
-    beskrivelse: null,
-    deltakere: [],
-  });
-
-  return {
-    gjennomforing: detaljer.gjennomforing,
-    prismodell: detaljer.prismodell,
-    defaults,
-  };
+  return (
+    <TilsagnFormContainer
+      gjennomforing={detaljer.gjennomforing}
+      prismodell={detaljer.prismodell}
+      defaults={defaults}
+    />
+  );
 }

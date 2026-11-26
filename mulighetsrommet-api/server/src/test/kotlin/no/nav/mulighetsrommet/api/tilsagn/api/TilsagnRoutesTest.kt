@@ -33,12 +33,16 @@ import no.nav.mulighetsrommet.api.mockTilgangsmaskinenForbidden
 import no.nav.mulighetsrommet.api.persistence.testing.fixture.GjennomforingDboFixtures
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnDefaultsRequest
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnDeltakerRequest
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.withTestApplication
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.model.DataElement
+import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import java.util.UUID
@@ -141,10 +145,43 @@ class TilsagnRoutesTest : FunSpec({
         }
     }
 
+    test("standardverdier for annen avtalt pris bruker periode og deltaker fra forespørselen") {
+        val gjennomforing = GjennomforingDboFixtures.GruppeAmo1
+        MulighetsrommetTestDomain(
+            avtaler = listOf(AvtaleFixtures.gruppeAmo),
+            gjennomforinger = listOf(gjennomforing),
+        ).initialize(database.api)
+
+        withTestApplication(appConfig("AVVIST_SKJERMING")) {
+            val claims = getAnsattClaims(ansatt, setOf(generellRolle, saksbehandlerRolle))
+            val deltakerId = UUID.randomUUID()
+            val request = TilsagnDefaultsRequest(
+                gjennomforingId = gjennomforing.id,
+                type = TilsagnType.TILSAGN,
+                periodeStart = "2025-01-01",
+                periodeSlutt = "2025-03-31",
+                deltaker = deltakerId,
+            )
+            val response = client.post("/api/tiltaksadministrasjon/tilsagn/defaults") {
+                bearerAuth(oauth.issueToken(claims = claims).serialize())
+                contentType(ContentType.Application.Json)
+                setBody(request)
+            }
+
+            response.status shouldBe HttpStatusCode.OK
+            response.body<TilsagnRequest>().should {
+                it.periodeStart shouldBe "2025-01-01"
+                it.periodeSlutt shouldBe "2025-03-31"
+                it.kostnadssted shouldBe NavEnhetNummer("0400")
+                it.deltakere shouldBe listOf(TilsagnDeltakerRequest(deltakerId = deltakerId, innholdAnnet = null))
+            }
+        }
+    }
+
     test("standardverdier avvises for manuelt opplæringstilskudd") {
         withTestApplication(appConfig("AVVIST_SKJERMING")) {
             val claims = getAnsattClaims(ansatt, setOf(generellRolle, saksbehandlerRolle))
-            val request = TilsagnFixtures.TilsagnRequest1.copy(
+            val request = TilsagnDefaultsRequest(
                 gjennomforingId = GjennomforingDboFixtures.EnkelAmo.id,
                 type = TilsagnType.TILSKUDD_TIL_OPPLAERING,
             )

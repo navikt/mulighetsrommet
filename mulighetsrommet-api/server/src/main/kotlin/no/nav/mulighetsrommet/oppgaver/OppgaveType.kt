@@ -27,6 +27,11 @@ enum class OppgaveType(
         roller = setOf(Rolle.OKONOMI_SAKSBEHANDLER_GRUPPETILTAK, Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS),
         kategori = Kategori.TILSAGN,
     ),
+    DELTAKER_MANGLER_TILSAGN(
+        navn = "Deltaker mangler tilsagn",
+        roller = setOf(Rolle.OKONOMI_SAKSBEHANDLER_GRUPPETILTAK, Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS),
+        kategori = Kategori.TILSAGN,
+    ),
     UTBETALING_TIL_BEHANDLING(
         navn = "Utbetaling til behandling",
         roller = setOf(Rolle.OKONOMI_SAKSBEHANDLER_GRUPPETILTAK, Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS),

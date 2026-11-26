@@ -1,4 +1,11 @@
-import { useQuery, UseQueryOptions, useSuspenseQuery } from "@tanstack/react-query";
+import {
+  UseQueryOptions,
+  UseSuspenseQueryOptions,
+  UseSuspenseQueryResult,
+  useQuery,
+  useSuspenseQueries,
+  useSuspenseQuery,
+} from "@tanstack/react-query";
 
 // Define the type of your wrapped useQuery
 interface UseQueryWrapperOptions<TQueryFnData, TError, TData> extends Omit<
@@ -33,11 +40,28 @@ export function useApiQuery<TQueryFnData, TError, TData = TQueryFnData>(
 
 // Define the type of your wrapped useSuspenseQuery
 interface UseSuspenseQueryWrapperOptions<TQueryFnData, TError, TData> extends Omit<
-  UseQueryOptions<TQueryFnData, TError, TData>,
+  UseSuspenseQueryOptions<TQueryFnData, TError, TData>,
   "queryFn"
 > {
   queryFn: () => Promise<{ data: TQueryFnData }>;
 }
+
+type ApiSuspenseQueryOptions<
+  TQueryFnData = unknown,
+  TData = TQueryFnData,
+> = UseSuspenseQueryWrapperOptions<TQueryFnData, never, TData>;
+
+type ApiSuspenseQueryResult<T extends ApiSuspenseQueryOptions> = T extends {
+  select: (data: never) => infer TData;
+}
+  ? UseSuspenseQueryResult<TData, never>
+  : T extends ApiSuspenseQueryOptions<infer TQueryFnData>
+    ? UseSuspenseQueryResult<TQueryFnData, never>
+    : never;
+
+type ApiSuspenseQueryResults<T extends readonly ApiSuspenseQueryOptions[]> = {
+  [K in keyof T]: ApiSuspenseQueryResult<T[K]>;
+};
 
 export function useApiSuspenseQuery<TQueryFnData, TData = TQueryFnData>(
   options: UseSuspenseQueryWrapperOptions<TQueryFnData, never, TData>,
@@ -54,8 +78,35 @@ export function useApiSuspenseQuery<TQueryFnData, TData = TQueryFnData>(
       }
       return result.data; // Extract the nested `data`
     },
-    retry: (failureCount, response: Response) => {
-      return response.status >= 500 && failureCount < 3;
-    },
+    retry: retryServerError,
   });
+}
+
+export function useApiSuspenseQueries<T extends readonly ApiSuspenseQueryOptions[]>(options: {
+  queries: T;
+}): ApiSuspenseQueryResults<T> {
+  const queries = options.queries.map(({ queryFn, ...queryOptions }) => ({
+    ...queryOptions,
+    queryFn: async () => {
+      const result = await queryFn();
+      if (result.data === undefined) {
+        throw new Error("Data is undefined");
+      }
+      return result.data;
+    },
+    retry: retryServerError,
+  }));
+
+  return useSuspenseQueries({ queries }) as ApiSuspenseQueryResults<T>;
+}
+
+function retryServerError(failureCount: number, error: unknown): boolean {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "status" in error &&
+    typeof error.status === "number" &&
+    error.status >= 500 &&
+    failureCount < 3
+  );
 }

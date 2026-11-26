@@ -24,7 +24,7 @@ import { StatusTag } from "./components/tags/StatusTag";
 import { ExpandableStatusTag } from "./components/tags/ExpandableStatusTag";
 import { LagredeFilterOversikt } from "./components/lagreFilter/LagredeFilterOversikt";
 import { useOpenFilterWhenThreshold } from "./hooks/useOpenFilterWhenThreshold";
-import { useApiQuery, useApiSuspenseQuery } from "./hooks/useApiQuery";
+import { useApiQuery, useApiSuspenseQueries, useApiSuspenseQuery } from "./hooks/useApiQuery";
 import { useSortableData } from "./hooks/useSortableData";
 import { DataDrivenTable } from "./components/datadriven/DataDrivenTable";
 import { DataElementStatusTag } from "./components/datadriven/DataElementStatusTag";
@@ -57,6 +57,7 @@ export {
   ExpandableStatusTag,
   useOpenFilterWhenThreshold,
   useApiQuery,
+  useApiSuspenseQueries,
   useApiSuspenseQuery,
   useSortableData,
   DataDrivenTable,

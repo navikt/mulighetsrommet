@@ -6,15 +6,15 @@ export function useLastDelMedBruker(norskIdent: string, gjennomforingId: string)
   return useApiSuspenseQuery({
     queryKey: [...QueryKeys.DeltMedBrukerStatus, norskIdent, gjennomforingId],
     queryFn: async () => {
-      const result = await DelMedBrukerService.getLastDelMedBruker<false>({
+      const result = await DelMedBrukerService.getLastDelMedBruker({
         body: { norskIdent, tiltakId: gjennomforingId },
+        throwOnError: true,
       });
-      if (result.response?.status === 204) {
+      if (result.response.status === 204) {
         return { data: null };
       } else {
         return { data: result.data };
       }
     },
-    throwOnError: false,
   });
 }

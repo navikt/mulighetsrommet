@@ -527,6 +527,132 @@ class OppgaveQueries(private val session: Session) {
         }
     }
 
+    fun getDeltakerManglerTilsagnOppgaveData(
+        tiltakskoder: Set<Tiltakskode>?,
+        arrangorer: Set<UUID>?,
+        navEnheter: Set<NavEnhetNummer>?,
+    ): List<DeltakerManglerTilsagnOppgaveData> {
+        @Language("PostgreSQL")
+        val query = """
+            with aktuell_gjennomforing as not materialized (
+                select
+                    gjennomforing.id as gjennomforing_id,
+                    gjennomforing.created_at as gjennomforing_created_at,
+                    gjennomforing.start_dato as gjennomforing_start_dato,
+                    gjennomforing.slutt_dato as gjennomforing_slutt_dato,
+                    gjennomforing.lopenummer as gjennomforing_lopenummer,
+                    gjennomforing.navn as gjennomforing_navn,
+                    gjennomforing.gjennomforing_type,
+                    prismodell.prismodell_type,
+                    prismodell.tilsagn_per_deltaker,
+                    nav_enhet.enhetsnummer as ansvarlig_enhet_enhetsnummer,
+                    nav_enhet.navn as ansvarlig_enhet_navn,
+                    tiltakstype.tiltakskode as tiltakstype_tiltakskode,
+                    tiltakstype.navn as tiltakstype_navn,
+                    arrangor.navn as arrangor_navn,
+                    arrangor.id as arrangor_id,
+                    arrangor.organisasjonsnummer as arrangor_organisasjonsnummer
+                from gjennomforing
+                    inner join arrangor on gjennomforing.arrangor_id = arrangor.id
+                    inner join tiltakstype on gjennomforing.tiltakstype_id = tiltakstype.id
+                    inner join nav_enhet on nav_enhet.enhetsnummer = gjennomforing.ansvarlig_enhet
+                    inner join prismodell on gjennomforing.prismodell_id = prismodell.id
+                where
+                    (prismodell.prismodell_type = 'ANSKAFFET_ENKELTPLASS' or prismodell.tilsagn_per_deltaker)
+                    and (:tiltakskoder::text[] is null or tiltakstype.tiltakskode = any(:tiltakskoder))
+                    and (:arrangorer::uuid[] is null or arrangor.id = any(:arrangorer))
+                    and (:nav_enheter::text[] is null or gjennomforing.ansvarlig_enhet = any(:nav_enheter))
+            ),
+            aktiv_deltaker as not materialized (
+                select deltaker.id, deltaker.gjennomforing_id, deltaker.created_at, deltaker.start_dato, deltaker.slutt_dato
+                from deltaker
+                where deltaker.status_type in ('DELTAR', 'VENTER_PA_OPPSTART', 'FULLFORT')
+                    and deltaker.start_dato is not null
+                    and deltaker.slutt_dato is not null
+            )
+            select
+                aktuell_gjennomforing.gjennomforing_id as id,
+                aktuell_gjennomforing.gjennomforing_created_at as created_at,
+                aktuell_gjennomforing.gjennomforing_start_dato as start_dato,
+                aktuell_gjennomforing.gjennomforing_slutt_dato as slutt_dato,
+                null::uuid as deltaker_id,
+                aktuell_gjennomforing.*
+            from aktuell_gjennomforing
+            where aktuell_gjennomforing.prismodell_type = 'ANSKAFFET_ENKELTPLASS'
+                and exists (
+                    select 1
+                    from aktiv_deltaker
+                    where aktiv_deltaker.gjennomforing_id = aktuell_gjennomforing.gjennomforing_id
+                )
+                and not exists (
+                    select 1
+                    from totrinnskontroll
+                    where totrinnskontroll.entity_id = aktuell_gjennomforing.gjennomforing_id
+                        and totrinnskontroll.type in ('ENKELTPLASS_OKONOMI','ENKELTPLASS_PRISENDRING')
+                        and totrinnskontroll.status in ('TIL_BEHANDLING', 'SATT_PA_VENT')
+                )
+                and not exists (
+                    select 1
+                    from tilsagn
+                    where tilsagn.gjennomforing_id = aktuell_gjennomforing.gjennomforing_id
+                        and tilsagn.tilsagn_type = 'TILSAGN'
+                        and tilsagn.status != 'ANNULLERT'
+                )
+
+            union all
+
+            select
+                aktiv_deltaker.id,
+                aktiv_deltaker.created_at,
+                aktiv_deltaker.start_dato,
+                aktiv_deltaker.slutt_dato,
+                aktiv_deltaker.id as deltaker_id,
+                aktuell_gjennomforing.*
+            from aktuell_gjennomforing
+                inner join aktiv_deltaker on aktiv_deltaker.gjennomforing_id = aktuell_gjennomforing.gjennomforing_id
+            where aktuell_gjennomforing.prismodell_type != 'ANSKAFFET_ENKELTPLASS'
+                and aktuell_gjennomforing.tilsagn_per_deltaker
+                and not exists (
+                    select 1
+                    from tilsagn
+                        inner join tilsagn_deltaker on tilsagn_deltaker.tilsagn_id = tilsagn.id
+                    where tilsagn.gjennomforing_id = aktuell_gjennomforing.gjennomforing_id
+                        and tilsagn.tilsagn_type = 'TILSAGN'
+                        and tilsagn.status != 'ANNULLERT'
+                        and tilsagn_deltaker.deltaker_id = aktiv_deltaker.id
+                )
+        """.trimIndent()
+
+        val params = mapOf(
+            "tiltakskoder" to tiltakskoder?.let { session.createTextArray(it) },
+            "arrangorer" to arrangorer?.let { session.createUuidArray(it) },
+            "nav_enheter" to navEnheter?.let { session.createArrayOfValue(it) { it.value } },
+        )
+
+        return session.list(queryOf(query, params)) { row ->
+            DeltakerManglerTilsagnOppgaveData(
+                id = row.uuid("id"),
+                createdAt = row.localDateTime("created_at"),
+                ansvarligEnhet = OppgaveEnhet(
+                    nummer = NavEnhetNummer(row.string("ansvarlig_enhet_enhetsnummer")),
+                    navn = row.string("ansvarlig_enhet_navn"),
+                ),
+                periode = Periode.fromInclusiveDates(
+                    row.localDate("start_dato"),
+                    row.localDate("slutt_dato"),
+                ),
+                gjennomforing = row.toOppgaveGjennomforing(),
+                tiltakstype = row.toOppgaveTiltakstype(),
+                arrangor = OppgaveArrangor(
+                    Organisasjonsnummer(row.string("arrangor_organisasjonsnummer")),
+                    row.string("arrangor_navn"),
+                    row.uuid("arrangor_id"),
+                ),
+                deltakerId = row.uuidOrNull("deltaker_id"),
+            )
+        }
+    }
+
     fun getAvtaleManglerAdministratorOppgaveData(
         tiltakskoder: Set<Tiltakskode>,
         navEnheter: Set<NavEnhetNummer>,
@@ -742,6 +868,17 @@ data class UtbetalingManglerTilsagnOppgaveData(
     val tiltakstype: OppgaveTiltakstype,
     val gjennomforing: OppgaveGjennomforing,
     val arrangor: OppgaveArrangor,
+)
+
+data class DeltakerManglerTilsagnOppgaveData(
+    val id: UUID,
+    val createdAt: LocalDateTime,
+    val periode: Periode,
+    val ansvarligEnhet: OppgaveEnhet,
+    val gjennomforing: OppgaveGjennomforing,
+    val tiltakstype: OppgaveTiltakstype,
+    val arrangor: OppgaveArrangor,
+    val deltakerId: UUID?,
 )
 
 data class AvtaleManglerAdministratorOppgaveData(

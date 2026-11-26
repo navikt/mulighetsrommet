@@ -18,7 +18,6 @@ import {
   VStack,
 } from "@navikt/ds-react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
-import { useSearchParams } from "react-router";
 import { ReactElement, Suspense } from "react";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { addDuration, subDuration } from "@mr/frontend-common/utils/date";
@@ -46,17 +45,11 @@ interface Props {
 
 export function TilsagnForm(props: Props) {
   const { onSuccess, onAvbryt, defaultValues, gjennomforing } = props;
-  const [searchParams] = useSearchParams();
-
-  const tilsagnstype: TilsagnType =
-    (searchParams.get("type") as TilsagnType | null) || TilsagnType.TILSAGN;
-
   const mutation = useOpprettTilsagn();
   const form = useForm<TilsagnRequest>({
-    defaultValues: {
-      ...defaultValues,
-    } as TilsagnRequest,
+    defaultValues,
   });
+  const tilsagnstype = form.watch("type");
 
   const postData: SubmitHandler<TilsagnRequest> = async (data): Promise<void> => {
     const request: TilsagnRequest = {
