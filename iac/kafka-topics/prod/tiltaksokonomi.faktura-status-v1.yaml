@@ -22,3 +22,6 @@ spec:
     - team: team-mulighetsrommet
       application: mulighetsrommet-kafka-manager
       access: read
+    - team: fager
+      application: ekspertbistand-backend
+      access: read
