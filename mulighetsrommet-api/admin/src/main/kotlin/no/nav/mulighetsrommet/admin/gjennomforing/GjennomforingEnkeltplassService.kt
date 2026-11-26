@@ -674,18 +674,18 @@ class GjennomforingEnkeltplassService(
                     ?.takeIf { it.kanBesluttes() }
                     ?.let { okonomi ->
                         okonomi.returner(Tiltaksadministrasjon).fold(
-                            { throw IllegalStateException("Systemet klarte ikke returnere enkeltplass okonomi") },
-                            { queries.totrinnskontroll.upsert(it) },
+                            { error("Systemet klarte ikke returnere enkeltplass okonomi") },
+                            {
+                                queries.totrinnskontroll.upsert(it)
+                                outbox.publish(it)
+                            },
                         )
                     }
 
                 enkeltplass.prisendring
                     ?.takeIf { it.totrinnskontroll.kanBesluttes() }
                     ?.let { prisendring ->
-                        prisendring.totrinnskontroll.returner(Tiltaksadministrasjon).fold(
-                            { throw IllegalStateException("Systemet klarte ikke returnere enkeltplass prisendring") },
-                            { queries.totrinnskontroll.upsert(it) },
-                        )
+                        slettEksisterendePrisendring(prisendring.totrinnskontroll)
                     }
             }
         }
