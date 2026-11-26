@@ -76,7 +76,7 @@ class UtbetalingDtoQueryTest : FunSpec({
         ).initialize(database.api)
 
         createQuery().getDetaljer(utbetaling1.id, NavAnsattFixture.DonaldDuck.navIdent).shouldBeLeft(
-            UtbetalingDtoQueryError.ManglerTilgang("Du mangler tilgang til utbetalingen", NavAnsattFixture.DonaldDuck.navIdent, setOf(Rolle.OKONOMI_LES, Rolle.OKONOMI_SAKSBEHANDLER_GRUPPETILTAK, Rolle.OKONOMI_BESLUTTER_GRUPPETILTAK, Rolle.OKONOMI_ATTESTANT_GRUPPETILTAK)),
+            UtbetalingDtoQueryError.ManglerTilgang("Du mangler tilgang til utbetalingen", setOf(Rolle.OKONOMI_LES, Rolle.OKONOMI_SAKSBEHANDLER_GRUPPETILTAK, Rolle.OKONOMI_BESLUTTER_GRUPPETILTAK, Rolle.OKONOMI_ATTESTANT_GRUPPETILTAK)),
         )
     }
 

@@ -149,7 +149,6 @@ class UtbetalingRoutesTest : FunSpec({
                 val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, enkeltplassSaksbehandlerRolle))
 
                 val expected = NavAnsattManglerTilgang(
-                    navIdent = ansatt.navIdent,
                     missingRoles = setOf(Rolle.OKONOMI_SAKSBEHANDLER_GRUPPETILTAK),
                     title = "Du mangler tilgang til utbetalingen",
                 )
@@ -173,7 +172,6 @@ class UtbetalingRoutesTest : FunSpec({
                 val body = response.body<JsonObject>()
                 body["type"]?.jsonPrimitive?.content shouldBe expected.type
                 body["title"]?.jsonPrimitive?.content shouldBe expected.title
-                body["instance"]?.jsonPrimitive?.content shouldBe expected.navIdent.value
                 body["missingRoles"]?.jsonArray?.get(0)?.jsonPrimitive?.content shouldBe expected.missingRoles.first().visningsnavn
             }
         }

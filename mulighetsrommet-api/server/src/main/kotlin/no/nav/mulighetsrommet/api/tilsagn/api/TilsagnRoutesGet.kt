@@ -65,5 +65,5 @@ fun Route.tilsagnRoutesGet() {
 
 private fun toProblemDetail(error: TilsagnDtoQueryError): ProblemDetail = when (error) {
     is TilsagnDtoQueryError.IkkeFunnet -> NotFound(error.message)
-    is TilsagnDtoQueryError.ManglerTilgang -> NavAnsattManglerTilgang(error.navIdent, error.roller, title = error.message)
+    is TilsagnDtoQueryError.ManglerTilgang -> NavAnsattManglerTilgang(error.roller, title = error.message)
 }

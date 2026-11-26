@@ -46,7 +46,7 @@ class UtbetalingDtoQuery(
             val gjennomforing = queries.gjennomforing.getGjennomforingTiltaksadministrasjon(utbetaling.gjennomforing.id)
             val ansatt = queries.ansatt.getOrError(navIdent)
 
-            harLesetilgang(utbetaling, ansatt)
+            ensureHarLesetilgang(utbetaling, ansatt)
 
             val linjer = queries.utbetalingLinje.getByUtbetalingId(id)
             val avbrytelse = utbetaling.avbrytelse?.totrinnskontroll?.let {
@@ -74,7 +74,7 @@ class UtbetalingDtoQuery(
             val utbetaling = queries.utbetaling.getOrError(id)
             val ansatt = queries.ansatt.getOrError(navIdent)
 
-            harLesetilgang(utbetaling, ansatt)
+            ensureHarLesetilgang(utbetaling, ansatt)
 
             val linjer = queries.utbetalingLinje.getByUtbetalingId(id).map { linje ->
                 val tilsagn = queries.tilsagn.getOrError(linje.tilsagnId)
@@ -150,7 +150,7 @@ class UtbetalingDtoQuery(
         either {
             val utbetaling = queries.utbetaling.getOrError(id)
 
-            harLesetilgang(utbetaling, queries.ansatt.getOrError(navIdent))
+            ensureHarLesetilgang(utbetaling, queries.ansatt.getOrError(navIdent))
 
             val deltakelser = utbetaling.beregning.deltakelsePerioder().associateBy { it.deltakelseId }
             val personalia = personaliaService.getPersonalia(deltakelser.keys.toList(), onBehalfOf)
@@ -238,14 +238,14 @@ class UtbetalingDtoQuery(
     }
 
     context(errors: Raise<UtbetalingDtoQueryError>)
-    private fun harLesetilgang(utbetaling: Utbetaling, ansatt: NavAnsatt) {
+    private fun ensureHarLesetilgang(utbetaling: Utbetaling, ansatt: NavAnsatt) {
         OkonomiAuthorization.kanLeseUtbetaling(ansatt, utbetaling.gjennomforing.type).onLeft {
-            errors.raise(it.toUtbetalingDtoQueryError(ansatt.navIdent))
+            errors.raise(it.toUtbetalingDtoQueryError())
         }
     }
 
-    private fun OkonomiAuthorizationError.toUtbetalingDtoQueryError(navIdent: NavIdent): UtbetalingDtoQueryError = when (this) {
-        is OkonomiAuthorizationError.ManglerTilgang -> UtbetalingDtoQueryError.ManglerTilgang("Du mangler tilgang til utbetalingen", navIdent, requiredRoles)
-        is OkonomiAuthorizationError.ManglerKontorspesifikkTilgang -> UtbetalingDtoQueryError.ManglerTilgang("Du mangler kontorspesifikk tilgagn til utbetalingen", navIdent, requiredRoles)
+    private fun OkonomiAuthorizationError.toUtbetalingDtoQueryError(): UtbetalingDtoQueryError = when (this) {
+        is OkonomiAuthorizationError.ManglerTilgang -> UtbetalingDtoQueryError.ManglerTilgang("Du mangler tilgang til utbetalingen", requiredRoles)
+        is OkonomiAuthorizationError.ManglerKontorspesifikkTilgang -> UtbetalingDtoQueryError.ManglerTilgang("Du mangler kontorspesifikk tilgagn til utbetalingen", requiredRoles)
     }
 }

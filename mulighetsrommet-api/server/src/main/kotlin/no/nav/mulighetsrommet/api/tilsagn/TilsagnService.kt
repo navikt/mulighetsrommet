@@ -165,7 +165,7 @@ class TilsagnService(
     fun slettTilsagn(id: UUID, navIdent: NavIdent): Either<TilsagnError, Unit> = db.transaction {
         either {
             val tilsagn = queries.tilsagn.getAndAcquireLock(id)
-            kanSaksbehandle(navIdent, tilsagn)
+            ensureKanSaksbehandle(navIdent, tilsagn)
 
             ensure(tilsagn.status == TilsagnStatus.RETURNERT) {
                 TilsagnError.Valideringsfeil(FieldError.of("Kan ikke slette tilsagn som er godkjent").nel())
@@ -188,7 +188,7 @@ class TilsagnService(
     ): Either<TilsagnError, Tilsagn> = db.transaction {
         either {
             val tilsagn = queries.tilsagn.getAndAcquireLock(id)
-            kanSaksbehandle(navIdent, tilsagn)
+            ensureKanSaksbehandle(navIdent, tilsagn)
 
             ensure(tilsagn.status == TilsagnStatus.GODKJENT) {
                 TilsagnError.Valideringsfeil(FieldError.of("Kan bare annullere godkjente tilsagn").nel())
@@ -204,7 +204,7 @@ class TilsagnService(
     ): Either<TilsagnError, Tilsagn> = db.transaction {
         either {
             val tilsagn = queries.tilsagn.getAndAcquireLock(id)
-            kanSaksbehandle(navIdent, tilsagn)
+            ensureKanSaksbehandle(navIdent, tilsagn)
 
             ensure(tilsagn.status == TilsagnStatus.GODKJENT) {
                 TilsagnError.Valideringsfeil(FieldError.of("Kan bare gjøre opp godkjente tilsagn").nel())
@@ -383,8 +383,8 @@ class TilsagnService(
         navIdent: NavIdent,
         tilsagn: Tilsagn,
     ): Either<TilsagnError, Unit> = either {
-        val kanBehandleTilsagn = either { kanSaksbehandle(navIdent, tilsagn) }
-        val kanBeslutteTilsagn = either { erBeslutter(navIdent, tilsagn) }
+        val kanBehandleTilsagn = either { ensureKanSaksbehandle(navIdent, tilsagn) }
+        val kanBeslutteTilsagn = either { ensureErBeslutter(navIdent, tilsagn) }
         if (kanBehandleTilsagn.isLeft() && kanBeslutteTilsagn.isLeft()) {
             val manglendeRoller = buildSet {
                 kanBehandleTilsagn.onLeft { error ->
@@ -402,7 +402,6 @@ class TilsagnService(
             raise(
                 TilsagnError.ManglerTilgang(
                     "Du kan ikke returnere tilsagnet fordi du mangler tilgang",
-                    navIdent,
                     manglendeRoller,
                 ),
             )
@@ -852,28 +851,28 @@ class TilsagnService(
             is NavIdent -> {
                 val ansatt = queries.ansatt.getOrError(agent)
                 OkonomiAuthorization.erSaksbehandler(ansatt, type).onLeft {
-                    errors.raise(it.toTilsagnError(ansatt.navIdent))
+                    errors.raise(it.toTilsagnError())
                 }
             }
         }
     }
 
     context(errors: Raise<TilsagnError>)
-    private fun QueryContext.kanSaksbehandle(navIdent: NavIdent, tilsagn: Tilsagn) {
+    private fun QueryContext.ensureKanSaksbehandle(navIdent: NavIdent, tilsagn: Tilsagn) {
         val ansatt = queries.ansatt.getOrError(navIdent)
-        errors.kanSaksbehandle(ansatt, tilsagn.gjennomforing.type)
+        errors.ensureKanSaksbehandle(ansatt, tilsagn.gjennomforing.type)
     }
 
     private fun QueryContext.kanBeslutteTilsagn(agent: Agent, tilsagn: Tilsagn): Either<TilsagnError, Unit> = either {
         when (agent) {
             Tiltaksadministrasjon -> Unit
             Arena, is no.nav.mulighetsrommet.model.Arrangor -> raise(TilsagnError.AgentUgyldigHandling("$agent kan ikke beslutte tilsagn"))
-            is NavIdent -> erBeslutter(agent, tilsagn)
+            is NavIdent -> ensureErBeslutter(agent, tilsagn)
         }
     }
 
     context(errors: Raise<TilsagnError>)
-    private fun QueryContext.erBeslutter(
+    private fun QueryContext.ensureErBeslutter(
         navIdent: NavIdent,
         tilsagn: Tilsagn,
     ) {
@@ -892,9 +891,9 @@ class TilsagnService(
         queries.tilsagn.setFreeTextSearch(tilsagn.id, fts)
     }
 
-    private fun Raise<TilsagnError>.kanSaksbehandle(ansatt: NavAnsatt, gjennomforingType: GjennomforingType) {
+    private fun Raise<TilsagnError>.ensureKanSaksbehandle(ansatt: NavAnsatt, gjennomforingType: GjennomforingType) {
         OkonomiAuthorization.erSaksbehandler(ansatt, gjennomforingType).onLeft {
-            raise(it.toTilsagnError(ansatt.navIdent))
+            raise(it.toTilsagnError())
         }
     }
 
@@ -905,12 +904,12 @@ class TilsagnService(
         )
 
         OkonomiAuthorization.erBeslutterTilsagn(ansatt, kontekst).onLeft {
-            raise(it.toTilsagnError(ansatt.navIdent))
+            raise(it.toTilsagnError())
         }
     }
 
-    private fun OkonomiAuthorizationError.toTilsagnError(navIdent: NavIdent): TilsagnError = when (this) {
-        is OkonomiAuthorizationError.ManglerTilgang -> TilsagnError.ManglerTilgang("Du mangler tilgang til tilsagnet", navIdent, requiredRoles)
-        is OkonomiAuthorizationError.ManglerKontorspesifikkTilgang -> TilsagnError.ManglerTilgang("Du mangler kontorspesifikk tilgang til tilsagnet", navIdent, requiredRoles)
+    private fun OkonomiAuthorizationError.toTilsagnError(): TilsagnError = when (this) {
+        is OkonomiAuthorizationError.ManglerTilgang -> TilsagnError.ManglerTilgang("Du mangler tilgang til tilsagnet", requiredRoles)
+        is OkonomiAuthorizationError.ManglerKontorspesifikkTilgang -> TilsagnError.ManglerTilgang("Du mangler kontorspesifikk tilgang til tilsagnet", requiredRoles)
     }
 }
