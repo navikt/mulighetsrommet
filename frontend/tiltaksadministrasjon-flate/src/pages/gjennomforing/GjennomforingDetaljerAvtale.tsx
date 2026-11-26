@@ -1,5 +1,5 @@
 import { gjennomforingTekster } from "@/components/ledetekster/gjennomforingLedetekster";
-import { formaterPeriodeUdefinertSlutt } from "@mr/frontend-common/utils/date";
+import { formaterDato } from "@mr/frontend-common/utils/date";
 import { Link as ReactRouterLink } from "react-router";
 import { Definisjonsliste } from "@mr/frontend-common/components/definisjonsliste/Definisjonsliste";
 import { AvtaleDto } from "@tiltaksadministrasjon/api-client";
@@ -24,7 +24,7 @@ export function GjennomforingDetaljerAvtale({ avtale }: Props) {
         },
         {
           key: "Avtaleperiode",
-          value: `${formaterPeriodeUdefinertSlutt({ start: avtale.startDato, slutt: avtale.sluttDato })}`,
+          value: `${formaterDato(avtale.startDato)} - ${avtale.sluttDato ? formaterDato(avtale.sluttDato) : "pågående"}`,
         },
       ]}
     />
