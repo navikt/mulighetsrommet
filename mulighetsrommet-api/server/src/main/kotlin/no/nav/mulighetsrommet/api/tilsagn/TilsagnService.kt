@@ -107,22 +107,22 @@ class TilsagnService(
                 )
             }
 
-        val previous = queries.tilsagn.getAndAcquireLockOrNull(request.id)
+            val previous = queries.tilsagn.getAndAcquireLockOrNull(request.id)
 
-        request.deltakere?.takeIf { it.isNotEmpty() }?.let { deltakere ->
-            val gyldigeDeltakere = repository.deltaker.getByGjennomforing(gjennomforing.id).map { it.id }.toSet()
-            if (deltakere.any { it.deltakerId !in gyldigeDeltakere }) {
-                return TilsagnError.Valideringsfeil(
-                    FieldError.of("Deltakerne må tilhøre gjennomføringen", TilsagnRequest::deltakere).nel(),
-                ).left()
+            request.deltakere?.takeIf { it.isNotEmpty() }?.let { deltakere ->
+                val gyldigeDeltakere = repository.deltaker.getByGjennomforing(gjennomforing.id).map { it.id }.toSet()
+                if (deltakere.any { it.deltakerId !in gyldigeDeltakere }) {
+                    return TilsagnError.Valideringsfeil(
+                        FieldError.of("Deltakerne må tilhøre gjennomføringen", TilsagnRequest::deltakere).nel(),
+                    ).left()
+                }
             }
-        }
 
-        val stengt = when (gjennomforing) {
-            is GjennomforingAvtale -> gjennomforing.stengt
-            is GjennomforingEnkeltplass -> listOf()
-        }
-        val validated = TilsagnValidator
+            val stengt = when (gjennomforing) {
+                is GjennomforingAvtale -> gjennomforing.stengt
+                is GjennomforingEnkeltplass -> listOf()
+            }
+            val validated = TilsagnValidator
                 .validate(
                     next = request,
                     previous = previous,
