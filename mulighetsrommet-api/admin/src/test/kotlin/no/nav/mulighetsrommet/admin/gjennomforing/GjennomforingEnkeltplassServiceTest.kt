@@ -1627,7 +1627,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                 gjennomforing.status shouldBe GjennomforingEnkeltplassStatus.Deltar
             }
 
-            test("returnerer økonomi til behandling når deltaker får avsluttende status") {
+            test("returnerer økonomi til behandling når deltaker får avbrytende status") {
                 forAll(
                     row(DeltakerStatusType.IKKE_AKTUELL),
                     row(DeltakerStatusType.AVBRUTT_UTKAST),
@@ -1655,7 +1655,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                 }
             }
 
-            test("returnerer økonomi satt på vent når deltaker får avsluttende status") {
+            test("returnerer økonomi satt på vent når deltaker får avbrytende status") {
                 forAll(
                     row(DeltakerStatusType.IKKE_AKTUELL),
                     row(DeltakerStatusType.AVBRUTT_UTKAST),
@@ -1689,7 +1689,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                 }
             }
 
-            test("returnerer og sletter prisendring til behandling men beholder godkjent økonomi ved avsluttende status") {
+            test("returnerer og sletter prisendring til behandling men beholder godkjent økonomi ved avbrytende status") {
                 forAll(
                     row(DeltakerStatusType.IKKE_AKTUELL),
                     row(DeltakerStatusType.AVBRUTT_UTKAST),
@@ -1731,7 +1731,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                 }
             }
 
-            test("returnerer og sletter prisendring satt på vent men beholder godkjent økonomi ved avsluttende status") {
+            test("returnerer og sletter prisendring satt på vent men beholder godkjent økonomi ved avbrytende status") {
                 forAll(
                     row(DeltakerStatusType.IKKE_AKTUELL),
                     row(DeltakerStatusType.AVBRUTT_UTKAST),
