@@ -27,9 +27,8 @@ class KometDeltakerReplikering(
         db.session {
             val stored = queries.kometDeltaker.get(id)
 
-            // TODO: Fjern toleransen etter replay av deltakere med feilaktig nyere tidsstempel fra Komet.
-            if (stored != null && deltaker.oppdatertTidspunkt < stored.oppdatertTidspunkt.minusSeconds(3)) {
-                logger.info("Hopper over deltaker med id=$id fordi innkommende oppdatertTidspunkt er mer enn tre sekunder eldre enn lagret")
+            if (stored != null && deltaker.oppdatertTidspunkt < stored.oppdatertTidspunkt) {
+                logger.info("Hopper over deltaker med id=$id fordi innkommende oppdatertTidspunkt er eldre enn lagret")
                 return@session
             }
 

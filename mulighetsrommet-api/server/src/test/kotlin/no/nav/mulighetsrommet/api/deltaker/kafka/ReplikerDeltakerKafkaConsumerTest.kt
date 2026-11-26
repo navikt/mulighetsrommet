@@ -19,7 +19,6 @@ import no.nav.mulighetsrommet.api.deltaker.kafka.AmtDeltakerEksternV1DtoFixtures
 import no.nav.mulighetsrommet.api.deltaker.kafka.AmtDeltakerEksternV1DtoFixtures.createAmtDeltakerStatusDto
 import no.nav.mulighetsrommet.api.domain.deltaker.Deltaker
 import no.nav.mulighetsrommet.api.domain.testing.fixture.AvtaleFixtures
-import no.nav.mulighetsrommet.api.domain.testing.fixture.DeltakerFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.persistence.testing.fixture.GjennomforingDboFixtures.AFT1
 import no.nav.mulighetsrommet.api.persistence.testing.fixture.GjennomforingDboFixtures.EnkelAmo
@@ -30,7 +29,6 @@ import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.DeltakerStatus
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import java.time.Instant
-import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -285,36 +283,6 @@ class ReplikerDeltakerKafkaConsumerTest : FunSpec({
             val deltakerConsumer = createConsumer(oppdaterUtbetaling = oppdaterUtbetaling)
 
             deltakerConsumer.consume(amtDeltaker1.id, Json.encodeToJsonElement(amtDeltaker1))
-
-            coVerify(exactly = 1) {
-                oppdaterUtbetaling.skedulerOppdaterUtbetalingerForGjennomforing(AFT1.id, any())
-            }
-        }
-
-        test("korrigerer skjevt tidsstempel og skedulerer utbetaling på nytt bare én gang ved replay") {
-            val lagretDeltaker = DeltakerFixtures.createDeltaker(
-                id = amtDeltaker1.id,
-                gjennomforingId = AFT1.id,
-                startDato = LocalDate.of(2023, 3, 1),
-                sluttDato = LocalDate.of(2023, 3, 31),
-                status = DeltakerStatusType.AVBRUTT,
-                endretTidspunkt = Instant.parse("2023-02-28T23:00:03Z"),
-            )
-            database.run {
-                repository.deltaker.save(lagretDeltaker)
-            }
-            val consumer = createConsumer(oppdaterUtbetaling)
-
-            consumer.consume(amtDeltaker1.id, Json.encodeToJsonElement(amtDeltaker1))
-
-            database.run {
-                repository.deltaker.get(amtDeltaker1.id).shouldNotBeNull().should {
-                    it.status.type shouldBe DeltakerStatusType.DELTAR
-                    it.endretTidspunkt shouldBe Instant.parse("2023-02-28T23:00:00Z")
-                }
-            }
-
-            consumer.consume(amtDeltaker1.id, Json.encodeToJsonElement(amtDeltaker1))
 
             coVerify(exactly = 1) {
                 oppdaterUtbetaling.skedulerOppdaterUtbetalingerForGjennomforing(AFT1.id, any())

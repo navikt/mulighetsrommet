@@ -313,12 +313,11 @@ class GjennomforingEnkeltplassService(
     ): Enkeltplass = db.transaction {
         val enkeltplass = getAndAcquireLock(deltaker.gjennomforingId)
 
-        // TODO: Fjern toleransen etter replay av deltakere med feilaktig nyere tidsstempel fra Komet.
         getDeltaker(deltaker.gjennomforingId)?.let { eksisterende ->
             when {
                 deltaker.id != eksisterende.id && deltaker.erFeilregistrert() -> return@transaction enkeltplass
                 deltaker.id != eksisterende.id -> error("Enkeltplass med id=${deltaker.gjennomforingId} har allerede en annen deltaker")
-                deltaker.endretTidspunkt < eksisterende.endretTidspunkt.minusSeconds(3) -> return@transaction enkeltplass
+                deltaker.endretTidspunkt < eksisterende.endretTidspunkt -> return@transaction enkeltplass
             }
         }
 

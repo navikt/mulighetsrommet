@@ -9,7 +9,6 @@ import no.nav.mulighetsrommet.admin.testing.TestAdminDatabase
 import no.nav.mulighetsrommet.api.domain.testing.fixture.DeltakerFixtures
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import java.time.Instant
-import java.time.LocalDate
 import java.util.UUID
 
 class ReplikerDeltakerUseCaseTest : FunSpec({
@@ -127,91 +126,6 @@ class ReplikerDeltakerUseCaseTest : FunSpec({
 
         db.repository.deltaker.get(id).shouldNotBeNull().should {
             it.status.type shouldBe DeltakerStatusType.AVBRUTT
-        }
-    }
-
-    test("korrigerer deltaker med tidsstempel mindre enn tre sekunder eldre") {
-        val db = TestAdminDatabase()
-        val lagret = DeltakerFixtures.createDeltaker(
-            gjennomforingId = UUID.randomUUID(),
-            startDato = LocalDate.of(2025, 1, 1),
-            sluttDato = LocalDate.of(2025, 3, 1),
-            endretTidspunkt = Instant.parse("2025-01-02T11:00:03Z"),
-        )
-        db.repository.deltaker.save(lagret)
-        val korrigert = lagret.registrerStatus(
-            DeltakerStatusType.AVBRUTT,
-            endretTidspunkt = Instant.parse("2025-01-02T11:00:00.000001Z"),
-        )
-
-        ReplikerDeltakerUseCase(db).execute(ReplikerDeltaker(korrigert.id, korrigert))
-            .shouldBe(ReplikerDeltakerResultat.Lagret(lagret.gjennomforingId))
-
-        db.repository.deltaker.get(lagret.id).shouldNotBeNull().should {
-            it.status.type shouldBe DeltakerStatusType.AVBRUTT
-            it.endretTidspunkt shouldBe Instant.parse("2025-01-02T11:00:00.000001Z")
-        }
-    }
-
-    test("korrigerer deltaker med tidsstempel nøyaktig tre sekunder eldre og ignorerer identisk replay") {
-        val db = TestAdminDatabase()
-        val lagret = DeltakerFixtures.createDeltaker(
-            gjennomforingId = UUID.randomUUID(),
-            startDato = LocalDate.of(2025, 1, 1),
-            sluttDato = LocalDate.of(2025, 3, 1),
-            endretTidspunkt = Instant.parse("2025-01-02T11:00:03Z"),
-        )
-        db.repository.deltaker.save(lagret)
-        val korrigert = lagret.registrerStatus(
-            DeltakerStatusType.AVBRUTT,
-            endretTidspunkt = Instant.parse("2025-01-02T11:00:00Z"),
-        )
-        val service = ReplikerDeltakerUseCase(db)
-
-        service.execute(ReplikerDeltaker(korrigert.id, korrigert))
-            .shouldBe(ReplikerDeltakerResultat.Lagret(lagret.gjennomforingId))
-
-        db.repository.deltaker.get(lagret.id).shouldNotBeNull().should {
-            it.status.type shouldBe DeltakerStatusType.AVBRUTT
-            it.endretTidspunkt shouldBe Instant.parse("2025-01-02T11:00:00Z")
-        }
-
-        service.execute(ReplikerDeltaker(korrigert.id, korrigert))
-            .shouldBe(ReplikerDeltakerResultat.IngenEndring)
-
-        val nyere = korrigert.registrerStatus(
-            DeltakerStatusType.FULLFORT,
-            endretTidspunkt = Instant.parse("2025-01-02T11:00:04Z"),
-        )
-        service.execute(ReplikerDeltaker(nyere.id, nyere))
-            .shouldBe(ReplikerDeltakerResultat.Lagret(lagret.gjennomforingId))
-
-        db.repository.deltaker.get(lagret.id).shouldNotBeNull().should {
-            it.status.type shouldBe DeltakerStatusType.FULLFORT
-            it.endretTidspunkt shouldBe Instant.parse("2025-01-02T11:00:04Z")
-        }
-    }
-
-    test("beholder deltaker når innkommende tidsstempel er mer enn tre sekunder eldre") {
-        val db = TestAdminDatabase()
-        val lagret = DeltakerFixtures.createDeltaker(
-            gjennomforingId = UUID.randomUUID(),
-            startDato = LocalDate.of(2025, 1, 1),
-            sluttDato = LocalDate.of(2025, 3, 1),
-            endretTidspunkt = Instant.parse("2025-01-02T11:00:03.000001Z"),
-        )
-        db.repository.deltaker.save(lagret)
-        val eldre = lagret.registrerStatus(
-            DeltakerStatusType.AVBRUTT,
-            endretTidspunkt = Instant.parse("2025-01-02T11:00:00Z"),
-        )
-
-        ReplikerDeltakerUseCase(db).execute(ReplikerDeltaker(eldre.id, eldre))
-            .shouldBe(ReplikerDeltakerResultat.IngenEndring)
-
-        db.repository.deltaker.get(lagret.id).shouldNotBeNull().should {
-            it.status.type shouldBe DeltakerStatusType.DELTAR
-            it.endretTidspunkt shouldBe Instant.parse("2025-01-02T11:00:03.000001Z")
         }
     }
 })
