@@ -88,9 +88,11 @@ class TilsagnService(
         either {
             requireNotNull(request.id) { "id mangler" }
 
-            ensure(request.type != TilsagnType.TILSKUDD_TIL_OPPLAERING || agent == Tiltaksadministrasjon) {
-                TilsagnError.Valideringsfeil(
-                    FieldError.of("Tilskudd til opplæring kan ikke opprettes manuelt", TilsagnRequest::type).nel(),
+            if (request.type == TilsagnType.TILSKUDD_TIL_OPPLAERING && agent != Tiltaksadministrasjon) {
+                raise(
+                    TilsagnError.Valideringsfeil(
+                        FieldError.of("Tilskudd til opplæring kan ikke opprettes manuelt", TilsagnRequest::type).nel(),
+                    ),
                 )
             }
 
