@@ -19,6 +19,7 @@ import no.nav.mulighetsrommet.api.domain.testing.fixture.AvtaleFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.DeltakerFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavAnsattFixture
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavEnhetFixtures
+import no.nav.mulighetsrommet.api.domain.testing.fixture.PrismodellFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
@@ -34,7 +35,9 @@ import no.nav.mulighetsrommet.api.fixtures.setUtbetalingLinjeStatus
 import no.nav.mulighetsrommet.api.persistence.testing.fixture.GjennomforingDboFixtures
 import no.nav.mulighetsrommet.api.persistence.testing.fixture.GjennomforingDboFixtures.AFT1
 import no.nav.mulighetsrommet.api.persistence.testing.fixture.GjennomforingDboFixtures.VTA1
+import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandlingStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
@@ -1131,6 +1134,121 @@ class OppgaverServiceTest : FunSpec({
         }
     }
 
+    context("deltaker mangler tilsagn") {
+        test("oppgave per deltaker uten ordinært tilsagn når prismodellen krever tilsagn per deltaker") {
+            val prismodell = PrismodellFixtures.AnnenAvtaltPris.copy(id = UUID.randomUUID(), tilsagnPerDeltaker = true)
+            val gjennomforing = GjennomforingDboFixtures.GruppeAmo1.copy(prismodellId = prismodell.id)
+            val deltakerMedEkstratilsagn = DeltakerFixtures.createDeltaker(
+                gjennomforingId = gjennomforing.id,
+                startDato = LocalDate.of(2025, 1, 1),
+                sluttDato = LocalDate.of(2025, 3, 31),
+            )
+            val deltakerMedTilsagn = DeltakerFixtures.createDeltaker(gjennomforingId = gjennomforing.id)
+            val tilsagn = TilsagnFixtures.createTilsagn(gjennomforingId = gjennomforing.id, lopenummer = 1).copy(
+                deltakere = listOf(TilsagnDbo.Deltaker(deltakerMedTilsagn.id, innholdAnnet = null)),
+            )
+            val ekstratilsagn = TilsagnFixtures.createTilsagn(
+                gjennomforingId = gjennomforing.id,
+                lopenummer = 2,
+                type = TilsagnType.EKSTRATILSAGN,
+            ).copy(
+                deltakere = listOf(TilsagnDbo.Deltaker(deltakerMedEkstratilsagn.id, innholdAnnet = null)),
+            )
+
+            MulighetsrommetTestDomain(
+                avtaler = listOf(AvtaleFixtures.gruppeAmo),
+                prismodeller = listOf(prismodell),
+                gjennomforinger = listOf(gjennomforing),
+                deltakere = listOf(deltakerMedEkstratilsagn, deltakerMedTilsagn),
+                tilsagn = listOf(tilsagn, ekstratilsagn),
+            ) {
+                setTilsagnStatus(tilsagn, TilsagnStatus.GODKJENT)
+                setTilsagnStatus(ekstratilsagn, TilsagnStatus.GODKJENT)
+            }.initialize(database.api)
+
+            val oppgaver = OppgaverService(database.api).oppgaver(
+                oppgavetyper = setOf(OppgaveType.DELTAKER_MANGLER_TILSAGN),
+                tiltakskoder = setOf(),
+                navEnheter = setOf(),
+                arrangorer = setOf(),
+                ansatt = NavAnsattFixture.DonaldDuck.medRoller(
+                    setOf(NavAnsattRolle.generell(Rolle.OKONOMI_SAKSBEHANDLER_GRUPPETILTAK)),
+                ),
+            )
+
+            oppgaver shouldMatchAllOppgaver listOf(
+                PartialOppgave(deltakerMedEkstratilsagn.id, OppgaveType.DELTAKER_MANGLER_TILSAGN),
+            )
+            oppgaver.single().link.link shouldBe "/gjennomforinger/${gjennomforing.id}/tilsagn/opprett-tilsagn" +
+                "?type=TILSAGN&periodeStart=2025-01-01&periodeSlutt=2025-03-31&deltakerId=${deltakerMedEkstratilsagn.id}"
+        }
+
+        test("én oppgave per enkeltplass uten ordinært tilsagn") {
+            val enkeltplass = GjennomforingDboFixtures.EnkelAmo
+
+            MulighetsrommetTestDomain(
+                gjennomforinger = listOf(enkeltplass),
+                deltakere = listOf(DeltakerFixtures.createDeltaker(gjennomforingId = enkeltplass.id)),
+            ).initialize(database.api)
+
+            val service = OppgaverService(database.api)
+            val saksbehandlerEnkeltplass = NavAnsattFixture.DonaldDuck.medRoller(
+                setOf(NavAnsattRolle.generell(Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS)),
+            )
+
+            val oppgaver = service.oppgaver(
+                oppgavetyper = setOf(OppgaveType.DELTAKER_MANGLER_TILSAGN),
+                tiltakskoder = setOf(),
+                navEnheter = setOf(),
+                arrangorer = setOf(),
+                ansatt = saksbehandlerEnkeltplass,
+            )
+            oppgaver shouldMatchAllOppgaver listOf(
+                PartialOppgave(enkeltplass.id, OppgaveType.DELTAKER_MANGLER_TILSAGN),
+            )
+            oppgaver.single().link.link shouldBe "/gjennomforinger/${enkeltplass.id}/tilsagn/opprett-tilsagn?type=TILSAGN"
+
+            database.run {
+                val tilsagn = TilsagnFixtures.createTilsagn(gjennomforingId = enkeltplass.id, lopenummer = 1)
+                queries.tilsagn.upsert(tilsagn)
+                setTilsagnStatus(tilsagn, TilsagnStatus.GODKJENT)
+            }
+
+            service.oppgaver(
+                oppgavetyper = setOf(OppgaveType.DELTAKER_MANGLER_TILSAGN),
+                tiltakskoder = setOf(),
+                navEnheter = setOf(),
+                arrangorer = setOf(),
+                ansatt = saksbehandlerEnkeltplass,
+            ).shouldBeEmpty()
+        }
+
+        test("ingen tilsagnoppgave for enkeltplass med okonomi eller prisendring som ikke er godkjent") {
+            val enkeltplass = GjennomforingDboFixtures.EnkelAmo
+
+            MulighetsrommetTestDomain(
+                gjennomforinger = listOf(enkeltplass),
+                deltakere = listOf(DeltakerFixtures.createDeltaker(gjennomforingId = enkeltplass.id)),
+            ) {
+                setTilBehandling(
+                    enkeltplass.id,
+                    TotrinnskontrollType.ENKELTPLASS_PRISENDRING,
+                    behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
+                )
+            }.initialize(database.api)
+
+            OppgaverService(database.api).oppgaver(
+                oppgavetyper = setOf(OppgaveType.DELTAKER_MANGLER_TILSAGN),
+                tiltakskoder = setOf(),
+                navEnheter = setOf(),
+                arrangorer = setOf(),
+                ansatt = NavAnsattFixture.DonaldDuck.medRoller(
+                    setOf(NavAnsattRolle.generell(Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS)),
+                ),
+            ).shouldBeEmpty()
+        }
+    }
+
     context("avtaler") {
         test("oppgaver når aktive avtaler mangler administrator") {
             MulighetsrommetTestDomain(
@@ -1192,6 +1310,7 @@ class OppgaverServiceTest : FunSpec({
                 NavAnsattFixture.DonaldDuck.medRoller(setOf(saksbehandlerEnkeltplass)),
             ).map { it.type } shouldBe listOf(
                 OppgaveType.TILSAGN_RETURNERT,
+                OppgaveType.DELTAKER_MANGLER_TILSAGN,
                 OppgaveType.UTBETALING_TIL_BEHANDLING,
                 OppgaveType.UTBETALING_RETURNERT,
                 OppgaveType.TILSKUDDBEHANDLING_RETURNERT,

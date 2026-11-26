@@ -48,6 +48,15 @@ class OppgaverService(val db: ApiDatabase) {
                         ansatt = ansatt,
                     ),
                 )
+                addAll(
+                    queries.oppgave
+                        .getDeltakerManglerTilsagnOppgaveData(
+                            tiltakskoder = tiltakskoder.ifEmpty { null },
+                            arrangorer = arrangorer.ifEmpty { null },
+                            navEnheter = navEnheter.ifEmpty { null },
+                        )
+                        .mapNotNull { toOppgave(it, ansatt) },
+                )
             }
             if (oppgavetyper.isEmpty() || oppgavetyper.any { it.kategori == Kategori.UTBETALING_LINJE }) {
                 addAll(
@@ -168,7 +177,12 @@ class OppgaverService(val db: ApiDatabase) {
                 arrangorer = arrangorer.ifEmpty { null },
             )
             .asSequence()
-            .filter { utbetaling -> byKostnadssted(utbetaling.kostnadssteder + utbetaling.ansvarligEnhet.nummer, kostnadssteder) }
+            .filter { utbetaling ->
+                byKostnadssted(
+                    utbetaling.kostnadssteder + utbetaling.ansvarligEnhet.nummer,
+                    kostnadssteder,
+                )
+            }
             .mapNotNull { toOppgave(it, ansatt) }
             .toList()
     }
@@ -469,6 +483,24 @@ private fun toOppgave(data: UtbetalingManglerTilsagnOppgaveData, ansatt: NavAnsa
     OkonomiAuthorization.erSaksbehandler(ansatt, data.gjennomforing.type).isRight()
 }
 
+private fun toOppgave(data: DeltakerManglerTilsagnOppgaveData, ansatt: NavAnsatt) = Oppgave(
+    id = data.id,
+    type = OppgaveType.DELTAKER_MANGLER_TILSAGN,
+    navn = OppgaveType.DELTAKER_MANGLER_TILSAGN.navn,
+    enhet = data.ansvarligEnhet,
+    title = getOkonomiOppgaveTitle(data.tiltakstype, data.gjennomforing),
+    description = "Det er ikke opprettet tilsagn for deltaker med periode ${data.periode.formatPeriode()}",
+    tiltakstype = data.tiltakstype,
+    link = OppgaveLink(
+        linkText = "Opprett tilsagn",
+        link = getTilsagnUrlWithQueryParams(data),
+    ),
+    createdAt = data.createdAt,
+    arrangor = data.arrangor,
+).takeIf {
+    OkonomiAuthorization.erSaksbehandler(ansatt, data.gjennomforing.type).isRight()
+}
+
 private fun tilAvbrytelseOppgave(data: UtbetalingBehandlingOppgaveData, ansatt: NavAnsatt): Oppgave? = Oppgave(
     id = data.id,
     type = OppgaveType.UTBETALING_TIL_AVBRYTELSE,
@@ -655,6 +687,21 @@ private fun getOkonomiOppgaveTitle(tiltakstype: OppgaveTiltakstype, gjennomforin
     return when (gjennomforing) {
         is OppgaveGjennomforing.Gruppetiltak -> "${gjennomforing.navn} (${gjennomforing.lopenummer})"
         is OppgaveGjennomforing.Enkeltplass -> "${tiltakstype.navn} (${gjennomforing.lopenummer})"
+    }
+}
+
+private fun getTilsagnUrlWithQueryParams(oppgave: DeltakerManglerTilsagnOppgaveData): String {
+    return when (val gjennomforing = oppgave.gjennomforing) {
+        is OppgaveGjennomforing.Gruppetiltak ->
+            "/gjennomforinger/${gjennomforing.id}/tilsagn/opprett-tilsagn" +
+                "?type=TILSAGN" +
+                "&periodeStart=${oppgave.periode.start}" +
+                "&periodeSlutt=${oppgave.periode.getLastInclusiveDate()}" +
+                "&deltakerId=${requireNotNull(oppgave.deltakerId) { "Deltaker mangler for oppgave på gruppetiltak" }}"
+
+        is OppgaveGjennomforing.Enkeltplass ->
+            "/gjennomforinger/${gjennomforing.id}/tilsagn/opprett-tilsagn" +
+                "?type=TILSAGN"
     }
 }
 
