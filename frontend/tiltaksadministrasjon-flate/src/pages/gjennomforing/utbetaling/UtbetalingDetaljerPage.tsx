@@ -10,7 +10,6 @@ import {
   OpprettUtbetalingLinjerRequest,
   FieldError,
   UtbetalingStatusAarsak,
-  UtbetalingVedleggDto,
 } from "@tiltaksadministrasjon/api-client";
 import { formaterValutaBelop } from "@mr/frontend-common/utils/utils";
 import {
@@ -24,6 +23,7 @@ import {
   HStack,
   Link,
   VStack,
+  InlineMessage,
 } from "@navikt/ds-react";
 import { Link as ReactRouterLink, useNavigate } from "react-router";
 import { UtbetalingStatusTag } from "@/components/utbetaling/UtbetalingStatusTag";
@@ -73,8 +73,8 @@ import { TotrinnskontrollUtbetalingAvbrytelse } from "@/components/totrinnskontr
 import { TotrinnsBegrunnelse } from "@mr/frontend-common/components/TotrinnsBegrunnelse";
 import { aarsakTilTekst } from "@/utils/Utils";
 import { BekreftAvbrytelseModal } from "@/components/utbetaling/BekreftAvbrytelseModal";
-import { useVedleggForUtbetaling } from "@/api/utbetaling/useVedleggPdfBlob";
-import { UtbetalingVedleggModal } from "./UtbetalingVedleggModal";
+import { fetchVedleggPdfBlob, useVedleggForUtbetaling } from "@/api/utbetaling/useVedleggPdfBlob";
+import { useOpenPdfInNewTab } from "@/hooks/useOpenPdfInNewTab";
 
 function useUtbetalingDetaljerData() {
   const { utbetalingId } = useRequiredParams(["utbetalingId"]);
@@ -87,7 +87,7 @@ export function UtbetalingDetaljerPage() {
   const navigate = useNavigate();
   const [errors, setErrors] = useState<FieldError[]>([]);
   const [modalVariant, setModalVariant] = useState<UtbetalingHandling | null>(null);
-  const [valgtVedlegg, setValgtVedlegg] = useState<UtbetalingVedleggDto | null>(null);
+  const { open, feilmelding } = useOpenPdfInNewTab();
 
   const { utbetaling, handlinger, beregning } = useUtbetalingDetaljerData();
   const { data: utbetalingLinjer } = useUtbetalingsLinjer(utbetaling.id);
@@ -291,16 +291,26 @@ export function UtbetalingDetaljerPage() {
                         <VStack gap="space-4">
                           {vedlegg.map((vedlegg) => (
                             <Button
+                              key={vedlegg.dokumentInfoId}
                               type="button"
                               variant="tertiary"
                               size="small"
-                              onClick={() => setValgtVedlegg(vedlegg)}
+                              onClick={() =>
+                                open(() =>
+                                  fetchVedleggPdfBlob(utbetaling.id, vedlegg.dokumentInfoId),
+                                )
+                              }
                               className="self-start"
                               icon={<FilePdfIcon aria-hidden />}
                             >
                               {vedlegg.tittel || "Vedlegg"}
                             </Button>
                           ))}
+                          {feilmelding && (
+                            <InlineMessage status="error" size="small">
+                              {feilmelding}
+                            </InlineMessage>
+                          )}
                         </VStack>
                       ) : (
                         <BodyShort>Fant ingen tilgjengelige dokumenter</BodyShort>
@@ -386,13 +396,6 @@ export function UtbetalingDetaljerPage() {
             utbetalingId={utbetaling.id}
             open={modalVariant === UtbetalingHandling.SLETT}
             onClose={() => setModalVariant(null)}
-          />
-          <UtbetalingVedleggModal
-            open={valgtVedlegg !== null}
-            onClose={() => setValgtVedlegg(null)}
-            dokumentInfoId={valgtVedlegg?.dokumentInfoId ?? ""}
-            utbetalingId={utbetaling.id}
-            title={valgtVedlegg?.tittel || "Vedlegg"}
           />
         </HStack>
       </VStack>

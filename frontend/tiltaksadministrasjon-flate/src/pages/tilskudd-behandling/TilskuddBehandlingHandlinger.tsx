@@ -1,18 +1,17 @@
 import { useTilskuddBehandling } from "@/api/tilskudd-behandling/useTilskuddBehandling";
-import { useVedtaksbrevPdfBlob } from "@/api/tilskudd-behandling/useVedtaksbrevPdfBlob";
+import { fetchVedtaksbrevPdfBlob } from "@/api/tilskudd-behandling/useVedtaksbrevPdfBlob";
 import { Endringshistorikk } from "@/components/endringshistorikk/Endringshistorikk";
 import { Handlinger } from "@/components/handlinger/Handlinger";
-import { ForhandsvisningPdfModal } from "@/components/tilskudd-behandling/ForhandsvisningPdfModal";
+import { useOpenPdfInNewTab } from "@/hooks/useOpenPdfInNewTab";
 import { KnapperadContainer } from "@/layouts/KnapperadContainer";
 import { erTilBeslutning } from "@/utils/totrinnskontroll";
 import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
 import { FilePdfIcon, PencilFillIcon } from "@navikt/aksel-icons";
-import { Button } from "@navikt/ds-react";
+import { Button, InlineMessage } from "@navikt/ds-react";
 import {
   EndringshistorikkType,
   TilskuddBehandlingHandling,
 } from "@tiltaksadministrasjon/api-client";
-import { useState } from "react";
 
 export function TilskuddBehandlingHandlinger({
   tilskuddBehandlingId,
@@ -23,12 +22,7 @@ export function TilskuddBehandlingHandlinger({
     data: { behandling, handlinger, opprettelse },
   } = useTilskuddBehandling(tilskuddBehandlingId);
 
-  const [pdfPreviewOpen, setPdfPreviewOpen] = useState(false);
-  const {
-    data: pdfBlob,
-    isLoading: pdfIsLoading,
-    isError: pdfIsError,
-  } = useVedtaksbrevPdfBlob(tilskuddBehandlingId, pdfPreviewOpen);
+  const { open, feilmelding } = useOpenPdfInNewTab();
 
   return (
     <>
@@ -37,11 +31,16 @@ export function TilskuddBehandlingHandlinger({
           <Button
             variant="tertiary"
             size="small"
-            onClick={() => setPdfPreviewOpen(true)}
+            onClick={() => open(() => fetchVedtaksbrevPdfBlob(tilskuddBehandlingId))}
             icon={<FilePdfIcon aria-hidden />}
           >
             Vis vedtaksbrev
           </Button>
+        )}
+        {feilmelding && (
+          <InlineMessage status="error" size="small">
+            {feilmelding}
+          </InlineMessage>
         )}
         <Endringshistorikk id={behandling.id} type={EndringshistorikkType.TILSKUDD_BEHANDLING} />
         <Handlinger
@@ -61,14 +60,6 @@ export function TilskuddBehandlingHandlinger({
         />
       </KnapperadContainer>
       <Separator />
-      <ForhandsvisningPdfModal
-        blob={pdfBlob}
-        isLoading={pdfIsLoading}
-        isError={pdfIsError}
-        open={pdfPreviewOpen}
-        onClose={() => setPdfPreviewOpen(false)}
-        title="Forhåndsvisning av vedtaksbrev"
-      />
     </>
   );
 }
