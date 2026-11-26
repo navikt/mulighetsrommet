@@ -66,11 +66,6 @@ data class KafkaConsumers(
         topic = "team-mulighetsrommet.siste-tiltaksgjennomforinger-v2",
         consumerProperties = KafkaPropertiesPreset.aivenDefaultConsumerProperties("tiltakshistorikk.gjennomforing.v2"),
     ),
-    val replikerAmtDeltaker: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
-        id = "replilker-amt-deltaker",
-        topic = "amt.deltaker-v1",
-        consumerProperties = KafkaPropertiesPreset.aivenDefaultConsumerProperties("tiltakshistorikk.deltaker.v1"),
-    ),
     val replikerAmtDeltakerEkstern: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
         id = "repliker-amt-deltaker-ekstern",
         topic = "amt.deltaker-ekstern-v1",

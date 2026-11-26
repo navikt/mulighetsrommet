@@ -18,7 +18,6 @@ import no.nav.mulighetsrommet.ktor.plugins.configureMetrics
 import no.nav.mulighetsrommet.ktor.plugins.configureMonitoring
 import no.nav.tiltak.historikk.db.TiltakshistorikkDatabase
 import no.nav.tiltak.historikk.kafka.consumers.ReplikerAmtDeltakerEksternV1KafkaConsumer
-import no.nav.tiltak.historikk.kafka.consumers.ReplikerAmtDeltakerV1KafkaConsumer
 import no.nav.tiltak.historikk.kafka.consumers.ReplikerAmtVirksomheterV1KafkaConsumer
 import no.nav.tiltak.historikk.kafka.consumers.ReplikerSisteTiltaksgjennomforingerV2KafkaConsumer
 import no.nav.tiltak.historikk.kafka.consumers.ReplikerSisteTiltakstyperV3KafkaConsumer
@@ -117,9 +116,6 @@ fun Application.configureKafka(
         ),
         config.consumers.replikerSisteTiltaksgjennomforinger to ReplikerSisteTiltaksgjennomforingerV2KafkaConsumer(
             GjennomforingReplikering(db, virksomheter),
-        ),
-        config.consumers.replikerAmtDeltaker to ReplikerAmtDeltakerV1KafkaConsumer(
-            KometDeltakerReplikering(db),
         ),
         config.consumers.replikerAmtDeltakerEkstern to ReplikerAmtDeltakerEksternV1KafkaConsumer(
             KometDeltakerReplikering(db),
