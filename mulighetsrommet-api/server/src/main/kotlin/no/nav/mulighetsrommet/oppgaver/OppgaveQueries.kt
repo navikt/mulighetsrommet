@@ -266,6 +266,7 @@ class OppgaveQueries(private val session: Session) {
                 arrangor.id as arrangor_id,
                 arrangor.organisasjonsnummer as arrangor_organisasjonsnummer
             FROM utbetaling_linje
+            INNER JOIN utbetaling ON utbetaling.id = utbetaling_linje.utbetaling_id
             INNER JOIN tilsagn ON tilsagn.id = utbetaling_linje.tilsagn_id
             INNER JOIN nav_enhet ON tilsagn.kostnadssted = nav_enhet.enhetsnummer
             INNER JOIN gjennomforing ON gjennomforing.id = tilsagn.gjennomforing_id
@@ -278,7 +279,8 @@ class OppgaveQueries(private val session: Session) {
                 ORDER BY entity_id, behandlet_tidspunkt DESC
             ) tk ON tk.entity_id = utbetaling_linje.id
             WHERE
-                (:tiltakskoder::text[] IS NULL OR tiltakstype.tiltakskode = ANY(:tiltakskoder))
+                utbetaling.status NOT IN ('TIL_AVBRYTELSE', 'AVBRUTT')
+                AND (:tiltakskoder::text[] IS NULL OR tiltakstype.tiltakskode = ANY(:tiltakskoder))
                 AND (:kostnadssteder::text[] IS NULL OR tilsagn.kostnadssted = ANY(:kostnadssteder))
                 AND (:arrangorer::uuid[] IS NULL OR arrangor.id = ANY(:arrangorer))
         """.trimIndent()
