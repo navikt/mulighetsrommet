@@ -69,6 +69,13 @@ spec:
   accessPolicy:
     inbound:
       rules:
+        # Kan benyttes til å teste APIet med eget token i dev
+        # - https://docs.nais.io/auth/entra-id/how-to/generate/index.html
+        - application: azure-token-generator
+          namespace: nais
+          permissions:
+            roles:
+              - tiltakshistorikk-read
         - application: mulighetsrommet-api
           permissions:
             roles:
