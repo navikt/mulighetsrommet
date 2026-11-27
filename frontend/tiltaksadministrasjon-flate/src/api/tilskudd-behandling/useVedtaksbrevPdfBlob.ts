@@ -1,5 +1,4 @@
 import { useApiMutation } from "@/hooks/useApiMutation";
-import { useQuery } from "@tanstack/react-query";
 import {
   ProblemDetail,
   TilskuddBehandlingRequest,
@@ -11,16 +10,6 @@ export async function fetchVedtaksbrevPdfBlob(behandlingId: string): Promise<Blo
     path: { id: behandlingId },
   });
   return result.data as Blob;
-}
-
-export function useVedtaksbrevPdfBlob(behandlingId: string, enabled: boolean) {
-  return useQuery({
-    queryKey: ["vedtaksbrev-pdf", behandlingId],
-    queryFn: () => fetchVedtaksbrevPdfBlob(behandlingId),
-    enabled,
-    staleTime: Infinity,
-    gcTime: 0,
-  });
 }
 
 export function useVedtaksbrevPdfBlobPost() {

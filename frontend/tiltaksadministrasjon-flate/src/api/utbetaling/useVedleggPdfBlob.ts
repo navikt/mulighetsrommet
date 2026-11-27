@@ -1,4 +1,3 @@
-import { useQuery } from "@tanstack/react-query";
 import { UtbetalingService } from "@tiltaksadministrasjon/api-client";
 import { useApiQuery } from "@mr/frontend-common";
 
@@ -17,16 +16,5 @@ export function useVedleggForUtbetaling(utbetalingId: string) {
     queryKey: ["utbetalingVedlegg", utbetalingId],
     queryFn: async () => UtbetalingService.getUtbetalingVedleggData({ path: { id: utbetalingId } }),
     throwOnError: false,
-  });
-}
-
-export function useVedleggPdfBlob(utbetalingId: string, dokumentInfoId: string) {
-  return useQuery({
-    queryKey: ["utbetalingVedleggPdf", utbetalingId, dokumentInfoId],
-    queryFn: () => fetchVedleggPdfBlob(utbetalingId, dokumentInfoId),
-    throwOnError: false,
-    enabled: !!utbetalingId && !!dokumentInfoId,
-    staleTime: Infinity,
-    gcTime: 0,
   });
 }
