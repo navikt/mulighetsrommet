@@ -1962,7 +1962,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                     Json.decodeFromString<TotrinnskontrollHendelse>(record.value.decodeToString()).should {
                         it.status shouldBe TotrinnskontrollHendelse.Status.GODKJENT
                         it.behandletAv shouldBe TotrinnskontrollAgent.NavAnsatt(NavAnsattFixture.DonaldDuck.navIdent)
-                        it.behandletBegrunnelse shouldBe "Migrert fra Arena"
+                        it.behandletBegrunnelse shouldBe "Overført fra Arena"
                         it.besluttetAv shouldBe TotrinnskontrollAgent.System("Tiltaksadministrasjon")
                     }
                 }

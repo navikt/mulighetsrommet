@@ -6,7 +6,7 @@ import { ToolbarContainer } from "@mr/frontend-common/components/toolbar/toolbar
 import { ToolbarMeny } from "@mr/frontend-common/components/toolbar/toolbarMeny/ToolbarMeny";
 import { BodyShort, InfoCard, Link, Pagination, Table, Tag, VStack } from "@navikt/ds-react";
 import { InformationSquareIcon } from "@navikt/aksel-icons";
-import React from "react";
+import React, { useState } from "react";
 import { PagineringsOversikt } from "@/components/paginering/PagineringOversikt";
 import { PagineringContainer } from "@/components/paginering/PagineringContainer";
 import { GjennomforingFilterType } from "@/pages/gjennomforing/filter";
@@ -46,6 +46,11 @@ export function GjennomforingTable({
   } = useGjennomforinger(filter);
 
   const [lasterExcel, lastNedExcel] = useDownloadGjennomforingerAsExcel(filter);
+  const arenaEnkeltplassSok =
+    tilbyMigrering &&
+    debouncedSearch === filter.search.trim() &&
+    erArenaEnkeltplassSok(debouncedSearch);
+  const [harArenaEnkeltplasser, setHarArenaEnkeltplasser] = useState(false);
 
   const handleSort = (sortKey: string) => {
     // Hvis man bytter sortKey starter vi med ascending
@@ -85,18 +90,22 @@ export function GjennomforingTable({
           <EksporterTabellKnapp lastNedExcel={lastNedExcel} lasterExcel={lasterExcel} />
         </ToolbarMeny>
       </ToolbarContainer>
-      {tilbyMigrering &&
-        debouncedSearch === filter.search.trim() &&
-        erArenaEnkeltplassSok(debouncedSearch) && (
-          <ArenaEnkeltplassSok key={debouncedSearch} search={debouncedSearch} />
-        )}
+      {arenaEnkeltplassSok && (
+        <ArenaEnkeltplassSok
+          key={debouncedSearch}
+          search={debouncedSearch}
+          onResultsChange={setHarArenaEnkeltplasser}
+        />
+      )}
       <TabellWrapper>
         {gjennomforinger.length === 0 ? (
-          <InfoCard data-color="info">
-            <InfoCard.Message icon={<InformationSquareIcon aria-hidden />}>
-              Fant ingen tiltaksgjennomføringer
-            </InfoCard.Message>
-          </InfoCard>
+          arenaEnkeltplassSok && harArenaEnkeltplasser ? null : (
+            <InfoCard data-color="info">
+              <InfoCard.Message icon={<InformationSquareIcon aria-hidden />}>
+                Fant ingen tiltaksgjennomføringer
+              </InfoCard.Message>
+            </InfoCard>
+          )
         ) : (
           <Table
             sort={sort}

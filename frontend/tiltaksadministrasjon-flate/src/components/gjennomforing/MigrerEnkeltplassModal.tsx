@@ -84,7 +84,7 @@ export function MigrerEnkeltplassModal({
     <Modal
       open
       onClose={() => !pending && onClose()}
-      header={{ heading: "Migrer enkeltplass" }}
+      header={{ heading: "Overfør enkeltplass" }}
       width="900px"
     >
       <FormProvider {...form}>
@@ -178,7 +178,7 @@ export function MigrerEnkeltplassModal({
                     </VStack>
                   </Fieldset>
                   <BodyShort>
-                    Gjennomføringen endres først når du trykker «Migrer enkeltplass».
+                    Enkeltplassen overføres når du trykker «Overfør enkeltplass».
                   </BodyShort>
                 </VStack>
               </Box>
@@ -188,7 +188,7 @@ export function MigrerEnkeltplassModal({
         <Modal.Footer>
           <FormButtons
             form={formId}
-            submitLabel="Migrer enkeltplass"
+            submitLabel="Overfør enkeltplass"
             isPending={pending}
             onCancel={onClose}
           />

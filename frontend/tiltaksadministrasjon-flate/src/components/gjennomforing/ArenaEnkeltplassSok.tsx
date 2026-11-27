@@ -6,11 +6,24 @@ import {
   useFinnArenaEnkeltplass,
 } from "@/api/gjennomforing/useMigrerEnkeltplass";
 import { ArenaEnkeltplassKort } from "./ArenaEnkeltplassKort";
+import { useEffect } from "react";
 
-export function ArenaEnkeltplassSok({ search }: { search: string }) {
+export function ArenaEnkeltplassSok({
+  search,
+  onResultsChange,
+}: {
+  search: string;
+  onResultsChange: (harEnkeltplasser: boolean) => void;
+}) {
   const { data: handlinger } = useEnkeltplassHandlinger();
   const kanMigrere = handlinger.includes(GjennomforingHandling.MIGRER_ENKELTPLASS);
   const { data, error, refetch } = useFinnArenaEnkeltplass(search, kanMigrere);
+  const harEnkeltplasser = kanMigrere && !error && !!data?.length;
+
+  useEffect(() => {
+    onResultsChange(harEnkeltplasser);
+    return () => onResultsChange(false);
+  }, [harEnkeltplasser, onResultsChange]);
 
   if (!kanMigrere) {
     return null;

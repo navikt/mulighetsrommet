@@ -26,10 +26,9 @@ export function ArenaEnkeltplassKort({ kandidat }: { kandidat: ArenaEnkeltplassD
                 {kandidat.arrangor.navn} ({kandidat.arrangor.organisasjonsnummer})
               </BodyShort>
               <BodyShort>
-                Denne enkeltplassen er i Arena og må migreres for å kunne benyttes i
+                Denne enkeltplassen er i Arena og må overføres for å kunne gjøre økonomibehandling i
                 Tiltaksadministrasjon.
               </BodyShort>
-              <BodyShort>Trykk «Migrer fra Arena» for å migrere enkeltplassen.</BodyShort>
             </VStack>
             <Tag
               size="small"
@@ -37,7 +36,7 @@ export function ArenaEnkeltplassKort({ kandidat }: { kandidat: ArenaEnkeltplassD
               data-color="meta-purple"
               icon={<MigrationIcon aria-hidden />}
             >
-              Må migreres
+              Må overføres
             </Tag>
           </VStack>
           <Button
@@ -45,10 +44,10 @@ export function ArenaEnkeltplassKort({ kandidat }: { kandidat: ArenaEnkeltplassD
             variant="primary"
             data-color="accent"
             icon={<MigrationIcon aria-hidden />}
-            aria-label={`Migrer ${kandidat.tiltaksnummer} fra Arena`}
+            aria-label={`Overfør ${kandidat.tiltaksnummer} fra Arena`}
             onClick={() => setOpen(true)}
           >
-            Migrer fra Arena
+            Overfør fra Arena
           </Button>
         </HStack>
       </Box>
