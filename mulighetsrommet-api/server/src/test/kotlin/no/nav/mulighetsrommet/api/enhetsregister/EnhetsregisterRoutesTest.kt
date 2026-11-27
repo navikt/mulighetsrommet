@@ -71,6 +71,28 @@ class EnhetsregisterRoutesTest : FunSpec({
                 }
             }
 
+            test("200 uten slettede underenheter") {
+                val localAppConfig = appConfig().copy(
+                    engine = createMockEngine {
+                        get("https://data.brreg.no/enhetsregisteret/api/underenheter/974567989") {
+                            respondJson(BrregFixtures.UNDERENHET_SLETTET)
+                        }
+                    },
+                )
+                withTestApplication(localAppConfig) {
+                    val response = client.get(sokUrl("974567989")) {
+                        bearerAuth(
+                            oauth.issueToken(claims = withApplicationRoles(AppRoles.READ_GJENNOMFORING)).serialize(),
+                        )
+                    }
+
+                    response.status shouldBe HttpStatusCode.OK
+
+                    val responseBody = response.body<List<Virksomhet.Underenhet>>()
+                    responseBody.size shouldBe 0
+                }
+            }
+
             test("200 tom liste ved tomt resultat") {
                 val localAppConfig = appConfig().copy(
                     engine = createMockEngine {
