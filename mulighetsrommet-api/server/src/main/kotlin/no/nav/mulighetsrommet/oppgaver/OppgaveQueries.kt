@@ -611,9 +611,7 @@ class OppgaveQueries(private val session: Session) {
                 arrangor.organisasjonsnummer as arrangor_organisasjonsnummer
             from tilskudd_behandling tb
                 inner join lateral (
-                    select
-                        periode,
-                        kostnadssted
+                    select periode
                     from tilskudd_vedtak
                     where tilskudd_behandling_id = tb.id
                     order by lopenummer
@@ -639,7 +637,12 @@ class OppgaveQueries(private val session: Session) {
             where
                 tb.status in ('TIL_GODKJENNING', 'RETURNERT')
                 and (:tiltakskoder::text[] is null or tiltakstype.tiltakskode = any(:tiltakskoder))
-                and (:kostnadssteder::text[] is null or tv.kostnadssted = any(:kostnadssteder))
+                and (:kostnadssteder::text[] is null or exists (
+                    select 1
+                    from tilskudd_vedtak v
+                    where v.tilskudd_behandling_id = tb.id
+                      and v.kostnadssted = any(:kostnadssteder)
+                ))
                 and (:arrangorer::uuid[] is null or arrangor.id = any(:arrangorer))
         """.trimIndent()
 

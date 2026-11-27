@@ -484,26 +484,13 @@ private fun tilAvbrytelseOppgave(data: UtbetalingBehandlingOppgaveData, ansatt: 
     createdAt = data.avbrytelseBehandletTidspunkt ?: data.createdAt,
     arrangor = data.arrangor,
 ).takeIf {
-    if (data.kostnadssteder.isEmpty()) {
-        OkonomiAuthorization.erAttestantUtbetaling(
-            ansatt,
-            OkonomiBeslutningContext(
-                gjennomforingType = data.gjennomforing.type,
-                kostnadssteder = setOf(data.ansvarligEnhet.nummer).toNonEmptySetOrThrow(),
-            ),
-        ).isRight()
-    } else {
-        data.kostnadssteder
-            .any {
-                OkonomiAuthorization.erAttestantUtbetaling(
-                    ansatt,
-                    OkonomiBeslutningContext(
-                        gjennomforingType = data.gjennomforing.type,
-                        kostnadssteder = setOf(it).toNonEmptySetOrThrow(),
-                    ),
-                ).isRight()
-            } && data.avbrytelseBehandletAv != ansatt.navIdent
-    }
+    data.avbrytelseBehandletAv != ansatt.navIdent && OkonomiAuthorization.erAttestantUtbetaling(
+        ansatt,
+        OkonomiBeslutningContext(
+            gjennomforingType = data.gjennomforing.type,
+            kostnadssteder = nonEmptySetOf(data.ansvarligEnhet.nummer),
+        ),
+    ).isRight()
 }
 
 private fun AvtaleManglerAdministratorOppgaveData.toOppgave(ansatt: NavAnsatt) = Oppgave(

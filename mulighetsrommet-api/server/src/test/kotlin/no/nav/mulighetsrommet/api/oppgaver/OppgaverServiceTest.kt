@@ -1005,6 +1005,48 @@ class OppgaverServiceTest : FunSpec({
             )
         }
 
+        test("avbrytelsesoppgave krever attestant ved ansvarlig enhet, ikke tilsagnets kostnadssted") {
+            val utbetaling = UtbetalingFixtures.utbetaling1.copy(status = UtbetalingStatusType.TIL_BEHANDLING)
+            MulighetsrommetTestDomain(
+                navEnheter = listOf(NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik, NavEnhetFixtures.Oslo),
+                avtaler = listOf(AvtaleFixtures.AFT),
+                gjennomforinger = listOf(AFT1.copy(ansvarligEnhet = NavEnhetFixtures.Oslo.enhetsnummer)),
+                tilsagn = listOf(TilsagnFixtures.Tilsagn1.copy(kostnadssted = NavEnhetFixtures.Innlandet.enhetsnummer)),
+                utbetalinger = listOf(utbetaling),
+            ) {
+                val lagret = queries.utbetaling.get(utbetaling.id).shouldNotBeNull()
+                queries.utbetaling.save(
+                    lagret.settTilAbrytelse(
+                        agent = NavAnsattFixture.DonaldDuck.navIdent,
+                        aarsaker = listOf("ANNET"),
+                        begrunnelse = "Skal ikke utbetales",
+                    ).shouldBeRight(),
+                )
+            }.initialize(database.api)
+
+            val service = OppgaverService(database.api)
+            forAll(
+                row(
+                    NavAnsattFixture.MikkeMus,
+                    NavEnhetFixtures.Oslo.enhetsnummer,
+                    listOf(PartialOppgave(utbetaling.id, OppgaveType.UTBETALING_TIL_AVBRYTELSE)),
+                ),
+                row(NavAnsattFixture.MikkeMus, NavEnhetFixtures.Innlandet.enhetsnummer, emptyList()),
+                row(NavAnsattFixture.DonaldDuck, NavEnhetFixtures.Oslo.enhetsnummer, emptyList()),
+            ) { ansatt, enhet, forventet ->
+                val attestant = ansatt.medRoller(
+                    setOf(NavAnsattRolle.kontorspesifikk(Rolle.OKONOMI_ATTESTANT_GRUPPETILTAK, setOf(enhet))),
+                )
+                service.oppgaver(
+                    oppgavetyper = setOf(OppgaveType.UTBETALING_TIL_AVBRYTELSE),
+                    tiltakskoder = setOf(),
+                    navEnheter = setOf(),
+                    arrangorer = setOf(),
+                    ansatt = attestant,
+                ) shouldMatchAllOppgaver forventet
+            }
+        }
+
         test("Skal bruke gjennomføringens Nav-enheter for utbetaling uten tilsagn") {
             MulighetsrommetTestDomain(
                 avtaler = listOf(AvtaleFixtures.AFT),
@@ -1636,6 +1678,52 @@ class OppgaverServiceTest : FunSpec({
             ) shouldMatchAllOppgaver listOf(
                 PartialOppgave(behandling.id, OppgaveType.TILSKUDDBEHANDLING_TIL_GODKJENNING),
             )
+        }
+
+        test("region-filter finner tilskuddsbehandling med treff på hvilket som helst vedtak") {
+            val behandling = TilskuddFixtures.Behandling.copy(
+                tilskudd = listOf(
+                    TilskuddFixtures.TilskuddVedtakInnvilgelse.copy(kostnadssted = NavEnhetFixtures.Innlandet.enhetsnummer),
+                    TilskuddFixtures.TilskuddVedtakAvslag.copy(kostnadssted = NavEnhetFixtures.Oslo.enhetsnummer),
+                ),
+            )
+            MulighetsrommetTestDomain(
+                navEnheter = listOf(NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik, NavEnhetFixtures.Oslo),
+                gjennomforinger = listOf(GjennomforingDboFixtures.EnkelAmo),
+            ) {
+                queries.tilskuddBehandling.upsert(behandling)
+                setTilBehandling(
+                    behandling.id,
+                    TotrinnskontrollType.TILSKUDD_OPPRETTELSE,
+                    behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
+                )
+            }.initialize(database.api)
+
+            val service = OppgaverService(database.api)
+            val ansatt = NavAnsattFixture.MikkeMus.medRoller(
+                setOf(
+                    NavAnsattRolle.kontorspesifikk(
+                        Rolle.OKONOMI_BESLUTTER_ENKELTPLASS,
+                        setOf(NavEnhetFixtures.Innlandet.enhetsnummer, NavEnhetFixtures.Oslo.enhetsnummer),
+                    ),
+                ),
+            )
+            val forventet = listOf(PartialOppgave(behandling.id, OppgaveType.TILSKUDDBEHANDLING_TIL_GODKJENNING))
+            forAll(
+                row(emptySet(), forventet),
+                row(setOf(NavEnhetFixtures.Innlandet.enhetsnummer), forventet),
+                row(setOf(NavEnhetFixtures.Oslo.enhetsnummer), forventet),
+                row(setOf(NavEnhetFixtures.Innlandet.enhetsnummer, NavEnhetFixtures.Oslo.enhetsnummer), forventet),
+                row(setOf(NavEnhetFixtures.Gjovik.enhetsnummer), emptyList()),
+            ) { navEnheter, forventedeOppgaver ->
+                service.oppgaver(
+                    oppgavetyper = setOf(OppgaveType.TILSKUDDBEHANDLING_TIL_GODKJENNING),
+                    tiltakskoder = setOf(),
+                    navEnheter = navEnheter,
+                    arrangorer = setOf(),
+                    ansatt = ansatt,
+                ) shouldMatchAllOppgaver forventedeOppgaver
+            }
         }
 
         test("beslutter som selv har opprettet behandling ser ikke oppgave") {
