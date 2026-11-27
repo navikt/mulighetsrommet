@@ -39,7 +39,9 @@ fun Route.enhetsregisterRoutes() {
             }
         }) {
             val sok: String by call.request.queryParameters
-            val result = enhetsregister.sokHovedenheter(sok).mapLeft { it.toProblemDetail() }
+            val result = enhetsregister.sokHovedenheter(sok)
+                .map { hovedenheter -> hovedenheter.filter { it.slettetDato == null } }
+                .mapLeft { it.toProblemDetail() }
             call.respondWithStatusResponse(result)
         }
 
@@ -72,7 +74,9 @@ fun Route.enhetsregisterRoutes() {
             }
         }) {
             val sok: String by call.parameters
-            val result = enhetsregister.sokUnderenheter(sok).mapLeft { it.toProblemDetail() }
+            val result = enhetsregister.sokUnderenheter(sok)
+                .map { underenheter -> underenheter.filter { it.slettetDato == null } }
+                .mapLeft { it.toProblemDetail() }
             call.respondWithStatusResponse(result)
         }
 
