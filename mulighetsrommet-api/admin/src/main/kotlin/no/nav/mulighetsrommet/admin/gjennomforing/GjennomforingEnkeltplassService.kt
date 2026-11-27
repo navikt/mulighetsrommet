@@ -251,7 +251,7 @@ class GjennomforingEnkeltplassService(
             commands.gjennomforing.acquireLock(command.id)
             migrerFraArena(command.id, command.prismodell, norskIdent)
                 .flatMap { gjennomforing ->
-                    opprettOgGodkjennOkonomi(gjennomforing.id, context.navIdent, endring = "Migrert fra Arena")
+                    opprettOgGodkjennOkonomi(gjennomforing.id, context.navIdent, endring = "Overført fra Arena")
                 }
                 .mapLeft { MigrerEnkeltplassError.Valideringsfeil(it) }
         }
@@ -267,7 +267,7 @@ class GjennomforingEnkeltplassService(
             commands.gjennomforing.acquireLock(command.id)
             migrerFraArena(command.id, command.prismodell, norskIdent)
                 .map { gjennomforing ->
-                    settOkonomiTilGodkjenning(gjennomforing.id, behandling, operation = "Migrert fra Arena")
+                    settOkonomiTilGodkjenning(gjennomforing.id, behandling, operation = "Overført fra Arena")
                 }
                 .mapLeft { MigrerEnkeltplassError.Valideringsfeil(it) }
         }
