@@ -47,6 +47,7 @@ import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.oppgaver.Oppgave
 import no.nav.mulighetsrommet.oppgaver.OppgaveType
 import no.nav.mulighetsrommet.oppgaver.OppgaverService
+import java.time.Instant
 import java.time.LocalDate
 import java.util.UUID
 
@@ -830,6 +831,90 @@ class OppgaverServiceTest : FunSpec({
     }
 
     context("utbetalinger") {
+        test("utbetaling til avbrytelse erstatter oppgaven for returnert utbetalingslinje") {
+            val utbetaling = UtbetalingFixtures.utbetaling1.copy(status = UtbetalingStatusType.RETURNERT)
+            val linje = UtbetalingFixtures.utbetalingLinje1
+            MulighetsrommetTestDomain(
+                avtaler = listOf(AvtaleFixtures.AFT),
+                gjennomforinger = listOf(AFT1),
+                tilsagn = listOf(TilsagnFixtures.Tilsagn1),
+                utbetalinger = listOf(utbetaling),
+                utbetalingLinjer = listOf(linje),
+            ) {
+                setTilsagnStatus(TilsagnFixtures.Tilsagn1, TilsagnStatus.GODKJENT)
+                setUtbetalingLinjeStatus(
+                    linje,
+                    UtbetalingLinjeStatus.RETURNERT,
+                    besluttetTidspunkt = Instant.parse("2025-02-01T12:00:00Z"),
+                )
+            }.initialize(database.api)
+
+            val service = OppgaverService(database.api)
+            val ansatt = NavAnsattFixture.MikkeMus.medRoller(
+                setOf(
+                    NavAnsattRolle.generell(Rolle.OKONOMI_SAKSBEHANDLER_GRUPPETILTAK),
+                    NavAnsattRolle.generell(Rolle.OKONOMI_ATTESTANT_GRUPPETILTAK),
+                ),
+            )
+            val oppgavetyper = setOf(OppgaveType.UTBETALING_RETURNERT, OppgaveType.UTBETALING_TIL_AVBRYTELSE)
+
+            service.oppgaver(oppgavetyper, setOf(), setOf(), setOf(), ansatt) shouldMatchAllOppgaver listOf(
+                PartialOppgave(linje.id, OppgaveType.UTBETALING_RETURNERT),
+            )
+
+            database.api.transaction {
+                val lagret = queries.utbetaling.get(utbetaling.id).shouldNotBeNull()
+                val tilAvbrytelse = lagret.settTilAbrytelse(
+                    agent = NavAnsattFixture.DonaldDuck.navIdent,
+                    aarsaker = listOf("ANNET"),
+                    begrunnelse = "Skal ikke utbetales",
+                ).shouldBeRight()
+                queries.utbetaling.save(tilAvbrytelse)
+                queries.utbetaling.get(utbetaling.id).shouldNotBeNull().status shouldBe UtbetalingStatusType.TIL_AVBRYTELSE
+                queries.utbetalingLinje.get(linje.id).shouldNotBeNull().status shouldBe UtbetalingLinjeStatus.RETURNERT
+            }
+
+            service.oppgaver(oppgavetyper, setOf(), setOf(), setOf(), ansatt) shouldMatchAllOppgaver listOf(
+                PartialOppgave(utbetaling.id, OppgaveType.UTBETALING_TIL_AVBRYTELSE),
+            )
+            service.oppgaver(
+                setOf(OppgaveType.UTBETALING_RETURNERT),
+                setOf(),
+                setOf(),
+                setOf(),
+                ansatt,
+            ).shouldBeEmpty()
+            service.oppgaver(
+                setOf(OppgaveType.UTBETALING_TIL_AVBRYTELSE),
+                setOf(),
+                setOf(),
+                setOf(),
+                ansatt,
+            ) shouldMatchAllOppgaver listOf(PartialOppgave(utbetaling.id, OppgaveType.UTBETALING_TIL_AVBRYTELSE))
+
+            database.api.transaction {
+                val lagret = queries.utbetaling.get(utbetaling.id).shouldNotBeNull()
+                queries.utbetaling.save(lagret.godkjennAvbrytelse(ansatt.navIdent).shouldBeRight())
+                queries.utbetaling.get(utbetaling.id).shouldNotBeNull().status shouldBe UtbetalingStatusType.AVBRUTT
+            }
+
+            service.oppgaver(oppgavetyper, setOf(), setOf(), setOf(), ansatt).shouldBeEmpty()
+        }
+
+        test("filter for utbetaling til avbrytelse er tilgjengelig for attestant, ikke beslutter eller saksbehandler") {
+            val service = OppgaverService(database.api)
+            forAll(
+                row(Rolle.OKONOMI_ATTESTANT_GRUPPETILTAK, listOf(OppgaveType.UTBETALING_TIL_AVBRYTELSE)),
+                row(Rolle.OKONOMI_BESLUTTER_GRUPPETILTAK, emptyList()),
+                row(Rolle.OKONOMI_SAKSBEHANDLER_GRUPPETILTAK, emptyList()),
+            ) { rolle, forventet ->
+                val ansatt = NavAnsattFixture.MikkeMus.medRoller(setOf(NavAnsattRolle.generell(rolle)))
+                service.getOppgavetyper(ansatt)
+                    .map { it.type }
+                    .filter { it == OppgaveType.UTBETALING_TIL_AVBRYTELSE } shouldBe forventet
+            }
+        }
+
         test("enkeltplassutbetaling til behandling krever enkeltplass-saksbehandler") {
             val enkeltplassSaksbehandler = NavAnsattFixture.DonaldDuck.medRoller(
                 setOf(NavAnsattRolle.generell(Rolle.OKONOMI_SAKSBEHANDLER_ENKELTPLASS)),
