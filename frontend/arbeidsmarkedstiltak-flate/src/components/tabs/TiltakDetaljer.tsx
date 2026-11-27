@@ -68,7 +68,9 @@ export function TiltakDetaljer({ tiltak }: Props) {
             {tiltak.faneinnhold?.oppskrift ? (
               <PortableText value={tiltak.faneinnhold.oppskrift} />
             ) : null}
-            {oppskrifterEnabled && <OppskriftOversikt tiltakskode={tiltakstype.tiltakskode} />}
+            {oppskrifterEnabled && (
+              <OppskriftOversikt tiltakskode={tiltakstype.tiltakskode} regioner={tiltak.fylker} />
+            )}
           </Tabs.Panel>
         </ErrorBoundary>
       </Box>

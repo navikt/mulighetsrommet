@@ -13,12 +13,14 @@ import { formaterDato } from "@/utils/Utils";
 import { Suspense } from "react";
 import { Melding } from "../melding/Melding";
 import { Oppskrift } from "./Oppskrift";
+import { trackUmamiEvent } from "@/sporing/umami";
 
 interface Props {
   tiltakskode: Tiltakskode;
+  regioner: string[];
 }
 
-export function OppskriftOversikt({ tiltakskode }: Props) {
+export function OppskriftOversikt({ tiltakskode, regioner }: Props) {
   const { data: oppskrifter } = useOppskrifter(tiltakskode);
 
   if (!oppskrifter) return null;
@@ -41,6 +43,15 @@ export function OppskriftOversikt({ tiltakskode }: Props) {
               data-color="info"
               className="hover:bg-ax-info-100 cursor-pointer text-left"
               aria-label={o.navn}
+              onToggle={(open) => {
+                if (!open) return;
+                trackUmamiEvent("accordion åpnet", {
+                  origin: "arbeidsmarkedstiltak",
+                  tekst: "Oppskrift",
+                  tiltakstype: tiltakskode,
+                  region: [...regioner].sort().join(","),
+                });
+              }}
             >
               <ExpansionCard.Header>
                 <ExpansionCard.Title>
